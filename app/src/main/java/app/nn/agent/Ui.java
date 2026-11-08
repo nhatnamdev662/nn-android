@@ -913,11 +913,13 @@ final class Ui {
             it.setOnClickListener(v -> {
                 if (idx == active) return;
                 Intent in = new Intent(a, (Class<?>) items[idx][2]).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                // Chats is the root: go back to it instead of stacking another copy
                 if (idx == NAV_CHATS) in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 a.startActivity(in);
                 a.overridePendingTransition(0, 0);
-                if (!(a instanceof MainActivity)) a.finish();
+                if (!(a instanceof MainActivity)) {
+                    a.finish();
+                    a.overridePendingTransition(0, 0);
+                }
             });
             bar.addView(it, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         }

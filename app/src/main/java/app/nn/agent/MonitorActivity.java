@@ -173,7 +173,9 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
     }
 
     private void showProcs(JSONArray procs) {
+        if (running.getHeight() > 0) running.setMinimumHeight(running.getHeight());
         running.removeAllViews();
+        running.post(() -> running.setMinimumHeight(0));
         // Claude Code's background service isn't a conversation: list it apart, without a Stop button.
         java.util.List<JSONObject> sessions = new java.util.ArrayList<>(), services = new java.util.ArrayList<>();
         for (int i = 0; procs != null && i < procs.length(); i++) {
@@ -285,7 +287,9 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
     }
 
     private void showRecent(JSONArray list) {
+        if (recent.getHeight() > 0) recent.setMinimumHeight(recent.getHeight());
         recent.removeAllViews();
+        recent.post(() -> recent.setMinimumHeight(0));
         if (list == null || list.length() == 0) {
             recentEmpty.setText(R.string.monitor_no_history);
             recent.addView(recentEmpty);

@@ -23,6 +23,7 @@ import static app.nn.agent.Ui.*;
 public class MainActivity extends Screen implements ChatHub.Listener, Account.Listener {
     private ChatHub hub;
     private LinearLayout list;
+    private ScrollView scroll;
     /** The Archived section is open (folded by default, each time the app starts). */
     private boolean showArchived;
     private FrameLayout navSlot;
@@ -55,7 +56,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         root.setBackgroundColor(BG);
         root.setFitsSystemWindows(true);
         LinearLayout column = column(this);
-        ScrollView scroll = new ScrollView(this);
+        scroll = new ScrollView(this);
         list = column(this);
         list.setPaddingRelative(0, dp(this, 8), 0, dp(this, 96));
         scroll.addView(list);
@@ -123,6 +124,8 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
     }
 
     private void render() {
+        final int y = scroll != null ? scroll.getScrollY() : 0;
+        if (list != null && list.getHeight() > 0) list.setMinimumHeight(list.getHeight());
         list.removeAllViews();
         navSlot.removeAllViews();
         navSlot.addView(bottomNav(this, NAV_CHATS, hub.runningCount()));
@@ -260,6 +263,13 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
             es.setGravity(Gravity.CENTER);
             empty.addView(es);
             list.addView(empty, full());
+        }
+        if (scroll != null) {
+            scroll.scrollTo(0, y);
+            list.post(() -> {
+                list.setMinimumHeight(0);
+                scroll.scrollTo(0, y);
+            });
         }
     }
 

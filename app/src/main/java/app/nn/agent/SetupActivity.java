@@ -40,8 +40,11 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         build();
     }
 
+    private LinearLayout root;
+    private FrameLayout navSlot;
+
     private void build() {
-        LinearLayout root = column(this);
+        root = column(this);
         root.setBackgroundColor(BG);
         root.setFitsSystemWindows(true);
         scroll = new ScrollView(this);
@@ -49,7 +52,9 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         list.setPaddingRelative(0, dp(this, 12), 0, dp(this, 24));
         scroll.addView(list);
         root.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
-        root.addView(bottomNav(this, NAV_SETTINGS, ChatHub.get(this).runningCount()), full());
+        navSlot = new FrameLayout(this);
+        navSlot.addView(bottomNav(this, NAV_SETTINGS, ChatHub.get(this).runningCount()), full());
+        root.addView(navSlot, full());
         setContentView(root);
     }
 
@@ -158,10 +163,12 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private void themeChanged() {
         Theme.changed(this);
         rethemed();
-        int y = scroll.getScrollY();
-        build();
+        if (root != null) root.setBackgroundColor(BG);
+        if (navSlot != null) {
+            navSlot.removeAllViews();
+            navSlot.addView(bottomNav(this, NAV_SETTINGS, ChatHub.get(this).runningCount()), full());
+        }
         render();
-        scroll.post(() -> scroll.scrollTo(0, y));
     }
 
     private static final class Step {
@@ -172,6 +179,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
     private void render() {
         if (isFinishing() || isDestroyed()) return;
+        final int y = scroll != null ? scroll.getScrollY() : 0;
+        if (list.getHeight() > 0) list.setMinimumHeight(list.getHeight());
         list.removeAllViews();
 
         LinearLayout head = column(this);
@@ -789,6 +798,14 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         priv.setPaddingRelative(0, dp(this, 4), 0, dp(this, 8));
         priv.setOnClickListener(v -> openUrl(Ui.PRIVACY_URL));
         list.addView(priv, full());
+
+        if (scroll != null) {
+            scroll.scrollTo(0, y);
+            list.post(() -> {
+                list.setMinimumHeight(0);
+                scroll.scrollTo(0, y);
+            });
+        }
     }
 
     // ------------------------------------------------------------- setup card
