@@ -34,34 +34,26 @@ import java.io.OutputStream;
 
 /**
  * Full-screen theme-synchronized image viewer (lightbox) with pinch/double-tap zoom, pan,
- * save to Download/NN, and native share. Works both in Activity and floating Bubble overlay.
+ * save to Download/NN, and native share.
  */
 final class ImageViewerDialog {
 
     private ImageViewerDialog() {
     }
 
-    public static void show(final Context c, final String id) {
-        if (c == null || id == null) return;
-        if (c instanceof Activity && ((Activity) c).isFinishing()) return;
-        final File file = Attachments.file(c, id);
+    public static void show(final Activity a, final String id) {
+        if (a == null || a.isFinishing() || id == null) return;
+        final File file = Attachments.file(a, id);
         if (file == null || !file.exists()) {
-            Toast.makeText(c, c.getString(R.string.attach_cant_open, Attachments.name(id)), Toast.LENGTH_SHORT).show();
+            Toast.makeText(a, a.getString(R.string.attach_cant_open, Attachments.name(id)), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        final Dialog d = new Dialog(c, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        final Dialog d = new Dialog(a, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         final Window w = d.getWindow();
         if (w != null) {
-            if (!(c instanceof Activity)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    w.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
-                } else {
-                    w.setType(WindowManager.LayoutParams.TYPE_PHONE);
-                }
-            }
             w.setBackgroundDrawable(new ColorDrawable(0x00000000));
             w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -70,70 +62,70 @@ final class ImageViewerDialog {
             }
         }
 
-        final FrameLayout root = new FrameLayout(c);
+        final FrameLayout root = new FrameLayout(a);
         // Frosted / dark translucent backdrop synchronized with app theme
         root.setBackgroundColor(Theme.withAlpha(Ui.BG, 0xF6));
 
-        final ZoomImageView iv = new ZoomImageView(c);
+        final ZoomImageView iv = new ZoomImageView(a);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         root.addView(iv, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         // Load image bitmap or play animated GIF
-        final Bitmap fullBmp = Attachments.full(c, id);
+        final Bitmap fullBmp = Attachments.full(a, id);
         if (fullBmp != null) {
             iv.setImageBitmap(fullBmp);
         } else {
-            Bitmap thumb = Attachments.thumb(c, id, 1080);
+            Bitmap thumb = Attachments.thumb(a, id, 1080);
             if (thumb != null) iv.setImageBitmap(thumb);
         }
         if (id.toLowerCase().endsWith(".gif")) {
-            Attachments.playGif(c, id, iv);
+            Attachments.playGif(a, id, iv);
         }
 
         // Top bar container
-        final LinearLayout topBar = new LinearLayout(c);
+        final LinearLayout topBar = new LinearLayout(a);
         topBar.setOrientation(LinearLayout.HORIZONTAL);
         topBar.setGravity(Gravity.CENTER_VERTICAL);
-        int statusBarH = getStatusBarHeight(c);
-        topBar.setPaddingRelative(Ui.dp(c, 12), statusBarH + Ui.dp(c, 6), Ui.dp(c, 12), Ui.dp(c, 10));
+        int statusBarH = getStatusBarHeight(a);
+        topBar.setPaddingRelative(Ui.dp(a, 12), statusBarH + Ui.dp(a, 6), Ui.dp(a, 12), Ui.dp(a, 10));
         topBar.setBackgroundColor(Theme.withAlpha(Ui.CARD, 0xD0));
 
         // Close button
-        ImageButton btnClose = Ui.iconButton(c, R.drawable.ms_close, "Close", Ui.TEXT);
+        ImageButton btnClose = Ui.iconButton(a, R.drawable.ms_close, "Close", Ui.TEXT);
         btnClose.setOnClickListener(v -> d.dismiss());
-        topBar.addView(btnClose, new LinearLayout.LayoutParams(Ui.dp(c, 44), Ui.dp(c, 44)));
+        topBar.addView(btnClose, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
 
         // Title (filename)
-        TextView title = new TextView(c);
+        TextView title = new TextView(a);
         title.setText(Attachments.name(id));
         title.setTextColor(Ui.TEXT);
         title.setTextSize(15);
         title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         title.setSingleLine(true);
         title.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        title.setPaddingRelative(Ui.dp(c, 10), 0, Ui.dp(c, 10), 0);
+        title.setPaddingRelative(Ui.dp(a, 10), 0, Ui.dp(a, 10), 0);
         LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         topBar.addView(title, tp);
 
         // Save to Download/NN button
-        ImageButton btnSave = Ui.iconButton(c, R.drawable.ms_download, "Save", Ui.TEXT);
+        ImageButton btnSave = Ui.iconButton(a, R.drawable.ms_download, "Save", Ui.TEXT);
         btnSave.setOnClickListener(v -> {
-            Uri saved = Attachments.saveToGallery(c, id);
+            Uri saved = Attachments.saveToGallery(a, id);
             if (saved != null) {
-                Toast.makeText(c, "Saved to Download/NN/" + Attachments.name(id), Toast.LENGTH_SHORT).show();
+                Toast.makeText(a, "Saved to Download/NN/" + Attachments.name(id), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(c, "Failed to save image", Toast.LENGTH_SHORT).show();
+                Toast.makeText(a, "Failed to save image", Toast.LENGTH_SHORT).show();
             }
         });
-        topBar.addView(btnSave, new LinearLayout.LayoutParams(Ui.dp(c, 44), Ui.dp(c, 44)));
+        topBar.addView(btnSave, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
 
         // Share button
-        ImageButton btnShare = Ui.iconButton(c, R.drawable.ms_share, "Share", Ui.TEXT);
+        ImageButton btnShare = Ui.iconButton(a, R.drawable.ms_share, "Share", Ui.TEXT);
         btnShare.setOnClickListener(v -> {
             try {
                 String displayName = Attachments.name(id);
-                File out = FilesProvider.shareFile(c, displayName);
+                File out = FilesProvider.shareFile(a, displayName);
                 try (InputStream in = new FileInputStream(file); OutputStream o = new FileOutputStream(out)) {
                     byte[] buf = new byte[64 * 1024];
                     int n;
@@ -148,13 +140,12 @@ final class ImageViewerDialog {
                 send.putExtra(Intent.EXTRA_STREAM, u);
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 Intent chooser = Intent.createChooser(send, displayName);
-                chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                c.startActivity(chooser);
+                a.startActivity(chooser);
             } catch (Exception e) {
-                Toast.makeText(c, "Couldn't share: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(a, "Couldn't share: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        topBar.addView(btnShare, new LinearLayout.LayoutParams(Ui.dp(c, 44), Ui.dp(c, 44)));
+        topBar.addView(btnShare, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
 
         FrameLayout.LayoutParams topParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

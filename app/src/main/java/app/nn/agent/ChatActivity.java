@@ -329,6 +329,22 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             pending.addAll(files);
             renderTray();
         }
+        String viewImg = getIntent().getStringExtra("view_image");
+        if (viewImg != null) {
+            final String imgId = viewImg;
+            getWindow().getDecorView().post(() -> ImageViewerDialog.show(ChatActivity.this, imgId));
+        }
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        String viewImg = intent.getStringExtra("view_image");
+        if (viewImg != null) {
+            final String imgId = viewImg;
+            getWindow().getDecorView().post(() -> ImageViewerDialog.show(ChatActivity.this, imgId));
+        }
     }
 
     /** The chat's messages from scratch. */

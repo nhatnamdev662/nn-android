@@ -2797,7 +2797,12 @@ final class Bubble implements ChatHub.Listener {
     }
 
     private void openPicture(String id) {
-        ImageViewerDialog.show(svc, id);
+        collapse();
+        android.content.Intent i = new android.content.Intent(svc, ChatActivity.class)
+                .putExtra("id", sessions.current != null ? sessions.current.id : null)
+                .putExtra("view_image", id)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        svc.startActivity(i);
     }
 
     private void showMessage(Kind kind, String text) {
