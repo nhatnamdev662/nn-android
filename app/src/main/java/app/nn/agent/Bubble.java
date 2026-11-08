@@ -2739,39 +2739,64 @@ final class Bubble implements ChatHub.Listener {
         }
         View hint = messages.findViewWithTag("hint");
         if (hint != null) messages.removeView(hint);
-        ImageView iv = new ImageView(svc);
-        int side = dp(160);
-        android.graphics.Bitmap b = Attachments.thumb(svc, id, side);
+        int maxW = dp(230);
+        android.graphics.Bitmap b = Attachments.thumb(svc, id, maxW);
         if (b == null) return;
-        iv.setImageBitmap(b);
-        Attachments.playGif(svc, id, iv, b);
-        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        iv.setClipToOutline(true);
-        iv.setOutlineProvider(new android.view.ViewOutlineProvider() {
+        int h = dp(160);
+        if (b.getWidth() > 0) {
+            h = Math.max(dp(100), Math.min(dp(260), maxW * b.getHeight() / b.getWidth()));
+        }
+
+        FrameLayout card = new FrameLayout(svc);
+        card.setBackground(Ui.outlined(svc, Ui.CARD2, 16, Ui.OUTLINE, 1));
+        card.setClipToOutline(true);
+        card.setOutlineProvider(new android.view.ViewOutlineProvider() {
             @Override
             public void getOutline(View view, android.graphics.Outline o) {
                 o.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(16));
             }
         });
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(side,
-                b.getWidth() > 0 ? Math.min(dp(220), side * b.getHeight() / b.getWidth()) : side);
+
+        ImageView iv = new ImageView(svc);
+        iv.setLayoutParams(new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        iv.setImageBitmap(b);
+        Attachments.playGif(svc, id, iv, b);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        card.addView(iv);
+
+        // Bottom badge overlay with filename
+        LinearLayout badge = new LinearLayout(svc);
+        badge.setOrientation(LinearLayout.HORIZONTAL);
+        badge.setGravity(Gravity.CENTER_VERTICAL);
+        badge.setPaddingRelative(dp(8), dp(4), dp(8), dp(4));
+        badge.setBackground(Ui.rounded(svc, Theme.withAlpha(Ui.BG, 0xB8), 10));
+
+        TextView name = new TextView(svc);
+        name.setText(Attachments.name(id));
+        name.setTextColor(Ui.TEXT);
+        name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        name.setSingleLine(true);
+        name.setMaxWidth(dp(130));
+        name.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        badge.addView(name);
+
+        FrameLayout.LayoutParams bp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        bp.gravity = Gravity.BOTTOM | Gravity.END;
+        bp.setMargins(0, 0, dp(8), dp(8));
+        card.addView(badge, bp);
+
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(maxW, h);
         p.topMargin = dp(6);
         if (user) p.gravity = Gravity.END;
         else p.setMarginStart(dp(32));
-        iv.setOnClickListener(x -> openPicture(id));
-        messages.addView(iv, p);
+        card.setOnClickListener(x -> openPicture(id));
+        messages.addView(card, p);
     }
 
     private void openPicture(String id) {
-        collapse();
-        android.net.Uri u = FilesProvider.attachmentUri(id);
-        try {
-            svc.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW)
-                    .setDataAndType(u, svc.getContentResolver().getType(u))
-                    .addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION | android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
-        } catch (Exception e) {
-            Toast.makeText(svc, svc.getString(R.string.chat_no_app_for_file, Attachments.name(id)), Toast.LENGTH_SHORT).show();
-        }
+        ImageViewerDialog.show(svc, id);
     }
 
     private void showMessage(Kind kind, String text) {
@@ -2802,7 +2827,8 @@ final class Bubble implements ChatHub.Listener {
         switch (kind) {
             case USER: {
                 TextView tv = Ui.text(svc, text, 15, Ui.TEXT);
-                tv.setBackground(Ui.corners(svc, Ui.USER, 20, 20, 6, 20));
+                tv.setBackground(Ui.corners(svc, Ui.USER, 18, 18, 4, 18));
+                tv.setLineSpacing(dp(2), 1.22f);
                 tv.setPaddingRelative(dp(14), dp(10), dp(14), dp(10));
                 Ui.linkifyForService(tv, this::collapse);
                 p.gravity = Gravity.END;
@@ -2825,9 +2851,9 @@ final class Bubble implements ChatHub.Listener {
                 TextView tv = Ui.text(svc, text, 15, Ui.TEXT);
                 CharSequence md = Ui.markdown(text, this::collapse); // **bold**, lists, `code`, [text](url) as a link…
                 tv.setText(md);
-                tv.setLineSpacing(0, 1.15f);
-                tv.setBackground(Ui.corners(svc, Ui.CARD, 20, 20, 20, 6));
-                tv.setPaddingRelative(dp(14), dp(10), dp(14), dp(10));
+                tv.setLineSpacing(dp(2), 1.25f);
+                tv.setBackground(Ui.corners(svc, Ui.CARD, 18, 18, 18, 6));
+                tv.setPaddingRelative(dp(15), dp(11), dp(15), dp(11));
                 Ui.linkifyForService(tv, this::collapse);
                 copyOnLongPress(tv, Ui.linkCopy(md, 0, md.length())); // as shown, links as "text (address)"
                 r.addView(tv);
@@ -3011,7 +3037,9 @@ final class Bubble implements ChatHub.Listener {
     }
 
     private void scrollToEnd() {
-        scroll.post(() -> scroll.fullScroll(View.FOCUS_DOWN));
+        if (scroll != null && messages != null) {
+            scroll.post(() -> scroll.smoothScrollTo(0, messages.getBottom()));
+        }
     }
 
     private TextView subtitle, stripText;

@@ -1225,7 +1225,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         options.setImageTintList(ColorStateList.valueOf(ses.awake || ses.schedule != null || !ses.allowed.isEmpty() ? ACCENT : MUTED));
         if (hint != null) hint.setText(hintText());
         strip.setVisibility(ses.running ? View.VISIBLE : View.GONE);
-        input.setHint(ses.running ? getString(R.string.chat_input_hint_running) : getString(R.string.chat_input_hint, ses.brainName()));
+        String targetHint = ses.running ? getString(R.string.chat_input_hint_running) : getString(R.string.chat_input_hint, ses.brainName());
+        if (input != null && !targetHint.equals(input.getHint())) {
+            input.setHint(targetHint);
+        }
         stripText.setText(ses.status.isEmpty() ? getString(R.string.chat_working) : ses.status);
         if (log != null) {
             if (ses.running) log.setLive(true);
@@ -1788,7 +1791,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 TextView tv = text(this, text, 15, TEXT);
                 links(tv);
                 tv.setMaxWidth(maxBubble);
-                tv.setBackground(corners(this, USER, 20, 20, 6, 20));
+                tv.setBackground(corners(this, USER, 18, 18, 4, 18));
+                tv.setLineSpacing(dp(this, 2), 1.22f);
                 tv.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
                 copyOnLongPress(tv, text);
                 p.gravity = Gravity.END;
@@ -1812,10 +1816,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 tv.setText(Ui.markdown(text, null)); // **bold**, lists, `code`, [text](url) as a link…
                 links(tv);
                 Ui.copyWithLinks(tv);
-                tv.setLineSpacing(0, 1.15f);
+                tv.setLineSpacing(dp(this, 3), 1.25f);
                 tv.setMaxWidth(maxBubble - dp(this, 32));
-                tv.setBackground(corners(this, CARD, 20, 20, 20, 6));
-                tv.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
+                tv.setBackground(corners(this, CARD, 18, 18, 18, 6));
+                tv.setPaddingRelative(dp(this, 15), dp(this, 12), dp(this, 15), dp(this, 12));
                 r.addView(tv);
                 v = r;
                 break;
@@ -1852,7 +1856,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void scrollToEnd() {
-        scroll.post(() -> scroll.fullScroll(View.FOCUS_DOWN));
+        if (scroll != null && messages != null) {
+            scroll.post(() -> scroll.smoothScrollTo(0, messages.getBottom()));
+        }
     }
 
     /** Consecutive tool steps, grouped into one collapsible log. */

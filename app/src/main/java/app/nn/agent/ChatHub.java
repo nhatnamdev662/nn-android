@@ -860,6 +860,30 @@ final class ChatHub {
                 }
             }
         }
+
+        // 4. Auto-detect newly created images in /root/.nn/work if the agent created one but didn't write the path
+        if (out.isEmpty() && Linux.installed(app)) {
+            try {
+                java.io.File work = new java.io.File(Linux.root(app), "root/.nn/work");
+                if (work.isDirectory()) {
+                    java.io.File[] fs = work.listFiles();
+                    if (fs != null) {
+                        long cutoff = System.currentTimeMillis() - 120_000L;
+                        java.io.File newest = null;
+                        for (java.io.File f : fs) {
+                            if (f.isFile() && Attachments.isImage(f.getName()) && f.lastModified() >= cutoff) {
+                                if (newest == null || f.lastModified() > newest.lastModified()) newest = f;
+                            }
+                        }
+                        if (newest != null) {
+                            String file = Attachments.importFile(app, newest);
+                            if (file != null) out.add(file);
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
         return out;
     }
 
