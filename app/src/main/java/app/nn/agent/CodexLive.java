@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
  * what the agent says goes back to the call for the voice to say. (The voice's own hand-off tool is unreliable for short
  * commands, and it then claims things it never did, so Buddy doesn't depend on it: a hand-off is taken like the rest.)
  * One call at a time; it ends with End (the chat's live bar or the notification), when the screen goes off, when Buddy
- * is paused or stopped, or after a while with nothing said. Every call logs what happens to ~/.buddy/live.log in
+ * is paused or stopped, or after a while with nothing said. Every call logs what happens to ~/.nn/live.log in
  * Buddy's Linux.
  */
 final class CodexLive {
@@ -131,13 +131,13 @@ final class CodexLive {
         return t != null && t.equals(thread);
     }
 
-    // ------------------------------------------------------------------ the log (~/.buddy/live.log in Buddy's Linux)
+    // ------------------------------------------------------------------ the log (~/.nn/live.log in Buddy's Linux)
 
     private static final ExecutorService logger = Executors.newSingleThreadExecutor();
     private static volatile long logStart;
 
     private static File logFile() {
-        return new File(Linux.root(app), "root/.buddy/live.log");
+        return new File(Linux.root(app), "root/.nn/live.log");
     }
 
     /** One line in the call's log, any thread. */

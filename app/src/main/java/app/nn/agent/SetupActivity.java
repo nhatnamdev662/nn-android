@@ -1169,7 +1169,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private java.util.List<Sessions.Session> termuxChats() {
         java.util.List<Sessions.Session> out = new java.util.ArrayList<>();
         if (!Linux.installed(this)) return out;
-        java.io.File dir = new java.io.File(Linux.root(this), "root/.buddy/sessions");
+        java.io.File dir = new java.io.File(Linux.root(this), "root/.nn/sessions");
         for (Sessions.Session s : ChatHub.get(this).sessions.all) {
             if (!s.messages.isEmpty() && !s.running && !new java.io.File(dir, s.id).isDirectory()) out.add(s);
         }

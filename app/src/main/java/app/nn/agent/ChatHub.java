@@ -312,7 +312,7 @@ final class ChatHub {
 
     /** The end of what the agent wrote to stderr this run (buddy-run keeps it), or "": a hung agent often says why there. */
     private String lastError(Sessions.Session ses) {
-        java.io.File f = new java.io.File(Linux.root(app), "root/.buddy/sessions/" + ses.id + "/last-error.log");
+        java.io.File f = new java.io.File(Linux.root(app), "root/.nn/sessions/" + ses.id + "/last-error.log");
         try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "r")) {
             long n = Math.min(r.length(), 300);
             byte[] b = new byte[(int) n];
@@ -810,7 +810,7 @@ final class ChatHub {
         for (Listener l : new ArrayList<>(listeners)) l.onMessage(ses, m);
     }
 
-    /** A picture's path in Buddy's Linux, as agents write it: /root/.buddy/work/chart.png, ~/out/photo.jpg. */
+    /** A picture's path in Buddy's Linux, as agents write it: /root/.nn/work/chart.png, ~/out/photo.jpg. */
     private static final java.util.regex.Pattern PICTURE = java.util.regex.Pattern.compile(
             "(?<![\\w/.~-])(~|/(?:root|tmp|home|srv|opt|var|mnt|media))(/[^\\s`'\"()\\[\\]<>|*]+?\\.(?i:png|jpe?g|webp|gif))(?![\\w/])");
 

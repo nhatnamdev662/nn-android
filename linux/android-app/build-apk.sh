@@ -11,7 +11,7 @@
 set -euo pipefail
 P=$(cd "${1:?usage: build-apk.sh <project-dir>}" && pwd)
 SDK_JAR=${SDK_JAR:-$HOME/android-sdk/android-36/android.jar}
-KEYDIR=$HOME/.buddy/keys
+KEYDIR=$HOME/.nn/keys
 OUT=$P/build
 
 prop() { [ -f "$P/app.properties" ] && sed -n "s/^$1=//p" "$P/app.properties" | head -1 || true; }

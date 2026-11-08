@@ -21,17 +21,17 @@ final class Helper {
             {"linux/buddy-run", "/root/bin/buddy-run", "700"},
             {"linux/codex-remote", "/root/bin/codex-remote", "700"}, // the Codex session (CodexRemote)
             {"linux/buddy-browser", "/root/bin/buddy-browser", "700"}, // the background browser (Browser)
-            {"linux/profile.sh", "/etc/profile.d/buddy.sh", "644"},
+            {"linux/profile.sh", "/etc/profile.d/nn.sh", "644"},
             {"linux/arecord", "/usr/local/bin/arecord", "755"},
             {"linux/asound-cards", "/etc/buddy/asound-cards", "644"},
             {"linux/arecord", "/usr/local/bin/rec", "755"}, // SoX's recorder, same arguments that matter (-r, -c)
-            {"linux/system-prompt.md", "/root/.buddy/system-prompt.md", "600"},
-            {"linux/GUIDE.md", "/root/.buddy/GUIDE.md", "644"}, // Buddy's user guide, for questions about Buddy itself
-            {"linux/browser-prompt.md", "/root/.buddy/browser-prompt.md", "600"},
-            {"linux/AGENTS.md", "/root/.buddy/work/AGENTS.md", "600"},
-            {"linux/android-app/SKILL.md", "/root/.buddy/work/.claude/skills/android-app/SKILL.md", "600"},
-            {"linux/android-app/build-apk.sh", "/root/.buddy/work/.claude/skills/android-app/build-apk.sh", "700"},
-            {"linux/android-app/setup-toolchain.sh", "/root/.buddy/work/.claude/skills/android-app/setup-toolchain.sh", "700"},
+            {"linux/system-prompt.md", "/root/.nn/system-prompt.md", "600"},
+            {"linux/GUIDE.md", "/root/.nn/GUIDE.md", "644"}, // Buddy's user guide, for questions about Buddy itself
+            {"linux/browser-prompt.md", "/root/.nn/browser-prompt.md", "600"},
+            {"linux/AGENTS.md", "/root/.nn/work/AGENTS.md", "600"},
+            {"linux/android-app/SKILL.md", "/root/.nn/work/.claude/skills/android-app/SKILL.md", "600"},
+            {"linux/android-app/build-apk.sh", "/root/.nn/work/.claude/skills/android-app/build-apk.sh", "700"},
+            {"linux/android-app/setup-toolchain.sh", "/root/.nn/work/.claude/skills/android-app/setup-toolchain.sh", "700"},
     };
     private static final ExecutorService pool = Executors.newCachedThreadPool();
     private static int syncedFor = -1;
@@ -78,7 +78,7 @@ final class Helper {
     /** The user's App permissions choices, which buddy-run appends to the agent's instructions. */
     static void writePermissions(Context c) {
         // the background browser's instructions go along only while it's on (buddy-run looks for this file)
-        File on = new File(Linux.root(c), "root/.buddy/browser-on");
+        File on = new File(Linux.root(c), "root/.nn/browser-on");
         try {
             if (Browser.available(c)) on.createNewFile();
             else on.delete();
@@ -101,7 +101,7 @@ final class Helper {
             text += (text.isEmpty() ? "" : "\n") + "Buttons the user marked \"Never ask\" (tap them without confirming "
                     + "when the task calls for it):\n" + never;
         }
-        File f = new File(Linux.root(c), "root/.buddy/permissions.md");
+        File f = new File(Linux.root(c), "root/.nn/permissions.md");
         try {
             if (text.isEmpty()) {
                 f.delete();
@@ -146,7 +146,7 @@ final class Helper {
             } catch (Exception ignored) {
             }
         }
-        new File(root, "root/.buddy/sessions").mkdirs();
+        new File(root, "root/.nn/sessions").mkdirs();
         syncedFor = BuildInfo.VERSION_CODE;
     }
 }

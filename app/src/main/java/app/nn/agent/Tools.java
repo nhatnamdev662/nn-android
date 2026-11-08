@@ -251,7 +251,7 @@ final class Tools {
                 props().put("id", strProp("Its id, from schedule_message or list_scheduled")), "id"));
         t.put(tool("install_apk",
                 "(Needs Linux tools) Open Android's installer for an APK built in Buddy's Linux, e.g. "
-                        + "/root/.buddy/work/myapp/build/app.apk, or served by another app on this phone at a local URL "
+                        + "/root/.nn/work/myapp/build/app.apk, or served by another app on this phone at a local URL "
                         + "(http://127.0.0.1:<port>/app.apk, e.g. from Termux). The user taps Install/Update themselves; "
                         + "call wait_for_install next.",
                 props().put("path", strProp("Full path of the .apk inside Buddy's Linux, or its http://127.0.0.1 URL")), "path"));
@@ -270,7 +270,7 @@ final class Tools {
                 "After opening the Android installer for an APK, wait until the user has tapped Install/Update and confirmed. "
                         + "Returns as soon as the package is installed (at least min_version_code if given), or early if the "
                         + "installer is no longer on screen, or after the timeout. Use this instead of shell polling loops.",
-                props().put("package", strProp("Package name, e.g. com.buddyapps.flappy"))
+                props().put("package", strProp("Package name, e.g. com.nnapps.flappy"))
                         .put("min_version_code", intProp("Wait for at least this versionCode (for updates)"))
                         .put("timeout_s", intProp("Default 120, max 300")),
                 "package"));

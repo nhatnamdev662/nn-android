@@ -19,7 +19,9 @@ set -u
 export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The claude launcher sets BUN_OPTIONS with a path relative to its folder; never inherit a stale one.
 unset BUN_OPTIONS
-D=$HOME/.buddy
+D=$HOME/.nn
+[ -d "$HOME/.buddy" ] && [ ! -d "$HOME/.nn" ] && mv "$HOME/.buddy" "$HOME/.nn" 2>/dev/null
+[ -d "$HOME/.nn" ] && [ ! -e "$HOME/.buddy" ] && ln -s "$HOME/.nn" "$HOME/.buddy" 2>/dev/null
 W=$D/work
 mkdir -p "$W" "$D/sessions"
 TOKEN=${1:-}

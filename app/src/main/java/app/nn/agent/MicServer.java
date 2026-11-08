@@ -64,7 +64,7 @@ final class MicServer {
             StringBuilder sb = new StringBuilder();
             for (byte x : b) sb.append(String.format("%02x", x));
             token = sb.toString();
-            File f = new File(Linux.root(c), "root/.buddy/mic-token");
+            File f = new File(Linux.root(c), "root/.nn/mic-token");
             f.getParentFile().mkdirs();
             try (FileOutputStream o = new FileOutputStream(f)) {
                 o.write((token + "\n").getBytes(StandardCharsets.UTF_8));

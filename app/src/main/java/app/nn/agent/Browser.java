@@ -925,7 +925,7 @@ final class Browser {
     /** Wipes the browser's profile: every sign-in, cookie, history and cache. Not on the main thread. */
     static void wipe(Context c) {
         stop();
-        Linux.deleteTree(new File(Linux.root(c), "root/.buddy/browser"));
+        Linux.deleteTree(new File(Linux.root(c), "root/.nn/browser"));
         c.getSharedPreferences("browser", 0).edit().remove("signins").apply(); // from the Signed-in sites list Buddy had
         changed();
     }

@@ -658,7 +658,7 @@
   },
   {
     "name": "install_apk",
-    "description": "(Needs Linux tools) Open Android's installer for an APK built in Buddy's Linux, e.g. /root/.buddy/work/myapp/build/app.apk, or served by another app on this phone at a local URL (http://127.0.0.1:<port>/app.apk, e.g. from Termux). The user taps Install/Update themselves; call wait_for_install next.",
+    "description": "(Needs Linux tools) Open Android's installer for an APK built in Buddy's Linux, e.g. /root/.nn/work/myapp/build/app.apk, or served by another app on this phone at a local URL (http://127.0.0.1:<port>/app.apk, e.g. from Termux). The user taps Install/Update themselves; call wait_for_install next.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -693,7 +693,7 @@
       "properties": {
         "package": {
           "type": "string",
-          "description": "Package name, e.g. com.buddyapps.flappy"
+          "description": "Package name, e.g. com.nnapps.flappy"
         },
         "min_version_code": {
           "type": "integer",
@@ -779,7 +779,7 @@
   },
   {
     "name": "share",
-    "description": "Open Android's share sheet with a text or a file, so the user picks the app to send it with (a chat, an email, a cloud drive). The user chooses; nothing is sent by opening it. The file must be in your work folder (/root/.buddy/work) or this chat's files.",
+    "description": "Open Android's share sheet with a text or a file, so the user picks the app to send it with (a chat, an email, a cloud drive). The user chooses; nothing is sent by opening it. The file must be in your work folder (/root/.nn/work) or this chat's files.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -800,7 +800,7 @@
   },
   {
     "name": "save_to_downloads",
-    "description": "Copy a file from Buddy's Linux into the phone's Downloads folder (Downloads/Buddy), where the user and their apps can open it. The file must be in your work folder (/root/.buddy/work) or this chat's files.",
+    "description": "Copy a file from Buddy's Linux into the phone's Downloads folder (Downloads/NN), where the user and their apps can open it. The file must be in your work folder (/root/.nn/work) or this chat's files.",
     "inputSchema": {
       "type": "object",
       "properties": {
