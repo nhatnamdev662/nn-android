@@ -37,7 +37,7 @@ jobs:
       - name: Build native libraries
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$NDK_VERSION" >/dev/null
-          ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION" native/build.sh
+          ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$NDK_VERSION" bash native/build.sh
         env:
           NDK_VERSION: 27.2.12479018
 
@@ -107,7 +107,7 @@ jobs:
           pip install --quiet apksigcopier
           export PATH="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1):$PATH" # apksigner
           cd rebuild-check
-          ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018" native/build.sh
+          ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018" bash native/build.sh
           env -u BUDDY_KEYSTORE ./gradlew --no-daemon assembleFdroidRelease
           unsigned=$(find app/build/outputs/apk/fdroid/release -name '*.apk' | head -1)
           apksigcopier compare --unsigned "$FDROID_APK" "$unsigned"
