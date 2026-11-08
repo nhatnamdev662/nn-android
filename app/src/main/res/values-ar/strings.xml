@@ -178,10 +178,10 @@
     <string name="update_later">لاحقًا</string>
     <string name="update_downloading">جارٍ التنزيل…</string>
     <string name="update_needs_permission">اسمح لـ NN بتثبيت التطبيقات، ثم انقر على «تحديث» مرة أخرى.</string>
-    <string name="update_error_no_apk">لا يتضمن هذا الإصدار ملف buddy.apk بعد.</string>
+    <string name="update_error_no_apk">لا يتضمن هذا الإصدار ملف NN_AGENT.apk بعد.</string>
     <string name="update_error_download">تعذّر التنزيل (%1$s).</string>
     <string name="update_error_not_newer">الملف الذي تم تنزيله ليس إصدارًا أحدث من NN، لذا لم يُفتح.</string>
-    <string name="update_failed_manual">%1$s يمكنك أيضًا تنزيله من %2$s (الملف buddy.apk)، أو باستخدام Obtainium للحصول على تحديثات تلقائية (راجع %3$s).</string>
+    <string name="update_failed_manual">%1$s يمكنك أيضًا تنزيله من %2$s (الملف NN_AGENT.apk)، أو باستخدام Obtainium للحصول على تحديثات تلقائية (راجع %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <string name="prefs_theme_system">النظام</string>
@@ -340,7 +340,7 @@
     <string name="chat_linux_tools">أدوات Linux</string>
     <string name="chat_linux_tools_info">الأوامر والملفات وإنشاء التطبيقات في نظام Linux في NN</string>
     <string name="chat_linux_tools_title">هل تريد تفعيل أدوات Linux؟</string>
-    <string name="chat_linux_tools_what">سيتمكن الوكيل حينها من تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &#x200E;~/.buddy/work، وبالتالي إنشاء التطبيقات.</string>
+    <string name="chat_linux_tools_what">سيتمكن الوكيل حينها من تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &#x200E;~/.nn/work، وبالتالي إنشاء التطبيقات.</string>
     <string name="chat_linux_tools_when">في هذه المحادثة فقط، بدءًا من رسالتك التالية.</string>
     <string name="chat_linux_tools_risk">قد تحاول رسالة أو صفحة ويب ضارة على الشاشة خداع الوكيل لتنفيذ أوامر. وتظل بطاقات الموافقة تحمي عمليات الإرسال والنشر والشراء والحذف.</string>
     <string name="chat_linux_tools_turn_on">تفعيل</string>
@@ -816,7 +816,7 @@
     <string name="codex_pair_failed">تعذّر الحصول على رمز إقران: %1$s</string>
     <string name="codex_keeps_stopping">تتوقف جلسة Codex باستمرار: %1$s</string>
     <string name="ssh_keeps_stopping">يتوقف خادم SSH باستمرار: %1$s</string>
-    <string name="ssh_key_added">تم. لفتح Linux الخاص بـ NN من Termux، اكتب ssh buddy.</string>
+    <string name="ssh_key_added">تم. لفتح Linux الخاص بـ NN من Termux، اكتب ssh nn.</string>
     <string name="ssh_code_expired">سبق استخدام هذا الأمر أو مرّ عليه أكثر من 10 دقائق. انسخه مرة أخرى من الإعدادات في NN.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -937,7 +937,7 @@
     <string name="setup_ssh">SSH من Termux</string>
     <string name="setup_ssh_info">استخدم Linux الخاص بـ NN من Termux عبر SSH. لا يمكن الاتصال إلا من تطبيقات هذا الهاتف، وبمفتاح فقط.</string>
     <string name="setup_ssh_active">يعمل · المنفذ %1$d</string>
-    <string name="setup_ssh_how">انسخ هذا الأمر وشغّله مرة واحدة في Termux خلال 10 دقائق. بعد ذلك، اكتب ssh buddy في Termux لفتح Linux الخاص بـ NN.</string>
+    <string name="setup_ssh_how">انسخ هذا الأمر وشغّله مرة واحدة في Termux خلال 10 دقائق. بعد ذلك، اكتب ssh nn في Termux لفتح Linux الخاص بـ NN.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">إزالة محادثات Termux القديمة</string>
@@ -985,7 +985,7 @@
     <string name="setup_app_permissions">أذونات التطبيقات</string>
     <string name="setup_app_permissions_info">اختر لكل تطبيق: «موثوق» يتيح للوكيل العمل فيه دون نوافذ منبثقة، و«صارم» يعني أن NN نفسه يسألك قبل «إرسال» و«دفع» و«حذف»…</string>
     <string name="setup_dev_mode">أدوات Linux في المحادثات الجديدة</string>
-    <string name="setup_dev_mode_info">تتيح أدوات Linux للوكيل تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &#x200E;~/.buddy/work، ليتمكن من إنشاء التطبيقات. تبدأ المحادثات الجديدة بهذا الإعداد، ويمكن تغييره لكل محادثة أسفل عنوانها.</string>
+    <string name="setup_dev_mode_info">تتيح أدوات Linux للوكيل تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &#x200E;~/.nn/work، ليتمكن من إنشاء التطبيقات. تبدأ المحادثات الجديدة بهذا الإعداد، ويمكن تغييره لكل محادثة أسفل عنوانها.</string>
     <string name="setup_agents_tap">السماح للوكلاء بالنقر على شاشات NN</string>
     <string name="setup_agents_tap_info">لاختبار NN باستخدام وكيل (مثل Claude Code في Termux مع أدوات الهاتف). تظل الفقاعة وبطاقات الموافقة و«أذونات التطبيقات» وهذه المفاتيح خارج نطاق الوصول.</string>
     <string name="setup_dev_mode_warning">الأفضل إبقاؤه متوقفًا وتفعيل أدوات Linux في المحادثات التي تحتاجها فقط. عند تفعيلها، قد تحاول رسالة أو صفحة ويب ضارة على الشاشة خداع الوكيل لتنفيذ أوامر. وتظل بطاقات الموافقة تحمي عمليات الإرسال والنشر والشراء والحذف.</string>
@@ -1008,12 +1008,12 @@
     <string name="terminal_hide_keyboard">إخفاء لوحة المفاتيح</string>
     <string name="terminal_menu">القائمة</string>
     <plurals name="terminal_sessions_count">
-        <item quantity="zero">%1$d جلسة · buddy linux</item>
-        <item quantity="one">جلسة واحدة · buddy linux</item>
-        <item quantity="two">جلستان · buddy linux</item>
-        <item quantity="few">%1$d جلسات · buddy linux</item>
-        <item quantity="many">%1$d جلسة · buddy linux</item>
-        <item quantity="other">%1$d جلسة · buddy linux</item>
+        <item quantity="zero">%1$d جلسة · nn linux</item>
+        <item quantity="one">جلسة واحدة · nn linux</item>
+        <item quantity="two">جلستان · nn linux</item>
+        <item quantity="few">%1$d جلسات · nn linux</item>
+        <item quantity="many">%1$d جلسة · nn linux</item>
+        <item quantity="other">%1$d جلسة · nn linux</item>
     </plurals>
     <string name="terminal_listening">جارٍ الاستماع · الميكروفون مفعّل</string>
     <string name="terminal_session_ended">انتهت الجلسة</string>

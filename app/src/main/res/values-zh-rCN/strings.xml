@@ -229,13 +229,13 @@
     <string name="update_downloading">正在下载…</string>
     <!-- "Update" = the button (update_action). -->
     <string name="update_needs_permission">请允许 NN 安装应用，然后再次点按“更新”。</string>
-    <!-- Why an update failed (%1$s of update_failed_manual). buddy.apk is a file name. -->
-    <string name="update_error_no_apk">此版本尚未提供 buddy.apk。</string>
+    <!-- Why an update failed (%1$s of update_failed_manual). NN_AGENT.apk is a file name. -->
+    <string name="update_error_no_apk">此版本尚未提供 NN_AGENT.apk。</string>
     <!-- %1$s = the system's technical error message (usually English). -->
     <string name="update_error_download">下载失败（%1$s）。</string>
     <string name="update_error_not_newer">下载的文件不是更新版本的 NN，因此没有打开。</string>
     <!-- Message after a failed update. %1$s = what went wrong (an update_error_ sentence); %2$s = the web address of the latest release; %3$s = the web address of the update instructions. Obtainium is an app name. -->
-    <string name="update_failed_manual">%1$s你也可以从 %2$s 获取（buddy.apk），或使用 Obtainium 自动更新（参见 %3$s）。</string>
+    <string name="update_failed_manual">%1$s你也可以从 %2$s 获取（NN_AGENT.apk），或使用 Obtainium 自动更新（参见 %3$s）。</string>
 
     <!-- Settings, Appearance: option names. -->
     <!-- Light/dark mode, segmented control: keep short. System = follow the phone's setting. -->
@@ -453,8 +453,8 @@
     <string name="chat_linux_tools_info">在 NN 的 Linux 中运行命令、编辑文件和构建应用</string>
     <!-- Title of the sheet that opens when the user turns Linux tools on in a chat. -->
     <string name="chat_linux_tools_title">开启 Linux 工具？</string>
-    <!-- ~/.buddy/work is a folder: keep it as is. -->
-    <string name="chat_linux_tools_what">智能体将可以运行命令、安装软件包，并编辑 ~/.buddy/work 中的文件，从而能够开发应用。</string>
+    <!-- ~/.nn/work is a folder: keep it as is. -->
+    <string name="chat_linux_tools_what">智能体将可以运行命令、安装软件包，并编辑 ~/.nn/work 中的文件，从而能够开发应用。</string>
     <!-- When the change applies: a task already running goes on as it was. -->
     <string name="chat_linux_tools_when">仅限此对话，从你的下一条消息开始生效。</string>
     <!-- "it" = the agent. -->
@@ -1058,7 +1058,7 @@
     <string name="codex_pair_failed">无法获取配对码：%1$s</string>
     <string name="codex_keeps_stopping">Codex 会话不断停止：%1$s</string>
     <string name="ssh_keeps_stopping">SSH 服务器不断停止：%1$s</string>
-    <string name="ssh_key_added">完成。要从 Termux 打开 NN 的 Linux，请输入 ssh buddy。</string>
+    <string name="ssh_key_added">完成。要从 Termux 打开 NN 的 Linux，请输入 ssh nn。</string>
     <string name="ssh_code_expired">这条命令已经用过，或已超过 10 分钟。请在 NN 的“设置”中重新复制。</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -1222,7 +1222,7 @@
     <string name="setup_ssh">从 Termux 使用 SSH</string>
     <string name="setup_ssh_info">通过 SSH 在 Termux 中使用 NN 的 Linux。只有这部手机上的应用能连接，而且必须使用密钥。</string>
     <string name="setup_ssh_active">运行中 · 端口 %1$d</string>
-    <string name="setup_ssh_how">复制这条命令，并在 10 分钟内在 Termux 中运行一次。之后，在 Termux 中输入 ssh buddy 即可打开 NN 的 Linux。</string>
+    <string name="setup_ssh_how">复制这条命令，并在 10 分钟内在 Termux 中运行一次。之后，在 Termux 中输入 ssh nn 即可打开 NN 的 Linux。</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">移除旧的 Termux 对话</string>
@@ -1277,7 +1277,7 @@
     <string name="setup_app_permissions_info">按应用选择：“信任”让智能体在其中直接操作、不弹窗；“严格”表示 NN 会在点按发送、支付、删除等按钮前亲自询问你。</string>
     <!-- Settings switch: whether new chats start with Linux tools (chat_linux_tools); each chat can change it. -->
     <string name="setup_dev_mode">新对话中的 Linux 工具</string>
-    <string name="setup_dev_mode_info">开启 Linux 工具后，智能体可以运行命令、安装软件包，并编辑 ~/.buddy/work 中的文件，从而能够开发应用。新对话会以此设置开始；每个对话都可以在标题下方单独更改。</string>
+    <string name="setup_dev_mode_info">开启 Linux 工具后，智能体可以运行命令、安装软件包，并编辑 ~/.nn/work 中的文件，从而能够开发应用。新对话会以此设置开始；每个对话都可以在标题下方单独更改。</string>
     <string name="setup_agents_tap">允许智能体点按 NN 的界面</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">用于借助智能体测试 NN（例如在 Termux 中使用带手机工具的 Claude Code）。气泡、确认卡片、“应用权限”和这些开关仍禁止智能体点按。</string>
@@ -1310,9 +1310,9 @@
     <string name="terminal_hide_keyboard">隐藏键盘</string>
     <!-- Read by TalkBack: button that opens the terminal menu. -->
     <string name="terminal_menu">菜单</string>
-    <!-- Status line under the title, lowercase. "buddy linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
+    <!-- Status line under the title, lowercase. "nn linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
     <plurals name="terminal_sessions_count">
-        <item quantity="other">%1$d 个会话 · buddy linux</item>
+        <item quantity="other">%1$d 个会话 · nn linux</item>
     </plurals>
     <!-- Status line under the title while the microphone is in use, lowercase. -->
     <string name="terminal_listening">正在聆听 · 麦克风已开启</string>

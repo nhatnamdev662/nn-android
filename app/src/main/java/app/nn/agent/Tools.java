@@ -234,7 +234,7 @@ final class Tools {
         t.put(tool("schedule_message",
                 "Schedule a message to yourself in this chat, sent once at a later time: to check something again, "
                         + "remind the user, or go on with a task later (\"check the price again tomorrow at 9\"). At its time "
-                        + "Buddy sends it into this chat as a new message to you, also with the phone locked, and you work "
+                        + "NN sends it into this chat as a new message to you, also with the phone locked, and you work "
                         + "as usual. The user sees it above the chat and can cancel it. For something every day, tell "
                         + "the user about Chat options > Schedule instead.",
                 props().put("message", strProp("What to do then, as a message to yourself with everything you'll need"))
@@ -258,11 +258,11 @@ final class Tools {
         if (Flavor.FDROID) { // F-Droid updates this build; the tool says where updates come from
             t.put(tool("update_buddy",
                     "Say how this Buddy gets its updates (it's the F-Droid build, which doesn't update itself). Use it when "
-                            + "the user asks to update Buddy or whether there's a new version.", props()));
+                            + "the user asks to update NN AGENT or whether there's a new version.", props()));
         } else {
             t.put(tool("update_buddy",
-                    "Check whether a newer Buddy is out (the official GitHub release) and what's new; with install=true, "
-                            + "download it and open Android's installer. Use it when the user asks to update Buddy or whether "
+                    "Check whether a newer NN AGENT is out (the official GitHub release) and what's new; with install=true, "
+                            + "download it and open Android's installer. Use it when the user asks to update NN AGENT or whether "
                             + "there's a new version. Only the user can tap Update.",
                     props().put("install", boolProp("true: download the update and open the installer (after the user said yes)"))));
         }
@@ -512,7 +512,7 @@ final class Tools {
     }
 
     /**
-     * The F-Droid build's answer to "update Buddy": an F-Droid app that installed it updates it; a copy installed some
+     * The F-Droid build's answer to "update NN AGENT": an F-Droid app that installed it updates it; a copy installed some
      * other way (its APK from the GitHub release) gets no updates until the user installs the normal buddy.apk.
      */
     private String fdroidUpdates() {
@@ -522,11 +522,11 @@ final class Tools {
         } catch (Exception ignored) {
         }
         boolean fdroid = by != null && (by.contains("fdroid") || by.equals("com.looker.droidify") || by.contains("neo_store"));
-        if (fdroid) return "This Buddy is from F-Droid, which updates it: the user checks for updates in their F-Droid app.";
-        return "This is Buddy's F-Droid build, but no F-Droid app installed it (" + (by == null ? "installed from a file" : "installed by " + by)
+        if (fdroid) return "This NN AGENT is from F-Droid, which updates it: the user checks for updates in their F-Droid app.";
+        return "This is NN AGENT's F-Droid build, but no F-Droid app installed it (" + (by == null ? "installed from a file" : "installed by " + by)
                 + "), so nothing updates it. Tell the user: install the latest buddy.apk from "
                 + "https://github.com/nhatnamdev662/buddy-android/releases/latest over it (chats and settings stay, and that one "
-                + "updates itself), or get Buddy from F-Droid.";
+                + "updates itself), or get NN AGENT from F-Droid.";
     }
 
     /** update_buddy, install_apk and wait_for_install. */
@@ -566,7 +566,7 @@ final class Tools {
         }
         boolean watchable = false;
         for (Marks.Mark m : marks) watchable |= m.detectable();
-        if (!watchable) return "Can't wait on these: Buddy can only see the user do it on elements from read_screen, not on bare points.";
+        if (!watchable) return "Can't wait on these: NN can only see the user do it on elements from read_screen, not on bare points.";
         CountDownLatch over = new CountDownLatch(1);
         AtomicReference<String> how = new AtomicReference<>();
         svc.runOnMain(() -> svc.marks().show(marks, shape, ms, r -> {
@@ -577,13 +577,13 @@ final class Tools {
         long end = System.currentTimeMillis() + ms + 3000;
         while (!over.await(1, TimeUnit.SECONDS)) {
             if ((gone != null && gone.getAsBoolean()) || System.currentTimeMillis() > end) {
-                svc.runOnMain(() -> svc.marks().clear("NOT DONE: Buddy stopped waiting."));
+                svc.runOnMain(() -> svc.marks().clear("NOT DONE: NN stopped waiting."));
                 over.await(2, TimeUnit.SECONDS);
                 break;
             }
         }
         svc.screenChangedByUser();
-        String r = how.get() == null ? "NOT DONE: Buddy stopped waiting." : how.get();
+        String r = how.get() == null ? "NOT DONE: NN stopped waiting." : how.get();
         return r + (r.startsWith("DONE") ? " Call read_screen to see where they are now."
                 : " Call read_screen, then point it out again or ask the user.");
     }
@@ -656,7 +656,7 @@ final class Tools {
     }
 
     private static String stopped(boolean cap) {
-        return "STOPPED by Buddy: " + (cap ? "this run has used its " + MAX_STEPS + " phone actions"
+        return "STOPPED by NN: " + (cap ? "this run has used its " + MAX_STEPS + " phone actions"
                 : "the same action " + MAX_REPEATS + " times in a row looks like a loop")
                 + ". Don't try more actions; tell the user what's done and what's left. They can tell you to go on.";
     }
@@ -736,7 +736,7 @@ final class Tools {
             if (answer.startsWith(BuddyService.LATER)) {
                 Triggers.later(svc, chat, text, answer.substring(BuddyService.LATER.length()));
                 noteInChat(chat, svc.getString(R.string.card_note_later));
-                return "Not sent yet: the user didn't answer in time, so Buddy keeps your reply in their Waiting list, "
+                return "Not sent yet: the user didn't answer in time, so NN keeps your reply in their Waiting list, "
                         + "where they'll send, change or skip it. Don't call reply_notification again; end the run and say "
                         + "in one line that your reply is waiting for them.";
             }
@@ -759,7 +759,7 @@ final class Tools {
     private String wroteAgain(String chat, Triggers.Note n) {
         Triggers.carryOver(chat);
         return "Not sent: " + n.who() + " wrote again in " + n.app + " since this run began, so your reply would answer "
-                + "old messages only. Buddy starts a new run for everything together; stop here and say so in one line.";
+                + "old messages only. NN starts a new run for everything together; stop here and say so in one line.";
     }
 
     /** A line in the run's chat (main thread). */
@@ -802,7 +802,7 @@ final class Tools {
                     if (w.getType() == AccessibilityWindowInfo.TYPE_APPLICATION) {
                         sb.append("\n## App window").append(title != null ? " \"" + title + "\"" : "")
                                 .append(w.isActive() ? " (active)" : "")
-                                .append(": Buddy can't read this window (the app hides its screen, or it's still"
+                                .append(": NN can't read this window (the app hides its screen, or it's still"
                                         + " loading). Use screenshot to see it. Taps may not work here; if they"
                                         + " don't, ask the user to do this step.\n");
                     }
@@ -1367,7 +1367,7 @@ final class Tools {
         if (toast != null) return " A toast showed: \"" + clip(toast) + "\".";
         if (before == null || !before.equals(screenPrint())) return "";
         return " " + NOTHING_CHANGED + ": the screen reads the same as before. It may have missed, the app may be slow, or it "
-                + "draws something Buddy can't read. Look with read_screen or screenshot before trying again, and try "
+                + "draws something NN can't read. Look with read_screen or screenshot before trying again, and try "
                 + "something different rather than repeating this.";
     }
 
@@ -1418,7 +1418,7 @@ final class Tools {
             return "BLOCKED: a card is waiting for the user's answer. Wait for it; don't tap anything.";
         }
         if (Guard.offLimits(svc, hit) || (element != null && Guard.offLimits(svc, element))) {
-            return "BLOCKED: that's one of Buddy's own screens. Only the user taps those.";
+            return "BLOCKED: that's one of NN's own screens. Only the user taps those.";
         }
         AccessibilityNodeInfo target = element != null ? element : hit;
         if (target == null) return null;
@@ -1504,7 +1504,7 @@ final class Tools {
         String answer = svc.askConfirm(summary, send);
         if (answer.startsWith("APPROVED")) return null;
         if (answer.startsWith("CHANGES")) return "Not tapped: the user wants changes first. " + answer;
-        return "BLOCKED by Buddy's safety rule: the user did not approve “" + what + "”. Don't retry it; "
+        return "BLOCKED by NN's safety rule: the user did not approve “" + what + "”. Don't retry it; "
                 + "ask the user what they want.";
     }
 
@@ -1527,7 +1527,7 @@ final class Tools {
         if (target == null) target = findFocusedInput();
         if (target == null)
             throw new IllegalStateException("No text field is focused. Tap the text field first, then type.");
-        if (Guard.offLimits(svc, target)) return "BLOCKED: that's Buddy's own screen. Only the user types there.";
+        if (Guard.offLimits(svc, target)) return "BLOCKED: that's NN's own screen. Only the user types there.";
         if (!target.isFocused()) target.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
         String value = text;
         CharSequence cur = target.isShowingHintText() ? null : target.getText();
@@ -1598,7 +1598,7 @@ final class Tools {
         sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, append ? len : 0);
         sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, len);
         target.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, sel);
-        cm.setPrimaryClip(ClipData.newPlainText("Buddy", text));
+        cm.setPrimaryClip(ClipData.newPlainText("NN", text));
         return target.performAction(AccessibilityNodeInfo.ACTION_PASTE);
     }
 
@@ -1684,7 +1684,7 @@ final class Tools {
         boolean off = element != null && Guard.offLimits(svc, element);
         List<AccessibilityWindowInfo> windows = svc.getWindows();
         for (int i = 0; !off && i + 1 < xy.length; i += 2) off = Guard.offLimits(svc, Guard.nodeAt(windows, xy[i], xy[i + 1]));
-        return off ? "BLOCKED: that's one of Buddy's own screens. Only the user touches those." : null;
+        return off ? "BLOCKED: that's one of NN's own screens. Only the user touches those." : null;
     }
 
     private boolean gesture(Path path, long durationMs) throws InterruptedException {
@@ -1771,7 +1771,7 @@ final class Tools {
         String bestLabel = top.get(0)[1];
         // Buddy's own screens hold the safety settings: only the user opens them (unless they let agents in)
         if (best.equals(svc.getPackageName()) && !Prefs.agentsTapBuddy(svc))
-            return "BLOCKED: agents can't open Buddy itself. Only the user uses Buddy's screens.";
+            return "BLOCKED: agents can't open NN AGENT itself. Only the user uses NN's screens.";
         Intent launch = pm.getLaunchIntentForPackage(best);
         if (launch == null) return "App " + bestLabel + " cannot be launched.";
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
@@ -1833,7 +1833,7 @@ final class Tools {
                     + "chat's header (the Linux tools chip under its title), wait until they say it's done, then call "
                     + "install_apk again."
                     : "Installing apps needs Linux tools. Ask the user to turn on 'Linux tools in new chats' in Buddy's "
-                    + "Settings (it also covers sessions outside Buddy's chats, like this one), wait until they say it's "
+                    + "Settings (it also covers sessions outside NN's chats, like this one), wait until they say it's "
                     + "done, then call install_apk again.";
         }
         java.io.File out = FilesProvider.apkFile(svc);
@@ -1862,8 +1862,8 @@ final class Tools {
         if (!svc.getPackageManager().canRequestPackageInstalls()) {
             svc.startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                     android.net.Uri.parse("package:" + svc.getPackageName())).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            return "Buddy isn't allowed to install apps yet. Android's settings page for that is open now: ask the user to "
-                    + "turn on 'Allow from this source' for Buddy, wait until they say it's done, then call install_apk again.";
+            return "NN isn't allowed to install apps yet. Android's settings page for that is open now: ask the user to "
+                    + "turn on 'Allow from this source' for NN, wait until they say it's done, then call install_apk again.";
         }
         svc.startActivity(new Intent(Intent.ACTION_VIEW)
                 .setDataAndType(FilesProvider.apkUri(), "application/vnd.android.package-archive")
@@ -1879,8 +1879,8 @@ final class Tools {
         } catch (Exception e) {
             return "Couldn't reach GitHub to check for updates (" + e.getMessage() + "). " + Updates.MANUAL;
         }
-        String head = "Installed: Buddy " + BuildInfo.VERSION + ". Latest release: " + r.version + ".";
-        if (!r.newer()) return head + " Buddy is up to date.";
+        String head = "Installed: NN AGENT " + BuildInfo.VERSION + ". Latest release: " + r.version + ".";
+        if (!r.newer()) return head + " NN AGENT is up to date.";
         if (!install) {
             return head + " An update is available. What's new:\n" + r.notes + "\n\nAsk the user if they want it now; "
                     + "if yes, call update_buddy with install=true.";
@@ -1888,13 +1888,13 @@ final class Tools {
         svc.showStatus(svc.getString(R.string.tools_status_downloading, r.version));
         String res = Updates.install(svc, r);
         if (Updates.NEEDS_PERMISSION.equals(res)) {
-            return "Downloaded Buddy " + r.version + ", but Buddy isn't allowed to install apps yet. Android's settings page "
-                    + "for that is open now: ask the user to turn on 'Allow from this source' for Buddy, then call "
+            return "Downloaded NN AGENT " + r.version + ", but NN isn't allowed to install apps yet. Android's settings page "
+                    + "for that is open now: ask the user to turn on 'Allow from this source' for NN, then call "
                     + "update_buddy with install=true again.";
         }
         if (!Updates.OPENED.equals(res)) return res + " " + Updates.MANUAL;
-        return "The installer is open with Buddy " + r.version + ". Tell the user now, in one line, to tap Update (only "
-                + "they can): Buddy restarts once it's installed, which ends this task, and their chats stay. Then stop; "
+        return "The installer is open with NN AGENT " + r.version + ". Tell the user now, in one line, to tap Update (only "
+                + "they can): NN AGENT restarts once it's installed, which ends this task, and their chats stay. Then stop; "
                 + "don't call wait_for_install.";
     }
 
@@ -1921,7 +1921,7 @@ final class Tools {
         ResolveInfo to = svc.getPackageManager().resolveActivity(i, 0);
         if (to != null && to.activityInfo != null && svc.getPackageName().equals(to.activityInfo.packageName)
                 && !Prefs.agentsTapBuddy(svc))
-            return "BLOCKED: that link opens Buddy itself. Only the user uses Buddy's screens.";
+            return "BLOCKED: that link opens NN AGENT itself. Only the user uses NN's screens.";
         svc.startActivity(i);
         Thread.sleep(1500);
         return "Opened " + url + ". Call read_screen to see it.";

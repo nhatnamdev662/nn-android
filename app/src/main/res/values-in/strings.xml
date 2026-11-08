@@ -229,13 +229,13 @@
     <string name="update_downloading">Mendownload…</string>
     <!-- "Update" = the button (update_action). -->
     <string name="update_needs_permission">Izinkan NN menginstal aplikasi, lalu ketuk Update lagi.</string>
-    <!-- Why an update failed (%1$s of update_failed_manual). buddy.apk is a file name. -->
-    <string name="update_error_no_apk">Rilis ini belum memiliki buddy.apk.</string>
+    <!-- Why an update failed (%1$s of update_failed_manual). NN_AGENT.apk is a file name. -->
+    <string name="update_error_no_apk">Rilis ini belum memiliki NN_AGENT.apk.</string>
     <!-- %1$s = the system's technical error message (usually English). -->
     <string name="update_error_download">Download gagal (%1$s).</string>
     <string name="update_error_not_newer">File yang didownload bukan versi NN yang lebih baru, jadi tidak dibuka.</string>
     <!-- Message after a failed update. %1$s = what went wrong (an update_error_ sentence); %2$s = the web address of the latest release; %3$s = the web address of the update instructions. Obtainium is an app name. -->
-    <string name="update_failed_manual">%1$s Anda juga bisa mendapatkannya di %2$s (buddy.apk), atau dengan Obtainium untuk update otomatis (lihat %3$s).</string>
+    <string name="update_failed_manual">%1$s Anda juga bisa mendapatkannya di %2$s (NN_AGENT.apk), atau dengan Obtainium untuk update otomatis (lihat %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <!-- Light/dark mode, segmented control: keep short. System = follow the phone's setting. -->
@@ -453,8 +453,8 @@
     <string name="chat_linux_tools_info">Perintah, file, dan build aplikasi di Linux NN</string>
     <!-- Title of the sheet that opens when the user turns Linux tools on in a chat. -->
     <string name="chat_linux_tools_title">Aktifkan alat Linux?</string>
-    <!-- ~/.buddy/work is a folder: keep it as is. -->
-    <string name="chat_linux_tools_what">Agen lalu dapat menjalankan perintah, menginstal paket, dan mengedit file di ~/.buddy/work, sehingga bisa membuat aplikasi.</string>
+    <!-- ~/.nn/work is a folder: keep it as is. -->
+    <string name="chat_linux_tools_what">Agen lalu dapat menjalankan perintah, menginstal paket, dan mengedit file di ~/.nn/work, sehingga bisa membuat aplikasi.</string>
     <!-- When the change applies: a task already running goes on as it was. -->
     <string name="chat_linux_tools_when">Hanya di chat ini, mulai dari pesan Anda berikutnya.</string>
     <!-- "it" = the agent. -->
@@ -1058,7 +1058,7 @@
     <string name="codex_pair_failed">Tidak dapat mengambil kode penyambungan: %1$s</string>
     <string name="codex_keeps_stopping">Sesi Codex terus berhenti: %1$s</string>
     <string name="ssh_keeps_stopping">Server SSH terus berhenti: %1$s</string>
-    <string name="ssh_key_added">Selesai. Untuk membuka Linux NN dari Termux, ketik ssh buddy.</string>
+    <string name="ssh_key_added">Selesai. Untuk membuka Linux NN dari Termux, ketik ssh nn.</string>
     <string name="ssh_code_expired">Perintah ini sudah dipakai atau sudah lebih dari 10 menit. Salin lagi di Setelan NN.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -1222,7 +1222,7 @@
     <string name="setup_ssh">SSH dari Termux</string>
     <string name="setup_ssh_info">Gunakan Linux NN dari Termux, lewat SSH. Hanya aplikasi di ponsel ini yang bisa terhubung, dan hanya dengan kunci.</string>
     <string name="setup_ssh_active">berjalan · port %1$d</string>
-    <string name="setup_ssh_how">Salin perintah ini dan jalankan sekali di Termux, dalam 10 menit. Setelah itu, ketik ssh buddy di Termux untuk membuka Linux NN.</string>
+    <string name="setup_ssh_how">Salin perintah ini dan jalankan sekali di Termux, dalam 10 menit. Setelah itu, ketik ssh nn di Termux untuk membuka Linux NN.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Hapus chat Termux lama</string>
@@ -1277,7 +1277,7 @@
     <string name="setup_app_permissions_info">Pilih per aplikasi: Percaya membiarkan agen bekerja di sana tanpa pop-up; Ketat berarti NN sendiri yang bertanya kepada Anda sebelum Kirim, Bayar, Hapus…</string>
     <!-- Settings switch: whether new chats start with Linux tools (chat_linux_tools); each chat can change it. -->
     <string name="setup_dev_mode">Alat Linux di chat baru</string>
-    <string name="setup_dev_mode_info">Dengan alat Linux, agen dapat menjalankan perintah, menginstal paket, dan mengedit file di ~/.buddy/work, sehingga bisa membuat aplikasi. Chat baru dimulai dengan setelan ini; setiap chat bisa mengubahnya di bawah judulnya.</string>
+    <string name="setup_dev_mode_info">Dengan alat Linux, agen dapat menjalankan perintah, menginstal paket, dan mengedit file di ~/.nn/work, sehingga bisa membuat aplikasi. Chat baru dimulai dengan setelan ini; setiap chat bisa mengubahnya di bawah judulnya.</string>
     <string name="setup_agents_tap">Izinkan agen mengetuk layar NN</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">Untuk menguji NN dengan agen (misalnya Claude Code di Termux dengan alat ponsel). Balon, kartu persetujuan, Izin aplikasi, dan tombol-tombol ini tetap tidak bisa diketuk agen.</string>
@@ -1310,9 +1310,9 @@
     <string name="terminal_hide_keyboard">Sembunyikan keyboard</string>
     <!-- Read by TalkBack: button that opens the terminal menu. -->
     <string name="terminal_menu">Menu</string>
-    <!-- Status line under the title, lowercase. "buddy linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
+    <!-- Status line under the title, lowercase. "nn linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
     <plurals name="terminal_sessions_count">
-        <item quantity="other">%1$d sesi · buddy linux</item>
+        <item quantity="other">%1$d sesi · nn linux</item>
     </plurals>
     <!-- Status line under the title while the microphone is in use, lowercase. -->
     <string name="terminal_listening">mendengarkan · mikrofon aktif</string>

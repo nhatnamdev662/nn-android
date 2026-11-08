@@ -153,7 +153,7 @@ final class PhoneTools {
         svc.runOnMain(() -> {
             try {
                 ClipboardManager cm = (ClipboardManager) svc.getSystemService(Context.CLIPBOARD_SERVICE);
-                cm.setPrimaryClip(ClipData.newPlainText("Buddy", text));
+                cm.setPrimaryClip(ClipData.newPlainText("NN", text));
             } catch (Exception e) {
                 err.set(String.valueOf(e.getMessage()));
             }
@@ -353,7 +353,7 @@ final class PhoneTools {
         android.service.notification.StatusBarNotification[] all = NotificationWatcher.active();
         Context w = NotificationWatcher.context();
         if (all == null || w == null) {
-            return "Buddy has no notification access. The user can turn it on in Settings → Experience → Notification rules.";
+            return "NN has no notification access. The user can turn it on in Settings → Experience → Notification rules.";
         }
         StringBuilder b = new StringBuilder();
         java.text.DateFormat time = android.text.format.DateFormat.getTimeFormat(svc);
@@ -546,7 +546,7 @@ final class PhoneTools {
             });
             done.await(25, TimeUnit.SECONDS);
         } catch (SecurityException e) {
-            return "Buddy isn't allowed to use the location.";
+            return "NN isn't allowed to use the location.";
         } finally {
             cancel.cancel();
         }

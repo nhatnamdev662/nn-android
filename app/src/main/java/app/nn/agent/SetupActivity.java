@@ -394,7 +394,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         copy.setCompoundDrawablePadding(dp(this, 8));
         copy.setOnClickListener(v -> {
             ClipboardManager cm = getSystemService(ClipboardManager.class);
-            cm.setPrimaryClip(ClipData.newPlainText("Buddy MCP", cmd));
+            cm.setPrimaryClip(ClipData.newPlainText("NN MCP", cmd));
             Toast.makeText(this, R.string.setup_command_copied, Toast.LENGTH_SHORT).show();
         });
         LinearLayout.LayoutParams cpp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 44));
@@ -603,7 +603,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 sshCopy.setCompoundDrawablePadding(dp(this, 8));
                 sshCopy.setOnClickListener(v -> {
                     ClipboardManager cm = getSystemService(ClipboardManager.class);
-                    cm.setPrimaryClip(ClipData.newPlainText("Buddy SSH", sshCommand(SshServer.newCode())));
+                    cm.setPrimaryClip(ClipData.newPlainText("NN SSH", sshCommand(SshServer.newCode())));
                     Toast.makeText(this, R.string.setup_command_copied, Toast.LENGTH_SHORT).show();
                 });
                 LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 44));
@@ -775,7 +775,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         ex.addView(bk, full());
         addCard(ex);
 
-        TextView ver = monoText(this, "buddy " + BuildInfo.VERSION + " · " + getPackageName(), 12, MUTED);
+        TextView ver = monoText(this, "nn agent " + BuildInfo.VERSION + " · " + getPackageName(), 12, MUTED);
         ver.setGravity(Gravity.CENTER);
         ver.setPaddingRelative(0, dp(this, 24), 0, 0);
         list.addView(ver, full());
@@ -1161,9 +1161,9 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 + " mkdir -p ~/.ssh && { [ -f ~/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519; }"
                 + " && curl -sS --fail-with-body -H 'Authorization: Bearer " + code + "' --data-binary @$HOME/.ssh/id_ed25519.pub"
                 + " http://127.0.0.1:" + McpServer.PORT + "/ssh-key"
-                + " && { grep -qx 'Host buddy' ~/.ssh/config 2>/dev/null || printf '\\nHost buddy\\n  HostName 127.0.0.1\\n  Port "
+                + " && { grep -qx 'Host nn' ~/.ssh/config 2>/dev/null || printf '\\nHost nn\\n  HostName 127.0.0.1\\n  Port "
                 + SshServer.PORT + "\\n  User root\\n' >> ~/.ssh/config; }"
-                + " && ssh -o StrictHostKeyChecking=accept-new buddy true";
+                + " && ssh -o StrictHostKeyChecking=accept-new nn true";
     }
 
     private java.util.List<Sessions.Session> termuxChats() {

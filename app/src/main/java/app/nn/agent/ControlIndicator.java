@@ -114,7 +114,7 @@ final class ControlIndicator {
                 .setContentIntent(open)
                 .addExtras(extras)
                 .addAction(new Notification.Action.Builder(null, svc.getString(R.string.control_stop), stop).build());
-        if (android.os.Build.VERSION.SDK_INT >= 36) b.setShortCriticalText("Buddy");
+        if (android.os.Build.VERSION.SDK_INT >= 36) b.setShortCriticalText("NN");
         try {
             nm.notify(NOTIFICATION_ID, b.build());
         } catch (SecurityException ignored) {

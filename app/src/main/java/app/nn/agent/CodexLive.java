@@ -59,7 +59,7 @@ final class CodexLive {
             + "keeping the meaning exactly; don't read out long lists, code or links, and never add anything the agent "
             + "didn't say. When the agent waits for the user to approve something or to answer a question, say what it "
             + "is in a sentence and ask them to answer out loud (yes or no, or one of the choices) or on the screen. "
-            + "Buddy takes their spoken answer itself: never say something is approved or chosen unless a "
+            + "NN takes their spoken answer itself: never say something is approved or chosen unless a "
             + AGENT.trim() + " message says so.";
 
     /** The chat screen showing the live bar. */

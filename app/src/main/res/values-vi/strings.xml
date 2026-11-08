@@ -233,13 +233,13 @@
     <string name="update_downloading">Đang tải về…</string>
     <!-- "Update" = the button (update_action). -->
     <string name="update_needs_permission">Cho phép NN cài ứng dụng, rồi nhấn Cập nhật lần nữa.</string>
-    <!-- Why an update failed (%1$s of update_failed_manual). buddy.apk is a file name. -->
-    <string name="update_error_no_apk">Bản phát hành này chưa có buddy.apk.</string>
+    <!-- Why an update failed (%1$s of update_failed_manual). NN_AGENT.apk is a file name. -->
+    <string name="update_error_no_apk">Bản phát hành này chưa có NN_AGENT.apk.</string>
     <!-- %1$s = the system's technical error message (usually English). -->
     <string name="update_error_download">Tải về thất bại (%1$s).</string>
     <string name="update_error_not_newer">Tệp đã tải không phải bản NN mới hơn, nên không được mở.</string>
     <!-- Message after a failed update. %1$s = what went wrong (an update_error_ sentence); %2$s = the web address of the latest release; %3$s = the web address of the update instructions. Obtainium is an app name. -->
-    <string name="update_failed_manual">%1$s Bạn cũng có thể tải tại %2$s (buddy.apk), hoặc dùng Obtainium để tự động cập nhật (xem %3$s).</string>
+    <string name="update_failed_manual">%1$s Bạn cũng có thể tải tại %2$s (NN_AGENT.apk), hoặc dùng Obtainium để tự động cập nhật (xem %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <!-- Light/dark mode, segmented control: keep short. System = follow the phone's setting. -->
@@ -467,8 +467,8 @@
     <string name="chat_linux_tools_info">Lệnh, tệp và dựng ứng dụng trong Linux của NN</string>
     <!-- Title of the sheet that opens when the user turns Linux tools on in a chat. -->
     <string name="chat_linux_tools_title">Bật công cụ Linux?</string>
-    <!-- ~/.buddy/work is a folder: keep it as is. -->
-    <string name="chat_linux_tools_what">Khi đó agent có thể chạy lệnh, cài gói và sửa tệp trong ~/.buddy/work, nên nó có thể dựng ứng dụng.</string>
+    <!-- ~/.nn/work is a folder: keep it as is. -->
+    <string name="chat_linux_tools_what">Khi đó agent có thể chạy lệnh, cài gói và sửa tệp trong ~/.nn/work, nên nó có thể dựng ứng dụng.</string>
     <!-- When the change applies: a task already running goes on as it was. -->
     <string name="chat_linux_tools_when">Chỉ trong cuộc trò chuyện này, từ tin nhắn tiếp theo của bạn.</string>
     <!-- "it" = the agent. -->
@@ -1116,8 +1116,8 @@
     <string name="codex_keeps_stopping">Phiên Codex cứ bị dừng: %1$s</string>
     <!-- %1$s = the server's last message, in English. -->
     <string name="ssh_keeps_stopping">Máy chủ SSH cứ bị dừng: %1$s</string>
-    <!-- Shown in Termux after the copied command ran, and as a toast. "ssh buddy" is a command: keep it as is. -->
-    <string name="ssh_key_added">Xong. Để mở Linux của NN từ Termux, hãy gõ ssh buddy.</string>
+    <!-- Shown in Termux after the copied command ran, and as a toast. "ssh nn" is a command: keep it as is. -->
+    <string name="ssh_key_added">Xong. Để mở Linux của NN từ Termux, hãy gõ ssh nn.</string>
     <!-- Shown in Termux when the copied command was already used or is too old. -->
     <string name="ssh_code_expired">Lệnh này đã được dùng hoặc đã quá 10 phút. Hãy sao chép lại trong Cài đặt của NN.</string>
 
@@ -1196,7 +1196,7 @@
     <!-- Setting: NN's face on the floating bubble and next to its replies. Title above two short choices. -->
     <string name="setup_face">Diện mạo của NN</string>
     <!-- Choice: NN's own drawn face. Keep it short. -->
-    <string name="setup_face_buddy">Gốc</string>
+    <string name="setup_face_buddy">NN</string>
     <!-- Choice: a picture the user picks from the phone. Keep it short. -->
     <string name="setup_face_picture">Ảnh của bạn</string>
     <string name="setup_face_note">Ảnh PNG hoặc WebP có nền trong suốt là đẹp nhất. Ảnh hiện trên bong bóng và cạnh câu trả lời của NN.</string>
@@ -1289,8 +1289,8 @@
     <string name="setup_ssh_info">Dùng Linux của NN từ Termux, qua SSH. Chỉ ứng dụng trên điện thoại này mới kết nối được, và chỉ khi có khóa.</string>
     <!-- Status, lowercase. %1$d = a port number. -->
     <string name="setup_ssh_active">đang chạy · cổng %1$d</string>
-    <!-- "ssh buddy" is a command: keep it as is. -->
-    <string name="setup_ssh_how">Sao chép lệnh này và chạy một lần trong Termux, trong vòng 10 phút. Sau đó, gõ ssh buddy trong Termux để mở Linux của NN.</string>
+    <!-- "ssh nn" is a command: keep it as is. -->
+    <string name="setup_ssh_how">Sao chép lệnh này và chạy một lần trong Termux, trong vòng 10 phút. Sau đó, gõ ssh nn trong Termux để mở Linux của NN.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Gỡ các cuộc trò chuyện Termux cũ</string>
@@ -1348,7 +1348,7 @@
     <string name="setup_rules_info">Để agent hành động khi có thông báo đến: trả lời tin nhắn, thêm một đơn giao hàng vào lịch…</string>
     <!-- Settings switch: whether new chats start with Linux tools (chat_linux_tools); each chat can change it. -->
     <string name="setup_dev_mode">Công cụ Linux trong trò chuyện mới</string>
-    <string name="setup_dev_mode_info">Công cụ Linux cho agent chạy lệnh, cài gói và sửa tệp trong ~/.buddy/work, nên nó có thể dựng ứng dụng. Các cuộc trò chuyện mới bắt đầu với cài đặt này; mỗi cuộc trò chuyện có thể đổi nó dưới tiêu đề.</string>
+    <string name="setup_dev_mode_info">Công cụ Linux cho agent chạy lệnh, cài gói và sửa tệp trong ~/.nn/work, nên nó có thể dựng ứng dụng. Các cuộc trò chuyện mới bắt đầu với cài đặt này; mỗi cuộc trò chuyện có thể đổi nó dưới tiêu đề.</string>
     <string name="setup_agents_tap">Cho agent nhấn vào màn hình của NN</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">Để thử NN bằng một agent (ví dụ Claude Code trong Termux có công cụ điện thoại). Bong bóng, thẻ duyệt, Quyền ứng dụng và các công tắc này vẫn bị cấm chạm.</string>
@@ -1381,9 +1381,9 @@
     <string name="terminal_hide_keyboard">Ẩn bàn phím</string>
     <!-- Read by TalkBack: button that opens the terminal menu. -->
     <string name="terminal_menu">Menu</string>
-    <!-- Status line under the title, lowercase. "buddy linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
+    <!-- Status line under the title, lowercase. "nn linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
     <plurals name="terminal_sessions_count">
-        <item quantity="other">%1$d phiên · buddy linux</item>
+        <item quantity="other">%1$d phiên · nn linux</item>
     </plurals>
     <!-- Status line under the title while the microphone is in use, lowercase. -->
     <string name="terminal_listening">đang nghe · micrô đang bật</string>

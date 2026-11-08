@@ -131,7 +131,7 @@ final class Helper {
 
     /** Copies the helper files from the APK into Linux once per app version. */
     static synchronized void sync(Context c) throws IOException {
-        if (syncedFor == BuildInfo.VERSION_CODE && new File(Linux.root(c), "root/bin/buddy-run").exists()) return;
+        if (syncedFor == BuildInfo.VERSION_CODE && new File(Linux.root(c), "root/bin/buddy-run").length() > 500) return;
         File root = Linux.root(c);
         for (String[] f : FILES) {
             File out = new File(root, f[1].substring(1));

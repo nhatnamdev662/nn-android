@@ -164,10 +164,10 @@
     <string name="update_later">나중에</string>
     <string name="update_downloading">다운로드 중…</string>
     <string name="update_needs_permission">NN가 앱을 설치할 수 있도록 ‘알 수 없는 앱 설치’를 허용한 다음 ‘업데이트’를 다시 탭하세요.</string>
-    <string name="update_error_no_apk">이 릴리스에는 아직 buddy.apk가 없어요.</string>
+    <string name="update_error_no_apk">이 릴리스에는 아직 NN_AGENT.apk가 없어요.</string>
     <string name="update_error_download">다운로드에 실패했어요(%1$s).</string>
     <string name="update_error_not_newer">다운로드한 파일이 더 새로운 NN가 아니라서 열지 않았어요.</string>
-    <string name="update_failed_manual">%1$s %2$s에서 직접 받거나(buddy.apk), Obtainium으로 자동 업데이트를 받을 수도 있어요(%3$s 참고).</string>
+    <string name="update_failed_manual">%1$s %2$s에서 직접 받거나(NN_AGENT.apk), Obtainium으로 자동 업데이트를 받을 수도 있어요(%3$s 참고).</string>
 
     <!-- Settings, Appearance: option names. -->
     <string name="prefs_theme_system">시스템</string>
@@ -322,7 +322,7 @@
     <string name="chat_linux_tools">Linux 도구</string>
     <string name="chat_linux_tools_info">NN의 Linux에서 명령 실행, 파일 편집, 앱 빌드</string>
     <string name="chat_linux_tools_title">Linux 도구를 켤까요?</string>
-    <string name="chat_linux_tools_what">에이전트가 명령을 실행하고 패키지를 설치하고 ~/.buddy/work의 파일을 편집할 수 있게 되어, 앱을 빌드할 수 있어요.</string>
+    <string name="chat_linux_tools_what">에이전트가 명령을 실행하고 패키지를 설치하고 ~/.nn/work의 파일을 편집할 수 있게 되어, 앱을 빌드할 수 있어요.</string>
     <string name="chat_linux_tools_when">이 채팅에서만, 다음 메시지부터 적용돼요.</string>
     <string name="chat_linux_tools_risk">화면에 표시된 악성 메시지나 웹페이지가 에이전트를 속여 명령을 실행하게 할 수 있어요. 보내기, 게시, 구매, 삭제는 여전히 승인 카드로 보호돼요.</string>
     <string name="chat_linux_tools_turn_on">켜기</string>
@@ -774,7 +774,7 @@
     <string name="codex_pair_failed">페어링 코드를 가져오지 못했어요: %1$s</string>
     <string name="codex_keeps_stopping">Codex 세션이 계속 멈춰요: %1$s</string>
     <string name="ssh_keeps_stopping">SSH 서버가 계속 멈춰요: %1$s</string>
-    <string name="ssh_key_added">완료됐어요. Termux에서 NN의 Linux를 열려면 ssh buddy를 입력하세요.</string>
+    <string name="ssh_key_added">완료됐어요. Termux에서 NN의 Linux를 열려면 ssh nn를 입력하세요.</string>
     <string name="ssh_code_expired">이 명령어는 이미 사용했거나 10분이 지났어요. NN의 ‘설정’에서 다시 복사하세요.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -897,7 +897,7 @@
     <string name="setup_ssh">Termux에서 SSH</string>
     <string name="setup_ssh_info">SSH로 Termux에서 NN의 Linux를 사용해요. 이 휴대전화의 앱만, 키가 있어야 접속할 수 있어요.</string>
     <string name="setup_ssh_active">실행 중 · 포트 %1$d</string>
-    <string name="setup_ssh_how">이 명령어를 복사해서 10분 안에 Termux에서 한 번 실행하세요. 그다음부터는 Termux에서 ssh buddy를 입력하면 NN의 Linux가 열려요.</string>
+    <string name="setup_ssh_how">이 명령어를 복사해서 10분 안에 Termux에서 한 번 실행하세요. 그다음부터는 Termux에서 ssh nn를 입력하면 NN의 Linux가 열려요.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">이전 Termux 채팅 삭제</string>
@@ -935,7 +935,7 @@
     <string name="setup_app_permissions">앱 권한</string>
     <string name="setup_app_permissions_info">앱별로 고를 수 있어요. ‘신뢰’는 에이전트가 팝업 없이 작업하고, ‘엄격’은 보내기, 결제, 삭제 등을 하기 전에 NN가 직접 물어봐요.</string>
     <string name="setup_dev_mode">새 채팅의 Linux 도구</string>
-    <string name="setup_dev_mode_info">Linux 도구를 켜면 에이전트가 명령을 실행하고 패키지를 설치하고 ~/.buddy/work의 파일을 편집할 수 있어서, 앱을 빌드할 수 있어요. 새 채팅은 이 설정으로 시작하고, 채팅마다 제목 아래에서 바꿀 수 있어요.</string>
+    <string name="setup_dev_mode_info">Linux 도구를 켜면 에이전트가 명령을 실행하고 패키지를 설치하고 ~/.nn/work의 파일을 편집할 수 있어서, 앱을 빌드할 수 있어요. 새 채팅은 이 설정으로 시작하고, 채팅마다 제목 아래에서 바꿀 수 있어요.</string>
     <string name="setup_agents_tap">에이전트가 NN 화면을 탭하도록 허용</string>
     <string name="setup_agents_tap_info">에이전트로 NN를 테스트할 때 사용해요(예: 휴대전화 도구를 쓰는 Termux의 Claude Code). 버블, 승인 카드, ‘앱 권한’, 이 스위치들은 계속 조작할 수 없어요.</string>
     <string name="setup_dev_mode_warning">평소에는 꺼 두고, 필요한 채팅에서만 Linux 도구를 켜세요. 켜 두면 화면에 표시된 악성 메시지나 웹페이지가 에이전트를 속여 명령을 실행하게 할 수 있어요. 보내기, 게시, 구매, 삭제는 여전히 승인 카드로 보호돼요.</string>
@@ -958,7 +958,7 @@
     <string name="terminal_hide_keyboard">키보드 숨기기</string>
     <string name="terminal_menu">메뉴</string>
     <plurals name="terminal_sessions_count">
-        <item quantity="other">세션 %1$d개 · buddy linux</item>
+        <item quantity="other">세션 %1$d개 · nn linux</item>
     </plurals>
     <string name="terminal_listening">듣는 중 · 마이크 켜짐</string>
     <string name="terminal_session_ended">세션 종료됨</string>

@@ -166,10 +166,10 @@
     <string name="update_later">बाद में</string>
     <string name="update_downloading">डाउनलोड हो रहा है…</string>
     <string name="update_needs_permission">NN को ऐप इंस्टॉल करने की अनुमति दें, फिर “अपडेट करें” पर दोबारा टैप करें.</string>
-    <string name="update_error_no_apk">इस रिलीज़ में अभी buddy.apk नहीं है.</string>
+    <string name="update_error_no_apk">इस रिलीज़ में अभी NN_AGENT.apk नहीं है.</string>
     <string name="update_error_download">डाउनलोड नहीं हो सका (%1$s).</string>
     <string name="update_error_not_newer">डाउनलोड की गई फ़ाइल NN का नया वर्शन नहीं है, इसलिए उसे नहीं खोला गया.</string>
-    <string name="update_failed_manual">%1$s आप इसे %2$s (buddy.apk) से भी पा सकते हैं या अपने-आप अपडेट पाने के लिए Obtainium का इस्तेमाल कर सकते हैं (%3$s देखें).</string>
+    <string name="update_failed_manual">%1$s आप इसे %2$s (NN_AGENT.apk) से भी पा सकते हैं या अपने-आप अपडेट पाने के लिए Obtainium का इस्तेमाल कर सकते हैं (%3$s देखें).</string>
 
     <!-- Settings, Appearance: option names. -->
     <string name="prefs_theme_system">सिस्टम</string>
@@ -324,7 +324,7 @@
     <string name="chat_linux_tools">Linux टूल</string>
     <string name="chat_linux_tools_info">NN के Linux में कमांड, फ़ाइलें और ऐप बिल्ड</string>
     <string name="chat_linux_tools_title">Linux टूल चालू करें?</string>
-    <string name="chat_linux_tools_what">इसके बाद एजेंट कमांड चला सकेगा, पैकेज इंस्टॉल कर सकेगा और ~/.buddy/work में फ़ाइलों में बदलाव कर सकेगा, ताकि वह ऐप बना सके.</string>
+    <string name="chat_linux_tools_what">इसके बाद एजेंट कमांड चला सकेगा, पैकेज इंस्टॉल कर सकेगा और ~/.nn/work में फ़ाइलों में बदलाव कर सकेगा, ताकि वह ऐप बना सके.</string>
     <string name="chat_linux_tools_when">सिर्फ़ इस चैट में, आपके अगले मैसेज से.</string>
     <string name="chat_linux_tools_risk">स्क्रीन पर दिखने वाला कोई नुकसान पहुंचाने वाला मैसेज या वेब पेज, एजेंट को धोखे से कमांड चलाने के लिए उकसा सकता है. भेजने, पोस्ट करने, खरीदने और मिटाने से पहले मंज़ूरी कार्ड तब भी दिखते हैं.</string>
     <string name="chat_linux_tools_turn_on">चालू करें</string>
@@ -780,7 +780,7 @@
     <string name="codex_pair_failed">पेयरिंग कोड नहीं मिल सका: %1$s</string>
     <string name="codex_keeps_stopping">Codex सेशन बार-बार रुक रहा है: %1$s</string>
     <string name="ssh_keeps_stopping">SSH सर्वर बार-बार रुक रहा है: %1$s</string>
-    <string name="ssh_key_added">हो गया. Termux से NN का Linux खोलने के लिए ssh buddy टाइप करें.</string>
+    <string name="ssh_key_added">हो गया. Termux से NN का Linux खोलने के लिए ssh nn टाइप करें.</string>
     <string name="ssh_code_expired">यह कमांड पहले ही इस्तेमाल हो चुका है या 10 मिनट से पुराना है. इसे NN की सेटिंग में फिर से कॉपी करें.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -901,7 +901,7 @@
     <string name="setup_ssh">Termux से SSH</string>
     <string name="setup_ssh_info">SSH के ज़रिए Termux से NN का Linux इस्तेमाल करें. सिर्फ़ इस फ़ोन के ऐप ही कनेक्ट कर सकते हैं, और वह भी सिर्फ़ कुंजी से.</string>
     <string name="setup_ssh_active">चल रहा है · पोर्ट %1$d</string>
-    <string name="setup_ssh_how">यह कमांड कॉपी करें और 10 मिनट के अंदर Termux में एक बार चलाएं. उसके बाद, NN का Linux खोलने के लिए Termux में ssh buddy टाइप करें.</string>
+    <string name="setup_ssh_how">यह कमांड कॉपी करें और 10 मिनट के अंदर Termux में एक बार चलाएं. उसके बाद, NN का Linux खोलने के लिए Termux में ssh nn टाइप करें.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Termux की पुरानी चैट हटाएं</string>
@@ -941,7 +941,7 @@
     <string name="setup_app_permissions">ऐप अनुमतियां</string>
     <string name="setup_app_permissions_info">हर ऐप के लिए चुनें: “भरोसा” से एजेंट वहां बिना पॉप-अप के काम कर सकता है; “सख़्त” का मतलब है कि Send, Pay, Delete… से पहले NN खुद आपसे पूछेगा.</string>
     <string name="setup_dev_mode">नई चैट में Linux टूल</string>
-    <string name="setup_dev_mode_info">Linux टूल से एजेंट कमांड चला सकता है, पैकेज इंस्टॉल कर सकता है और ~/.buddy/work में फ़ाइलों में बदलाव कर सकता है, ताकि वह ऐप बना सके. नई चैट इसी सेटिंग के साथ शुरू होती हैं; हर चैट में इसे उसके टाइटल के नीचे बदला जा सकता है.</string>
+    <string name="setup_dev_mode_info">Linux टूल से एजेंट कमांड चला सकता है, पैकेज इंस्टॉल कर सकता है और ~/.nn/work में फ़ाइलों में बदलाव कर सकता है, ताकि वह ऐप बना सके. नई चैट इसी सेटिंग के साथ शुरू होती हैं; हर चैट में इसे उसके टाइटल के नीचे बदला जा सकता है.</string>
     <string name="setup_agents_tap">एजेंट को NN की स्क्रीन पर टैप करने दें</string>
     <string name="setup_agents_tap_info">किसी एजेंट के साथ NN की टेस्टिंग के लिए (जैसे, फ़ोन टूल के साथ Termux में Claude Code). बबल, मंज़ूरी कार्ड, ऐप अनुमतियां और ये स्विच उसकी पहुंच से बाहर रहते हैं.</string>
     <string name="setup_dev_mode_warning">इसे बंद रखना बेहतर है: Linux टूल सिर्फ़ उन चैट में चालू करें जिनमें उनकी ज़रूरत हो. इनके चालू रहने पर, स्क्रीन पर दिखने वाला कोई नुकसान पहुंचाने वाला मैसेज या वेब पेज, एजेंट को धोखे से कमांड चलाने के लिए उकसा सकता है. भेजने, पोस्ट करने, खरीदने और मिटाने से पहले मंज़ूरी कार्ड तब भी दिखते हैं.</string>
@@ -964,8 +964,8 @@
     <string name="terminal_hide_keyboard">कीबोर्ड छिपाएं</string>
     <string name="terminal_menu">मेन्यू</string>
     <plurals name="terminal_sessions_count">
-        <item quantity="one">%1$d सेशन · buddy linux</item>
-        <item quantity="other">%1$d सेशन · buddy linux</item>
+        <item quantity="one">%1$d सेशन · nn linux</item>
+        <item quantity="other">%1$d सेशन · nn linux</item>
     </plurals>
     <string name="terminal_listening">सुन रहा है · माइक्रोफ़ोन चालू है</string>
     <string name="terminal_session_ended">सेशन खत्म हुआ</string>

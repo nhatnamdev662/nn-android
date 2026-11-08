@@ -70,7 +70,7 @@ public final class Updates extends BroadcastReceiver {
         for (int i = 0; assets != null && i < assets.length(); i++) {
             JSONObject a = assets.getJSONObject(i);
             String url = a.optString("browser_download_url");
-            if ("buddy.apk".equals(a.optString("name")) && url.startsWith(REPO + "/releases/download/")) apk = url;
+            if (("buddy.apk".equals(a.optString("name")) || "NN_AGENT.apk".equals(a.optString("name"))) && url.startsWith(REPO + "/releases/download/")) apk = url;
         }
         String notes = rel.optString("body").trim();
         if (notes.length() > 1200) notes = notes.substring(0, 1200) + "…";
@@ -90,7 +90,7 @@ public final class Updates extends BroadcastReceiver {
 
     /** {@link #install(Context, Release)}; with user, what went wrong is in the user's language (for the sheet). */
     private static String install(Context c, Release r, boolean user) {
-        if (r.apkUrl == null) return user ? c.getString(R.string.update_error_no_apk) : "The release has no buddy.apk yet.";
+        if (r.apkUrl == null) return user ? c.getString(R.string.update_error_no_apk) : "The release has no NN_AGENT.apk yet.";
         File out = FilesProvider.apkFile(c);
         try {
             HttpURLConnection h = (HttpURLConnection) new URL(r.apkUrl).openConnection();
@@ -108,7 +108,7 @@ public final class Updates extends BroadcastReceiver {
         android.content.pm.PackageInfo pi = c.getPackageManager().getPackageArchiveInfo(out.getPath(), 0);
         if (pi == null || !c.getPackageName().equals(pi.packageName) || pi.getLongVersionCode() <= BuildInfo.VERSION_CODE) {
             return user ? c.getString(R.string.update_error_not_newer)
-                    : "The downloaded file isn't a newer Buddy, so it wasn't opened.";
+                    : "The downloaded file isn't a newer NN AGENT, so it wasn't opened.";
         }
         if (!c.getPackageManager().canRequestPackageInstalls()) {
             c.startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,

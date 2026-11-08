@@ -709,7 +709,7 @@ final class Ui {
                 int a = Math.min(t.getSelectionStart(), t.getSelectionEnd()), b = Math.max(t.getSelectionStart(), t.getSelectionEnd());
                 if (a < 0 || b <= a) return false;
                 t.getContext().getSystemService(android.content.ClipboardManager.class)
-                        .setPrimaryClip(android.content.ClipData.newPlainText("Buddy", linkCopy(t.getText(), a, b)));
+                        .setPrimaryClip(android.content.ClipData.newPlainText("NN", linkCopy(t.getText(), a, b)));
                 mode.finish();
                 return true;
             }

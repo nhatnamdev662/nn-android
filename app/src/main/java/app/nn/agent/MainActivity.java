@@ -148,7 +148,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         top.addView(tile, new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40)));
         LinearLayout name = column(this);
         name.setPaddingRelative(dp(this, 12), 0, 0, 0);
-        name.addView(title(this, "Buddy", 22));
+        name.addView(title(this, getString(R.string.app_name), 22));
         LinearLayout status = row(this);
         status.addView(dot(this, ready ? OK : ACCENT, 7));
         TextView st = monoText(this, ready ? getString(R.string.main_status_ready, "127.0.0.1:" + McpServer.PORT)

@@ -238,13 +238,13 @@
     <string name="update_downloading">Завантаження…</string>
     <!-- "Update" = the button (update_action). -->
     <string name="update_needs_permission">Дозвольте NN встановлювати додатки, а потім знову натисніть «Оновити».</string>
-    <!-- Why an update failed (%1$s of update_failed_manual). buddy.apk is a file name. -->
-    <string name="update_error_no_apk">У релізі ще немає buddy.apk.</string>
+    <!-- Why an update failed (%1$s of update_failed_manual). NN_AGENT.apk is a file name. -->
+    <string name="update_error_no_apk">У релізі ще немає NN_AGENT.apk.</string>
     <!-- %1$s = the system's technical error message (usually English). -->
     <string name="update_error_download">Не вдалося завантажити файл (%1$s).</string>
     <string name="update_error_not_newer">Завантажений файл не є новішою версією NN, тому його не відкрито.</string>
     <!-- Message after a failed update. %1$s = what went wrong (an update_error_ sentence); %2$s = the web address of the latest release; %3$s = the web address of the update instructions. Obtainium is an app name. -->
-    <string name="update_failed_manual">%1$s Оновлення також можна завантажити з %2$s (buddy.apk) або отримувати автоматично через Obtainium (див. %3$s).</string>
+    <string name="update_failed_manual">%1$s Оновлення також можна завантажити з %2$s (NN_AGENT.apk) або отримувати автоматично через Obtainium (див. %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <!-- Light/dark mode, segmented control: keep short. System = follow the phone's setting. -->
@@ -465,8 +465,8 @@
     <string name="chat_linux_tools_info">Команди, файли й збирання додатків у вбудованому Linux</string>
     <!-- Title of the sheet that opens when the user turns Linux tools on in a chat. -->
     <string name="chat_linux_tools_title">Увімкнути інструменти Linux?</string>
-    <!-- ~/.buddy/work is a folder: keep it as is. -->
-    <string name="chat_linux_tools_what">Агент зможе виконувати команди, встановлювати пакети й редагувати файли в ~/.buddy/work, щоб створювати додатки.</string>
+    <!-- ~/.nn/work is a folder: keep it as is. -->
+    <string name="chat_linux_tools_what">Агент зможе виконувати команди, встановлювати пакети й редагувати файли в ~/.nn/work, щоб створювати додатки.</string>
     <!-- When the change applies: a task already running goes on as it was. -->
     <string name="chat_linux_tools_when">Лише в цьому чаті, починаючи з вашого наступного повідомлення.</string>
     <!-- "it" = the agent. -->
@@ -1085,7 +1085,7 @@
     <string name="codex_pair_failed">Не вдалося отримати код під’єднання: %1$s</string>
     <string name="codex_keeps_stopping">Сеанс Codex постійно зупиняється: %1$s</string>
     <string name="ssh_keeps_stopping">SSH-сервер постійно зупиняється: %1$s</string>
-    <string name="ssh_key_added">Готово. Щоб відкрити вбудований Linux з Termux, введіть ssh buddy.</string>
+    <string name="ssh_key_added">Готово. Щоб відкрити вбудований Linux з Termux, введіть ssh nn.</string>
     <string name="ssh_code_expired">Цю команду вже використано, або їй понад 10 хвилин. Скопіюйте її знову в «Налаштуваннях» NN.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -1249,7 +1249,7 @@
     <string name="setup_ssh">SSH з Termux</string>
     <string name="setup_ssh_info">Користуйтеся вбудованим Linux з Termux через SSH. Під’єднатися можуть лише додатки на цьому телефоні й лише з ключем.</string>
     <string name="setup_ssh_active">працює · порт %1$d</string>
-    <string name="setup_ssh_how">Скопіюйте цю команду й виконайте її один раз у Termux протягом 10 хвилин. Після цього вводьте ssh buddy у Termux, щоб відкрити вбудований Linux.</string>
+    <string name="setup_ssh_how">Скопіюйте цю команду й виконайте її один раз у Termux протягом 10 хвилин. Після цього вводьте ssh nn у Termux, щоб відкрити вбудований Linux.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Вилучити старі чати Termux</string>
@@ -1310,7 +1310,7 @@
     <string name="setup_app_permissions_info">Вибирайте для кожного додатка: у режимі «Довіра» агент працює там без запитів; у режимі «Суворий» NN сам питає вас перед «Надіслати», «Оплатити», «Видалити»…</string>
     <!-- Settings switch: whether new chats start with Linux tools (chat_linux_tools); each chat can change it. -->
     <string name="setup_dev_mode">Інструменти Linux у нових чатах</string>
-    <string name="setup_dev_mode_info">З інструментами Linux агент може виконувати команди, встановлювати пакети й редагувати файли в ~/.buddy/work, щоб створювати додатки. Нові чати отримують це значення; у кожному чаті його можна змінити під назвою чату.</string>
+    <string name="setup_dev_mode_info">З інструментами Linux агент може виконувати команди, встановлювати пакети й редагувати файли в ~/.nn/work, щоб створювати додатки. Нові чати отримують це значення; у кожному чаті його можна змінити під назвою чату.</string>
     <string name="setup_agents_tap">Дозволити агентам натискати на екранах NN</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">Для тестування NN за допомогою агента (наприклад, Claude Code у Termux з інструментами телефона). Бульбашка, картки схвалення, «Дозволи додатків» і ці перемикачі залишаються недоступними.</string>
@@ -1343,12 +1343,12 @@
     <string name="terminal_hide_keyboard">Сховати клавіатуру</string>
     <!-- Read by TalkBack: button that opens the terminal menu. -->
     <string name="terminal_menu">Меню</string>
-    <!-- Status line under the title, lowercase. "buddy linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
+    <!-- Status line under the title, lowercase. "nn linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
     <plurals name="terminal_sessions_count">
-        <item quantity="one">%1$d сеанс · buddy linux</item>
-        <item quantity="few">%1$d сеанси · buddy linux</item>
-        <item quantity="many">%1$d сеансів · buddy linux</item>
-        <item quantity="other">%1$d сеансу · buddy linux</item>
+        <item quantity="one">%1$d сеанс · nn linux</item>
+        <item quantity="few">%1$d сеанси · nn linux</item>
+        <item quantity="many">%1$d сеансів · nn linux</item>
+        <item quantity="other">%1$d сеансу · nn linux</item>
     </plurals>
     <!-- Status line under the title while the microphone is in use, lowercase. -->
     <string name="terminal_listening">слухаю · мікрофон увімкнено</string>

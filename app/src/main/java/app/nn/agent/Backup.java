@@ -52,7 +52,7 @@ final class Backup {
         File prefsDir = new File(c.getApplicationInfo().dataDir, "shared_prefs");
         try (ZipOutputStream z = new ZipOutputStream(new FileOutputStream(tmp))) {
             z.putNextEntry(new ZipEntry("buddy-backup.txt"));
-            z.write(("Buddy " + BuildInfo.VERSION + " backup\n").getBytes());
+            z.write(("NN AGENT " + BuildInfo.VERSION + " backup\n").getBytes());
             for (String p : PREFS) {
                 File f = new File(prefsDir, p + ".xml");
                 if (!f.isFile()) continue;
@@ -72,7 +72,7 @@ final class Backup {
         }
         ContentValues v = new ContentValues();
         v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-        v.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/Buddy");
+        v.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/NN");
         v.put(MediaStore.MediaColumns.MIME_TYPE, "application/zip");
         Uri u = c.getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
         if (u == null) throw new Exception("Couldn't write to Downloads.");

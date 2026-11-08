@@ -213,7 +213,7 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
 
             LinearLayout tags = row(this);
             tags.setPaddingRelative(0, dp(this, 6), 0, 0);
-            tags.addView(tag(chat != null ? "buddy" : getString(background ? R.string.monitor_tag_background
+            tags.addView(tag(chat != null ? "nn" : getString(background ? R.string.monitor_tag_background
                     : R.string.monitor_tag_terminal), chat != null || background));
             String ses = p.optString("session");
             if (ses.length() >= 8) {
@@ -308,7 +308,7 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
             tt.setEllipsize(TextUtils.TruncateAt.END);
             first.addView(tt, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
             if (chat != null) {
-                TextView tag = monoText(this, "buddy", 11, ACCENT_TEXT);
+                TextView tag = monoText(this, "nn", 11, ACCENT_TEXT);
                 tag.setPaddingRelative(dp(this, 6), dp(this, 1), dp(this, 6), dp(this, 1));
                 tag.setBackground(rounded(this, ACCENT_SOFT, 6));
                 LinearLayout.LayoutParams tp = wrap();

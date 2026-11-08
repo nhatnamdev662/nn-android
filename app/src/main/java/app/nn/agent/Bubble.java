@@ -216,7 +216,7 @@ final class Bubble implements ChatHub.Listener {
         face.setBackground(null);
         face.setElevation(dp(5));
         showFace(R.drawable.bubble_face);
-        face.setContentDescription("Buddy");
+        face.setContentDescription("NN");
         // room around the face for the working ring
         bubbleFrame.setPaddingRelative(dp(4), dp(4), dp(4), dp(4));
         bubbleFrame.setClipToPadding(false);
@@ -328,7 +328,7 @@ final class Bubble implements ChatHub.Listener {
         titles.setPaddingRelative(dp(4), dp(2), dp(4), dp(2));
         titles.setOnClickListener(v -> toggleSessionList());
         header = new TextView(svc);
-        header.setText("Buddy");
+        header.setText("NN");
         header.setTextColor(Ui.TEXT);
         header.setTypeface(Ui.sans(svc, 600));
         header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
@@ -520,7 +520,7 @@ final class Bubble implements ChatHub.Listener {
         RichEditText field = new RichEditText(svc);
         field.onImages(this::pasteImages); // from the keyboard's clipboard, say (issue #6)
         input = field;
-        input.setHint(svc.getString(R.string.bubble_input_hint, "Buddy"));
+        input.setHint(svc.getString(R.string.bubble_input_hint, "NN"));
         input.setHintTextColor(Ui.MUTED);
         input.setTextColor(Ui.TEXT);
         input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
@@ -2912,7 +2912,7 @@ final class Bubble implements ChatHub.Listener {
     private void copyOnLongPress(View v, String text) {
         v.setOnLongClickListener(x -> {
             ClipboardManager cm = svc.getSystemService(ClipboardManager.class);
-            cm.setPrimaryClip(ClipData.newPlainText("Buddy", text));
+            cm.setPrimaryClip(ClipData.newPlainText("NN", text));
             toast(svc.getString(R.string.bubble_copied));
             return true;
         });

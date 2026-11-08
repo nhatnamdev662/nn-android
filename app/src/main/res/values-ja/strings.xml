@@ -164,10 +164,10 @@
     <string name="update_later">後で</string>
     <string name="update_downloading">ダウンロード中…</string>
     <string name="update_needs_permission">NN に「不明なアプリのインストール」を許可してから、もう一度「アップデート」をタップしてください。</string>
-    <string name="update_error_no_apk">このリリースにはまだ buddy.apk がありません。</string>
+    <string name="update_error_no_apk">このリリースにはまだ NN_AGENT.apk がありません。</string>
     <string name="update_error_download">ダウンロードに失敗しました（%1$s）。</string>
     <string name="update_error_not_newer">ダウンロードしたファイルは新しいバージョンの NN ではないため、開きませんでした。</string>
-    <string name="update_failed_manual">%1$s %2$s（buddy.apk）から入手することもできます。Obtainium を使うと自動でアップデートできます（%3$s を参照）。</string>
+    <string name="update_failed_manual">%1$s %2$s（NN_AGENT.apk）から入手することもできます。Obtainium を使うと自動でアップデートできます（%3$s を参照）。</string>
 
     <!-- Settings, Appearance: option names. -->
     <string name="prefs_theme_system">システム</string>
@@ -322,7 +322,7 @@
     <string name="chat_linux_tools">Linux ツール</string>
     <string name="chat_linux_tools_info">NN の Linux でのコマンド実行、ファイル編集、アプリのビルド</string>
     <string name="chat_linux_tools_title">Linux ツールをオンにしますか？</string>
-    <string name="chat_linux_tools_what">エージェントがコマンドの実行、パッケージのインストール、~/.buddy/work 内のファイル編集を行えるようになり、アプリのビルドもできます。</string>
+    <string name="chat_linux_tools_what">エージェントがコマンドの実行、パッケージのインストール、~/.nn/work 内のファイル編集を行えるようになり、アプリのビルドもできます。</string>
     <string name="chat_linux_tools_when">このチャットのみで、次のメッセージから有効になります。</string>
     <string name="chat_linux_tools_risk">画面上の悪意のあるメッセージやウェブページが、エージェントをだましてコマンドを実行させようとするおそれがあります。送信、投稿、購入、削除は引き続き承認カードで保護されます。</string>
     <string name="chat_linux_tools_turn_on">オンにする</string>
@@ -774,7 +774,7 @@
     <string name="codex_pair_failed">ペアリングコードを取得できませんでした：%1$s</string>
     <string name="codex_keeps_stopping">Codex セッションが何度も停止します：%1$s</string>
     <string name="ssh_keeps_stopping">SSH サーバーが何度も停止します：%1$s</string>
-    <string name="ssh_key_added">完了しました。Termux から NN の Linux を開くには、ssh buddy と入力してください。</string>
+    <string name="ssh_key_added">完了しました。Termux から NN の Linux を開くには、ssh nn と入力してください。</string>
     <string name="ssh_code_expired">このコマンドは使用済みか、10 分以上経過しています。NN の「設定」でもう一度コピーしてください。</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -897,7 +897,7 @@
     <string name="setup_ssh">Termux から SSH</string>
     <string name="setup_ssh_info">SSH で Termux から NN の Linux を使えます。接続できるのはこのスマートフォンのアプリだけで、鍵が必要です。</string>
     <string name="setup_ssh_active">実行中 · ポート %1$d</string>
-    <string name="setup_ssh_how">このコマンドをコピーし、10 分以内に Termux で 1 回実行してください。その後は、Termux で ssh buddy と入力すると NN の Linux が開きます。</string>
+    <string name="setup_ssh_how">このコマンドをコピーし、10 分以内に Termux で 1 回実行してください。その後は、Termux で ssh nn と入力すると NN の Linux が開きます。</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">古い Termux のチャットを削除</string>
@@ -935,7 +935,7 @@
     <string name="setup_app_permissions">アプリの権限</string>
     <string name="setup_app_permissions_info">アプリごとに選べます。「信頼」ではエージェントがポップアップなしで操作し、「厳格」では送信、支払い、削除などの前に NN 自身が確認します。</string>
     <string name="setup_dev_mode">新しいチャットの Linux ツール</string>
-    <string name="setup_dev_mode_info">Linux ツールを使うと、エージェントがコマンドの実行、パッケージのインストール、~/.buddy/work 内のファイル編集を行えるため、アプリのビルドもできます。新しいチャットはこの設定で始まり、各チャットのタイトルの下で変更できます。</string>
+    <string name="setup_dev_mode_info">Linux ツールを使うと、エージェントがコマンドの実行、パッケージのインストール、~/.nn/work 内のファイル編集を行えるため、アプリのビルドもできます。新しいチャットはこの設定で始まり、各チャットのタイトルの下で変更できます。</string>
     <string name="setup_agents_tap">エージェントによる NN の画面操作を許可</string>
     <string name="setup_agents_tap_info">エージェントを使って NN をテストするための設定です（例：スマートフォンツールを使う Termux の Claude Code）。バブル、承認カード、「アプリの権限」、これらのスイッチは引き続き操作できません。</string>
     <string name="setup_dev_mode_warning">普段はオフにして、必要なチャットでだけ Linux ツールをオンにしてください。オンのときは、画面上の悪意のあるメッセージやウェブページが、エージェントをだましてコマンドを実行させようとするおそれがあります。送信、投稿、購入、削除は引き続き承認カードで保護されます。</string>
@@ -958,7 +958,7 @@
     <string name="terminal_hide_keyboard">キーボードを非表示</string>
     <string name="terminal_menu">メニュー</string>
     <plurals name="terminal_sessions_count">
-        <item quantity="other">%1$d セッション · buddy linux</item>
+        <item quantity="other">%1$d セッション · nn linux</item>
     </plurals>
     <string name="terminal_listening">聞き取り中 · マイクオン</string>
     <string name="terminal_session_ended">セッション終了</string>

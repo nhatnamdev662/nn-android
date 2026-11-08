@@ -232,13 +232,13 @@
     <string name="update_downloading">Téléchargement…</string>
     <!-- "Update" = the button (update_action). -->
     <string name="update_needs_permission">Autorisez NN à installer des applis, puis appuyez à nouveau sur Mettre à jour.</string>
-    <!-- Why an update failed (%1$s of update_failed_manual). buddy.apk is a file name. -->
-    <string name="update_error_no_apk">Cette version ne contient pas encore de fichier buddy.apk.</string>
+    <!-- Why an update failed (%1$s of update_failed_manual). NN_AGENT.apk is a file name. -->
+    <string name="update_error_no_apk">Cette version ne contient pas encore de fichier NN_AGENT.apk.</string>
     <!-- %1$s = the system's technical error message (usually English). -->
     <string name="update_error_download">Le téléchargement a échoué (%1$s).</string>
     <string name="update_error_not_newer">Le fichier téléchargé n\'est pas une version plus récente de NN, il n\'a donc pas été ouvert.</string>
     <!-- Message after a failed update. %1$s = what went wrong (an update_error_ sentence); %2$s = the web address of the latest release; %3$s = the web address of the update instructions. Obtainium is an app name. -->
-    <string name="update_failed_manual">%1$s Vous pouvez aussi télécharger la mise à jour sur %2$s (buddy.apk), ou utiliser Obtainium pour les mises à jour automatiques (voir %3$s).</string>
+    <string name="update_failed_manual">%1$s Vous pouvez aussi télécharger la mise à jour sur %2$s (NN_AGENT.apk), ou utiliser Obtainium pour les mises à jour automatiques (voir %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <!-- Light/dark mode, segmented control: keep short. System = follow the phone's setting. -->
@@ -457,8 +457,8 @@
     <string name="chat_linux_tools_info">Commandes, fichiers et création d\'applis dans le Linux de NN</string>
     <!-- Title of the sheet that opens when the user turns Linux tools on in a chat. -->
     <string name="chat_linux_tools_title">Activer les outils Linux ?</string>
-    <!-- ~/.buddy/work is a folder: keep it as is. -->
-    <string name="chat_linux_tools_what">L\'agent peut alors exécuter des commandes, installer des paquets et modifier des fichiers dans ~/.buddy/work, pour créer des applis.</string>
+    <!-- ~/.nn/work is a folder: keep it as is. -->
+    <string name="chat_linux_tools_what">L\'agent peut alors exécuter des commandes, installer des paquets et modifier des fichiers dans ~/.nn/work, pour créer des applis.</string>
     <!-- When the change applies: a task already running goes on as it was. -->
     <string name="chat_linux_tools_when">Dans cette discussion uniquement, à partir de votre prochain message.</string>
     <!-- "it" = the agent. -->
@@ -1067,7 +1067,7 @@
     <string name="codex_pair_failed">Impossible d\'obtenir un code d\'association : %1$s</string>
     <string name="codex_keeps_stopping">La session Codex s\'arrête sans cesse : %1$s</string>
     <string name="ssh_keeps_stopping">Le serveur SSH s\'arrête sans cesse : %1$s</string>
-    <string name="ssh_key_added">C\'est fait. Pour ouvrir le Linux de NN depuis Termux, tapez ssh buddy.</string>
+    <string name="ssh_key_added">C\'est fait. Pour ouvrir le Linux de NN depuis Termux, tapez ssh nn.</string>
     <string name="ssh_code_expired">Cette commande a déjà servi ou date de plus de 10 minutes. Copiez-la à nouveau dans les Paramètres de NN.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -1231,7 +1231,7 @@
     <string name="setup_ssh">SSH depuis Termux</string>
     <string name="setup_ssh_info">Utilisez le Linux de NN depuis Termux, via SSH. Seules les applis de ce téléphone peuvent s\'y connecter, et uniquement avec une clé.</string>
     <string name="setup_ssh_active">en marche · port %1$d</string>
-    <string name="setup_ssh_how">Copiez cette commande et lancez-la une fois dans Termux, dans les 10 minutes. Ensuite, tapez ssh buddy dans Termux pour ouvrir le Linux de NN.</string>
+    <string name="setup_ssh_how">Copiez cette commande et lancez-la une fois dans Termux, dans les 10 minutes. Ensuite, tapez ssh nn dans Termux pour ouvrir le Linux de NN.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Supprimer les anciennes discussions Termux</string>
@@ -1277,7 +1277,7 @@
     <string name="setup_app_permissions_info">Choisissez pour chaque appli : en mode Libre, l\'agent y travaille sans confirmation ; en mode Strict, NN lui-même vous demande avant Envoyer, Payer, Supprimer…</string>
     <!-- Settings switch: whether new chats start with Linux tools (chat_linux_tools); each chat can change it. -->
     <string name="setup_dev_mode">Outils Linux dans les nouvelles discussions</string>
-    <string name="setup_dev_mode_info">Avec les outils Linux, l\'agent peut exécuter des commandes, installer des paquets et modifier des fichiers dans ~/.buddy/work, pour créer des applis. Les nouvelles discussions démarrent avec ce réglage ; chaque discussion peut le changer sous son titre.</string>
+    <string name="setup_dev_mode_info">Avec les outils Linux, l\'agent peut exécuter des commandes, installer des paquets et modifier des fichiers dans ~/.nn/work, pour créer des applis. Les nouvelles discussions démarrent avec ce réglage ; chaque discussion peut le changer sous son titre.</string>
     <string name="setup_agents_tap">Laisser les agents appuyer dans NN</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">Pour tester NN avec un agent (par exemple Claude Code dans Termux avec les outils du téléphone). La bulle, les cartes d\'approbation, Autorisations des applis et ces options restent hors de portée.</string>
@@ -1310,10 +1310,10 @@
     <string name="terminal_hide_keyboard">Masquer le clavier</string>
     <!-- Read by TalkBack: button that opens the terminal menu. -->
     <string name="terminal_menu">Menu</string>
-    <!-- Status line under the title, lowercase. "buddy linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
+    <!-- Status line under the title, lowercase. "nn linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
     <plurals name="terminal_sessions_count">
-        <item quantity="one">%1$d session · buddy linux</item>
-        <item quantity="other">%1$d sessions · buddy linux</item>
+        <item quantity="one">%1$d session · nn linux</item>
+        <item quantity="other">%1$d sessions · nn linux</item>
     </plurals>
     <!-- Status line under the title while the microphone is in use, lowercase. -->
     <string name="terminal_listening">à l\'écoute · micro activé</string>

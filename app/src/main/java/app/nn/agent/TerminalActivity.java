@@ -61,7 +61,7 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
         LinearLayout sub = row(this);
         statusDot = dot(this, OK, 7);
         sub.addView(statusDot);
-        subView = single(monoText(this, "buddy linux · alpine", 12, Theme.withAlpha(fg, 0x99)));
+        subView = single(monoText(this, "nn linux · alpine", 12, Theme.withAlpha(fg, 0x99)));
         subView.setPaddingRelative(dp(this, 6), 0, 0, 0);
         sub.addView(subView);
         titles.addView(sub);
@@ -255,7 +255,7 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
             if (cur != null) tabScroll.smoothScrollTo(Math.max(0, cur.getLeft() - dp(this, 24)), 0);
         });
         int n = TermSession.all.size();
-        subView.setText(n > 1 ? getResources().getQuantityString(R.plurals.terminal_sessions_count, n, n) : "buddy linux · alpine");
+        subView.setText(n > 1 ? getResources().getQuantityString(R.plurals.terminal_sessions_count, n, n) : "nn linux · alpine");
     }
 
     @Override
@@ -274,7 +274,7 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
                 runOnUiThread(() -> {
                     int n = TermSession.all.size();
                     subView.setText(on ? getString(R.string.terminal_listening) : (n > 1
-                            ? getResources().getQuantityString(R.plurals.terminal_sessions_count, n, n) : "buddy linux · alpine"));
+                            ? getResources().getQuantityString(R.plurals.terminal_sessions_count, n, n) : "nn linux · alpine"));
                     statusDot.setBackground(oval(on ? ERR : (session != null && session.exited ? MUTED : OK)));
                 });
             }

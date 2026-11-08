@@ -237,13 +237,13 @@
     <string name="update_downloading">Downloading…</string>
     <!-- "Update" = the button (update_action). -->
     <string name="update_needs_permission">Allow NN to install apps, then tap Update again.</string>
-    <!-- Why an update failed (%1$s of update_failed_manual). buddy.apk is a file name. -->
-    <string name="update_error_no_apk">The release has no buddy.apk yet.</string>
+    <!-- Why an update failed (%1$s of update_failed_manual). NN_AGENT.apk is a file name. -->
+    <string name="update_error_no_apk">The release has no NN_AGENT.apk yet.</string>
     <!-- %1$s = the system's technical error message (usually English). -->
     <string name="update_error_download">The download failed (%1$s).</string>
     <string name="update_error_not_newer">The downloaded file isn\'t a newer NN, so it wasn\'t opened.</string>
     <!-- Message after a failed update. %1$s = what went wrong (an update_error_ sentence); %2$s = the web address of the latest release; %3$s = the web address of the update instructions. Obtainium is an app name. -->
-    <string name="update_failed_manual">%1$s You can also get it at %2$s (buddy.apk), or with Obtainium for automatic updates (see %3$s).</string>
+    <string name="update_failed_manual">%1$s You can also get it at %2$s (NN_AGENT.apk), or with Obtainium for automatic updates (see %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <!-- Light/dark mode, segmented control: keep short. System = follow the phone's setting. -->
@@ -472,8 +472,8 @@
     <string name="chat_linux_tools_info">Commands, files and app builds in NN\'s Linux</string>
     <!-- Title of the sheet that opens when the user turns Linux tools on in a chat. -->
     <string name="chat_linux_tools_title">Turn on Linux tools?</string>
-    <!-- ~/.buddy/work is a folder: keep it as is. -->
-    <string name="chat_linux_tools_what">The agent can then run commands, install packages and edit files in ~/.buddy/work, so it can build apps.</string>
+    <!-- ~/.nn/work is a folder: keep it as is. -->
+    <string name="chat_linux_tools_what">The agent can then run commands, install packages and edit files in ~/.nn/work, so it can build apps.</string>
     <!-- When the change applies: a task already running goes on as it was. -->
     <string name="chat_linux_tools_when">Only in this chat, from your next message.</string>
     <!-- "it" = the agent. -->
@@ -1126,8 +1126,8 @@
     <string name="codex_keeps_stopping">The Codex session keeps stopping: %1$s</string>
     <!-- %1$s = the server's last message, in English. -->
     <string name="ssh_keeps_stopping">The SSH server keeps stopping: %1$s</string>
-    <!-- Shown in Termux after the copied command ran, and as a toast. "ssh buddy" is a command: keep it as is. -->
-    <string name="ssh_key_added">Done. To open NN\'s Linux from Termux, type ssh buddy.</string>
+    <!-- Shown in Termux after the copied command ran, and as a toast. "ssh nn" is a command: keep it as is. -->
+    <string name="ssh_key_added">Done. To open NN\'s Linux from Termux, type ssh nn.</string>
     <!-- Shown in Termux when the copied command was already used or is too old. -->
     <string name="ssh_code_expired">This command was already used or is more than 10 minutes old. Copy it again in NN\'s Settings.</string>
 
@@ -1299,8 +1299,8 @@
     <string name="setup_ssh_info">Use NN\'s Linux from Termux, over SSH. Only apps on this phone can connect, and only with a key.</string>
     <!-- Status, lowercase. %1$d = a port number. -->
     <string name="setup_ssh_active">running · port %1$d</string>
-    <!-- "ssh buddy" is a command: keep it as is. -->
-    <string name="setup_ssh_how">Copy this command and run it once in Termux, within 10 minutes. After that, type ssh buddy in Termux to open NN\'s Linux.</string>
+    <!-- "ssh nn" is a command: keep it as is. -->
+    <string name="setup_ssh_how">Copy this command and run it once in Termux, within 10 minutes. After that, type ssh nn in Termux to open NN\'s Linux.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Remove old Termux chats</string>
@@ -1360,7 +1360,7 @@
     <string name="setup_rules_info">Let an agent act when a notification arrives: answer a message, put a delivery in your calendar…</string>
     <!-- Settings switch: whether new chats start with Linux tools (chat_linux_tools); each chat can change it. -->
     <string name="setup_dev_mode">Linux tools in new chats</string>
-    <string name="setup_dev_mode_info">Linux tools let the agent run commands, install packages and edit files in ~/.buddy/work, so it can build apps. New chats start with this setting; each chat can change it under its title.</string>
+    <string name="setup_dev_mode_info">Linux tools let the agent run commands, install packages and edit files in ~/.nn/work, so it can build apps. New chats start with this setting; each chat can change it under its title.</string>
     <string name="setup_agents_tap">Let agents tap NN\'s screens</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">For testing NN with an agent (for example Claude Code in Termux with the phone tools). The bubble, approval cards, App permissions and these switches stay off-limits.</string>
@@ -1393,10 +1393,10 @@
     <string name="terminal_hide_keyboard">Hide keyboard</string>
     <!-- Read by TalkBack: button that opens the terminal menu. -->
     <string name="terminal_menu">Menu</string>
-    <!-- Status line under the title, lowercase. "buddy linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
+    <!-- Status line under the title, lowercase. "nn linux" is the name of NN's Linux: keep it. Only shown for 2 or more. -->
     <plurals name="terminal_sessions_count">
-        <item quantity="one">%1$d session · buddy linux</item>
-        <item quantity="other">%1$d sessions · buddy linux</item>
+        <item quantity="one">%1$d session · nn linux</item>
+        <item quantity="other">%1$d sessions · nn linux</item>
     </plurals>
     <!-- Status line under the title while the microphone is in use, lowercase. -->
     <string name="terminal_listening">listening · microphone on</string>

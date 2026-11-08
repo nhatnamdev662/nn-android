@@ -171,10 +171,10 @@
     <string name="update_later">Sonra</string>
     <string name="update_downloading">İndiriliyor…</string>
     <string name="update_needs_permission">NN\'nin uygulama yüklemesine izin verin, ardından Güncelle düğmesine tekrar dokunun.</string>
-    <string name="update_error_no_apk">Bu sürümde henüz buddy.apk yok.</string>
+    <string name="update_error_no_apk">Bu sürümde henüz NN_AGENT.apk yok.</string>
     <string name="update_error_download">İndirme başarısız oldu (%1$s).</string>
     <string name="update_error_not_newer">İndirilen dosya daha yeni bir NN sürümü değil, bu yüzden açılmadı.</string>
-    <string name="update_failed_manual">%1$s Uygulamayı %2$s adresinden (buddy.apk) de indirebilir veya otomatik güncellemeler için Obtainium\'u kullanabilirsiniz (bkz. %3$s).</string>
+    <string name="update_failed_manual">%1$s Uygulamayı %2$s adresinden (NN_AGENT.apk) de indirebilir veya otomatik güncellemeler için Obtainium\'u kullanabilirsiniz (bkz. %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <string name="prefs_theme_system">Sistem</string>
@@ -330,7 +330,7 @@
     <string name="chat_linux_tools">Linux araçları</string>
     <string name="chat_linux_tools_info">NN\'nin Linux\'unda komutlar, dosyalar ve uygulama derleme</string>
     <string name="chat_linux_tools_title">Linux araçları açılsın mı?</string>
-    <string name="chat_linux_tools_what">Ajan bu durumda komut çalıştırabilir, paket yükleyebilir ve ~/.buddy/work içindeki dosyaları düzenleyebilir; böylece uygulama geliştirebilir.</string>
+    <string name="chat_linux_tools_what">Ajan bu durumda komut çalıştırabilir, paket yükleyebilir ve ~/.nn/work içindeki dosyaları düzenleyebilir; böylece uygulama geliştirebilir.</string>
     <string name="chat_linux_tools_when">Yalnızca bu sohbette, bir sonraki mesajınızdan itibaren.</string>
     <string name="chat_linux_tools_risk">Ekrandaki kötü amaçlı bir mesaj veya web sayfası, ajanı komut çalıştırmaya kandırmaya çalışabilir. Onay kartları gönderme, paylaşma, satın alma ve silme işlemlerini korumaya devam eder.</string>
     <string name="chat_linux_tools_turn_on">Aç</string>
@@ -787,7 +787,7 @@
     <string name="codex_pair_failed">Eşleme kodu alınamadı: %1$s</string>
     <string name="codex_keeps_stopping">Codex oturumu sürekli duruyor: %1$s</string>
     <string name="ssh_keeps_stopping">SSH sunucusu sürekli duruyor: %1$s</string>
-    <string name="ssh_key_added">Tamam. NN\'nin Linux\'unu Termux\'tan açmak için ssh buddy yazın.</string>
+    <string name="ssh_key_added">Tamam. NN\'nin Linux\'unu Termux\'tan açmak için ssh nn yazın.</string>
     <string name="ssh_code_expired">Bu komut zaten kullanıldı veya 10 dakikadan eski. NN\'nin Ayarlar bölümünden yeniden kopyalayın.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -910,7 +910,7 @@
     <string name="setup_ssh">Termux\'tan SSH</string>
     <string name="setup_ssh_info">NN\'nin Linux\'unu Termux\'tan SSH ile kullanın. Yalnızca bu telefondaki uygulamalar, yalnızca bir anahtarla bağlanabilir.</string>
     <string name="setup_ssh_active">çalışıyor · port %1$d</string>
-    <string name="setup_ssh_how">Bu komutu kopyalayıp 10 dakika içinde Termux\'ta bir kez çalıştırın. Sonrasında NN\'nin Linux\'unu açmak için Termux\'ta ssh buddy yazın.</string>
+    <string name="setup_ssh_how">Bu komutu kopyalayıp 10 dakika içinde Termux\'ta bir kez çalıştırın. Sonrasında NN\'nin Linux\'unu açmak için Termux\'ta ssh nn yazın.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Eski Termux sohbetlerini kaldır</string>
@@ -950,7 +950,7 @@
     <string name="setup_app_permissions">Uygulama izinleri</string>
     <string name="setup_app_permissions_info">Uygulama bazında seçin: Güven modunda ajan orada açılır pencere olmadan çalışır; Katı modda ise Gönder, Öde, Sil… öncesinde NN size kendisi sorar.</string>
     <string name="setup_dev_mode">Yeni sohbetlerde Linux araçları</string>
-    <string name="setup_dev_mode_info">Linux araçlarıyla ajan komut çalıştırabilir, paket yükleyebilir ve ~/.buddy/work içindeki dosyaları düzenleyebilir; böylece uygulama geliştirebilir. Yeni sohbetler bu ayarla başlar; her sohbet bunu kendi başlığının altından değiştirebilir.</string>
+    <string name="setup_dev_mode_info">Linux araçlarıyla ajan komut çalıştırabilir, paket yükleyebilir ve ~/.nn/work içindeki dosyaları düzenleyebilir; böylece uygulama geliştirebilir. Yeni sohbetler bu ayarla başlar; her sohbet bunu kendi başlığının altından değiştirebilir.</string>
     <string name="setup_agents_tap">Ajanların NN ekranlarına dokunmasına izin ver</string>
     <string name="setup_agents_tap_info">NN\'yi bir ajanla test etmek için (örneğin telefon araçlarıyla Termux\'ta Claude Code). Baloncuk, onay kartları, Uygulama izinleri ve bu anahtarlar erişime kapalı kalır.</string>
     <string name="setup_dev_mode_warning">Kapalı tutmanız daha iyi olur: Linux araçlarını yalnızca ihtiyaç duyan sohbetlerde açın. Açıkken ekrandaki kötü amaçlı bir mesaj veya web sayfası, ajanı komut çalıştırmaya kandırmaya çalışabilir. Onay kartları gönderme, paylaşma, satın alma ve silme işlemlerini korumaya devam eder.</string>
@@ -973,8 +973,8 @@
     <string name="terminal_hide_keyboard">Klavyeyi gizle</string>
     <string name="terminal_menu">Menü</string>
     <plurals name="terminal_sessions_count">
-        <item quantity="one">%1$d oturum · buddy linux</item>
-        <item quantity="other">%1$d oturum · buddy linux</item>
+        <item quantity="one">%1$d oturum · nn linux</item>
+        <item quantity="other">%1$d oturum · nn linux</item>
     </plurals>
     <string name="terminal_listening">dinleniyor · mikrofon açık</string>
     <string name="terminal_session_ended">Oturum sona erdi</string>

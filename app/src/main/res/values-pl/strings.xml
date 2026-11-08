@@ -177,10 +177,10 @@
     <string name="update_later">Później</string>
     <string name="update_downloading">Pobieranie…</string>
     <string name="update_needs_permission">Zezwól NN na instalowanie aplikacji, a potem ponownie kliknij Aktualizuj.</string>
-    <string name="update_error_no_apk">W tym wydaniu nie ma jeszcze pliku buddy.apk.</string>
+    <string name="update_error_no_apk">W tym wydaniu nie ma jeszcze pliku NN_AGENT.apk.</string>
     <string name="update_error_download">Pobieranie się nie udało (%1$s).</string>
     <string name="update_error_not_newer">Pobrany plik nie jest nowszą wersją NN, więc nie został otwarty.</string>
-    <string name="update_failed_manual">%1$s Możesz też pobrać aplikację ze strony %2$s (buddy.apk) albo użyć Obtainium, by otrzymywać aktualizacje automatycznie (zobacz %3$s).</string>
+    <string name="update_failed_manual">%1$s Możesz też pobrać aplikację ze strony %2$s (NN_AGENT.apk) albo użyć Obtainium, by otrzymywać aktualizacje automatycznie (zobacz %3$s).</string>
 
     <!-- Settings, Appearance: option names. -->
     <string name="prefs_theme_system">Systemowy</string>
@@ -338,7 +338,7 @@
     <string name="chat_linux_tools">Narzędzia Linux</string>
     <string name="chat_linux_tools_info">Polecenia, pliki i budowanie aplikacji we wbudowanym Linuksie</string>
     <string name="chat_linux_tools_title">Włączyć narzędzia Linux?</string>
-    <string name="chat_linux_tools_what">Agent będzie mógł uruchamiać polecenia, instalować pakiety i edytować pliki w ~/.buddy/work, by tworzyć aplikacje.</string>
+    <string name="chat_linux_tools_what">Agent będzie mógł uruchamiać polecenia, instalować pakiety i edytować pliki w ~/.nn/work, by tworzyć aplikacje.</string>
     <string name="chat_linux_tools_when">Tylko w tym czacie, od twojej następnej wiadomości.</string>
     <string name="chat_linux_tools_risk">Złośliwa wiadomość lub strona na ekranie może próbować nakłonić go do uruchomienia poleceń. Karty zatwierdzenia nadal chronią wysyłanie, publikowanie, kupowanie i usuwanie.</string>
     <string name="chat_linux_tools_turn_on">Włącz</string>
@@ -805,7 +805,7 @@
     <string name="codex_pair_failed">Nie udało się pobrać kodu parowania: %1$s</string>
     <string name="codex_keeps_stopping">Sesja Codex wciąż się zatrzymuje: %1$s</string>
     <string name="ssh_keeps_stopping">Serwer SSH wciąż się zatrzymuje: %1$s</string>
-    <string name="ssh_key_added">Gotowe. Aby otworzyć system Linux w NN z Termux, wpisz ssh buddy.</string>
+    <string name="ssh_key_added">Gotowe. Aby otworzyć system Linux w NN z Termux, wpisz ssh nn.</string>
     <string name="ssh_code_expired">To polecenie zostało już użyte albo ma ponad 10 minut. Skopiuj je ponownie w Ustawieniach NN.</string>
 
     <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
@@ -928,7 +928,7 @@
     <string name="setup_ssh">SSH z Termux</string>
     <string name="setup_ssh_info">Korzystaj z systemu Linux w NN z poziomu Termux, przez SSH. Połączyć mogą się tylko aplikacje na tym telefonie i tylko z kluczem.</string>
     <string name="setup_ssh_active">działa · port %1$d</string>
-    <string name="setup_ssh_how">Skopiuj to polecenie i uruchom je raz w Termux, w ciągu 10 minut. Potem wpisz ssh buddy w Termux, aby otworzyć system Linux w NN.</string>
+    <string name="setup_ssh_how">Skopiuj to polecenie i uruchom je raz w Termux, w ciągu 10 minut. Potem wpisz ssh nn w Termux, aby otworzyć system Linux w NN.</string>
 
     <!-- Settings screen: chats left over from when NN ran its agents in Termux. -->
     <string name="setup_old_chats_title">Usuń stare czaty z Termux</string>
@@ -972,7 +972,7 @@
     <string name="setup_app_permissions">Uprawnienia aplikacji</string>
     <string name="setup_app_permissions_info">Wybierz dla każdej aplikacji: Zaufany pozwala agentowi działać w niej bez wyskakujących okienek; Ścisły oznacza, że to NN pyta cię przed Wyślij, Zapłać, Usuń…</string>
     <string name="setup_dev_mode">Narzędzia Linux w nowych czatach</string>
-    <string name="setup_dev_mode_info">Z narzędziami Linux agent może uruchamiać polecenia, instalować pakiety i edytować pliki w ~/.buddy/work, by tworzyć aplikacje. Nowe czaty dostają to ustawienie; każdy czat może je zmienić pod swoim tytułem.</string>
+    <string name="setup_dev_mode_info">Z narzędziami Linux agent może uruchamiać polecenia, instalować pakiety i edytować pliki w ~/.nn/work, by tworzyć aplikacje. Nowe czaty dostają to ustawienie; każdy czat może je zmienić pod swoim tytułem.</string>
     <string name="setup_agents_tap">Pozwól agentom klikać ekrany NN</string>
     <string name="setup_agents_tap_info">Do testowania NN z agentem (np. Claude Code w Termux z narzędziami telefonu). Dymek, karty zatwierdzenia, Uprawnienia aplikacji i te przełączniki pozostają niedostępne.</string>
     <string name="setup_dev_mode_warning">Najlepiej zostaw to wyłączone i włączaj narzędzia Linux tylko w czatach, które ich potrzebują. Gdy są włączone, złośliwa wiadomość lub strona na ekranie może próbować nakłonić agenta do uruchomienia poleceń. Karty zatwierdzenia nadal chronią wysyłanie, publikowanie, kupowanie i usuwanie.</string>
@@ -995,10 +995,10 @@
     <string name="terminal_hide_keyboard">Ukryj klawiaturę</string>
     <string name="terminal_menu">Menu</string>
     <plurals name="terminal_sessions_count">
-        <item quantity="one">%1$d sesja · buddy linux</item>
-        <item quantity="few">%1$d sesje · buddy linux</item>
-        <item quantity="many">%1$d sesji · buddy linux</item>
-        <item quantity="other">%1$d sesji · buddy linux</item>
+        <item quantity="one">%1$d sesja · nn linux</item>
+        <item quantity="few">%1$d sesje · nn linux</item>
+        <item quantity="many">%1$d sesji · nn linux</item>
+        <item quantity="other">%1$d sesji · nn linux</item>
     </plurals>
     <string name="terminal_listening">słucham · mikrofon włączony</string>
     <string name="terminal_session_ended">Sesja zakończona</string>
