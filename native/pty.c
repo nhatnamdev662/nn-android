@@ -1,5 +1,5 @@
 // Buddy's pseudo-terminal: opens a pty, starts a program on it, resizes it, waits for it.
-// Called from app.buddy.assistant.Pty. Build: native/build.sh → app/src/main/jniLibs/arm64-v8a/libbuddypty.so
+// Called from app.nn.agent.Pty. Build: native/build.sh → app/src/main/jniLibs/arm64-v8a/libbuddypty.so
 #include <jni.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -32,7 +32,7 @@ static void freeStrings(char **s) {
 }
 
 // Returns {masterFd, pid}, or throws IOException.
-JNIEXPORT jintArray JNICALL Java_app_buddy_assistant_Pty_start(JNIEnv *env, jclass cls, jstring jpath,
+JNIEXPORT jintArray JNICALL Java_app_nn_agent_Pty_start(JNIEnv *env, jclass cls, jstring jpath,
         jobjectArray jargs, jobjectArray jenv, jstring jcwd, jint rows, jint cols) {
     int master = posix_openpt(O_RDWR | O_CLOEXEC | O_NOCTTY);
     if (master < 0 || grantpt(master) || unlockpt(master)) goto fail;
@@ -99,13 +99,13 @@ fail:;
     return NULL;
 }
 
-JNIEXPORT void JNICALL Java_app_buddy_assistant_Pty_resize(JNIEnv *env, jclass cls, jint fd, jint rows, jint cols) {
+JNIEXPORT void JNICALL Java_app_nn_agent_Pty_resize(JNIEnv *env, jclass cls, jint fd, jint rows, jint cols) {
     struct winsize ws = {.ws_row = (unsigned short) rows, .ws_col = (unsigned short) cols};
     ioctl(fd, TIOCSWINSZ, &ws);
 }
 
 // Blocks until the program exits; returns its exit code (or 128 + signal).
-JNIEXPORT jint JNICALL Java_app_buddy_assistant_Pty_waitFor(JNIEnv *env, jclass cls, jint pid) {
+JNIEXPORT jint JNICALL Java_app_nn_agent_Pty_waitFor(JNIEnv *env, jclass cls, jint pid) {
     int status;
     while (waitpid(pid, &status, 0) < 0) {
         if (errno != EINTR) return -1;
@@ -115,11 +115,11 @@ JNIEXPORT jint JNICALL Java_app_buddy_assistant_Pty_waitFor(JNIEnv *env, jclass 
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_app_buddy_assistant_Pty_hangup(JNIEnv *env, jclass cls, jint pid) {
+JNIEXPORT void JNICALL Java_app_nn_agent_Pty_hangup(JNIEnv *env, jclass cls, jint pid) {
     kill(-pid, SIGHUP);
     kill(pid, SIGHUP);
 }
 
-JNIEXPORT void JNICALL Java_app_buddy_assistant_Pty_close(JNIEnv *env, jclass cls, jint fd) {
+JNIEXPORT void JNICALL Java_app_nn_agent_Pty_close(JNIEnv *env, jclass cls, jint fd) {
     close(fd);
 }

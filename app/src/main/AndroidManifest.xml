@@ -169,7 +169,7 @@
 
         <provider
             android:name=".FilesProvider"
-            android:authorities="app.buddy.assistant.files"
+            android:authorities="app.nn.agent.files"
             android:exported="false"
             android:grantUriPermissions="true" />
 

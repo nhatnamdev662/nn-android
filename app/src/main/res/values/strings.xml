@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Every text Buddy shows, in English. Translations: res/values-<language>/strings.xml (see CONTRIBUTING.md). -->
 <resources>
-    <string name="app_name" translatable="false">Buddy</string>
-    <string name="service_label">Buddy assistant</string>
-    <string name="service_description">Shows the Buddy chat bubble and lets the agent you choose (Claude Code, Codex, OpenCode, Antigravity or Grok), running inside Buddy on this phone, read the screen and tap, type and scroll for you. Nothing leaves the phone except what the agent itself sends to its AI service (Anthropic, OpenAI, Google, xAI or your OpenCode model\'s provider).</string>
+    <string name="app_name" translatable="false">NN AGENT</string>
+    <string name="service_label">NN Assistant</string>
+    <string name="service_description">Shows the NN chat bubble and lets the agent you choose (Claude Code, Codex, OpenCode, Antigravity or Grok), running inside NN on this phone, read the screen and tap, type and scroll for you. Nothing leaves the phone except what the agent itself sends to its AI service (Anthropic, OpenAI, Google, xAI or your OpenCode model\'s provider).</string>
 
     <!-- ===== First run (OnboardingActivity), the Chats home screen (MainActivity), updates, appearance ===== -->
 
@@ -23,7 +23,7 @@
     <string name="onboarding_stuck">Stuck?</string>
 
     <!-- Guide, welcome screen. -->
-    <string name="onboarding_welcome_title">Meet Buddy</string>
+    <string name="onboarding_welcome_title">Meet NN</string>
     <string name="onboarding_welcome_text">A chat bubble that can use your phone for you.</string>
     <string name="onboarding_welcome_ask_title">Ask in plain words</string>
     <!-- Two example requests a user could type. Translate them naturally and use your language's quotation marks. -->
@@ -265,7 +265,7 @@
     <!-- ===== The bubble, its hold menu, chat panel and approval cards (Bubble, RadialMenu, ControlIndicator) ===== -->
 
     <!-- Floating bubble, read by TalkBack. -->
-    <string name="bubble_face_description">Buddy. Tap to open, hold for actions</string>
+    <string name="bubble_face_description">NN. Tap to open, hold for actions</string>
     <!-- TalkBack action on the bubble, read as "Double-tap and hold to show actions". Lowercase. -->
     <string name="bubble_show_actions">show actions</string>
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 // Version lives in BuildInfo.java so the Gradle and on-device (build.sh) builds always agree.
-val buildInfo = file("src/main/java/app/buddy/assistant/BuildInfo.java").readText()
+val buildInfo = file("src/main/java/app/nn/agent/BuildInfo.java").readText()
 val appVersionName = Regex("""VERSION = "([^"]+)"""").find(buildInfo)!!.groupValues[1]
 val appVersionCode = Regex("""VERSION_CODE = (\d+)""").find(buildInfo)!!.groupValues[1].toInt()
 
@@ -14,11 +14,11 @@ android {
             useLegacyPackaging = true
         }
     }
-    namespace = "app.buddy.assistant"
+    namespace = "app.nn.agent"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "app.buddy.assistant"
+        applicationId = "app.nn.agent"
         minSdk = 30
         targetSdk = 36
         versionCode = appVersionCode
