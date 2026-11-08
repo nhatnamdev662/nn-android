@@ -178,7 +178,7 @@ public final class Schedules extends BroadcastReceiver {
             return android.text.format.DateFormat.getTimeFormat(c).format(t.getTime());
         }
 
-        private String intervalSummary(Context c) {
+        String intervalSummary(Context c) {
             if (intervalMin < 60) {
                 return c.getString(R.string.schedule_interval_min, intervalMin);
             } else if (intervalMin % 60 == 0) {
