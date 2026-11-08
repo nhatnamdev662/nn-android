@@ -1,12 +1,17 @@
 package app.nn.agent;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 import java.io.File;
@@ -169,6 +174,92 @@ final class Attachments {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inSampleSize = s;
         return BitmapFactory.decodeFile(f.getPath(), o);
+    }
+
+    /** Full-resolution bitmap for the viewer dialog (up to 4096px max side to stay within GPU texture limits). */
+    static Bitmap full(Context c, String id) {
+        File f = file(c, id);
+        if (f == null || !f.exists()) return null;
+        BitmapFactory.Options b = new BitmapFactory.Options();
+        b.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(f.getPath(), b);
+        if (b.outWidth <= 0 || b.outHeight <= 0) return null;
+        int s = 1;
+        while (Math.max(b.outWidth, b.outHeight) / s > 4096) s *= 2;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inSampleSize = s;
+        return BitmapFactory.decodeFile(f.getPath(), o);
+    }
+
+    /** Copies an attachment into the device's public Download/NN folder and registers it. */
+    static Uri saveToGallery(Context c, String id) {
+        File f = file(c, id);
+        if (f == null || !f.exists()) return null;
+        String name = name(id);
+        String mime = isImage(id) ? (id.toLowerCase(Locale.ROOT).endsWith(".png") ? "image/png"
+                : id.toLowerCase(Locale.ROOT).endsWith(".gif") ? "image/gif"
+                : id.toLowerCase(Locale.ROOT).endsWith(".webp") ? "image/webp" : "image/jpeg") : "application/octet-stream";
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues v = new ContentValues();
+                v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+                v.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/NN");
+                v.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                Uri u = c.getContentResolver().insert(
+                        isImage(id) ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI : MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                if (u == null) u = c.getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                if (u != null) {
+                    try (InputStream in = new java.io.FileInputStream(f); OutputStream out = c.getContentResolver().openOutputStream(u)) {
+                        byte[] buf = new byte[64 * 1024];
+                        int n;
+                        while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                    }
+                    v.clear();
+                    v.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                    c.getContentResolver().update(u, v, null, null);
+                    return u;
+                }
+            }
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "NN");
+            if (!dir.exists()) dir.mkdirs();
+            File dest = new File(dir, name);
+            try (InputStream in = new java.io.FileInputStream(f); OutputStream out = new FileOutputStream(dest)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            }
+            MediaScannerConnection.scanFile(c, new String[]{dest.getAbsolutePath()}, new String[]{mime}, null);
+            return Uri.fromFile(dest);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Plays an animated GIF at its natural size. */
+    static void playGif(Context c, String id, android.widget.ImageView iv) {
+        File f = file(c, id);
+        if (f == null || !id.toLowerCase(Locale.ROOT).endsWith(".gif")) return;
+        try {
+            android.graphics.drawable.Drawable d = android.graphics.ImageDecoder.decodeDrawable(
+                    android.graphics.ImageDecoder.createSource(f));
+            if (!(d instanceof android.graphics.drawable.AnimatedImageDrawable)) return;
+            final android.graphics.drawable.AnimatedImageDrawable a = (android.graphics.drawable.AnimatedImageDrawable) d;
+            iv.setImageDrawable(a);
+            a.start();
+            iv.addOnAttachStateChangeListener(new android.view.View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(android.view.View v) {
+                    a.start();
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(android.view.View v) {
+                    a.stop();
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 
     /** Plays an animated GIF in iv at the size of its still (from thumb), only while iv is in a window; keeps the still otherwise. */

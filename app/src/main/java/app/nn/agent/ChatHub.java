@@ -810,33 +810,99 @@ final class ChatHub {
         for (Listener l : new ArrayList<>(listeners)) l.onMessage(ses, m);
     }
 
-    /** A picture's path in Buddy's Linux, as agents write it: /root/.nn/work/chart.png, ~/out/photo.jpg. */
+    /** A picture's path in NN's Linux, as agents write it: /root/.nn/work/chart.png, ~/out/photo.jpg. */
     private static final java.util.regex.Pattern PICTURE = java.util.regex.Pattern.compile(
             "(?<![\\w/.~-])(~|/(?:root|tmp|home|srv|opt|var|mnt|media))(/[^\\s`'\"()\\[\\]<>|*]+?\\.(?i:png|jpe?g|webp|gif))(?![\\w/])");
+    private static final java.util.regex.Pattern MD_IMAGE = java.util.regex.Pattern.compile(
+            "!\\[([^\\]]*)\\]\\(([^)\\s]+)\\)");
+    private static final java.util.regex.Pattern URL_IMAGE = java.util.regex.Pattern.compile(
+            "https?://[^\\s`'\"()\\[\\]<>]+\\.(?i:png|jpe?g|webp|gif)(?:\\?[^\\s`'\"()\\[\\]<>]*)?");
 
     /**
-     * Pictures a reply names in Buddy's Linux (a chart the agent drew, a photo it edited), copied to the attachments so
-     * the chat shows them under it; at most 4. Only files inside Buddy's Linux, never through a link out of it.
+     * Pictures a reply names in NN's Linux (a chart the agent drew, a photo it edited), or URLs, copied to the attachments so
+     * the chat shows them under it; at most 4.
      */
     private List<String> pictures(String text) {
         List<String> out = new ArrayList<>();
-        java.util.regex.Matcher m = PICTURE.matcher(text);
-        if (!m.find() || !Linux.installed(app)) return out;
+        if (text == null || text.isEmpty()) return out;
         java.util.Set<String> seen = new java.util.HashSet<>();
-        do {
-            String path = ("~".equals(m.group(1)) ? "/root" : m.group(1)) + m.group(2);
-            if (!seen.add(path)) continue;
-            String file = picture(path);
-            if (file != null) out.add(file);
-        } while (out.size() < 4 && m.find());
+
+        // 1. Markdown images: ![alt](target)
+        java.util.regex.Matcher md = MD_IMAGE.matcher(text);
+        while (out.size() < 4 && md.find()) {
+            String target = md.group(2).trim();
+            if (seen.add(target)) {
+                String file = picture(target);
+                if (file != null) out.add(file);
+            }
+        }
+
+        // 2. Direct URLs to images
+        if (out.size() < 4) {
+            java.util.regex.Matcher u = URL_IMAGE.matcher(text);
+            while (out.size() < 4 && u.find()) {
+                String url = u.group(0).trim();
+                if (seen.add(url)) {
+                    String file = picture(url);
+                    if (file != null) out.add(file);
+                }
+            }
+        }
+
+        // 3. Linux file paths
+        if (out.size() < 4 && Linux.installed(app)) {
+            java.util.regex.Matcher m = PICTURE.matcher(text);
+            while (out.size() < 4 && m.find()) {
+                String path = ("~".equals(m.group(1)) ? "/root" : m.group(1)) + m.group(2);
+                if (seen.add(path)) {
+                    String file = picture(path);
+                    if (file != null) out.add(file);
+                }
+            }
+        }
         return out;
     }
 
-    /** A picture inside Buddy's Linux, never through a link out of it, copied to the attachments; null if it can't be. */
+    /** A picture inside NN's Linux, or a downloaded web image; null if it can't be imported. */
     private String picture(String path) {
         try {
+            if (path == null || path.trim().isEmpty()) return null;
+            path = path.trim();
+            if (path.startsWith("http://") || path.startsWith("https://")) {
+                java.io.File tmp = new java.io.File(app.getCacheDir(), "img_" + System.currentTimeMillis() + ".tmp");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(path).openConnection();
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(15000);
+                conn.setInstanceFollowRedirects(true);
+                try (java.io.InputStream in = conn.getInputStream(); java.io.OutputStream o = new java.io.FileOutputStream(tmp)) {
+                    byte[] buf = new byte[64 * 1024];
+                    int n;
+                    long total = 0;
+                    while ((n = in.read(buf)) > 0) {
+                        total += n;
+                        if (total > Attachments.MAX_BYTES) break;
+                        o.write(buf, 0, n);
+                    }
+                } finally {
+                    conn.disconnect();
+                }
+                if (!tmp.isFile() || tmp.length() == 0) { tmp.delete(); return null; }
+                android.graphics.BitmapFactory.Options b = new android.graphics.BitmapFactory.Options();
+                b.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeFile(tmp.getPath(), b);
+                if (b.outWidth > 0) {
+                    String id = Attachments.importFile(app, tmp);
+                    tmp.delete();
+                    return id;
+                }
+                tmp.delete();
+                return null;
+            }
+
             if (!Linux.installed(app)) return null;
-            java.io.File root = Linux.root(app).getCanonicalFile(), f = new java.io.File(root, path).getCanonicalFile();
+            if (path.startsWith("~/")) path = "/root/" + path.substring(2);
+            java.io.File root = Linux.root(app).getCanonicalFile();
+            java.io.File f = new java.io.File(root, path.startsWith("/") ? path.substring(1) : "root/.nn/work/" + path).getCanonicalFile();
             if (!f.getPath().startsWith(root.getPath() + "/") || !f.isFile() || f.length() > Attachments.MAX_BYTES) return null;
             android.graphics.BitmapFactory.Options b = new android.graphics.BitmapFactory.Options();
             b.inJustDecodeBounds = true;

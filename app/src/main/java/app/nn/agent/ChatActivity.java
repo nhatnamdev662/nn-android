@@ -1663,28 +1663,74 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         paintSend();
     }
 
-    /** A photo thumbnail (rounded) or a file chip; tapping opens it in another app. */
+    /** A photo card (adaptive aspect ratio, theme border, in-app lightbox) or a file chip. */
     private View attachmentView(final String id, boolean inThread) {
         View v;
         if (Attachments.isImage(id)) {
-            ImageView iv = new ImageView(this);
-            int side = dp(this, inThread ? 180 : 64);
-            android.graphics.Bitmap b = Attachments.thumb(this, id, side);
-            if (b != null) iv.setImageBitmap(b);
-            else iv.setBackground(rounded(this, CARD2, 14));
-            if (inThread) Attachments.playGif(this, id, iv, b);
-            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            iv.setClipToOutline(true);
-            iv.setOutlineProvider(new android.view.ViewOutlineProvider() {
-                @Override
-                public void getOutline(View view, android.graphics.Outline o) {
-                    o.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(ChatActivity.this, inThread ? 18 : 14));
+            if (inThread) {
+                int displayW = getResources().getDisplayMetrics().widthPixels;
+                int maxW = Math.min(dp(this, 280), (int) (displayW * 0.72f));
+                android.graphics.Bitmap b = Attachments.thumb(this, id, maxW);
+                int h = dp(this, 180);
+                if (b != null && b.getWidth() > 0) {
+                    h = Math.max(dp(this, 120), Math.min(dp(this, 340), maxW * b.getHeight() / b.getWidth()));
                 }
-            });
-            int h = side;
-            if (inThread && b != null && b.getWidth() > 0) h = Math.min(dp(this, 240), side * b.getHeight() / b.getWidth());
-            iv.setLayoutParams(new LinearLayout.LayoutParams(side, h));
-            v = iv;
+
+                android.widget.FrameLayout card = new android.widget.FrameLayout(this);
+                card.setLayoutParams(new LinearLayout.LayoutParams(maxW, h));
+                card.setBackground(outlined(this, CARD2, 16, OUTLINE, 1));
+                card.setClipToOutline(true);
+                card.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, android.graphics.Outline o) {
+                        o.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(ChatActivity.this, 16));
+                    }
+                });
+
+                ImageView iv = new ImageView(this);
+                iv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                if (b != null) iv.setImageBitmap(b);
+                Attachments.playGif(this, id, iv, b);
+                card.addView(iv);
+
+                // Bottom badge overlay with subtle theme frosted pill
+                LinearLayout badge = row(this);
+                badge.setGravity(Gravity.CENTER_VERTICAL);
+                badge.setPaddingRelative(dp(this, 8), dp(this, 4), dp(this, 8), dp(this, 4));
+                badge.setBackground(rounded(this, Theme.withAlpha(Ui.color(this, Ui.BG), 0xB8), 10));
+
+                TextView name = single(text(this, Attachments.name(id), 11, TEXT));
+                name.setMaxWidth(dp(this, 140));
+                name.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+                badge.addView(name);
+
+                android.widget.FrameLayout.LayoutParams bp = new android.widget.FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+                bp.gravity = Gravity.BOTTOM | Gravity.END;
+                bp.setMargins(0, 0, dp(this, 8), dp(this, 8));
+                card.addView(badge, bp);
+
+                card.setForeground(ripple(this, 0, 16));
+                v = card;
+            } else {
+                ImageView iv = new ImageView(this);
+                int side = dp(this, 64);
+                android.graphics.Bitmap b = Attachments.thumb(this, id, side);
+                if (b != null) iv.setImageBitmap(b);
+                else iv.setBackground(rounded(this, CARD2, 14));
+                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                iv.setClipToOutline(true);
+                iv.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, android.graphics.Outline o) {
+                        o.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(ChatActivity.this, 14));
+                    }
+                });
+                iv.setLayoutParams(new LinearLayout.LayoutParams(side, side));
+                v = iv;
+            }
         } else {
             LinearLayout chip = row(this);
             chip.setPaddingRelative(dp(this, 10), dp(this, 8), dp(this, 12), dp(this, 8));
@@ -1702,6 +1748,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void openAttachment(String id) {
+        if (Attachments.isImage(id)) {
+            ImageViewerDialog.show(this, id);
+            return;
+        }
         android.net.Uri u = FilesProvider.attachmentUri(id);
         android.content.Intent i = new android.content.Intent(android.content.Intent.ACTION_VIEW)
                 .setDataAndType(u, getContentResolver().getType(u))

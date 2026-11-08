@@ -635,7 +635,11 @@ final class Ui {
                 monospace(out, a, out.length());
             } else if (m.group(3) != null) {
                 String alt = m.group(2).trim();
-                out.append(alt.isEmpty() ? m.group(3).substring(m.group(3).lastIndexOf('/') + 1) : alt);
+                if (!alt.isEmpty()) {
+                    out.append(alt);
+                    set(out, new android.text.style.StyleSpan(android.graphics.Typeface.ITALIC), a);
+                    set(out, new android.text.style.ForegroundColorSpan(MUTED), a);
+                }
             } else if (m.group(5) != null) {
                 out.append(m.group(4));
                 set(out, new LinkSpan(m.group(5), then), a);

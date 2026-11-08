@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material Symbols Rounded "download" (Apache-2.0). viewBox="0 -960 960 960" -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="960" android:viewportHeight="960">
+    <group android:translateY="960">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M480-336 284-532q-11-11-11-28t11-28q11-11 28-11t28 11l100 100v-322q0-17 11.5-28.5T480-850q17 0 28.5 11.5T520-810v322l100-100q11-11 28-11t28 11q11 11 11 28t-11 28L516-336q-7 7-17 11t-19 4q-9 0-19-4t-17-11ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z" />
+    </group>
+</vector>
