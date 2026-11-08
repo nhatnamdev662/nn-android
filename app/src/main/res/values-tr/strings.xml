@@ -1,0 +1,1471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Turkish translation of Buddy's UI. Source: res/values/strings.xml. -->
+<resources>
+    <string name="service_label">Buddy asistanı</string>
+    <string name="service_description">Buddy sohbet baloncuğunu gösterir; bu telefonda Buddy içinde çalışan, seçtiğiniz ajanın (Claude Code, Codex, OpenCode, Antigravity veya Grok) ekranı okumasını ve sizin yerinize dokunmasını, yazmasını ve kaydırmasını sağlar. Ajanın kendisinin yapay zeka hizmetine (Anthropic, OpenAI, Google, xAI veya OpenCode modelinizin sağlayıcısı) gönderdikleri dışında hiçbir şey telefondan çıkmaz.</string>
+
+    <!-- ===== First run (OnboardingActivity), the Chats home screen (MainActivity), updates, appearance ===== -->
+
+    <!-- First-run setup guide: top bar and buttons shared by several steps. -->
+    <string name="onboarding_skip_setup">Kurulumu atla</string>
+    <string name="onboarding_skip_title">Kurulum rehberi atlansın mı?</string>
+    <string name="onboarding_skip_text">Kurulumu istediğiniz zaman Ayarlar\'dan tamamlayabilirsiniz. Kurulum bitene kadar sohbetler çalışmaz.</string>
+    <string name="onboarding_skip_action">Atla</string>
+    <string name="onboarding_progress">adım %1$d / %2$d</string>
+    <string name="onboarding_continue">Devam</string>
+    <string name="onboarding_stuck">Takıldınız mı?</string>
+
+    <!-- Guide, welcome screen. -->
+    <string name="onboarding_welcome_title">Buddy ile tanışın</string>
+    <string name="onboarding_welcome_text">Telefonunuzu sizin yerinize kullanabilen bir sohbet baloncuğu.</string>
+    <string name="onboarding_welcome_ask_title">Gündelik bir dille isteyin</string>
+    <string name="onboarding_welcome_ask_text">“Ayşe\'ye geç kalacağımı yaz”, “sepetime süt ekle”.</string>
+    <string name="onboarding_welcome_plan_title">Kendi planınız, API anahtarı yok</string>
+    <string name="onboarding_welcome_plan_text">Claude Code\'u Claude aboneliğinizle çalıştırır. Codex de ChatGPT planıyla, Antigravity de Google hesabıyla, Grok da Google veya X hesabıyla, OpenCode da ücretsiz modelleriyle çalışır.</string>
+    <string name="onboarding_welcome_control_title">Kontrol sizde</string>
+    <string name="onboarding_welcome_control_text">Göndermeden, paylaşmadan, satın almadan ve silmeden önce her zaman size sorulur.</string>
+    <string name="onboarding_welcome_time">kurulum yaklaşık 5 dakika sürer</string>
+    <string name="onboarding_get_started">Başla</string>
+
+    <!-- Guide, step: choose the agent. -->
+    <string name="onboarding_brain_title">Ajanınızı seçin</string>
+    <string name="onboarding_brain_text">Sohbetlerinizi yanıtlayacak ajan. Diğerlerini daha sonra Ayarlar\'dan ekleyebilirsiniz.</string>
+    <string name="onboarding_brain_claude">Claude aboneliğinizi kullanır (Pro veya Max).</string>
+    <string name="onboarding_brain_codex">ChatGPT planınızı kullanır.</string>
+    <string name="onboarding_brain_opencode">Hesap gerekmez. Kendi sağlayıcılarınızı daha sonra bağlayabilirsiniz.</string>
+    <string name="onboarding_brain_agy">Google hesabınızı kullanır, Google AI Pro veya Ultra ile de çalışır.</string>
+    <string name="onboarding_brain_grok">Grok hesabınızı kullanır (Google veya X ile giriş).</string>
+    <string name="onboarding_brain_both">İkisini de yükleyin, her sohbette seçin. Varsayılan Claude Code olarak kalır.</string>
+    <string name="onboarding_recommended">önerilen</string>
+
+    <!-- Guide, step: turn on Buddy's accessibility service. -->
+    <string name="onboarding_access_title">Buddy\'nin görmesine ve dokunmasına izin verin</string>
+    <string name="onboarding_access_done">Erişilebilirlik hizmeti açık.</string>
+    <string name="onboarding_access_text">Buddy\'nin erişilebilirlik hizmeti baloncuğu gösterir ve ajanın ekranı okumasına, dokunmasına ve yazmasına yalnızca siz bir şey istediğinizde izin verir.</string>
+    <string name="onboarding_access_privacy">Size yanıt vermek için %1$s tarafından %2$s şirketine gönderilenler dışında hiçbir şey telefondan çıkmaz. Gönderme, paylaşma, satın alma ve silme işlemleri için her zaman önce onayınız istenir.</string>
+    <string name="onboarding_access_privacy_both">Size yanıt vermek için Claude Code ve Codex tarafından Anthropic ve OpenAI\'a gönderilenler dışında hiçbir şey telefondan çıkmaz. Gönderme, paylaşma, satın alma ve silme işlemleri için her zaman önce onayınız istenir.</string>
+    <string name="onboarding_access_privacy_opencode">Size yanıt vermek için %1$s tarafından modelin sağlayıcısına gönderilenler dışında hiçbir şey telefondan çıkmaz. Gönderme, paylaşma, satın alma ve silme işlemleri için her zaman önce onayınız istenir.</string>
+    <string name="onboarding_access_list_hint">Listede: İndirilen uygulamalar → Buddy asistanı → açın.</string>
+    <string name="onboarding_access_open">Erişilebilirlik ayarlarını aç</string>
+    <string name="onboarding_access_greyed_title">Anahtar gri mi görünüyor?</string>
+    <string name="onboarding_access_greyed_text">Android, dosyadan yüklenen uygulamalarda bunu engeller. Aşağıdaki Uygulama bilgileri düğmesine, ardından sağ üstteki ⋮ → Kısıtlanmış ayarlara izin ver seçeneğine dokunun ve tekrar deneyin.</string>
+    <string name="onboarding_access_restricted_steps">1. Aşağıdaki Uygulama bilgileri düğmesine dokunun.\n2. Sağ üstteki ⋮ → Kısıtlanmış ayarlara izin ver seçeneğine dokunun.\n3. Geri dönüp erişilebilirlik ayarlarını yeniden açın.</string>
+    <string name="onboarding_app_info">Uygulama bilgileri</string>
+
+    <!-- Guide, step: install the agent inside Buddy and sign in. -->
+    <string name="onboarding_agents_title">Yükleyin ve giriş yapın</string>
+    <string name="onboarding_agents_done_title">Hazır</string>
+    <string name="onboarding_agents_done">%1$s yüklendi ve giriş yapıldı.</string>
+    <string name="onboarding_agents_done_both">Claude Code ve Codex yüklendi ve giriş yapıldı.</string>
+    <string name="onboarding_agents_text">%1$s, Buddy tarafından uygulamanın içine yüklenir; ardından bir kez giriş yaparsınız. Termux gerekmez.</string>
+    <string name="onboarding_agent_names_both">Claude Code ve Codex</string>
+    <!-- Agent card status lines: small lowercase mono text, one line. -->
+    <string name="onboarding_agent_ready">hazır · %1$s</string>
+    <string name="onboarding_agent_free_models">ücretsiz modeller</string>
+    <string name="onboarding_agent_signed_in">giriş yapıldı</string>
+    <string name="onboarding_agent_signed_in_as">giriş yapıldı · %1$s</string>
+    <string name="onboarding_agent_installing">yükleniyor…</string>
+    <string name="onboarding_agent_installed">yüklü · giriş yapılmadı</string>
+    <string name="onboarding_agent_not_installed">yüklü değil</string>
+    <!-- Agent card help text. -->
+    <string name="onboarding_agent_sign_in_claude">Claude hesabınızla giriş yapın. Tarayıcınız açılır; Yetkilendir düğmesine dokunun, Buddy kendiliğinden geri döner.</string>
+    <string name="onboarding_agent_checking_opencode">OpenCode kontrol ediliyor…</string>
+    <string name="onboarding_agent_sign_in_codex">Tarayıcıda ChatGPT hesabınızla giriş yapın, sonra geri dönün.</string>
+    <string name="onboarding_agent_sign_in_agy">Google hesabınızla giriş yapın. Tarayıcınız açılır; orada giriş yapın, Buddy kodu kendiliğinden alır.</string>
+    <string name="onboarding_agent_sign_in_grok">Grok hesabınızla giriş yapın. Tarayıcınız açılır; orada kodu onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="onboarding_agent_download_claude">Bir kerelik yaklaşık 235 MB indirir (Buddy\'nin Linux\'u ve Anthropic\'ten Claude Code).</string>
+    <string name="onboarding_agent_download_opencode">Bir kerelik yaklaşık 230 MB indirir (Buddy\'nin Linux\'u, Node.js ve OpenCode). Hesap gerekmez.</string>
+    <string name="onboarding_agent_download_codex">Bir kerelik yaklaşık 150 MB indirir (Buddy\'nin Linux\'u, Node.js ve OpenAI\'dan Codex).</string>
+    <string name="onboarding_agent_download_agy">Bir kerelik yaklaşık 200 MB indirir (Buddy\'nin Linux\'u ve Google\'dan Antigravity CLI).</string>
+    <string name="onboarding_agent_download_grok">Bir kerelik yaklaşık 170 MB indirir (Buddy\'nin Linux\'u ve xAI\'dan Grok Build).</string>
+    <!-- Buttons on the agent card. -->
+    <string name="onboarding_sign_in_claude">Claude ile giriş yap</string>
+    <string name="onboarding_sign_in_chatgpt">ChatGPT ile giriş yap</string>
+    <string name="onboarding_sign_in_google">Google ile giriş yap</string>
+    <string name="onboarding_sign_in_grok">Grok ile giriş yap</string>
+    <string name="onboarding_install_agent">%1$s ajanını yükle</string>
+    <string name="onboarding_agents_wifi">Mümkünse Wi-Fi kullanın. Yükleme sürerken bu ekrandan çıkabilirsiniz.</string>
+    <!-- Help questions and answers under "Stuck?". -->
+    <string name="onboarding_stuck_sign_in_q">Giriş yaptıktan sonra geri dönmedi mi?</string>
+    <string name="onboarding_stuck_sign_in_a">Claude: Claude sayfasında Kodu kopyala düğmesine dokunun, sonra Buddy\'ye dönün; kodu panodan kendisi alır.</string>
+    <string name="onboarding_stuck_install_q">Yükleme başarısız mı oldu?</string>
+    <string name="onboarding_stuck_install_a">Bağlantınızı kontrol edip yükleme düğmesine tekrar dokunun; kaldığı yerden devam eder.</string>
+
+    <!-- Guide, step: let Buddy run in the background (Android's battery optimization). -->
+    <string name="onboarding_background_title">Arka planda çalışsın</string>
+    <string name="onboarding_background_done">Buddy arka planda çalışabilir.</string>
+    <string name="onboarding_background_text">Böylece ajan çalışırken telefonunuz pil tasarrufu için Buddy\'yi durdurmaz.</string>
+    <string name="onboarding_allow">İzin ver</string>
+    <string name="onboarding_skip_for_now">Şimdilik atla</string>
+
+    <!-- Guide, step: how much the agent asks before acting. -->
+    <string name="onboarding_safety_title">Ne kadar sık sorsun?</string>
+    <string name="onboarding_safety_text">Mesajlaşma, sosyal medya, alışveriş, ödeme ve bankacılık uygulamalarında Buddy bir şey göndermeden, paylaşmadan, satın almadan veya silmeden önce her zaman onayınızı ister. Diğer uygulamalarınız için:</string>
+    <string name="onboarding_safety_ask_title">Önce bana sor</string>
+    <string name="onboarding_safety_ask_text">Ajan, bir ayarı değiştirmek gibi riskli her şeyden önce sorar. Daha güvenli ama daha çok açılır pencere çıkar.</string>
+    <string name="onboarding_safety_auto_title">Kendi başına çalış</string>
+    <string name="onboarding_safety_auto_text">Açılır pencere yok: ajan, bir kamerayı veya ışığı açmak gibi istediğiniz şeyi doğrudan yapar.</string>
+    <string name="onboarding_safety_note">Bunu istediğiniz zaman uygulama bazında değiştirebilirsiniz: Ayarlar → Uygulama izinleri. Ajanın bir uygulamada açılır pencere olmadan çalışması için Güven modunu, Buddy\'nin size kendisinin sorması için Katı modu seçin.</string>
+
+    <!-- Guide, last step: try a first task. -->
+    <string name="onboarding_try_title">Her şey hazır</string>
+    <string name="onboarding_try_text">İlk görevi deneyin. Buddy, Ayarlar\'ı açıp sizin için okuyacak.</string>
+    <string name="onboarding_try_prompt">Ayarlar\'ı aç ve Android sürümümü söyle</string>
+    <string name="onboarding_try_prompt_quoted">“%1$s”</string>
+    <string name="onboarding_try_tip">İpucu: baloncuk diğer uygulamaların üzerinde durur. Gizlemek için ✕ işaretine sürükleyin.</string>
+    <string name="onboarding_try_now">Şimdi dene</string>
+    <string name="onboarding_go_to_chats">Sohbetlerime git</string>
+
+    <!-- Home screen: the chat list. -->
+    <string name="main_new_chat">Yeni sohbet</string>
+    <string name="main_status_ready">hazır · %1$s</string>
+    <string name="main_status_setup">kurulum %1$d/%2$d</string>
+    <string name="main_setup_title">Sohbetleri çalıştırmak için kurulumu tamamlayın</string>
+    <string name="main_setup_next">Sıradaki: %1$s</string>
+    <string name="main_setup_next_accessibility">Sıradaki: Buddy\'nin erişilebilirlik hizmetini açın</string>
+    <string name="main_section_working">Çalışıyor</string>
+    <string name="main_section_recent">Son sohbetler</string>
+    <string name="main_empty_title">Henüz sohbet yok</string>
+    <string name="main_empty_text">Claude Code, Codex, OpenCode, Antigravity veya Grok ile sohbet başlatmak için Yeni sohbet düğmesine dokunun. Bir sohbeti silmek için ona uzun basın.</string>
+    <string name="main_chat_working">çalışıyor…</string>
+    <string name="main_chat_waiting">seni bekliyor…</string>
+    <string name="main_card_other_session">Başka bir oturum</string>
+    <string name="main_chat_last_you">Siz: %1$s</string>
+    <string name="main_delete_title">Bu sohbet silinsin mi?</string>
+    <string name="main_delete_action">Sil</string>
+    <string name="main_new_chat_default">varsayılan</string>
+    <string name="main_new_chat_not_signed_in">Giriş yapılmadı · kurmak için dokunun</string>
+    <string name="main_new_chat_not_installed">Yüklü değil · kurmak için dokunun</string>
+    <!-- How long ago a chat changed. Very little room. -->
+    <string name="main_ago_now">şimdi</string>
+    <plurals name="main_ago_minutes">
+        <item quantity="one">%1$d dk</item>
+        <item quantity="other">%1$d dk</item>
+    </plurals>
+    <plurals name="main_ago_hours">
+        <item quantity="one">%1$d sa</item>
+        <item quantity="other">%1$d sa</item>
+    </plurals>
+    <plurals name="main_ago_days">
+        <item quantity="one">%1$d g</item>
+        <item quantity="other">%1$d g</item>
+    </plurals>
+
+    <!-- Notification shown after the bubble is dragged away to hide it. -->
+    <string name="notice_channel_name">Gizli baloncuk</string>
+    <string name="notice_hidden_title">Buddy gizlendi</string>
+    <string name="notice_hidden_text">Baloncuğu yeniden göstermek için dokunun.</string>
+    <string name="notice_open_chats">Sohbetleri aç</string>
+
+    <!-- Buddy's own updates (GitHub version): notification, update sheet and messages. -->
+    <string name="update_channel_name">Buddy güncellemeleri</string>
+    <string name="update_available_title">Buddy %1$s kullanıma sunuldu</string>
+    <string name="update_notification_text">Sizdeki sürüm: %1$s. Yenilikleri görüp güncellemek için dokunun; sohbetleriniz korunur.</string>
+    <string name="update_action">Güncelle</string>
+    <string name="update_mute">Bildirme</string>
+    <string name="update_muted">Artık güncelleme bildirimi gelmeyecek. Ayarlar\'dan yeniden açabilirsiniz.</string>
+    <string name="update_checking">Güncellemeler kontrol ediliyor…</string>
+    <string name="update_check_failed">GitHub\'a ulaşılamadı. Daha sonra tekrar deneyin.</string>
+    <string name="update_up_to_date">Buddy %1$s güncel.</string>
+    <string name="update_sheet_text">Sizdeki sürüm: %1$s. Güncelleme sohbetlerinizi, ayarlarınızı ve hesap girişlerinizi korur.</string>
+    <string name="update_later">Sonra</string>
+    <string name="update_downloading">İndiriliyor…</string>
+    <string name="update_needs_permission">Buddy\'nin uygulama yüklemesine izin verin, ardından Güncelle düğmesine tekrar dokunun.</string>
+    <string name="update_error_no_apk">Bu sürümde henüz buddy.apk yok.</string>
+    <string name="update_error_download">İndirme başarısız oldu (%1$s).</string>
+    <string name="update_error_not_newer">İndirilen dosya daha yeni bir Buddy sürümü değil, bu yüzden açılmadı.</string>
+    <string name="update_failed_manual">%1$s Uygulamayı %2$s adresinden (buddy.apk) de indirebilir veya otomatik güncellemeler için Obtainium\'u kullanabilirsiniz (bkz. %3$s).</string>
+
+    <!-- Settings, Appearance: option names. -->
+    <string name="prefs_theme_system">Sistem</string>
+    <string name="prefs_theme_light">Açık</string>
+    <string name="prefs_theme_dark">Koyu</string>
+    <string name="prefs_surface_warm">Sıcak</string>
+    <string name="prefs_surface_neutral">Nötr</string>
+    <string name="prefs_surface_black">Siyah</string>
+    <!-- Accent colour names, read aloud by TalkBack for the colour swatches. -->
+    <string name="prefs_accent_coral">Mercan</string>
+    <string name="prefs_accent_ocean">Okyanus</string>
+    <string name="prefs_accent_mint">Nane</string>
+    <string name="prefs_accent_violet">Menekşe</string>
+    <string name="prefs_accent_rose">Gül</string>
+    <string name="prefs_accent_amber">Kehribar</string>
+
+    <!-- ===== The bubble, its hold menu, chat panel and approval cards (Bubble, RadialMenu, ControlIndicator) ===== -->
+
+    <!-- Floating bubble, read by TalkBack. -->
+    <string name="bubble_face_description">Buddy. Açmak için dokunun, işlemler için uzun basın</string>
+    <string name="bubble_show_actions">işlemleri göstermek</string>
+
+    <!-- Status pill beside the bubble: at most two lines. -->
+    <string name="bubble_pill_waiting_answer">Yanıtınız bekleniyor</string>
+    <string name="bubble_pill_waiting_approval">Onayınız bekleniyor</string>
+    <string name="bubble_pill_paused">Duraklatıldı · devam etmek için buraya dokunun</string>
+    <string name="bubble_pill_hands_on">%1$s · yanıtlamak için buraya dokunun</string>
+    <string name="bubble_using_phone">Telefonunuz kullanılıyor</string>
+    <string name="bubble_using_phone_status">Telefonunuz kullanılıyor · %1$s</string>
+    <string name="bubble_pill_background">Arka planda · telefonunuzu kullanabilirsiniz</string>
+    <string name="activity_reading">Ekranı okuyor</string>
+    <string name="activity_typing">Yazıyor</string>
+    <string name="activity_scrolling">Kaydırıyor</string>
+    <string name="activity_swiping">Kaydırıyor</string>
+    <string name="activity_opening">%1$s açılıyor</string>
+    <string name="activity_tapping">“%1$s” öğesine dokunuyor</string>
+    <string name="activity_tapping_plain">Dokunuyor</string>
+    <string name="activity_browsing">%1$s geziniyor · %2$s</string>
+    <string name="activity_browser_opening">Sayfa açılıyor</string>
+    <string name="activity_browser_reading">Sayfayı okuyor</string>
+    <string name="bubble_pill_hold_hint">durdurmak ve diğer seçenekler için baloncuğa uzun basın</string>
+    <string name="bubble_pill_status_hold_hint">%1$s · durdurmak ve diğer seçenekler için baloncuğa uzun basın</string>
+
+    <!-- Hold menu: actions fanned out around the bubble while it is held. About 12 characters. -->
+    <string name="menu_stop_task">Durdur</string>
+    <string name="menu_resume">Devam et</string>
+    <string name="menu_pause">Duraklat</string>
+    <string name="menu_add_instruction">Talimat ekle</string>
+    <string name="menu_stop_voice">Sesi durdur</string>
+    <string name="bubble_talk">Konuş</string>
+    <string name="menu_open_chat">Sohbeti aç</string>
+    <string name="menu_hide">Gizle</string>
+
+    <!-- Hold-menu preview: short forms of Stop task, Add instruction and Stop voice. -->
+    <string name="menu_peek_stop">Durdur</string>
+    <string name="menu_peek_add">Ekle</string>
+    <string name="menu_peek_voice">Ses</string>
+    <string name="menu_peek_hint">Bana uzun basın</string>
+
+    <!-- Toasts from the bubble. -->
+    <string name="bubble_tip_stop_voice">İpucu: sesi durdurmak için baloncuğa uzun basın</string>
+    <string name="bubble_tip_hold_menu">İpucu: duraklatmak, durdurmak veya talimat eklemek için baloncuğa uzun basın</string>
+    <string name="bubble_stopping">Durduruluyor…</string>
+    <string name="bubble_nothing_running">Buddy sohbetlerinde çalışan bir şey yok.</string>
+    <string name="bubble_nothing_running_chat">Bu sohbette çalışan bir şey yok.</string>
+    <string name="bubble_allow_mic_tap_mic">Buddy\'de mikrofona izin verin, ardından mikrofona tekrar dokunun.</string>
+    <string name="bubble_allow_mic_tap_bubble">Buddy\'de mikrofona izin verin, ardından baloncuğa tekrar dokunun.</string>
+    <string name="bubble_note_added">Anlaşıldı: %1$s bunu dikkate alacak</string>
+    <string name="bubble_copied">Kopyalandı</string>
+
+    <!-- Voice input, shown in the status pill beside the bubble. -->
+    <string name="bubble_listening">Dinleniyor…</string>
+    <string name="bubble_listening_tap_done">Dinleniyor… bitirince baloncuğa dokunun</string>
+    <string name="bubble_heard">“%1$s”</string>
+
+    <!-- Chat panel opened from the bubble: header buttons (read by TalkBack) and titles. -->
+    <string name="bubble_new_chat">Yeni sohbet</string>
+    <string name="bubble_open_in_app">Uygulamada aç</string>
+    <string name="bubble_close">Kapat</string>
+    <string name="bubble_chats_title">Sohbetler</string>
+    <string name="bubble_model_effort_title">Model ve çaba</string>
+
+    <!-- Strip at the top of the chat panel while the agent works. -->
+    <string name="bubble_working">Çalışıyor…</string>
+    <string name="bubble_stop">Durdur</string>
+
+    <!-- Composer at the bottom of the chat panel. -->
+    <string name="bubble_attach">Fotoğraf veya dosya ekle</string>
+    <string name="bubble_input_hint">%1$s ile sohbet edin…</string>
+    <string name="bubble_paste">Yapıştır</string>
+    <string name="bubble_send">Gönder</string>
+    <string name="bubble_empty_chat">Yeni %1$s sohbeti. Telefonunuzda bir şey yapmamı isteyin.</string>
+    <plurals name="bubble_tool_calls">
+        <item quantity="one">%1$d araç çağrısı</item>
+        <item quantity="other">%1$d araç çağrısı</item>
+    </plurals>
+
+    <!-- List of chats in the panel. -->
+    <string name="bubble_chat_row_working">çalışıyor…</string>
+    <string name="bubble_chat_row_you">Siz: %1$s</string>
+    <string name="bubble_delete_chat">Bu sohbet silinsin mi?</string>
+    <string name="bubble_delete">Sil</string>
+
+    <!-- Agent picker for a new chat. -->
+    <string name="bubble_agent_default">varsayılan</string>
+    <string name="bubble_agent_not_signed_in">Giriş yapılmadı · kurmak için dokunun</string>
+    <string name="bubble_agent_not_installed">Yüklü değil · kurmak için dokunun</string>
+
+    <!-- Model and effort picker for the current chat. -->
+    <string name="bubble_model_note">Bu sohbet için. Konuşma devam eder; sonraki mesaj yeni seçimi kullanır.</string>
+    <string name="bubble_effort">Çaba</string>
+    <string name="bubble_effort_note">Oto seçeneğinde karar ajana kalır. Daha yüksek seviyeler daha uzun düşünür ve planınızdan daha fazla harcar.</string>
+    <string name="bubble_model">Model</string>
+
+    <!-- Card in the chat panel when the agent asks for approval or asks a question. -->
+    <string name="card_label_approval">ONAYINIZ GEREKİYOR</string>
+    <string name="card_label_question">SORU</string>
+    <string name="card_label_other_session">%1$s · BAŞKA BİR OTURUMDAN</string>
+    <string name="card_label_queue">%1$s · 1 / %2$d</string>
+    <string name="card_deny">Reddet</string>
+    <string name="card_change">Değiştir</string>
+    <string name="card_approve">Onayla</string>
+    <string name="card_skip">Atla</string>
+    <string name="card_type_own_answer">Yanıtı kendim yazayım…</string>
+    <string name="card_change_hint">Ne değişmeli?</string>
+    <string name="card_answer_hint">Yanıtınız…</string>
+
+    <!-- Notes posted into the chat after the user answers a card. -->
+    <string name="card_note_answered">✓ Yanıtlandı: %1$s</string>
+    <string name="card_note_change_requested">✎ Değişiklik istendi: %1$s</string>
+    <string name="card_note_approved">✓ Onaylandı: %1$s</string>
+    <string name="card_note_denied">✗ Reddedildi</string>
+    <string name="card_note_skipped">Soru atlandı</string>
+
+    <!-- Notification while an agent operates the phone. -->
+    <string name="control_channel_name">Buddy telefonunuzu kullanıyor</string>
+    <string name="control_channel_description">Bir ajan telefonu kullanırken durum çubuğunda görünür.</string>
+    <string name="control_title">Buddy telefonunuzu kullanıyor</string>
+    <string name="control_text">İşlem bitene kadar ekrana dokunmayın ya da kontrolü almak için Durdur düğmesine dokunun.</string>
+    <string name="control_stop">Durdur</string>
+    <string name="pause_call_ended_title">Arama bitti · Buddy duraklatıldı</string>
+    <string name="pause_call_ended_text">Göreve devam etmek için dokunun</string>
+
+    <!-- ===== Full-screen chat, agent progress lines, transcripts, shared UI, voice (ChatActivity, ChatHub, Ui, BuddyService, Voice) ===== -->
+
+    <!-- Chat screen: app bar -->
+    <string name="chat_back">Geri</string>
+    <string name="chat_read_aloud">Yanıtları sesli oku</string>
+    <string name="chat_read_aloud_on">Yanıtlar sesli okunacak</string>
+    <string name="chat_read_aloud_off">Yanıtlar sesli okunmayacak</string>
+
+    <!-- Chat screen: Linux tools, the chip beside the model chip (also in the bubble's panel and the New chat sheets) -->
+    <string name="chat_linux_tools">Linux araçları</string>
+    <string name="chat_linux_tools_info">Buddy\'nin Linux\'unda komutlar, dosyalar ve uygulama derleme</string>
+    <string name="chat_linux_tools_title">Linux araçları açılsın mı?</string>
+    <string name="chat_linux_tools_what">Ajan bu durumda komut çalıştırabilir, paket yükleyebilir ve ~/.buddy/work içindeki dosyaları düzenleyebilir; böylece uygulama geliştirebilir.</string>
+    <string name="chat_linux_tools_when">Yalnızca bu sohbette, bir sonraki mesajınızdan itibaren.</string>
+    <string name="chat_linux_tools_risk">Ekrandaki kötü amaçlı bir mesaj veya web sayfası, ajanı komut çalıştırmaya kandırmaya çalışabilir. Onay kartları gönderme, paylaşma, satın alma ve silme işlemlerini korumaya devam eder.</string>
+    <string name="chat_linux_tools_turn_on">Aç</string>
+
+    <string name="chat_options">Sohbet seçenekleri</string>
+    <string name="chat_keep_awake">Çalışırken ekranı açık tut</string>
+    <string name="chat_keep_awake_info">Uzun görevler için: bu sohbet çalıştığı sürece telefon uyumaz ve bir bildirim nasıl gittiğini söyler. Telefonu kilitlemek yine de ekranı kapatır.</string>
+    <string name="chat_allowed">Sormadan izin verilenler</string>
+    <string name="chat_allowed_info">Bu sohbetin görevi bitene kadar bu uygulamalardaki rutin onaylar kendiliğinden geçer: mesaj göndermek ya da denetçinin soracağı bir adım. Her biri sohbette görünür. Ödeme, satın alma, silme, yükleme, şifreler ve güvenlik ayarları yine size sorulur.</string>
+    <string name="chat_allowed_kept">Bu sohbetin zamanlaması için saklanır: bu uygulamalar, siz onları ya da zamanlamayı kaldırana kadar zamanlanmış çalıştırmalarda izinli kalır.</string>
+    <string name="chat_allowed_add">Uygulama ekle</string>
+    <string name="chat_allowed_remove">%1$s kaldır</string>
+    <string name="run_rule_approved">Bu görev için kuralınızla onaylandı: %1$s</string>
+    <string name="run_end_done">%1$s bitirdi</string>
+    <string name="run_end_stopped">%1$s durduruldu</string>
+    <string name="run_end_failed">%1$s bir sorunla karşılaştı</string>
+    <string name="schedule_title">Zamanlama</string>
+    <string name="schedule_set">Zamanlama ayarla</string>
+    <string name="schedule_set_info">Bu sohbete belirli saatlerde kendiliğinden mesaj gönderin, örn. her gün 14:00\'te.</string>
+    <string name="schedule_info">Belirlenen saatte Buddy bu mesajı, siz yazmışsınız gibi bu sohbetin aracısı ve seçenekleriyle sohbete gönderir. Onay kartları yine sizi bekler. Telefon kilitliyken ekrana ihtiyaç duyarsa kilidi açmanızı ister.</string>
+    <string name="schedule_time">Saat</string>
+    <string name="schedule_days">Günler</string>
+    <string name="schedule_daily">Her gün</string>
+    <string name="schedule_weekdays">Hafta içi</string>
+    <string name="schedule_pick_days">Gün seç</string>
+    <string name="schedule_message">Mesaj</string>
+    <string name="schedule_message_hint">Ne gönderilecek, örn. Uygulamayı aç ve bugünkü girişi yap</string>
+    <string name="schedule_wake">Bu görev için telefonu uyandır</string>
+    <string name="schedule_wake_info">Ekrana ihtiyaç duyduğunda ekran açılır (PIN, desen veya parmak izi olmayan kilit ekranı da açılır). Çalışırken yakındaki herkes ekranı görebilir.</string>
+    <string name="schedule_inexact">Buddy için tam zamanlı alarmlar kapalı, bu yüzden birkaç dakika geç başlayabilir.</string>
+    <string name="schedule_allow_exact">Tam zamanlı alarmlara izin ver</string>
+    <string name="schedule_save">Kaydet</string>
+    <string name="schedule_remove">Kaldır</string>
+    <string name="schedule_summary_daily">Her gün %1$s</string>
+    <string name="schedule_summary_weekdays">Hafta içi %1$s</string>
+    <string name="schedule_summary_days">%1$s %2$s</string>
+    <string name="schedule_next">Sonraki: %1$s</string>
+    <string name="schedule_no_days">En az bir gün seçin</string>
+    <string name="schedule_no_message">Gönderilecek mesajı yazın</string>
+    <string name="schedule_channel">Zamanlanmış görevler</string>
+    <string name="schedule_screen_title">Zamanlanmış görev ekranınıza ihtiyaç duyuyor: devam etmek için kilidi açın</string>
+    <string name="schedule_screen_text">%1$s: telefonun kilidini açtığınızda devam eder, %2$s saatine kadar.</string>
+    <string name="schedule_skipped_title">Zamanlanmış görev atlandı: %1$s</string>
+    <string name="schedule_stopped_title">Zamanlanmış görev durduruldu: %1$s</string>
+    <string name="schedule_skip_running">Bu sohbet hâlâ önceki görevi üzerinde çalışıyordu.</string>
+    <string name="schedule_skip_busy">Buddy bir saat boyunca meşguldü (başka bir görev, bir duraklama veya internet yok).</string>
+    <string name="schedule_skip_screen">Telefon bir saat boyunca kilitli kaldı.</string>
+    <string name="schedule_marker">Zamanlandı</string>
+
+    <!-- Chat screen: the strip shown while the agent works -->
+    <string name="chat_stop">Durdur</string>
+    <string name="chat_working">Çalışıyor…</string>
+
+    <!-- Chat screen: composer and empty chat -->
+    <string name="chat_attach_description">Fotoğraf veya dosya ekle</string>
+    <string name="chat_input_hint">%1$s ile sohbet edin…</string>
+    <string name="chat_input_hint_running">Çalışırken talimat ekleyin…</string>
+    <string name="chat_talk">Konuş</string>
+    <string name="chat_send">Gönder</string>
+    <string name="chat_empty_hint">Yeni %1$s sohbeti. Telefonunuzda bir şey yapmasını isteyin.</string>
+    <string name="chat_empty_hint_dev">Linux araçlarıyla yeni %1$s sohbeti. Telefonunuzda bir şey yapmasını veya bir uygulama geliştirmesini isteyin.</string>
+
+    <!-- Model sheet (tap the model chip under the chat title) -->
+    <string name="chat_model_title">%1$s modeli</string>
+    <string name="chat_model_subtitle">Bu sohbet için. Konuşma yeni modelle devam eder.</string>
+    <string name="chat_effort">Çaba</string>
+    <string name="chat_effort_help">Oto seçeneğinde karar ajana kalır. Daha yüksek seviyeler daha uzun düşünür ve planınızdan daha fazla harcar.</string>
+    <string name="chat_model">Model</string>
+    <string name="chat_model_other_hint">diğer… örn. %1$s</string>
+    <string name="chat_model_use">Kullan</string>
+
+    <!-- Language sheet (long-press the mic) -->
+    <string name="chat_speak_in">Konuşma dili</string>
+    <string name="chat_speak_in_help">Dillerinizi Ayarlar → Ses bölümünden seçin.</string>
+    <string name="live_option">Canlı ses</string>
+    <string name="live_option_sub">%1$s ile sesli konuşun. ChatGPT\'nin sesiyle yanıt verir ve bu sohbette telefonda işlem yapar.</string>
+    <string name="live_label">Canlı</string>
+    <string name="live_end">Bitir</string>
+    <string name="live_connecting">Bağlanıyor…</string>
+    <string name="live_started">Canlı ses açık. Konuşun: %1$s sizi duyar, sesli yanıt verir ve bu sohbette istediğinizi yapar.</string>
+    <string name="live_ended">Canlı ses sona erdi.</string>
+    <string name="live_ended_why">Canlı ses sona erdi: %1$s</string>
+    <string name="live_ended_screen_off">ekran kapandı</string>
+    <string name="live_ended_paused">Buddy duraklatıldı</string>
+    <string name="live_ended_idle">5 dakika boyunca hiçbir şey söylenmedi</string>
+    <string name="live_notification_title">%1$s ile canlı ses</string>
+    <string name="live_mic_busy">Canlı ses mikrofonu kullanıyor. Önce onu bitirin.</string>
+    <string name="live_hint">Yeni: %1$s ile canlı konuşun</string>
+    <string name="live_status_listening">Dinliyor…</string>
+    <string name="live_status_thinking">Düşünüyor…</string>
+    <string name="live_status_working">Üzerinde çalışıyor…</string>
+    <string name="live_status_speaking">Konuşuyor…</string>
+    <string name="chat_phone_voice">telefon sesi</string>
+
+    <!-- Approval card above the composer, when the agent asks for an OK or asks a question -->
+    <string name="chat_card_question">SORU</string>
+    <string name="chat_card_needs_ok">ONAYINIZ GEREKİYOR</string>
+    <string name="chat_deny">Reddet</string>
+    <string name="chat_change">Değiştir</string>
+    <string name="chat_approve">Onayla</string>
+    <string name="chat_skip">Atla</string>
+    <string name="chat_type_own_answer">Yanıtı kendim yazayım</string>
+    <string name="chat_answer_hint">Yanıtınız</string>
+    <string name="chat_change_hint">Ne değişmeli?</string>
+    <string name="chat_send_answer">Yanıtı gönder</string>
+    <string name="chat_send_change">Değişikliği gönder</string>
+
+    <!-- Attachments -->
+    <string name="chat_attach">Ekle</string>
+    <string name="chat_attach_camera">Fotoğraf çek</string>
+    <string name="chat_attach_camera_sub">Kamerayı kullanın</string>
+    <string name="chat_attach_photos">Fotoğraflar</string>
+    <string name="chat_attach_photos_sub">Galeriden seçin</string>
+    <string name="chat_attach_files">Dosyalar</string>
+    <string name="chat_attach_files_sub">PDF\'ler, belgeler, 25 MB\'a kadar her şey</string>
+    <string name="chat_no_app_for_action">Bu telefonda bunu yapabilecek bir uygulama yok.</string>
+    <string name="chat_adding">Ekleniyor…</string>
+    <plurals name="chat_adding_files">
+        <item quantity="one">%1$d dosya ekleniyor…</item>
+        <item quantity="other">%1$d dosya ekleniyor…</item>
+    </plurals>
+    <string name="chat_attachment_remove">Kaldır</string>
+    <string name="chat_no_app_for_file">%1$s dosyasını açabilecek bir uygulama yok.</string>
+
+    <!-- Chat messages -->
+    <string name="chat_copied">Kopyalandı</string>
+    <plurals name="chat_tool_calls">
+        <item quantity="one">%1$d araç çağrısı</item>
+        <item quantity="other">%1$d araç çağrısı</item>
+    </plurals>
+
+    <!-- Notes Buddy posts into a chat, and the chat's status line -->
+    <string name="hub_continuing">Daha önceki bir %1$s oturumuna devam ediliyor. Hâlâ bir terminalde açıksa önce orada kapatın.</string>
+    <string name="hub_still_working_attachments">Bu sohbet hâlâ çalışıyor. Ekleri iş bitince gönderin.</string>
+    <string name="hub_thinking">Düşünüyor…</string>
+    <string name="hub_still_waiting">Modelin yanıtı hâlâ bekleniyor…</string>
+    <string name="hub_no_answer">Model yanıt vermedi. Meşgul olabilir: tekrar deneyin veya sohbetin üst kısmından başka bir model seçin.</string>
+    <string name="hub_model_set">Model: %1$s</string>
+    <string name="hub_effort_set">Çaba: %1$s</string>
+    <string name="hub_effort_default">Çaba: varsayılan</string>
+    <string name="hub_stopping">Durduruluyor…</string>
+    <string name="hub_stopped">Durduruldu.</string>
+    <string name="hub_interrupted">Ajan çalışırken Android Buddy\'yi kapattı, bu yüzden durdu.</string>
+    <string name="hub_resume_message">Kaldığın yerden devam et</string>
+    <string name="chat_interrupted">%1$s bunun üzerinde çalışırken Android Buddy\'yi kapattı. Devam et, yapılanları kontrol eder ve oradan sürdürür.</string>
+    <string name="chat_interrupted_continue">Devam et</string>
+    <string name="chat_interrupted_dismiss">Kapat</string>
+    <string name="hub_agent_stopped">%1$s durdu.</string>
+    <string name="hub_something_wrong">Bir şeyler ters gitti.</string>
+    <string name="hub_note_added">Çalışırken eklendi: %1$s bunu bir sonraki adımında alacak</string>
+    <string name="hub_note_not_sent">Durdurduğun için notun gönderilmedi: yeniden mesaj kutusunda</string>
+    <string name="hub_note_passed">Eklediğiniz iletildi</string>
+    <plurals name="hub_pill_chats">
+        <item quantity="one">%1$d sohbet · %2$s</item>
+        <item quantity="other">%1$d sohbet · %2$s</item>
+    </plurals>
+
+    <!-- The agent's steps, one line each, shown in the chat and the bubble while it works. -->
+    <string name="hub_tool_read_screen">Ekran okunuyor</string>
+    <string name="hub_tool_screenshot">Ekran görüntüsü alınıyor</string>
+    <string name="hub_tool_tap_element">%1$d numaralı öğeye dokunuluyor</string>
+    <string name="hub_tool_tap_point">%1$d,%2$d konumuna dokunuluyor</string>
+    <string name="hub_tool_long_press">Uzun basılıyor</string>
+    <string name="hub_tool_type">“%1$s” yazılıyor</string>
+    <string name="hub_tool_scroll_up">Yukarı kaydırılıyor</string>
+    <string name="hub_tool_scroll_down">Aşağı kaydırılıyor</string>
+    <string name="hub_tool_scroll_left">Sola kaydırılıyor</string>
+    <string name="hub_tool_scroll_right">Sağa kaydırılıyor</string>
+    <string name="hub_tool_scroll">Kaydırılıyor: %1$s</string>
+    <string name="hub_tool_swipe">Kaydırma hareketi yapılıyor</string>
+    <string name="hub_tool_press_back">Geri düğmesine basılıyor</string>
+    <string name="hub_tool_press_home">Ana ekran düğmesine basılıyor</string>
+    <string name="hub_tool_press_recents">Son uygulamalar düğmesine basılıyor</string>
+    <string name="hub_tool_press_notifications">Bildirimler açılıyor</string>
+    <string name="hub_tool_press_quick_settings">Hızlı Ayarlar açılıyor</string>
+    <string name="hub_tool_press">%1$s düğmesine basılıyor</string>
+    <string name="hub_tool_open_app">%1$s açılıyor</string>
+    <string name="hub_tool_open_url">%1$s açılıyor</string>
+    <string name="hub_tool_clipboard_read">Pano okunuyor</string>
+    <string name="hub_tool_clipboard_write">Panoya kopyalanıyor</string>
+    <string name="hub_tool_set_alarm">%1$s için alarm kuruluyor</string>
+    <string name="hub_tool_set_timer">Zamanlayıcı başlatılıyor</string>
+    <string name="hub_tool_share">Paylaşım menüsü açılıyor</string>
+    <string name="hub_tool_save_downloads">%1$s, Downloads klasörüne kaydediliyor</string>
+    <string name="hub_tool_device_status">Telefon kontrol ediliyor</string>
+    <string name="hub_tool_take_photo">Kamera açılıyor</string>
+    <string name="hub_tool_location">Konum alınıyor</string>
+    <string name="hub_tool_notifications">Bildirimler okunuyor</string>
+    <string name="hub_tool_media">Medya kontrolleri</string>
+    <string name="hub_tool_calendar_events">Takvim okunuyor</string>
+    <string name="hub_tool_add_event">Takvime ekleniyor: %1$s</string>
+    <string name="hub_tool_wait_for">Ekran bekleniyor</string>
+    <string name="hub_tool_do_steps">%1$d adım uygulanıyor</string>
+    <string name="hub_tool_collect">Listenin tamamı okunuyor</string>
+    <string name="hub_tool_find">“%1$s” aranıyor</string>
+    <string name="schedules_title">Zamanlanmış</string>
+    <string name="schedules_row">Tüm sohbetlerin görevleri ve hatırlatıcıları</string>
+    <string name="schedules_intro">Her sohbetin zamanlanmış görevi ile aracıların zamanladığı mesajlar ve hatırlatıcılar. Açmak için bir sohbetin adına dokunun.</string>
+    <string name="schedules_none">Zamanlanmış bir şey yok. Bir sohbetin seçenekleri → Zamanlama bölümünden görev ayarlayın veya bir aracıdan size bir şeyi hatırlatmasını isteyin.</string>
+    <string name="schedules_paused">duraklatıldı</string>
+    <string name="schedules_quiet_tag">yalnızca yenilikler</string>
+    <string name="schedules_run_now">Şimdi çalıştır</string>
+    <string name="schedules_started">Başlatıldı (veya sohbetin boşalması bekleniyor).</string>
+    <string name="schedules_pause">Duraklat</string>
+    <string name="schedules_resume">Devam et</string>
+    <string name="schedules_reminder">Hatırlatıcı</string>
+    <string name="schedule_quiet">Yalnızca yenilik olduğunda haber ver</string>
+    <string name="schedule_quiet_info">Bir çalıştırma yeni bir şey bulamazsa bildirim göndermeden biter. Yanıtı yine sohbette olur ve bir sorun olduğunda her zaman bildirim alırsınız.</string>
+    <string name="schedule_reminder_title">Hatırlatıcı</string>
+    <string name="schedule_reminder_line">Hatırlatıcı: %1$s</string>
+    <string name="steps_view">Adımları gör</string>
+    <string name="steps_title">Adımlar</string>
+    <string name="steps_intro">Aracının bu sohbetin son 3 çalıştırmasında telefonda yaptıkları ve her adımdan sonra ekranın görünümü. Yalnızca bu telefonda saklanır, sohbetle birlikte silinir. Büyütmek için bir resme dokunun.</string>
+    <string name="steps_none">Bu sohbette henüz adım yok.</string>
+    <string name="steps_run">%1$s · %2$s · %3$d adım · %4$s</string>
+    <string name="steps_run_live">%1$s · şu ana kadar %2$d adım</string>
+    <string name="steps_context">bağlam %1$s</string>
+    <string name="steps_no_actions">Bu çalıştırmada telefonda işlem yapılmadı.</string>
+    <string name="steps_done">tamamlandı</string>
+    <string name="steps_failed">başarısız</string>
+    <string name="steps_stopped">durduruldu</string>
+    <string name="hub_tool_list_apps">Uygulamalar listeleniyor</string>
+    <string name="hub_tool_approved">✓ Onaylandı: %1$s</string>
+    <string name="hub_tool_change_requested">✎ Değişiklik istendi</string>
+    <string name="hub_tool_change_requested_text">✎ Değişiklik istendi: %1$s</string>
+    <string name="hub_tool_denied">✗ Reddedildi</string>
+    <string name="hub_tool_asking_approval">Onayınız isteniyor</string>
+    <string name="hub_tool_answered">✓ Yanıtlandı</string>
+    <string name="hub_tool_answered_text">✓ Yanıtlandı: %1$s</string>
+    <string name="hub_tool_question_skipped">Soru atlandı</string>
+    <string name="hub_tool_asking">Soruluyor: %1$s</string>
+    <string name="hub_tool_point_out">Gösteriyor: %1$s</string>
+    <string name="hub_tool_point_out_any">Ekranda bir şey gösteriyor</string>
+    <string name="hub_tool_update_download">Buddy güncellemesi indiriliyor</string>
+    <string name="hub_tool_update_check">Buddy güncellemesi kontrol ediliyor</string>
+    <string name="hub_tool_web_search">Web\'de aranıyor: %1$s</string>
+    <string name="hub_tool_web_fetch">Okunuyor: %1$s</string>
+    <string name="hub_tool_command">Çalıştırılıyor: %1$s</string>
+    <string name="hub_tool_command_any">Bir komut çalıştırılıyor</string>
+    <string name="hub_tool_edit">Düzenleniyor: %1$s</string>
+    <string name="hub_tool_edit_any">Dosyalar düzenleniyor</string>
+    <string name="hub_tool_read_file">Okunuyor: %1$s</string>
+    <string name="hub_tool_other">Kullanılıyor: %1$s</string>
+
+    <!-- Transcript of an earlier agent session that isn't a Buddy chat (read-only) -->
+    <string name="transcript_loading">Yükleniyor…</string>
+    <string name="transcript_continue">Buddy\'de devam et</string>
+    <string name="transcript_empty">Bu oturumda okunabilir mesaj yok.</string>
+    <plurals name="transcript_last_messages">
+        <item quantity="one">son %1$d mesaj · salt okunur</item>
+        <item quantity="other">son %1$d mesaj · salt okunur</item>
+    </plurals>
+
+    <!-- Shared screens: links -->
+    <string name="ui_no_app_for_link">Bu bağlantıyı açabilecek bir uygulama yok</string>
+
+    <!-- Accessibility disclosure, shown before Android's accessibility settings open (required by Google Play) -->
+    <string name="ui_a11y_title">Buddy erişilebilirliği nasıl kullanır?</string>
+    <string name="ui_a11y_what">Buddy, diğer uygulamalarda istediklerinizi yapmak için Android\'in erişilebilirlik hizmetini kullanır: ekranda ne olduğunu okur, sizin yerinize dokunur, yazar ve kaydırır. Ayrıca kayan baloncuğu da gösterir.</string>
+    <string name="ui_a11y_data">Bir görev çalışırken mesajlar, adlar veya adresler gibi kişisel bilgiler içerebilen ekran içeriği, yalnızca isteğinizi yerine getirmek için seçtiğiniz ajanın yapay zeka hizmetine (Claude Code için Anthropic, Codex için OpenAI, Antigravity için Google, Grok için xAI veya OpenCode modelinizin sağlayıcısı) gönderilir.</string>
+    <string name="ui_a11y_no_servers">Buddy\'nin kendine ait sunucusu yoktur. Bu verileri toplamaz, satmaz, paylaşmaz ve reklamlar için kullanmaz.</string>
+    <string name="ui_a11y_asks">Buddy, bir şey gönderen, paylaşan, satın alan veya silen her işlemden önce onayınızı ister. Hizmeti istediğiniz zaman Android\'in erişilebilirlik ayarlarından kapatabilirsiniz.</string>
+    <string name="ui_privacy_policy">Gizlilik politikası</string>
+    <string name="ui_no_thanks">Hayır, teşekkürler</string>
+    <string name="ui_agree_continue">Kabul et ve devam et</string>
+
+    <!-- Bottom navigation of the main screens. Keep very short (about 10 characters). -->
+    <string name="ui_nav_chats">Sohbetler</string>
+    <string name="ui_nav_sessions">Oturumlar</string>
+    <string name="ui_nav_settings">Ayarlar</string>
+
+    <!-- Accessibility service: pause from the bubble's hold menu, Stop on the control indicator -->
+    <string name="service_pause_expired">5 dakika duraklatıldığı için Buddy görevi durdurdu.</string>
+    <string name="service_stopped_toast">Durduruldu. Telefonunuz yeniden sizde.</string>
+    <string name="service_paused_note">Duraklatıldı: devam ettirene kadar telefon sizde</string>
+    <string name="service_paused_toast">Duraklatıldı. Telefonunuzu kullanın, ardından devam etmek için baloncuğun yanındaki “Duraklatıldı” yazısına dokunun.</string>
+    <string name="service_resumed_note">Devam ettirildi</string>
+    <string name="service_autopaused_touch">Ekrana dokunduğunuz için duraklatıldı. Devam etmek için baloncuğun yanındaki “Duraklatıldı” yazısına dokunun.</string>
+    <string name="service_autopaused_call">Bir arama nedeniyle duraklatıldı. Devam etmek için baloncuğun yanındaki “Duraklatıldı” yazısına dokunun.</string>
+
+    <!-- Voice input and output -->
+    <string name="voice_mic_needed">Buddy\'nin mikrofona ihtiyacı var. Buddy uygulamasını açın ve izin vermek için bir kez 🎙 simgesine dokunun.</string>
+    <string name="voice_no_recognizer">Bu telefonda konuşma tanıma hizmeti yok.</string>
+    <string name="voice_starting">Başlatılıyor…</string>
+    <string name="voice_finishing">Bitiriliyor…</string>
+    <string name="voice_didnt_catch">Anlaşılamadı.</string>
+    <string name="voice_error">Konuşma tanıma hatası %1$d.</string>
+    <string name="voice_code_omitted">kod atlandı.</string>
+    <string name="voice_link">bağlantı</string>
+    <string name="voice_stop_and_send">Durdur ve gönder</string>
+
+    <!-- ===== Sign-in, agents and models (SignInActivity, Account, Models, Sessions, RemoteSession, Attachments) ===== -->
+
+    <!-- Sign-in screen (one per agent: Claude Code, Codex or OpenCode). -->
+    <string name="signin_back">Geri</string>
+    <string name="signin_checking">Kontrol ediliyor…</string>
+
+    <!-- Sign-in screen: the agent isn't installed yet. -->
+    <string name="signin_install">%1$s ajanını yükle</string>
+    <string name="signin_install_sub_claude">Claude Code\'u Buddy içinde Claude aboneliğinizle çalıştırır.</string>
+    <string name="signin_install_sub_opencode">OpenCode\'u Buddy içinde çalıştırır. Ücretsiz modelleri hesap gerekmeden hemen çalışır; kendi sağlayıcılarınızı (Anthropic, OpenAI, GitHub Copilot…) istediğiniz zaman bağlayabilirsiniz.</string>
+    <string name="signin_install_sub_codex">Codex\'i Buddy içinde ChatGPT planınızla çalıştırır.</string>
+    <string name="signin_install_sub_agy">Google\'ın Antigravity CLI aracını Buddy içinde Google hesabınızla çalıştırır: ücretsiz plan, Google AI Pro veya Ultra.</string>
+    <string name="signin_install_sub_grok">xAI\'ın Grok Build aracını Buddy içinde Grok hesabınızla çalıştırır (Google veya X ile giriş de olur).</string>
+    <string name="signin_install_size_claude">Bir kerelik yaklaşık 235 MB indirir: Buddy\'nin Linux\'u ve Anthropic\'ten Claude Code. Mümkünse Wi-Fi kullanın.</string>
+    <string name="signin_install_size_opencode">Bir kerelik yaklaşık 230 MB indirir: Buddy\'nin Linux\'u, Node.js ve OpenCode. Mümkünse Wi-Fi kullanın.</string>
+    <string name="signin_install_size_codex">Bir kerelik yaklaşık 150 MB indirir: Buddy\'nin Linux\'u, Node.js ve OpenAI\'dan Codex. Mümkünse Wi-Fi kullanın.</string>
+    <string name="signin_install_size_agy">Bir kerelik yaklaşık 200 MB indirir: Buddy\'nin Linux\'u ve Google\'dan Antigravity CLI. Mümkünse Wi-Fi kullanın.</string>
+    <string name="signin_install_size_grok">Bir kerelik yaklaşık 170 MB indirir: Buddy\'nin Linux\'u ve xAI\'dan Grok Build. Mümkünse Wi-Fi kullanın.</string>
+
+    <!-- Sign-in screen: install or update in progress (screen titles). -->
+    <string name="signin_installing">Yükleniyor</string>
+    <string name="signin_updating">Güncelleniyor</string>
+    <string name="signin_install_wait">Bu birkaç dakika sürer. Bu ekrandan çıkabilirsiniz; işlem devam eder.</string>
+
+    <!-- Sign-in screen: installed, not signed in. -->
+    <string name="signin_title_claude">Claude\'a giriş yapın</string>
+    <string name="signin_title_chatgpt">ChatGPT\'ye giriş yapın</string>
+    <string name="signin_title_google">Google\'a giriş yapın</string>
+    <string name="signin_title_grok">Grok\'a giriş yapın</string>
+    <string name="signin_sub_claude">Claude hesabınızı kullanın (Pro veya Max). Tarayıcınız açılır; orada onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="signin_sub_chatgpt">ChatGPT hesabınızı kullanın (Plus, Pro veya Business). Tarayıcınız açılır; orada onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="signin_sub_agy">Google hesabınızı kullanın. Tarayıcınız açılır; orada giriş yapın, Buddy kodu kendiliğinden alır. Antigravity yaklaşık bir dakika bekler.</string>
+    <string name="signin_sub_grok">Grok hesabınızı kullanın; Google veya X ile giriş de olur. Tarayıcınız bir kodla açılır; orada onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="signin_with_claude">Claude ile giriş yap</string>
+    <string name="signin_with_chatgpt">ChatGPT ile giriş yap</string>
+    <string name="signin_with_google">Google ile giriş yap</string>
+    <string name="signin_with_grok">Grok ile giriş yap</string>
+    <string name="signin_other_device">Başka bir cihazda giriş yap</string>
+    <string name="signin_with_code">Kodla giriş yap</string>
+
+    <!-- Sign-in screen: sign-in in progress. -->
+    <string name="signin_sign_in">Giriş yap</string>
+    <string name="signin_starting">Giriş başlatılıyor…</string>
+    <string name="signin_approve_title">Tarayıcınızda onaylayın</string>
+    <string name="signin_approve_claude">Claude sayfasında Yetkilendir düğmesine dokunun. Buddy kodu alır ve kendiliğinden geri döner.</string>
+    <string name="signin_approve_codex">Giriş yapın ve Codex\'e izin verin. Ardından Buddy\'ye dönün; işlemi kendisi tamamlar.</string>
+    <string name="signin_approve_agy">Giriş yapın ve Antigravity\'ye izin verin. Buddy sayfada görünen kodu alır ve kendiliğinden geri döner. Bir dakikadan uzun sürerse girişi yeniden başlatın.</string>
+    <string name="signin_approve_grok">Sayfada %1$s kodunun göründüğünü kontrol edin, ardından onaylayıp giriş yapın. Buddy kendiliğinden geri döner.</string>
+    <string name="signin_open_again">Giriş sayfasını yeniden aç</string>
+    <string name="signin_signing_in">Giriş yapılıyor</string>
+    <string name="signin_finishing">Giriş tamamlanıyor…</string>
+    <string name="signin_not_finished">Giriş tamamlanmadı. %1$s</string>
+
+    <!-- Sign-in screen: signing in from another device. -->
+    <string name="signin_remote_claude">Bu bağlantıyı herhangi bir cihazda açıp onaylayın. Ardından sayfada görünen kodu kopyalayıp aşağıya yapıştırın.</string>
+    <string name="signin_enter_code">Bu kodu girin</string>
+    <string name="signin_remote_codex">Herhangi bir cihazda aşağıdaki bağlantıyı açın, ChatGPT\'ye giriş yapın ve kodu girin. Buddy işlemi kendisi tamamlar.</string>
+    <string name="signin_remote_agy">Bu bağlantıyı herhangi bir cihazda açıp giriş yapın. Ardından sayfada görünen kodu kopyalayıp yaklaşık bir dakika içinde aşağıya yapıştırın.</string>
+    <string name="signin_remote_grok">Herhangi bir cihazda aşağıdaki bağlantıyı açın, Grok\'a giriş yapın ve kodu onaylayın. Buddy işlemi kendisi tamamlar.</string>
+    <string name="signin_copy_code">Kodu kopyala</string>
+    <string name="signin_code_copied">Kod kopyalandı</string>
+    <string name="signin_code_expiry">Kod 15 dakika geçerlidir.</string>
+    <string name="signin_copy_link">Bağlantıyı kopyala</string>
+    <string name="signin_link_copied">Bağlantı kopyalandı</string>
+    <string name="signin_share">Paylaş</string>
+    <string name="signin_open_here">Burada aç</string>
+    <string name="signin_no_browser">Tarayıcı bulunamadı.</string>
+    <string name="signin_no_browser_page">Giriş sayfasını açacak bir tarayıcı bulunamadı.</string>
+    <string name="signin_clip_label">Giriş</string>
+
+    <!-- Sign-in screen: fold-out box for pasting Claude's sign-in code by hand. -->
+    <string name="signin_paste_instead">Bunun yerine kodu yapıştırın</string>
+    <string name="signin_paste_help">Buddy kendiliğinden geri dönmezse: Claude sayfasında Kodu kopyala düğmesine dokunun, ardından kodu buraya yapıştırın.</string>
+    <string name="signin_paste_help_agy">Buddy kendiliğinden geri dönmezse: Antigravity sayfasında “Copy to Clipboard” düğmesine dokunun, ardından kodu buraya yapıştırın.</string>
+    <string name="signin_code_hint">kod</string>
+    <string name="signin_use_code">Kullan</string>
+    <string name="signin_start_again">Önce girişi yeniden başlatın.</string>
+
+    <!-- Sign-in screen: signed in, or OpenCode installed (it needs no sign-in). -->
+    <string name="signin_signed_in">Giriş yapıldı</string>
+    <string name="signin_agent_ready">%1$s hazır.</string>
+    <string name="signin_done">Bitti</string>
+    <string name="signin_sign_out">Çıkış yap</string>
+    <string name="signin_sign_out_title">%1$s hesabından çıkış yapılsın mı?</string>
+    <string name="signin_sign_out_text">Yeniden giriş yapana kadar Buddy\'deki %1$s çalışmaz.</string>
+    <string name="signin_opencode_ready">OpenCode hazır</string>
+    <string name="signin_opencode_free">OpenCode\'un ücretsiz modelleri kullanılıyor. Model çipiyle her sohbet için birini seçin veya kendi sağlayıcınızı bağlayın.</string>
+    <string name="signin_opencode_connected">Bağlı: %1$s. OpenCode\'un ücretsiz modelleri de kullanılabilir olmaya devam eder.</string>
+    <string name="signin_opencode_connect_note">Sağlayıcı bağlamak, Buddy\'nin terminalini %1$s komutuyla açar: bir sağlayıcı seçip adımları izleyin. Daha sonra kaldırmak için orada %2$s komutunu çalıştırın.</string>
+    <string name="signin_connect_provider">Sağlayıcı bağla</string>
+    <string name="signin_version">%1$s %2$s.</string>
+    <string name="signin_version_old_opencode">OpenCode %1$s. OpenCode 2 çıktı: yeni sürümleri almaya devam etmek için güncelleyin. Bağlı sağlayıcılarınız korunur.</string>
+    <string name="signin_update_opencode2">OpenCode 2\'ye güncelle</string>
+    <string name="signin_check_updates">Güncellemeleri kontrol et</string>
+
+    <!-- Sign-in screen: error. -->
+    <string name="signin_error_title">Bir şeyler ters gitti</string>
+    <string name="signin_try_again">Tekrar dene</string>
+
+    <!-- Agent status shown on the sign-in, setup and onboarding screens. -->
+    <string name="account_tagline_claude">Claude planınızı kullanır</string>
+    <string name="account_tagline_opencode">Hesapsız veya kendi sağlayıcılarınızla</string>
+    <string name="account_tagline_codex">ChatGPT planınızı kullanır</string>
+    <string name="account_tagline_agy">Google hesabınızı kullanır</string>
+    <string name="account_tagline_grok">Grok hesabınızı kullanır</string>
+    <string name="agent_tag_free">ücretsiz · sınırlı</string>
+    <string name="account_setting_up_linux">Buddy\'nin Linux\'u hazırlanıyor…</string>
+    <string name="account_installing_tools">Araçlar yükleniyor…</string>
+    <string name="account_downloading_claude">Claude Code indiriliyor (yaklaşık 230 MB)…</string>
+    <string name="account_downloading">%1$s indiriliyor…</string>
+    <string name="account_check_failed">%1$s kontrol edilemedi: %2$s</string>
+    <string name="account_install_failed">Yükleme başarısız: %1$s</string>
+    <string name="account_install_no_space">Telefonda yeterli boş alan yok. Yaklaşık 1 GB yer aç ve tekrar dene.</string>
+    <string name="account_install_network">Buddy indirme sunucusuna ulaşamadı. Wi-Fi\'yi veya mobil veriyi (ya da onu engelleyen bir VPN veya özel DNS\'i) kontrol et ve tekrar dene.</string>
+    <string name="account_install_refused">İndirme sunucusu isteği reddetti veya yavaşlamayı istedi. Birkaç dakika sonra tekrar dene.</string>
+    <string name="account_install_space_needed">Yalnızca %1$s boş. Bir ajanı kurmak yaklaşık 1 GB gerektirir: yer aç ve tekrar dene.</string>
+    <string name="signin_details">Ayrıntılar</string>
+    <string name="account_update_checking">Yeni %1$s sürümü aranıyor…</string>
+    <string name="account_update_latest">En son sürüme sahipsiniz (%1$s).</string>
+    <string name="account_updated">%1$s sürümüne güncellendi.</string>
+    <string name="account_updated_from">%1$s sürümüne güncellendi (önceki: %2$s).</string>
+    <string name="account_update_opencode2_failed">OpenCode 2\'ye güncellenemedi; hâlâ %1$s sürümündesiniz. Wi-Fi bağlantısıyla tekrar deneyin.</string>
+    <string name="account_update_failed">Güncelleme başarısız: %1$s</string>
+
+    <!-- Model and effort pickers of a chat, and the chat's chip ("agent · model · effort"). -->
+    <string name="models_default">Varsayılan</string>
+    <string name="models_name_default">%1$s (varsayılan)</string>
+    <string name="models_default_model">varsayılan model</string>
+    <string name="models_default_now">şu an %1$s</string>
+    <string name="models_default_claude">Claude Code planınıza göre seçer; ilk mesajdan sonra burada gösterilir</string>
+    <string name="models_default_codex">Codex kendisi seçer; bir sonraki yanıttan sonra burada gösterilir</string>
+    <string name="models_default_opencode">OpenCode\'un varsayılan modeli</string>
+    <string name="models_default_agy">Antigravity\'nin varsayılan modeli</string>
+    <string name="models_default_grok">Grok\'un varsayılan modeli</string>
+    <!-- Effort levels in a row of up to 6 segments: keep each very short. -->
+    <string name="models_effort_auto">Oto</string>
+    <string name="models_effort_low">Düşük</string>
+    <string name="models_effort_medium">Orta</string>
+    <string name="models_effort_high">Yüksek</string>
+    <string name="models_effort_xhigh">Ekstra</string>
+    <string name="models_effort_max">Maks.</string>
+    <string name="models_chip_effort">çaba: %1$s</string>
+
+    <!-- Chats. -->
+    <string name="session_new_chat">Yeni %1$s sohbeti</string>
+    <plurals name="attach_count">
+        <item quantity="one">📎 %1$d ek</item>
+        <item quantity="other">📎 %1$d ek</item>
+    </plurals>
+
+    <!-- Attaching a photo or file to a chat message (toasts). -->
+    <string name="attach_cant_open">%1$s açılamıyor</string>
+    <string name="attach_too_large">%1$s 25 MB\'tan büyük.</string>
+
+    <!-- Remote Control session in Settings: a Claude Code session that can be continued from the Claude app. -->
+    <string name="remote_sign_in_first">Önce Claude Code\'a giriş yapın.</string>
+    <string name="remote_starting">Başlatılıyor…</string>
+    <string name="remote_restarting">Yeniden başlatılıyor…</string>
+    <string name="remote_start_failed">Başlatılamadı: %1$s</string>
+    <string name="remote_keeps_stopping">Oturum sürekli duruyor. Kapatıp yeniden açın veya Claude Code girişini kontrol edin.</string>
+    <string name="codex_pair_getting">Kod alınıyor…</string>
+    <string name="codex_pair_text">Bu kodu ChatGPT\'ye girin: telefonda Codex\'te, bilgisayarda Ayarlar → Bağlantılar → Diğer cihazları kontrol et bölümünde. %1$s saatine kadar bir kez çalışır. Buddy orada “localhost” olarak görünür.</string>
+    <string name="codex_pair_failed">Eşleme kodu alınamadı: %1$s</string>
+    <string name="codex_keeps_stopping">Codex oturumu sürekli duruyor: %1$s</string>
+    <string name="ssh_keeps_stopping">SSH sunucusu sürekli duruyor: %1$s</string>
+    <string name="ssh_key_added">Tamam. Buddy\'nin Linux\'unu Termux\'tan açmak için ssh buddy yazın.</string>
+    <string name="ssh_code_expired">Bu komut zaten kullanıldı veya 10 dakikadan eski. Buddy\'nin Ayarlar bölümünden yeniden kopyalayın.</string>
+
+    <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
+
+    <!-- Settings screen: header. -->
+    <string name="setup_settings_title">Ayarlar</string>
+    <string name="setup_settings_subtitle">Buddy; Claude Code, Codex, OpenCode, Antigravity veya Grok\'u uygulamanın içinde, kendi aboneliğinizle (ya da OpenCode\'un ücretsiz modelleriyle ve Antigravity\'nin ücretsiz planıyla) çalıştırır.</string>
+
+    <!-- Settings screen: the setup checklist card (5 steps). -->
+    <string name="setup_card_title">Kurulum</string>
+    <string name="setup_open_guide">Adım adım rehberi aç</string>
+    <string name="setup_all_set">Her şey tamam. Buddy kullanıma hazır.</string>
+    <string name="setup_next_step">Sıradaki: %1$s</string>
+    <string name="setup_step_a11y_title">Buddy erişilebilirlik hizmetini açın</string>
+    <string name="setup_step_a11y_body">Bu, baloncuğu gösterir ve Buddy\'nin sizin için ekranı okumasına, dokunmasına ve yazmasına izin verir.</string>
+    <string name="setup_step_a11y_restricted">Anahtar gri mi görünüyor (“Kısıtlanmış ayar”)? Android, dosyadan yüklenen uygulamalarda bunu engeller. Uygulama bilgileri düğmesine, ardından sağ üstteki ⋮ → Kısıtlanmış ayarlara izin ver seçeneğine dokunun ve tekrar deneyin.</string>
+    <string name="setup_open_settings">Ayarları aç</string>
+    <string name="setup_app_info">Uygulama bilgileri</string>
+    <string name="setup_step_install_title">%1$s ajanını yükleyin</string>
+    <string name="setup_step_install_done">%1$s, Buddy\'ye yüklendi.</string>
+    <string name="setup_step_install_claude">Buddy kendi küçük Linux\'unu ve Anthropic\'ten %1$s ajanını indirir (yaklaşık 235 MB).</string>
+    <string name="setup_step_install_opencode">Buddy kendi küçük Linux\'unu ve %1$s ajanını indirir (Node.js ile yaklaşık 230 MB).</string>
+    <string name="setup_step_install_codex">Buddy kendi küçük Linux\'unu ve OpenAI\'dan %1$s ajanını indirir (yaklaşık 150 MB).</string>
+    <string name="setup_step_install_grok">Buddy kendi küçük Linux\'unu ve xAI\'dan %1$s ajanını indirir (yaklaşık 170 MB).</string>
+    <string name="setup_install">Yükle</string>
+    <string name="setup_step_signin_title">Giriş yapın</string>
+    <string name="setup_step_signin_opencode_done">Giriş gerekmez: OpenCode\'un ücretsiz modelleri hemen çalışır. Kendi sağlayıcılarınızı istediğiniz zaman bağlayabilirsiniz.</string>
+    <string name="setup_step_signin_opencode">OpenCode\'un ücretsiz modelleri için giriş gerekmez.</string>
+    <string name="setup_step_signin_done">Giriş yapıldı.</string>
+    <string name="setup_step_signin_done_email">%1$s olarak giriş yapıldı.</string>
+    <string name="setup_step_signin_claude">Claude hesabınızla (Pro veya Max). Tarayıcınız açılır; orada onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="setup_step_signin_codex">ChatGPT hesabınızla. Tarayıcınız açılır; orada onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="setup_step_signin_grok">Grok hesabınızla. Tarayıcınız açılır; orada kodu onaylayın, Buddy kendiliğinden geri döner.</string>
+    <string name="setup_sign_in">Giriş yap</string>
+    <string name="setup_step_background_title">Buddy\'nin arka planda çalışmasına izin verin</string>
+    <string name="setup_step_background_done">İzin verildi.</string>
+    <string name="setup_step_background_body">Böylece ajan çalışırken telefonunuz pil tasarrufu için Buddy\'yi durdurmaz.</string>
+    <string name="setup_allow">İzin ver</string>
+    <string name="setup_step_try_title">Deneyin</string>
+    <string name="setup_step_try_done">Buddy size yanıt verdi. Daha fazlası için istediğiniz zaman baloncuğa dokunun.</string>
+    <string name="setup_step_try_body">Ekranınızın kenarındaki baloncuğa dokunun ve “Messenger\'ı aç” gibi bir şey isteyin ya da burada bir sohbet başlatın.</string>
+    <string name="setup_step_try_wait">Önce yukarıdaki adımları tamamlayın.</string>
+    <!-- Short names of the setup steps, shown after "Next:" in the Chats header. -->
+    <string name="setup_step_name_a11y">Erişilebilirlik hizmetini açın</string>
+    <string name="setup_step_name_install">Ajanınızı yükleyin</string>
+    <string name="setup_step_name_background">Arka planda çalışmaya izin verin</string>
+
+    <!-- Settings screen: Appearance. Section labels are shown in ALL CAPS. -->
+    <string name="setup_appearance">Görünüm</string>
+    <string name="setup_theme_mode">Mod</string>
+    <string name="setup_accent">Vurgu rengi</string>
+    <string name="setup_surface">Yüzey</string>
+    <string name="setup_surface_note">Sıcak, Buddy\'nin orijinal tonudur. Siyah (tam siyah) yalnızca koyu modda uygulanır.</string>
+    <string name="setup_face">Buddy\'nin görünümü</string>
+    <string name="setup_face_buddy">Orijinal</string>
+    <string name="setup_face_picture">Kendi resmin</string>
+    <string name="setup_face_note">En iyi sonucu şeffaf arka planlı bir PNG veya WebP verir. Baloncukta ve Buddy\'nin yanıtlarının yanında görünür.</string>
+    <string name="setup_face_change">Başka bir resim seç</string>
+    <string name="setup_face_unreadable">Bu resim okunamadı. Bir PNG veya WebP dene.</string>
+    <string name="setup_custom_colour">Özel renk</string>
+    <string name="setup_custom_accent_title">Özel vurgu rengi</string>
+    <string name="setup_custom_accent_hint">Herhangi bir rengin hex kodu, örneğin #4F8BFF.</string>
+    <string name="setup_apply">Uygula</string>
+
+    <!-- Settings screen: Agent. -->
+    <string name="setup_agent">Ajan</string>
+    <string name="setup_default_brain">Varsayılan ajan</string>
+    <string name="setup_default_brain_info">Baloncuktan veya Yeni sohbet düğmesiyle başlatılan yeni sohbetleri yanıtlayan ajan. Claude Code Claude planınızı, Codex ChatGPT planınızı, Antigravity Google hesabınızı, Grok Grok hesabınızı, OpenCode ise kendi ücretsiz modellerini veya sizin sağlayıcılarınızı kullanır. Yalnızca kurulmuş ajanlar seçilebilir.</string>
+    <string name="setup_default_brain_set">Yeni sohbetlerde %1$s kullanılacak. Yeni sohbet düğmesiyle her sohbet için ayrı seçim yapabilirsiniz.</string>
+    <string name="setup_set_up_first">Önce %1$s kurulumunu yapın.</string>
+    <!-- Agent status under each agent's name: lowercase, monospace, keep short. -->
+    <string name="setup_agent_installing">yükleniyor…</string>
+    <string name="setup_agent_not_installed">yüklü değil</string>
+    <string name="setup_agent_ready">hazır</string>
+    <string name="setup_agent_ready_plan">hazır · %1$s</string>
+    <string name="setup_agent_signed_in">giriş yapıldı</string>
+    <string name="setup_agent_signed_in_email">giriş yapıldı · %1$s</string>
+    <string name="setup_agent_not_signed_in">giriş yapılmadı</string>
+    <string name="setup_agent_api_key">giriş yapılmadı · API anahtarı</string>
+    <string name="signin_key_only">API anahtarı kullanılıyor</string>
+
+    <!-- Settings screen: Phone tools in your own sessions (MCP server). -->
+    <string name="setup_phone_tools">Kendi oturumlarınızda telefon araçları</string>
+    <string name="setup_phone_tools_info">Buddy\'nin telefon araçları, bu telefonda çalışan sıradan bir MCP sunucusudur. Bunu telefondaki bir terminalde (örneğin Termux\'ta) bir kez çalıştırın; o ajan, baloncuk olmadan bile her oturumda telefon araçlarına sahip olur.</string>
+    <string name="setup_copy_command">Komutu kopyala</string>
+    <string name="setup_command_copied">Kopyalandı. Terminalinize yapıştırın.</string>
+
+    <!-- Settings screen: Voice. -->
+    <string name="setup_voice">Ses</string>
+    <string name="setup_voice_input">Sesle giriş</string>
+    <string name="setup_voice_phone">Telefon</string>
+    <string name="setup_voice_input_claude">Claude planınızla Claude Code\'un dikte özelliği: çok doğru. İngilizce, Fransızca, Almanca, İspanyolca, İtalyanca, Portekizce, Felemenkçe, Türkçe, Rusça, Japonca ve daha fazlasını destekler, ancak Arapçayı desteklemez: Arapça için Buddy telefonun tanıyıcısını kullanır. Siz duraklayınca kelimeler görünür.</string>
+    <string name="setup_voice_input_chatgpt">ChatGPT planınızla, Codex üzerinden ChatGPT\'nin sesi. Her dili, hatta tek cümlede karışık dilleri bile anlar. Yalnızca sözleriniz kullanılır: ChatGPT\'nin sesli yanıtları kapalıdır ve hiçbir şey çalıştıramaz.</string>
+    <string name="setup_voice_input_phone">Telefonunuzun konuşma tanıması (çoğu telefonda Google). Siz konuşurken metin canlı görünür; dillerinizden hangisini konuştuğunuzu algılar.</string>
+    <string name="setup_voice_output">Sesli yanıt</string>
+    <string name="setup_voice_output_chatgpt">Yanıtlar ChatGPT\'nin doğal sesiyle okunur (ChatGPT planınızla, Codex üzerinden). ChatGPT ses kullanımınızdan düşülür; kullanılamıyorsa telefonun sesi okur.</string>
+    <string name="setup_voice_output_phone">Telefonunuzun metin okuma sesleri, yanıtın dilinde.</string>
+    <string name="setup_voice_sample">Bonjour ! Merhaba, ben Buddy. Sesim böyle.</string>
+    <string name="setup_languages">Diller</string>
+    <string name="setup_languages_hint">Konuştuğunuz dilleri seçmek için dokunun. Varsayılan yapmak için bir dile uzun basın. Sohbette dil değiştirmek için mikrofona uzun basın.</string>
+    <string name="setup_sign_in_first">Önce %1$s hesabına giriş yapın</string>
+    <string name="setup_needs_claude">Claude\'un dikte özelliği, %1$s üzerinden Claude planınızla çalışır.</string>
+    <string name="setup_needs_chatgpt">ChatGPT\'nin sesi, %1$s üzerinden ChatGPT planınızla çalışır.</string>
+    <string name="setup_set_up_agent">%1$s kurulumunu yap</string>
+
+    <!-- Settings screen: Remote Control (a Claude Code session you continue from the Claude app). -->
+    <string name="setup_remote_control">Remote Control</string>
+    <string name="setup_remote_session">Claude Code oturumu</string>
+    <string name="setup_remote_session_info">Buddy içinde telefon araçlarıyla çalışan bir Claude Code oturumu. Bu telefondaki veya herhangi bir yerdeki Claude uygulamasından (Code) devam edin.</string>
+    <string name="setup_remote_sign_in_first">Önce Claude Code\'a giriş yapın.</string>
+    <string name="setup_remote_active">etkin · Claude uygulamasında “%1$s”</string>
+    <string name="setup_remote_starting">başlatılıyor…</string>
+    <string name="setup_remote_stopped">durduruldu</string>
+    <string name="setup_remote_open">Claude uygulamasında aç</string>
+    <string name="setup_remote_open_failed">Açılamadı.</string>
+    <string name="setup_codex_session">Codex oturumu</string>
+    <string name="setup_codex_session_info">Buddy içinde telefon araçlarıyla çalışan Codex. Bu telefondaki veya bir bilgisayardaki ChatGPT uygulamasından (Codex) kullanın. Codex\'in korumalı alanı burada çalışamaz, bu yüzden varsayılan izinlerle her komuttan önce sorar.</string>
+    <string name="setup_codex_active">çalışıyor · ChatGPT\'de “localhost”</string>
+    <string name="setup_codex_pair">Cihaz eşle</string>
+    <string name="setup_ssh">Termux\'tan SSH</string>
+    <string name="setup_ssh_info">Buddy\'nin Linux\'unu Termux\'tan SSH ile kullanın. Yalnızca bu telefondaki uygulamalar, yalnızca bir anahtarla bağlanabilir.</string>
+    <string name="setup_ssh_active">çalışıyor · port %1$d</string>
+    <string name="setup_ssh_how">Bu komutu kopyalayıp 10 dakika içinde Termux\'ta bir kez çalıştırın. Sonrasında Buddy\'nin Linux\'unu açmak için Termux\'ta ssh buddy yazın.</string>
+
+    <!-- Settings screen: chats left over from when Buddy ran its agents in Termux. -->
+    <string name="setup_old_chats_title">Eski Termux sohbetlerini kaldır</string>
+    <plurals name="setup_old_chats_body">
+        <item quantity="one">Buddy\'nin kendi Linux\'u olmadan önceki %1$d sohbet. Ajanlar buna devam edemez.</item>
+        <item quantity="other">Buddy\'nin kendi Linux\'u olmadan önceki %1$d sohbet. Ajanlar bunlara devam edemez.</item>
+    </plurals>
+    <plurals name="setup_old_chats_remove">
+        <item quantity="one">%1$d eski sohbet kaldırılsın mı?</item>
+        <item quantity="other">%1$d eski sohbet kaldırılsın mı?</item>
+    </plurals>
+    <string name="setup_old_chats_remove_body">Bunları Buddy\'nin sohbet listesinden kaldırır. Bu işlem geri alınamaz.</string>
+    <string name="setup_remove">Kaldır</string>
+    <string name="setup_removed">Kaldırıldı.</string>
+
+    <!-- Settings screen: Experience. -->
+    <string name="setup_experience">Deneyim</string>
+    <string name="setup_chat_bubble">Sohbet baloncuğu</string>
+    <string name="setup_chat_bubble_info">Diğer uygulamaların üzerinde durur. Gizlemek için ✕ işaretine sürükleyin; bir ajanın onayınıza ihtiyacı olduğunda onay kartları yine de açılır.</string>
+    <string name="setup_tap_action">Baloncuğa dokununca</string>
+    <string name="setup_tap_panel">Panel</string>
+    <string name="setup_tap_talk">Konuş</string>
+    <string name="setup_tap_app">Uygulama</string>
+    <string name="setup_tap_panel_info">Kayan sohbeti, bulunduğunuz uygulamanın üzerinde açar. Daha fazlası için baloncuğa uzun basın.</string>
+    <string name="setup_tap_app_info">Sohbeti Buddy\'de tam ekran açar. Daha fazlası için baloncuğa uzun basın.</string>
+    <string name="setup_panel_size">Sohbet paneli boyutu</string>
+    <string name="setup_panel_full">Tam ekran</string>
+    <string name="setup_panel_compact">Kompakt</string>
+    <string name="setup_panel_size_info">Tam ekran, kenardan kenara uzanır. Kompakt daha küçüktür ve ekran kenarlarından uzak durur; böylece kenar hareketleri çalışmaya devam eder.</string>
+    <string name="setup_tap_to_talk_info">Tek dokunuş mikrofonu açar: ne istediğinizi söyleyin, duraklayınca gönderilir. Sohbet ve daha fazlası için baloncuğa uzun basın.</string>
+    <string name="setup_read_aloud">Yanıtları sesli oku</string>
+    <string name="setup_read_aloud_info">Buddy, ajanların yanıtlarını Ses bölümünde seçtiğiniz sesle okur.</string>
+    <string name="setup_update_notices">Güncelleme bildirimleri</string>
+    <string name="setup_update_notices_info">Buddy günde bir kez GitHub\'ı kontrol eder ve yeni bir sürüm çıktığında sizi bilgilendirir.</string>
+    <string name="setup_check_updates">Güncellemeleri kontrol et</string>
+    <string name="setup_check_updates_info">Sizdeki sürüm: Buddy %1$s. Ya da herhangi bir ajana şunu söyleyin: “kendini güncelle”.</string>
+    <string name="setup_app_permissions">Uygulama izinleri</string>
+    <string name="setup_app_permissions_info">Uygulama bazında seçin: Güven modunda ajan orada açılır pencere olmadan çalışır; Katı modda ise Gönder, Öde, Sil… öncesinde Buddy size kendisi sorar.</string>
+    <string name="setup_dev_mode">Yeni sohbetlerde Linux araçları</string>
+    <string name="setup_dev_mode_info">Linux araçlarıyla ajan komut çalıştırabilir, paket yükleyebilir ve ~/.buddy/work içindeki dosyaları düzenleyebilir; böylece uygulama geliştirebilir. Yeni sohbetler bu ayarla başlar; her sohbet bunu kendi başlığının altından değiştirebilir.</string>
+    <string name="setup_agents_tap">Ajanların Buddy ekranlarına dokunmasına izin ver</string>
+    <string name="setup_agents_tap_info">Buddy\'yi bir ajanla test etmek için (örneğin telefon araçlarıyla Termux\'ta Claude Code). Baloncuk, onay kartları, Uygulama izinleri ve bu anahtarlar erişime kapalı kalır.</string>
+    <string name="setup_dev_mode_warning">Kapalı tutmanız daha iyi olur: Linux araçlarını yalnızca ihtiyaç duyan sohbetlerde açın. Açıkken ekrandaki kötü amaçlı bir mesaj veya web sayfası, ajanı komut çalıştırmaya kandırmaya çalışabilir. Onay kartları gönderme, paylaşma, satın alma ve silme işlemlerini korumaya devam eder.</string>
+
+    <!-- Settings screen: footer links. -->
+    <string name="setup_licences">Açık kaynak lisansları</string>
+    <string name="setup_privacy_policy">Gizlilik politikası</string>
+
+    <!-- Errors while installing Buddy's built-in Linux (Alpine). Shown after "Install failed:". -->
+    <string name="linux_download_corrupt">Alpine indirmesi bozuk (sha256 %1$s)</string>
+    <string name="linux_move_failed">Alpine yerine taşınamadı</string>
+    <string name="linux_download_failed_http">İndirme başarısız: HTTP %1$d</string>
+    <string name="linux_unsafe_path">Arşivde güvenli olmayan yol: %1$s</string>
+    <string name="linux_symlink_failed">symlink %1$s: %2$s</string>
+    <string name="linux_truncated_archive">Arşiv eksik</string>
+
+    <!-- Terminal screen (a shell in Buddy's Linux, in tabs). -->
+    <string name="terminal_title">Terminal</string>
+    <string name="terminal_back">Geri</string>
+    <string name="terminal_hide_keyboard">Klavyeyi gizle</string>
+    <string name="terminal_menu">Menü</string>
+    <plurals name="terminal_sessions_count">
+        <item quantity="one">%1$d oturum · buddy linux</item>
+        <item quantity="other">%1$d oturum · buddy linux</item>
+    </plurals>
+    <string name="terminal_listening">dinleniyor · mikrofon açık</string>
+    <string name="terminal_session_ended">Oturum sona erdi</string>
+    <string name="terminal_session_ended_code">Oturum sona erdi · çıkış %1$d</string>
+    <string name="terminal_close">Kapat</string>
+    <string name="terminal_restart">Yeniden başlat</string>
+    <string name="terminal_needs_linux">Önce Ayarlar\'dan Claude Code, Codex, OpenCode, Antigravity veya Grok\'u yükleyin: bu, Buddy\'nin Linux\'unu kurar.</string>
+    <string name="terminal_start_failed">Terminal başlatılamadı: %1$s</string>
+    <string name="terminal_close_title">%1$s kapatılsın mı?</string>
+    <string name="terminal_close_running">Hâlâ çalışıyor. Kapatmak onu ve başlattığı her şeyi durdurur.</string>
+    <string name="terminal_shell_name">kabuk %1$d</string>
+    <string name="terminal_new_session">Yeni oturum</string>
+    <string name="terminal_paste">Yapıştır</string>
+    <string name="terminal_select_all">Tümünü seç</string>
+    <string name="terminal_larger_text">Daha büyük metin</string>
+    <string name="terminal_smaller_text">Daha küçük metin</string>
+    <string name="terminal_screen_sleep">Ekranın uyumasına izin ver</string>
+    <string name="terminal_keep_screen_on">Ekranı açık tut</string>
+    <string name="terminal_close_session">Bu oturumu kapat</string>
+    <string name="terminal_tips">Metin veya bağlantı seçmek için uzun basın. Yakınlaştırmak için iki parmakla sıkıştırın, geri kaydırmak için sürükleyin. Bir sekmeyi kapatmak için ona uzun basın.</string>
+
+    <!-- Terminal: floating toolbar over selected text. Keep short. -->
+    <string name="terminal_copy">Kopyala</string>
+    <string name="terminal_open_link">Bağlantıyı aç</string>
+    <string name="terminal_share">Paylaş</string>
+
+    <!-- Sessions screen: every agent session running on the phone, and recent history. -->
+    <string name="monitor_title">Oturumlar</string>
+    <string name="monitor_subtitle">Bu telefondaki tüm Claude Code, Codex, OpenCode, Antigravity ve Grok oturumları.</string>
+    <string name="monitor_terminal_running">Bir kabuk çalışıyor · dönmek için dokunun</string>
+    <string name="monitor_terminal_idle">Buddy\'nin Linux\'unda bir kabuk</string>
+    <string name="monitor_running_now">Şu an çalışanlar</string>
+    <string name="monitor_refresh">yenileme 3 sn</string>
+    <string name="monitor_checking">Kontrol ediliyor…</string>
+    <string name="monitor_recent">Son oturumlar</string>
+    <string name="monitor_loading">Yükleniyor…</string>
+    <string name="monitor_service_off">Buddy\'nin erişilebilirlik hizmeti kapalı olduğundan oturumlar kontrol edilemiyor. Hizmeti Ayarlar\'dan açın.</string>
+    <string name="monitor_nothing_running">Çalışan bir şey yok.</string>
+    <string name="monitor_deleted_chat">Silinmiş Buddy sohbeti</string>
+    <string name="monitor_background_session">Arka plan oturumu</string>
+    <string name="monitor_terminal_session">Terminal oturumu</string>
+    <string name="monitor_tag_background">arka plan</string>
+    <string name="monitor_tag_terminal">terminal</string>
+    <string name="monitor_proc_meta">%1$s · pid %2$d · %3$s</string>
+    <string name="monitor_background_hint">Claude Code\'un arka plan hizmetinde çalışır; örneğin Claude uygulamasından devam ettiğiniz bir sohbet.</string>
+    <string name="monitor_open_chat">Sohbeti aç</string>
+    <string name="monitor_stop">Durdur</string>
+    <string name="monitor_stop_title">Bu %1$s oturumu durdurulsun mu?</string>
+    <string name="monitor_stop_background_body">Arka planda çalışıyor; örneğin Claude uygulamasından devam ettiğiniz bir sohbet olabilir. Buddy\'yi kontrol eden oturum bile olabilir. Durdurmak, o konuşmanın mevcut işini sonlandırır.</string>
+    <string name="monitor_stop_terminal_body">Şu anda bir terminalde kullandığınız bir oturum olabilir. Buddy\'yi kontrol eden oturum bile olabilir. Durdurmak, o konuşmanın mevcut işini sonlandırır.</string>
+    <string name="monitor_stopping">Durduruluyor…</string>
+    <string name="monitor_service_title">Claude Code arka plan hizmeti</string>
+    <string name="monitor_service_meta">pid %1$d · çalışma süresi %2$s · arka plan oturumlarını barındırır</string>
+    <string name="monitor_no_history">Geçmiş bulunamadı.</string>
+    <string name="monitor_no_messages">(mesaj yok)</string>
+
+    <!-- ===== Approvals and app permissions, tool cards, dictation (AppPermissionsActivity, Guard, Tools, Reviewer, dictation) ===== -->
+
+    <!-- App permissions screen (Settings → App permissions). Mode names: Güven (Trust), Katı (Hard), Akıllı (Smart). -->
+    <string name="perms_title">Uygulama izinleri</string>
+    <string name="perms_back">Geri</string>
+    <string name="perms_mode_trust">Güven</string>
+    <string name="perms_mode_hard">Katı</string>
+    <string name="perms_mode_smart">Akıllı</string>
+    <string name="perms_modes_intro">Güven: ajan burada onay pencereleri olmadan kendi başına çalışır.\nKatı: düğme kurallarınız karar verir. Gönder, Öde, Sil… bir kartta onayınızı gerektirir.\nAkıllı: önce kurallar, ardından ayrı bir denetçi yapay zeka diğer her dokunmayı isteğinize göre kontrol eder.\nAjan, Buddy\'nin kendi baloncuğuna, kartlarına veya ayarlarına asla dokunamaz.</string>
+    <string name="perms_smart_reviewer">Akıllı denetçi</string>
+    <string name="perms_reviewer_same">Sohbetle aynı</string>
+    <string name="perms_reviewer_sign_in">Önce %1$s hesabına giriş yapın (Ayarlar).</string>
+    <string name="perms_reviewer_about">Her dokunma için araçsız, geçici bir oturum: isteğinizi, ajanın notunu ve ekranı görür; “izin ver”, “size sor” ya da “önerilmez” yanıtını verir. Dokunma başına yaklaşık 3 saniye. OpenCode, Antigravity ve Grok sohbetlerini Claude Code (veya Codex) denetler.</string>
+    <string name="perms_reviewer_rules">Bir bildirim kuralının geri sayımı yanıtları göndermeden önce onları da denetler.</string>
+    <string name="reviewer_default_claude">Haiku: hızlı ve hafif. Önerilir.</string>
+    <string name="reviewer_default_codex">Küçük ve hızlı bir model. Önerilir.</string>
+    <string name="perms_button_rules">Düğme kuralları</string>
+    <string name="perms_rules_summary">%1$d sor · %2$d asla sorma</string>
+    <string name="perms_apps">Uygulamalar</string>
+    <string name="perms_all_apps">Tüm uygulamalar</string>
+    <string name="perms_reset_suggested">Önerilene sıfırla</string>
+
+    <!-- Button rules screen: buttons that always or never need the user's OK. -->
+    <string name="perms_rules_intro">Katı veya Akıllı moddaki uygulamalar için. Önerilerden seçilen bir kural o uygulamaya, yazılan metin ise tüm uygulamalara uygulanır. Kaldırmak için bir kurala dokunun.</string>
+    <string name="perms_builtin_title">Yerleşik riskli kelimeler</string>
+    <string name="perms_builtin_sub">Gönder, Yayınla, Öde, Satın al, Sipariş ver, Sil, Çıkış yap… gibi düğmeler, Buddy\'nin her dilinde her zaman onay ister.</string>
+    <string name="perms_always_ask">Her zaman sor</string>
+    <string name="perms_never_ask">Asla sorma</string>
+    <string name="perms_ask">Sor</string>
+    <string name="perms_add_hint">Bir düğme ekleyin, örn. Gönder</string>
+    <string name="perms_add">Ekle</string>
+    <string name="perms_seen_title">Son görülen düğmeler</string>
+    <string name="perms_seen_empty">Ajanın Katı ve Akıllı moddaki uygulamalarda dokunduğu düğmeler burada görünür.</string>
+
+    <!-- Button rules and modes, as App permissions shows them. -->
+    <string name="guard_rule_all_apps">%1$s · tüm uygulamalar</string>
+    <string name="guard_why_choice">Sizin seçiminiz</string>
+    <string name="guard_why_category">Önerilen: mesajlar, sosyal medya, aramalar veya para</string>
+    <string name="guard_why_name">Önerilen: adında “%1$s” var</string>
+    <string name="guard_why_social">Önerilen: sosyal uygulama</string>
+    <string name="guard_why_suggested">Önerilen</string>
+    <string name="guard_why_setup">Kurulumdaki seçiminiz: önce sor</string>
+
+    <!-- Approval card, shown before the agent taps a risky button: the user approves or denies it. -->
+    <string name="tools_card_tap">“%1$s” düğmesine dokun</string>
+    <string name="tools_card_tap_in">%2$s uygulamasında “%1$s” düğmesine dokun</string>
+    <string name="tools_card_tap_this">“Buna” dokun</string>
+    <string name="tools_card_tap_this_in">%1$s uygulamasında “buna” dokun</string>
+    <string name="tools_card_enter">Göndermek için Enter tuşuna bas</string>
+    <string name="tools_card_enter_in">%1$s uygulamasında göndermek için Enter tuşuna bas</string>
+    <string name="tools_card_detail">%1$s:\n%2$s</string>
+    <string name="tools_card_quote">“%1$s”</string>
+    <string name="tools_card_no_reviewer">Giriş yapmış bir denetçi yok, bu yüzden Buddy size soruyor.</string>
+    <string name="tools_card_reviewer_block">%1$s bunu önermiyor: %2$s</string>
+    <string name="tools_card_reviewer_ask">%1$s size sorulmasını öneriyor: %2$s</string>
+
+    <!-- Status line in the bubble while the agent works. -->
+    <string name="tools_status_checking_tap">Bu dokunma kontrol ediliyor…</string>
+    <string name="tools_status_tap_install">Yükle düğmesine dokunun, ardından onaylayın</string>
+    <string name="tools_status_tap_update">Güncelle düğmesine dokunun, ardından onaylayın</string>
+    <string name="tools_status_installed">Yüklendi</string>
+    <string name="tools_status_downloading">Buddy %1$s indiriliyor…</string>
+
+    <!-- Smart reviewer: its reason when it fails (starts lowercase). -->
+    <string name="reviewer_failed">denetçi yanıt veremedi (%1$s)</string>
+    <string name="reviewer_no_answer">yanıt yok</string>
+    <string name="reviewer_timed_out">zaman aşımı</string>
+
+    <!-- Error when a chat can't start because Buddy's built-in Linux isn't set up yet. -->
+    <string name="helper_linux_missing">Buddy\'nin Linux\'u henüz yüklü değil. Kurmak için Ayarlar\'ı açın.</string>
+
+    <!-- Voice input (dictation): "Claude sesi" and "ChatGPT sesi" are the two voice input options. -->
+    <string name="dictation_claude_sign_in">Claude sesini kullanmak için Ayarlar\'dan Claude Code\'a giriş yapın.</string>
+    <string name="dictation_codex_sign_in">ChatGPT sesini kullanmak için Ayarlar\'dan Codex\'e giriş yapın.</string>
+    <string name="dictation_starting">Başlatılıyor…</string>
+    <string name="dictation_starting_claude">Claude başlatılıyor…</string>
+    <string name="dictation_transcribing">Metne dönüştürülüyor…</string>
+    <string name="dictation_no_speech">Anlaşılamadı.</string>
+    <string name="dictation_mic_failed">Mikrofon açılamadı.</string>
+    <string name="dictation_claude_start_failed">Claude sesi başlatılamadı: %1$s</string>
+    <string name="dictation_claude_no_start">Claude sesi başlamadı.</string>
+    <string name="dictation_claude_code_no_start">Claude Code başlamadı</string>
+    <string name="dictation_chatgpt_start_failed">ChatGPT sesi başlatılamadı: %1$s</string>
+    <string name="dictation_chatgpt_no_connect">ChatGPT sesi bağlanamadı (%1$s).</string>
+    <string name="dictation_chatgpt_error">ChatGPT sesi: %1$s</string>
+    <string name="dictation_connection_failed">bağlantı başarısız oldu</string>
+    <string name="dictation_stage_page">sayfa başlatılıyor</string>
+    <string name="dictation_stage_codex">Codex bekleniyor</string>
+    <string name="dictation_stage_call">arama başlatılıyor</string>
+    <string name="dictation_stage_answer">ChatGPT\'nin yanıtı bekleniyor</string>
+    <string name="dictation_stage_connecting">bağlanıyor</string>
+    <string name="dictation_codex_no_start">Codex başlamadı</string>
+    <string name="dictation_request_timed_out">%1$s zaman aşımına uğradı</string>
+    <string name="dictation_codex_stopped">Codex durdu: %1$s</string>
+    <string name="dictation_no_details">ayrıntı yok</string>
+
+    <!-- Notification rules -->
+    <string name="card_label_countdown">BİRAZDAN OTOMATİK ONAYLANACAK</string>
+    <string name="card_countdown">%1$d sn sonra otomatik onaylanacak · Durdurmak için dokunun</string>
+    <string name="card_note_auto_approved">✓ Geri sayım sonunda onaylandı: %1$s</string>
+    <string name="card_note_countdown_stopped">Geri sayım durduruldu: onayınız bekleniyor</string>
+    <string name="hub_tool_reply_notification">Yanıtlanıyor: %1$s</string>
+    <string name="setup_rules">Bildirim kuralları</string>
+    <string name="setup_rules_info">Bir bildirim geldiğinde bir ajan devreye girsin: bir mesajı yanıtlasın, bir teslimatı takviminize eklesin…</string>
+    <string name="tools_card_reply">%2$s uygulamasında yanıtla (alıcı: %1$s):\n“%3$s”</string>
+    <string name="tools_card_open_url">%1$s bağlantısını aç</string>
+    <string name="tools_card_clipboard">Ajan en son kopyaladığını okuyabilsin mi?</string>
+    <string name="tools_card_location">Bu telefonun konumu ajanla paylaşılsın mı?</string>
+    <string name="tools_photo_why">Bir fotoğraf çek: %1$s</string>
+    <string name="rules_service_label">Buddy bildirim kuralları</string>
+    <string name="rules_title">Bildirim kuralları</string>
+    <string name="rules_intro">Seçtiğiniz bir bildirim geldiğinde Buddy, talimatınızı kendi yazdığınız bir mesajmış gibi bir ajana iletir. Hiçbir kuralla eşleşmeyen bildirimler yok sayılır.</string>
+    <string name="rules_access_off_title">Bildirim erişimi kapalı</string>
+    <string name="rules_access_off_text">Buddy\'nin, kurallarınızın izlediği bildirimleri görebilmesi için buna ihtiyacı var.</string>
+    <string name="rules_access_turn_on">Aç</string>
+    <string name="rules_run">Kuralları çalıştır</string>
+    <string name="rules_run_info">Tüm kuralları duraklatmak için kapatın.</string>
+    <string name="rules_section">Kurallar</string>
+    <string name="rules_empty">Henüz kural yok. Örneğin: bir müşteri size WhatsApp\'tan yazdığında çalışma saatlerinizle yanıt verilsin.</string>
+    <string name="rules_add">Kural ekle</string>
+    <string name="rules_any">Tüm bildirimler</string>
+    <string name="rules_from_summary">Gönderen: %1$s</string>
+    <string name="rules_words_summary">“%1$s” içeren</string>
+    <string name="rules_tag_ask">Önce size sorar</string>
+    <string name="rules_tag_countdown">Geri sayım %1$s</string>
+    <string name="rules_tag_off">Kapalı</string>
+    <string name="rules_seconds">%1$d sn</string>
+    <string name="rules_minutes">%1$d dk</string>
+    <string name="rules_activity">Son etkinlikler</string>
+    <string name="rules_activity_empty">Henüz bir şey yok.</string>
+    <string name="rules_activity_clear">Temizle</string>
+    <string name="rules_log_replied">Yanıtlandı: “%1$s”</string>
+    <string name="rules_log_done_empty">Tamamlandı, yanıt verilmedi.</string>
+    <string name="rules_log_limit">Atlandı: son bir saatte çok fazla çalıştırıldı.</string>
+    <string name="rules_log_held">Bekliyor: son bir saatte çok fazla çalıştırıldı. Yeni mesajlar tek seferde birlikte işlenecek (saat %1$s).</string>
+    <string name="rules_limit">Saatlik sınır</string>
+    <string name="rules_limit_off">Kapalı</string>
+    <string name="rules_limit_info">Bir konuşma için saatte en fazla çalıştırma sayısı; kuralın tamamı için bunun üç katı. Aşılırsa yeni mesajlar bekler, sonra tek seferde birlikte işlenir. Kapalı: sınır yok.</string>
+    <string name="rules_tag_limit">%1$d/sa</string>
+    <string name="rules_tag_no_limit">Sınırsız</string>
+    <string name="rules_log_busy">Atlandı: telefon çok uzun süre meşguldü.</string>
+    <string name="card_note_later">Zamanında yanıt yok: yanıt “Sizi bekliyor” listesinde bekliyor</string>
+    <string name="rules_log_waiting">Onayınızı bekliyor: “%1$s”</string>
+    <string name="rules_log_full">Atlandı: aynı anda çok fazla sohbet yazdı.</string>
+    <string name="rules_log_hidden">Yeni mesajlar okunamadı: Android onları gizledi (kod içeriyor olabilirler). Sohbeti açın, sonrakiler gelmeye devam eder.</string>
+    <string name="waiting_title">Sizi bekliyor</string>
+    <string name="waiting_channel">Sizi bekleyen yanıtlar</string>
+    <string name="waiting_banner_text">Onayınızı bekleyen yanıtlar: %1$s</string>
+    <string name="waiting_empty">Bekleyen bir şey yok. Bir kuralın yanıtı onayınızı gerektirdiğinde ve zamanında yanıt vermediğinizde burada bekler.</string>
+    <string name="waiting_their_messages">Gelen mesajlar</string>
+    <string name="waiting_reply">Yanıt</string>
+    <string name="waiting_send">Gönder</string>
+    <string name="waiting_copy_open">Kopyala ve %1$s uygulamasını aç</string>
+    <string name="waiting_edit">Düzenle</string>
+    <string name="waiting_skip">Yoksay</string>
+    <string name="waiting_open_chat">Sohbeti aç</string>
+    <string name="waiting_state_wrote_again">%1$s o zamandan beri yeniden yazdı: bu yanıt güncel olmayabilir.</string>
+    <string name="waiting_state_answered">%1$s uygulamasında zaten yanıt verdiniz.</string>
+    <string name="waiting_state_gone">Bildirim artık yok: Buddy yanıtı kopyalar ve yapıştırmanız için %1$s uygulamasını açar.</string>
+    <string name="waiting_sent">Gönderildi: %1$s</string>
+    <string name="waiting_copied">Kopyalandı. %1$s uygulamasına yapıştırın.</string>
+    <string name="waiting_note_sent">✓ “Sizi bekliyor” listesinden gönderildi: %1$s</string>
+    <string name="rules_log_error">Çalıştırılamadı: %1$s</string>
+    <string name="rules_log_no_service">Buddy\'nin erişilebilirlik hizmeti kapalı</string>
+    <string name="rules_log_not_signed_in">%1$s hesabına giriş yapılmadı</string>
+    <string name="rules_new">Yeni kural</string>
+    <string name="rules_edit">Kuralı düzenle</string>
+    <string name="rules_app">Şu uygulamadan bir bildirim geldiğinde</string>
+    <string name="rules_pick_app">Bir uygulama seçin</string>
+    <string name="rules_search_apps">Uygulama ara</string>
+    <string name="rules_from">Gönderen (isteğe bağlı)</string>
+    <string name="rules_from_hint">Herkes ya da virgülle ayrılmış adlar</string>
+    <string name="rules_words">İçerdiği kelimeler (isteğe bağlı)</string>
+    <string name="rules_words_hint">Herhangi bir şey ya da virgülle ayrılmış kelimeler</string>
+    <string name="rules_instruction">Buddy ne yapsın?</string>
+    <string name="rules_instruction_hint">Örneğin: Benim tarzımda yanıt ver. Saat 8–18 arası açığız, pazar günleri kapalıyız.</string>
+    <string name="rules_example_reply">Benim yerime yanıtla</string>
+    <string name="rules_example_reply_text">Benim tarzımda kısa ve samimi bir yanıt ver.</string>
+    <string name="rules_example_summary">Özetle</string>
+    <string name="rules_example_summary_text">Bana tek satırda ne yazdığını ve bir şey yapmam gerekip gerekmediğini söyle.</string>
+    <string name="rules_example_calendar">Takvime ekle</string>
+    <string name="rules_example_calendar_text">Bir randevu veya teslimatla ilgiliyse takvimime ekle.</string>
+    <string name="rules_agent">Ajan</string>
+    <string name="rules_approval">Harekete geçmeden önce</string>
+    <string name="rules_approval_ask">Bana sor</string>
+    <string name="rules_approval_countdown">Geri sayım</string>
+    <string name="rules_approval_ask_info">Onay kartları, her sohbette olduğu gibi sizi bekler.</string>
+    <string name="rules_approval_countdown_info">Geri sayım bittiğinde, siz durdurmak için dokunmadıkça kart otomatik olarak onaylanır. Bu yalnızca mesaj göndermede ve ikinci bir yapay zeka mesajı kuralınıza göre kontrol ettikten sonra geçerlidir. Ödeme, satın alma, silme ve bağlantı açma işlemleri her zaman onayınızı bekler.</string>
+    <string name="rules_checker">İkinci yapay zeka: %1$s. Uygulama izinleri bölümünden değiştirmek için dokunun.</string>
+    <string name="rules_model_default">Ajanın kendi varsayılanı</string>
+    <string name="rules_on">Kural açık</string>
+    <string name="rules_save">Kaydet</string>
+    <string name="rules_delete">Sil</string>
+    <string name="rules_delete_title">Bu kural silinsin mi?</string>
+    <string name="rules_need_app">Önce bir uygulama seçin.</string>
+    <string name="rules_need_instruction">Buddy\'nin ne yapması gerektiğini yazın.</string>
+    <string name="rules_access_title">Bildirim erişimine izin verilsin mi?</string>
+    <string name="rules_access_what">Buddy her bildirimi kurallarınızla karşılaştırır. Hiçbir kuralla eşleşmeyen bildirimler hemen yok sayılır: saklanmaz, hiçbir yere gönderilmez.</string>
+    <string name="rules_access_data">Bir bildirim eşleştiğinde uygulaması, göndereni ve metni, talimatınızla birlikte kuralın ajanına (Claude Code, Codex veya OpenCode) gönderilir.</string>
+    <string name="rules_access_reply">Buddy, bir bildirimin Yanıtla düğmesiyle yanıt verebilir. Kurala geri sayım eklemediğiniz sürece önce size sorar.</string>
+    <string name="rules_chat_shown">🔔 %1$s · %2$s: %3$s\n⚡ %4$s</string>
+    <string name="rules_status_checking">Kuralınıza göre kontrol ediliyor…</string>
+    <string name="rules_channel_results">Bildirim kuralları: sonuçlar</string>
+    <string name="approvals_channel">Onay istekleri</string>
+    <string name="rules_result_title">%1$s · %2$s</string>
+    <string name="rules_approval_title">Onayınız gerekiyor: %1$s · %2$s</string>
+    <string name="card_locked_title">Onayınız gerekiyor: %1$s</string>
+    <string name="rules_approval_auto">Siz durdurmazsanız %1$s sonra otomatik onaylanacak.\n%2$s</string>
+    <!-- Background browser -->
+    <string name="browser_section">Arka plan tarayıcısı</string>
+    <string name="browser_switch">Arka plan tarayıcısı</string>
+    <string name="browser_switch_info">Buddy içinde, ajanların telefonunuzu ele geçirmeden web sayfaları için kullandığı bir tarayıcı. Sohbette izleyebilir ve kullanabilirsiniz. İlk seferde Buddy, Chromium\'u indirir (yaklaşık 300 MB).</string>
+    <string name="browser_state_installing">Chromium yükleniyor…</string>
+    <string name="browser_state_starting">başlatılıyor…</string>
+    <string name="browser_state_running">çalışıyor</string>
+    <string name="browser_state_idle">hazır · bir ajan ihtiyaç duyduğunda başlar</string>
+    <string name="browser_state_not_installed">henüz yüklenmedi</string>
+    <string name="browser_install_failed">Chromium yüklenemedi. Bağlantıyı kontrol edip tekrar deneyin.</string>
+    <string name="browser_sign_in_help">Ajanlar asla şifre yazmaz. Bir siteyi hesabınızla kullanmalarına izin vermek için tarayıcıyı açın ve kendiniz giriş yapın. “Google ile devam et” otomatik tarayıcılarda sık sık başarısız olur: bunun yerine e-posta ve şifre kullanın.</string>
+    <string name="browser_open">Tarayıcıyı aç</string>
+    <string name="browser_wipe">Tarayıcı verilerini sil</string>
+    <string name="browser_wipe_title">Tarayıcı verileri silinsin mi?</string>
+    <string name="browser_wipe_body">Arka plan tarayıcısındaki tüm girişleri, çerezleri ve geçmişi kaldırır. Chromium yüklü kalır.</string>
+    <string name="browser_wipe_action">Sil</string>
+    <string name="browser_wiped">Tarayıcı verileri silindi</string>
+    <string name="browser_live_title">ARKA PLAN TARAYICISI</string>
+    <string name="browser_no_page">açık sayfa yok</string>
+    <string name="browser_continue">Devam</string>
+    <string name="browser_back">Önceki sayfa</string>
+    <string name="browser_keyboard">Sayfaya yaz</string>
+    <string name="browser_full_screen">Tam ekran</string>
+    <string name="browser_fold">Sayfayı göster veya gizle</string>
+    <string name="browser_backspace">Bir karakter sil</string>
+    <string name="bubble_browser_thumb">Arka plan tarayıcısının canlı görünümü. Tam ekran açmak için dokunun.</string>
+    <string name="bubble_browser_thumb_hide">Gizle</string>
+    <string name="bubble_pill_show_page">%1$s · sayfayı göstermek için dokunun</string>
+    <string name="browser_type_hint">Sayfaya yazın</string>
+    <string name="browser_enter">Enter</string>
+    <string name="browser_dialog">Sayfa soruyor: %1$s</string>
+    <string name="browser_go_title">Şuraya git</string>
+    <string name="browser_go">Git</string>
+    <string name="browser_address_hint">Ara veya web adresi yaz</string>
+    <string name="browser_installing">Tarayıcı yükleniyor…</string>
+    <string name="browser_starting">Tarayıcı başlatılıyor…</string>
+    <string name="browser_paused_note">Tarayıcıyı kullandığınız için duraklatıldı. İşiniz bitince Devam\'a dokunun.</string>
+    <string name="browser_paused_toast">Tarayıcıyı kullandığınız için duraklatıldı</string>
+    <string name="browser_card_tap">%2$s üzerinde “%1$s” öğesine dokun (arka plan tarayıcısı)</string>
+    <string name="browser_card_enter">%1$s üzerinde göndermek için Enter\'a bas (arka plan tarayıcısı)</string>
+    <string name="browser_card_dialog">%1$s üzerinde Tamam yanıtını ver:\n“%2$s”</string>
+    <string name="hub_tool_browser_open">Tarayıcı: %1$s açılıyor</string>
+    <string name="hub_tool_browser_read">Tarayıcı: sayfa okunuyor</string>
+    <string name="hub_tool_browser_click">Tarayıcı: %1$d numaralı öğeye dokunuluyor</string>
+    <string name="hub_tool_browser_type">Tarayıcı: \"%1$s\" yazılıyor</string>
+    <string name="hub_tool_browser_scroll">Tarayıcı: kaydırılıyor</string>
+    <string name="hub_tool_browser_screenshot">Tarayıcı: sayfaya bakılıyor</string>
+    <string name="hub_tool_browser_back">Tarayıcı: geri gidiliyor</string>
+    <string name="hub_tool_browser_tabs">Tarayıcı: sekmeler</string>
+    <string name="hub_tool_schedule_message">Planlıyor: %1$s</string>
+    <string name="hub_tool_list_scheduled">Planlanmış mesajlara bakıyor</string>
+    <string name="hub_tool_cancel_scheduled">Planlanmış bir mesajı iptal ediyor</string>
+    <string name="later_title">%1$s için ajanın mesajı</string>
+    <string name="later_cancel">Mesajı iptal et</string>
+    <string name="share_label">Buddy\'ye sor</string>
+    <string name="share_title">Buddy ile paylaş</string>
+    <string name="share_new_chat">%1$s ile yeni sohbet</string>
+    <string name="usage_five">5 saat %%%1$d · sıfırlanır %2$s</string>
+    <string name="usage_week">haftalık %%%1$d · sıfırlanır %2$s</string>
+    <string name="usage_five_short">5 sa %%%1$d</string>
+    <string name="usage_week_short">hafta %%%1$d</string>
+    <string name="usage_warn_five">Planının 5 saatlik limitinin %%%1$d kadarını kullandın. %2$s saatinde sıfırlanır.</string>
+    <string name="usage_warn_week">Planının haftalık limitinin %%%1$d kadarını kullandın. %2$s sıfırlanır.</string>
+    <string name="check_title">Buddy\'yi kontrol et</string>
+    <string name="check_info">Buddy\'nin her parçasını şimdi test eder ve sorunları nasıl düzelteceğini söyler</string>
+    <string name="check_running">Kontrol ediliyor…</string>
+    <string name="check_all_ok">Her şey çalışıyor</string>
+    <string name="check_a11y">Erişilebilirlik hizmeti</string>
+    <string name="check_a11y_bad">Çalışmıyor, bu yüzden Buddy ekranı göremez ve kullanamaz. Erişilebilirlik ayarlarında Buddy\'yi aç.</string>
+    <string name="check_notifications">Bildirim erişimi</string>
+    <string name="check_notifications_bad">Bildirim kuralların buna ihtiyaç duyuyor ve kapalı.</string>
+    <string name="check_battery">Pil optimizasyonu</string>
+    <string name="check_battery_bad">Buddy için açık: Android onu arka planda durdurabilir ve zamanlanmış görevler çalışmayabilir.</string>
+    <string name="check_linux">Buddy\'nin Linux\'u</string>
+    <string name="check_linux_ok">%1$.1f sn\'de açılıyor</string>
+    <string name="check_linux_bad">Açılmıyor: %1$s</string>
+    <string name="check_linux_missing">Henüz kurulmadı. Ayarlar\'dan kur.</string>
+    <string name="check_helper">Buddy\'nin yardımcısı</string>
+    <string name="check_helper_bad">Linux\'taki kopya, Buddy\'nin bu sürümünden eski.</string>
+    <string name="check_server">Telefon araçları sunucusu</string>
+    <string name="check_server_bad">127.0.0.1:%1$d üzerinde yanıt vermiyor. Erişilebilirlik ayarlarında Buddy\'yi kapatıp yeniden aç.</string>
+    <string name="check_agent_version">Sürüm %1$s</string>
+    <string name="check_network">İnternet</string>
+    <string name="check_network_bad">%1$s bulunamıyor. Wi-Fi\'yi veya mobil veriyi ya da bunu engelleyen bir VPN veya özel DNS\'i kontrol et.</string>
+    <string name="check_space">Boş alan</string>
+    <string name="check_space_ok">%1$s boş</string>
+    <string name="check_space_bad">Yalnızca %1$s boş. Bir ajanı kurmak veya güncellemek yaklaşık 1 GB gerektirir.</string>
+    <string name="check_fix">Düzelt</string>
+    <string name="check_open_settings">Ayarları aç</string>
+    <string name="check_copy">Raporu kopyala</string>
+    <string name="check_copied">Rapor kopyalandı</string>
+    <string name="check_report">GitHub\'da hata bildir</string>
+    <string name="check_report_title">GitHub\'a ne gider</string>
+    <string name="check_report_text">Bu, bu bilgilerle doldurulmuş yeni bir GitHub issue\'su açar. Orada gönderene kadar hiçbir şey gönderilmez ve önce düzenleyebilirsin. Sohbetler, ekran metni ve bildirimler asla eklenmez.</string>
+    <string name="check_report_open">GitHub\'ı aç</string>
+    <plurals name="check_failed">
+        <item quantity="one">%1$d kontrol başarısız</item>
+        <item quantity="other">%1$d kontrol başarısız</item>
+    </plurals>
+    <string name="tools_step_cap">Kontrolden çıkan bir görev planını tüketmesin diye art arda %1$d telefon işleminden sonra durduruldu. Gerekirse devam etmesini söyle.</string>
+    <string name="tools_step_loop">Durduruldu: aynı şeyi art arda %1$d kez yaptı, bu bir döngüye benziyor.</string>
+    <string name="setup_help">Yardım</string>
+    <string name="setup_help_info">GitHub\'da Buddy kullanım kılavuzu. Buddy\'nin nasıl çalıştığını herhangi bir ajana da sorabilirsin.</string>
+    <string name="signin_api_key">Bunun yerine API anahtarı kullan</string>
+    <string name="signin_api_base_bad">https:// ile başlayan bir adres gir (bu telefonda veya kendi ağında http:// da olur)</string>
+    <string name="account_plan_api_key_at">API anahtarı · %1$s</string>
+    <string name="models_via">%2$s üzerinden %1$s</string>
+    <string name="api_keys_remove_text">Anahtarı bu telefondan silinir. Modellerini kullanan sohbetler Varsayılan\'a döner.</string>
+    <string name="api_keys_choose">Menülerdeki modeller: %1$d / %2$d</string>
+    <string name="api_keys_choose_title">%1$s modelleri</string>
+    <string name="api_keys_choose_info">Sohbetlerin sunacaklarını seç. Hiçbiri seçili değilse hepsi.</string>
+    <string name="api_keys_choose_search">Ara</string>
+    <string name="skills_title">Beceriler</string>
+    <string name="skills_row_none">Ajanların ortak kullandığı talimatlar</string>
+    <string name="skills_intro">Beceriler, bir ajanın belli bir iş türünde izlediği talimatlardır: bir yazım üslubu, bir kontrol listesi, bir uygulamadaki adımlar. Claude Code, Codex ve OpenCode, işe uyduğunda ya da mesaj kutusuna / yazıp seçtiğinde bir beceriyi kullanır. SKILL.md biçimini kullandıkları için Claude veya ChatGPT\'deki beceriler burada da çalışır.</string>
+    <string name="skills_need_linux">Beceriler Buddy\'nin Linux\'unda durur: önce bir ajan kur.</string>
+    <string name="skills_none">Henüz beceri yok.</string>
+    <string name="skills_import">İçe aktar</string>
+    <string name="skills_write">Kendin yaz</string>
+    <string name="skills_how">İçe aktarma bir .zip veya .skill dosyası (Claude becerileri böyle dışa aktarır) ya da bir SKILL.md alır. Linux araçları açık bir sohbette ajandan bir beceri yazmasını da isteyebilirsin.</string>
+    <string name="skills_delete">Sil</string>
+    <string name="skills_delete_title">/%1$s silinsin mi?</string>
+    <string name="skills_delete_text">Ajanlarda artık olmayacak.</string>
+    <string name="skills_write_info">Açıklama ne zaman kullanılacağını söyler: ajanlar karar vermek için onu okur.</string>
+    <string name="skills_name_hint">Ad, ör. weekly-report</string>
+    <string name="skills_desc_hint">Ne yaptığı ve ne zaman kullanılacağı</string>
+    <string name="skills_instructions_hint">Talimatlar</string>
+    <string name="skills_need_all">Bir açıklama ve talimatları ekle.</string>
+    <string name="skills_added">/%1$s eklendi.</string>
+    <string name="skills_need_name">Bir ad ver.</string>
+    <string name="skills_exists">%1$s adında bir beceri zaten var.</string>
+    <string name="skills_bad_file">Bu bir beceri değil: adı olan bir SKILL.md gerekiyor.</string>
+    <string name="skills_slash_none">Bu adda beceri yok. Beceri eklemek için dokun.</string>
+    <string name="github_row_none">Ajanların depolarına push yapmasına izin ver</string>
+    <string name="github_intro">Linux araçları için GitHub\'a giriş yap: Buddy, Linux\'una git ve GitHub CLI\'ı kurar, onları hesabına bağlar ve git\'i adına ve gizli noreply e-postana göre ayarlar.</string>
+    <string name="github_risk">Böylece Linux araçları açık sohbetlerdeki ajanlar hesabınla clone, commit ve push yapabilir, issue ve pull request açabilir. Bir şey push etmeden veya paylaşmadan önce sana sormaları söylenir.</string>
+    <string name="github_sign_in">GitHub ile giriş yap</string>
+    <string name="github_installing">git ve GitHub CLI kuruluyor…</string>
+    <string name="github_finishing">git ayarlanıyor…</string>
+    <string name="github_enter_code">Bu kodu GitHub\'a gir ve onayla. Kopyalandı, yapıştırabilirsin.</string>
+    <string name="github_open">GitHub\'ı aç</string>
+    <string name="github_code_copied">Kod kopyalandı</string>
+    <string name="github_failed">Giriş yapılamadı: %1$s</string>
+    <string name="github_signed_in">\@%1$s olarak giriş yapıldı</string>
+    <string name="github_signed_in_info">Linux araçları açık sohbetlerdeki ajanlar bu hesapla git ve gh kullanabilir.</string>
+    <string name="github_sign_out_title">GitHub\'dan çıkış yapılsın mı?</string>
+    <string name="github_sign_out_text">Buddy\'nin Linux\'undaki git ve GitHub CLI hesabına erişimini kaybeder.</string>
+    <string name="backup_title">Yedekle ve taşı</string>
+    <string name="backup_row">Sohbetlerin ve ayarların tek dosyada</string>
+    <string name="backup_intro">Sohbetlerini, ayarlarını, kurallarını, resimlerini, becerilerini, ajanların projelerini ve her sohbetten sakladıklarını Downloads/Buddy içinde tek bir dosyaya kaydeder. Burada ya da başka bir telefonda geri yükle.</string>
+    <string name="backup_left_out">Girişler ve API anahtarları dahil değil: geri yükledikten sonra yeniden giriş yap ve anahtarlarını ekle. Projelerin derleme klasörleri dahil edilmez.</string>
+    <string name="backup_now">Şimdi yedekle</string>
+    <string name="backup_restore">Yedekten geri yükle</string>
+    <string name="backup_restore_title">Bu yedek geri yüklensin mi?</string>
+    <string name="backup_restore_text">Bu telefondaki sohbetlerin ve ayarların yedektekilerle değiştirilir. Bittiğinde Buddy yeniden başlar.</string>
+    <string name="backup_making">Yedekleniyor… (projeler biraz sürebilir)</string>
+    <string name="backup_restoring">Geri yükleniyor…</string>
+    <string name="backup_made">Downloads/Buddy/%1$s konumuna kaydedildi.</string>
+    <string name="backup_restored">Geri yüklendi. Buddy şimdi yeniden başlıyor.</string>
+    <string name="backup_restored_no_linux">Sohbetlerin ve ayarların geri yüklendi. Linux kısmı (beceriler, projeler, ajanların kayıtları) Buddy\'nin Linux\'unu gerektirir: bir ajan kur, sonra yeniden geri yükle. Buddy şimdi yeniden başlıyor.</string>
+    <string name="backup_failed">Olmadı: %1$s</string>
+    <string name="backup_not_one">Bu dosya bir Buddy yedeği değil.</string>
+    <string name="chat_incognito">Gizli</string>
+    <string name="chat_incognito_info">Bu sohbet, ajanının ondan sakladıklarıyla birlikte Buddy yeniden başladığında silinir.</string>
+    <string name="api_keys_remove_title">%1$s kaldırılsın mı?</string>
+    <string name="api_keys_remove">Kaldır</string>
+    <string name="api_keys_failed">Bu anahtarla bu hizmetin modelleri listelenemedi: %1$s</string>
+    <string name="api_keys_need_address">En az bir adres ekle.</string>
+    <string name="api_keys_need_key">API anahtarını gir.</string>
+    <string name="api_keys_saving">Anahtar kontrol ediliyor…</string>
+    <string name="api_keys_save">Kaydet</string>
+    <string name="api_keys_addresses_info">Claude Code Anthropic tarzı adresi kullanır. Codex, hizmette OpenAI\'nin Responses API\'si varsa OpenAI tarzı adresi kullanır. OpenCode ikisini de kullanır. Hizmette yoksa bir adresi boş bırak.</string>
+    <string name="api_keys_check">Şimdi kontrol et</string>
+    <string name="api_keys_check_info">İsteğe bağlı: çok küçük bir test isteği gönderir, bu API kredisini çok az kullanabilir.</string>
+    <string name="api_keys_check_ok">%1$s: çalışıyor.</string>
+    <string name="api_keys_check_chat">%1$s: OpenCode ile çalışıyor ama Responses API yok, bu yüzden Codex ile çalışmaz.</string>
+    <string name="api_keys_check_none">%1$s: bu adreste yanıt veren olmadı. %2$s</string>
+    <string name="api_keys_check_unsure">%1$s: net yanıt yok. %2$s</string>
+    <string name="api_keys_service">Hizmet</string>
+    <string name="api_keys_custom">Özel</string>
+    <string name="setup_step_signin_key_mismatch">API anahtarlarınız (%2$s) %1$s ile çalışmıyor. Şunlarla çalışıyor: %3$s.</string>
+    <string name="setup_step_signin_free">Hesabınız yok mu? OpenCode\'da ücretsiz modeller var ve giriş gerekmez.</string>
+    <string name="setup_use_agent">%1$s kullan</string>
+    <string name="api_keys_openai_hint">OpenAI tarzı adres</string>
+    <string name="api_keys_anthropic_hint">Anthropic tarzı adres</string>
+    <string name="api_keys_key_keep_hint">API anahtarı (korumak için boş bırak)</string>
+    <string name="api_keys_key_hint">API anahtarı</string>
+    <string name="api_keys_name_hint">Ad</string>
+    <string name="api_keys_own_default">Kendi varsayılanı</string>
+    <string name="api_keys_defaults_info">Modeli Varsayılan olan bir sohbetin kullandığı. Kendi varsayılanı ajanın planıyla çalışır.</string>
+    <string name="api_keys_defaults">Varsayılan\'daki sohbetler</string>
+    <string name="api_keys_for">%1$s için</string>
+    <string name="api_keys_models">%1$s · %2$d model</string>
+    <string name="api_keys_add">API anahtarı ekle</string>
+    <string name="api_keys_none">Henüz API anahtarı yok.</string>
+    <string name="api_keys_intro">Claude Code, Codex ve OpenCode ile başka hizmetlerin modellerini kullan; planlarının yanında ya da yerine. Her sohbet modelini kendi model menüsünde seçer. Anahtarla kullanım o anahtarın hesabından ücretlendirilir. Anahtarlar bu telefonda şifreli saklanır ve ajanlara asla ulaşmaz: Buddy onları her isteğe ekler.</string>
+    <string name="api_keys_row_none">Başka hizmetlerin modelleri, kendi anahtarınla</string>
+    <string name="api_keys_title">API anahtarları</string>
+    <string name="signin_api_keys">API anahtarları</string>
+    <string name="models_context">%1$s bağlam</string>
+    <string name="models_chip_context">%%%1$d bağlam</string>
+    <string name="chat_context">Bağlam</string>
+    <string name="chat_context_used">%2$s tokenden %1$s kullanıldı (%%%3$d)</string>
+    <string name="chat_context_help">Dolunca %1$s yer açmak için eski mesajları kendisi özetler.</string>
+    <string name="chat_context_compact">Şimdi sıkıştır</string>
+    <string name="hub_compacting">Sohbet sıkıştırılıyor…</string>
+    <string name="hub_compacted">Sohbet sıkıştırıldı: %1$s → %2$s token</string>
+    <string name="signin_api_models_none">Hizmet hiç model listelemedi.</string>
+    <string name="setup_step_signin_api_key">Ya da API anahtarı kullan: Ayarlar → API anahtarları.</string>
+    <string name="setup_step_signin_others">Varsayılan beynin %1$s, ama şunlar hazır: %2$s. Birini varsayılan yap, Buddy hemen çalışsın.</string>
+    <string name="setup_switch_default">Varsayılanı değiştir</string>
+    <string name="setup_switch_default_title">Varsayılan beyin</string>
+    <string name="signin_api_key_on">%1$s API anahtarlarınla çalışıyor: bir sohbetin model menüsünden model seç ya da varsayılanını API anahtarları altında belirle.</string>
+    <string name="signin_api_key_on_plan">Sohbetler API anahtarlarının modellerini de kullanabilir (bir sohbetin model menüsünden seç). Ses ve diğer plan özellikleri planını kullanır.</string>
+    <string name="fdroid_download_note">Bunlar F-Droid\'den değil, doğrudan yapımcılarından indirilir; bu yüzden F-Droid bunları denetlemedi.</string>
+    <string name="api_keys_local_info">Kendi sunucun için (Ollama, LM Studio, llama.cpp): API anahtarını boş bırak. Bilgisayardaysa localhost yerine Wi-Fi\'deki adresini yaz, örneğin http://192.168.1.20:11434/v1.</string>
+    <string name="main_section_pinned">Sabitlenenler</string>
+    <string name="main_section_archived">Arşiv (%1$d)</string>
+    <string name="chat_pinned_marker">Sabitlendi</string>
+    <string name="chat_menu_rename">Yeniden adlandır</string>
+    <string name="chat_menu_pin">En üste sabitle</string>
+    <string name="chat_menu_unpin">Sabitlemeyi kaldır</string>
+    <string name="chat_menu_archive">Arşivle</string>
+    <string name="chat_menu_unarchive">Arşivden çıkar</string>
+    <string name="chat_archived">Arşivlendi. Listenin en altında.</string>
+    <string name="chat_archived_scheduled">Arşivlendi. Zamanlanmış görevleri çalışmaya devam ediyor.</string>
+    <string name="chat_rename_title">Sohbeti yeniden adlandır</string>
+    <string name="chat_rename_hint">Boş: ilk mesajı</string>
+    <string name="chat_rename_save">Kaydet</string>
+</resources>

@@ -1,0 +1,1469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Every text Buddy shows, in Dutch (je). Source and translator notes: res/values/strings.xml. -->
+<resources>
+    <string name="service_label">Buddy-assistent</string>
+    <string name="service_description">Toont de chatbubbel van Buddy en laat de door jou gekozen agent (Claude Code, Codex, OpenCode, Antigravity of Grok), die binnen Buddy op deze telefoon draait, het scherm lezen en voor je tikken, typen en scrollen. Niets verlaat de telefoon, behalve wat de agent zelf naar zijn AI-dienst stuurt (Anthropic, OpenAI, Google, xAI of de aanbieder van je OpenCode-model).</string>
+
+    <!-- ===== First run (OnboardingActivity), the Chats home screen (MainActivity), updates, appearance ===== -->
+
+    <!-- First-run setup guide: top bar and buttons shared by several steps. -->
+    <string name="onboarding_skip_setup">Overslaan</string>
+    <string name="onboarding_skip_title">Instellen overslaan?</string>
+    <string name="onboarding_skip_text">Je kunt het instellen altijd later afronden in Instellingen. Chats werken pas als het klaar is.</string>
+    <string name="onboarding_skip_action">Overslaan</string>
+    <string name="onboarding_progress">stap %1$d van %2$d</string>
+    <string name="onboarding_continue">Doorgaan</string>
+    <string name="onboarding_stuck">Vastgelopen?</string>
+
+    <!-- Guide, welcome screen. -->
+    <string name="onboarding_welcome_title">Maak kennis met Buddy</string>
+    <string name="onboarding_welcome_text">Een chatbubbel die je telefoon voor je kan bedienen.</string>
+    <string name="onboarding_welcome_ask_title">Vraag het in gewone taal</string>
+    <string name="onboarding_welcome_ask_text">“Antwoord Sam dat ik later kom”, “zet melk in mijn winkelmandje”.</string>
+    <string name="onboarding_welcome_plan_title">Je eigen abonnement, geen API-sleutel</string>
+    <string name="onboarding_welcome_plan_text">Draait Claude Code met je Claude-abonnement. Codex met een ChatGPT-abonnement, Antigravity met een Google-account, Grok met een Google- of X-account en de gratis modellen van OpenCode werken ook.</string>
+    <string name="onboarding_welcome_control_title">Jij houdt de controle</string>
+    <string name="onboarding_welcome_control_text">Voor verzenden, plaatsen, kopen en verwijderen wordt altijd eerst gevraagd.</string>
+    <string name="onboarding_welcome_time">instellen duurt ongeveer 5 minuten</string>
+    <string name="onboarding_get_started">Aan de slag</string>
+
+    <!-- Guide, step: choose the agent. -->
+    <string name="onboarding_brain_title">Kies je agent</string>
+    <string name="onboarding_brain_text">Wie je chats beantwoordt. Je kunt er later meer toevoegen in Instellingen.</string>
+    <string name="onboarding_brain_claude">Gebruikt je Claude-abonnement (Pro of Max).</string>
+    <string name="onboarding_brain_codex">Gebruikt je ChatGPT-abonnement.</string>
+    <string name="onboarding_brain_opencode">Geen account nodig. Koppel later je eigen aanbieders.</string>
+    <string name="onboarding_brain_agy">Gebruikt je Google-account, ook met Google AI Pro of Ultra.</string>
+    <string name="onboarding_brain_grok">Gebruikt je Grok-account (inloggen met Google of X).</string>
+    <string name="onboarding_brain_both">Installeer beide en kies per chat. Claude Code blijft de standaard.</string>
+    <string name="onboarding_recommended">aanbevolen</string>
+
+    <!-- Guide, step: turn on Buddy's accessibility service. -->
+    <string name="onboarding_access_title">Laat Buddy zien en tikken</string>
+    <string name="onboarding_access_done">Toegankelijkheid staat aan.</string>
+    <string name="onboarding_access_text">De toegankelijkheidsservice van Buddy toont de bubbel en laat de agent het scherm lezen, tikken en typen, alleen als je hem vraagt iets te doen.</string>
+    <string name="onboarding_access_privacy">Niets verlaat de telefoon, behalve wat %1$s naar %2$s stuurt om je te antwoorden. Voor verzenden, plaatsen, kopen en verwijderen wordt altijd eerst om je akkoord gevraagd.</string>
+    <string name="onboarding_access_privacy_both">Niets verlaat de telefoon, behalve wat Claude Code en Codex naar Anthropic en OpenAI sturen om je te antwoorden. Voor verzenden, plaatsen, kopen en verwijderen wordt altijd eerst om je akkoord gevraagd.</string>
+    <string name="onboarding_access_privacy_opencode">Niets verlaat de telefoon, behalve wat %1$s naar de aanbieder van het model stuurt om je te antwoorden. Voor verzenden, plaatsen, kopen en verwijderen wordt altijd eerst om je akkoord gevraagd.</string>
+    <string name="onboarding_access_list_hint">In de lijst: Gedownloade apps → Buddy-assistent → zet hem aan.</string>
+    <string name="onboarding_access_open">Toegankelijkheid openen</string>
+    <string name="onboarding_access_greyed_title">Is de schakelaar grijs?</string>
+    <string name="onboarding_access_greyed_text">Android blokkeert dit voor apps die vanuit een bestand zijn geïnstalleerd. Tik op App-info (hieronder), dan rechtsboven op ⋮ → Beperkte instellingen toestaan, en probeer het opnieuw.</string>
+    <string name="onboarding_access_restricted_steps">1. Tik hieronder op App-info.\n2. Tik rechtsboven op ⋮ → Beperkte instellingen toestaan.\n3. Kom terug en open de toegankelijkheidsinstellingen opnieuw.</string>
+    <string name="onboarding_app_info">App-info</string>
+
+    <!-- Guide, step: install the agent inside Buddy and sign in. -->
+    <string name="onboarding_agents_title">Installeren en inloggen</string>
+    <string name="onboarding_agents_done_title">Klaar</string>
+    <string name="onboarding_agents_done">%1$s is geïnstalleerd en ingelogd.</string>
+    <string name="onboarding_agents_done_both">Claude Code en Codex zijn geïnstalleerd en ingelogd.</string>
+    <string name="onboarding_agents_text">Buddy installeert %1$s in de app, daarna log je één keer in. Termux is niet nodig.</string>
+    <string name="onboarding_agent_names_both">Claude Code en Codex</string>
+    <!-- Agent card status lines: small lowercase mono text, one line. -->
+    <string name="onboarding_agent_ready">klaar · %1$s</string>
+    <string name="onboarding_agent_free_models">gratis modellen</string>
+    <string name="onboarding_agent_signed_in">ingelogd</string>
+    <string name="onboarding_agent_signed_in_as">ingelogd · %1$s</string>
+    <string name="onboarding_agent_installing">installeren…</string>
+    <string name="onboarding_agent_installed">geïnstalleerd · niet ingelogd</string>
+    <string name="onboarding_agent_not_installed">niet geïnstalleerd</string>
+    <string name="onboarding_agent_sign_in_claude">Log in met je Claude-account. Je browser wordt geopend; tik op Autoriseren en Buddy komt vanzelf terug.</string>
+    <string name="onboarding_agent_checking_opencode">OpenCode controleren…</string>
+    <string name="onboarding_agent_sign_in_codex">Log in met je ChatGPT-account in de browser en kom daarna terug.</string>
+    <string name="onboarding_agent_sign_in_agy">Log in met je Google-account. Je browser wordt geopend; log daar in en Buddy pakt de code vanzelf op.</string>
+    <string name="onboarding_agent_sign_in_grok">Log in met je Grok-account. Je browser wordt geopend; bevestig daar de code en Buddy komt vanzelf terug.</string>
+    <string name="onboarding_agent_download_claude">Downloadt eenmalig ongeveer 235 MB (Buddy\'s Linux en Claude Code van Anthropic).</string>
+    <string name="onboarding_agent_download_opencode">Downloadt eenmalig ongeveer 230 MB (Buddy\'s Linux, Node.js en OpenCode). Geen account nodig.</string>
+    <string name="onboarding_agent_download_codex">Downloadt eenmalig ongeveer 150 MB (Buddy\'s Linux, Node.js en Codex van OpenAI).</string>
+    <string name="onboarding_agent_download_agy">Downloadt eenmalig ongeveer 200 MB (Buddy\'s Linux en de Antigravity CLI van Google).</string>
+    <string name="onboarding_agent_download_grok">Downloadt eenmalig ongeveer 170 MB (Buddy\'s Linux en Grok Build van xAI).</string>
+    <string name="onboarding_sign_in_claude">Inloggen met Claude</string>
+    <string name="onboarding_sign_in_chatgpt">Inloggen met ChatGPT</string>
+    <string name="onboarding_sign_in_google">Inloggen met Google</string>
+    <string name="onboarding_sign_in_grok">Inloggen met Grok</string>
+    <string name="onboarding_install_agent">%1$s installeren</string>
+    <string name="onboarding_agents_wifi">Gebruik wifi als dat kan. Je kunt dit scherm verlaten tijdens de installatie.</string>
+    <string name="onboarding_stuck_sign_in_q">Kom je na het inloggen niet terug?</string>
+    <string name="onboarding_stuck_sign_in_a">Claude: tik op de Claude-pagina op “Code kopiëren” en ga dan terug naar Buddy; Buddy haalt de code van het klembord.</string>
+    <string name="onboarding_stuck_install_q">Installatie mislukt?</string>
+    <string name="onboarding_stuck_install_a">Controleer je verbinding en installeer opnieuw; het gaat verder waar het gestopt is.</string>
+
+    <!-- Guide, step: let Buddy run in the background (Android's battery optimization). -->
+    <string name="onboarding_background_title">Actief houden</string>
+    <string name="onboarding_background_done">Buddy kan op de achtergrond draaien.</string>
+    <string name="onboarding_background_text">Zodat je telefoon Buddy niet stopt om batterij te sparen terwijl de agent bezig is.</string>
+    <string name="onboarding_allow">Toestaan</string>
+    <string name="onboarding_skip_for_now">Nu overslaan</string>
+
+    <!-- Guide, step: how much the agent asks before acting. -->
+    <string name="onboarding_safety_title">Hoe vaak moet de agent het vragen?</string>
+    <string name="onboarding_safety_text">Apps voor berichten, sociale media, winkelen, betalen en bankieren hebben altijd je akkoord nodig voordat Buddy iets verzendt, plaatst, koopt of verwijdert. Voor je andere apps:</string>
+    <string name="onboarding_safety_ask_title">Vraag het me eerst</string>
+    <string name="onboarding_safety_ask_text">De agent vraagt het vóór alles wat riskant is, zoals een instelling wijzigen. Veiliger, maar meer pop-ups.</string>
+    <string name="onboarding_safety_auto_title">Zelfstandig werken</string>
+    <string name="onboarding_safety_auto_text">Geen pop-ups: de agent doet gewoon wat je vroeg, zoals een camera of een lamp aanzetten.</string>
+    <string name="onboarding_safety_note">Je kunt dit altijd per app wijzigen: Instellingen → App-rechten. Zet een app op Vrij om de agent daar zonder pop-ups te laten werken, of op Streng zodat Buddy het je zelf vraagt.</string>
+
+    <!-- Guide, last step: try a first task. -->
+    <string name="onboarding_try_title">Alles staat klaar</string>
+    <string name="onboarding_try_text">Probeer een eerste taak. Buddy opent Instellingen en zoekt het voor je op.</string>
+    <string name="onboarding_try_prompt">Open Instellingen en vertel me mijn Android-versie</string>
+    <string name="onboarding_try_prompt_quoted">“%1$s”</string>
+    <string name="onboarding_try_tip">Tip: de bubbel zweeft boven andere apps. Sleep hem naar het ✕ om hem te verbergen.</string>
+    <string name="onboarding_try_now">Nu proberen</string>
+    <string name="onboarding_go_to_chats">Naar mijn chats</string>
+
+    <!-- Home screen: the chat list. -->
+    <string name="main_new_chat">Nieuwe chat</string>
+    <string name="main_status_ready">klaar · %1$s</string>
+    <string name="main_status_setup">instellen %1$d/%2$d</string>
+    <string name="main_setup_title">Rond het instellen af om chats te gebruiken</string>
+    <string name="main_setup_next">Volgende stap: %1$s</string>
+    <string name="main_setup_next_accessibility">Volgende stap: open de toegankelijkheidsservice van Buddy</string>
+    <string name="main_section_working">Bezig</string>
+    <string name="main_section_recent">Recent</string>
+    <string name="main_empty_title">Nog geen chats</string>
+    <string name="main_empty_text">Tik op “Nieuwe chat” om een chat met Claude Code, Codex, OpenCode, Antigravity of Grok te beginnen. Houd een chat ingedrukt om hem te verwijderen.</string>
+    <string name="main_chat_working">bezig…</string>
+    <string name="main_chat_waiting">wacht op jou…</string>
+    <string name="main_card_other_session">Andere sessie</string>
+    <string name="main_chat_last_you">Jij: %1$s</string>
+    <string name="main_delete_title">Deze chat verwijderen?</string>
+    <string name="main_delete_action">Verwijderen</string>
+    <string name="main_new_chat_default">standaard</string>
+    <string name="main_new_chat_not_signed_in">Niet ingelogd · tik om in te stellen</string>
+    <string name="main_new_chat_not_installed">Niet geïnstalleerd · tik om in te stellen</string>
+    <!-- How long ago a chat changed: very little room. -->
+    <string name="main_ago_now">nu</string>
+    <plurals name="main_ago_minutes">
+        <item quantity="one">%1$d min</item>
+        <item quantity="other">%1$d min</item>
+    </plurals>
+    <plurals name="main_ago_hours">
+        <item quantity="one">%1$d u</item>
+        <item quantity="other">%1$d u</item>
+    </plurals>
+    <plurals name="main_ago_days">
+        <item quantity="one">%1$d d</item>
+        <item quantity="other">%1$d d</item>
+    </plurals>
+
+    <!-- Notification shown after the bubble is dragged away to hide it. -->
+    <string name="notice_channel_name">Verborgen bubbel</string>
+    <string name="notice_hidden_title">Buddy is verborgen</string>
+    <string name="notice_hidden_text">Tik om de bubbel weer te tonen.</string>
+    <string name="notice_open_chats">Chats openen</string>
+
+    <!-- Buddy's own updates (GitHub version): notification, update sheet and messages. -->
+    <string name="update_channel_name">Buddy-updates</string>
+    <string name="update_available_title">Buddy %1$s is beschikbaar</string>
+    <string name="update_notification_text">Je hebt %1$s. Tik om te zien wat er nieuw is en te updaten; je chats blijven bewaard.</string>
+    <string name="update_action">Updaten</string>
+    <string name="update_mute">Niet meer melden</string>
+    <string name="update_muted">Geen updatemeldingen meer. Zet ze weer aan in Instellingen.</string>
+    <string name="update_checking">Controleren op updates…</string>
+    <string name="update_check_failed">Kan GitHub niet bereiken. Probeer het later opnieuw.</string>
+    <string name="update_up_to_date">Buddy %1$s is up-to-date.</string>
+    <string name="update_sheet_text">Je hebt %1$s. Bij het updaten blijven je chats, instellingen en inloggegevens bewaard.</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Downloaden…</string>
+    <string name="update_needs_permission">Sta Buddy toe om apps te installeren en tik daarna opnieuw op Updaten.</string>
+    <string name="update_error_no_apk">Deze release heeft nog geen buddy.apk.</string>
+    <string name="update_error_download">Het downloaden is mislukt (%1$s).</string>
+    <string name="update_error_not_newer">Het gedownloade bestand is geen nieuwere versie van Buddy en is daarom niet geopend.</string>
+    <string name="update_failed_manual">%1$s Je kunt de update ook downloaden via %2$s (buddy.apk), of Obtainium gebruiken voor automatische updates (zie %3$s).</string>
+
+    <!-- Settings, Appearance: option names. -->
+    <string name="prefs_theme_system">Systeem</string>
+    <string name="prefs_theme_light">Licht</string>
+    <string name="prefs_theme_dark">Donker</string>
+    <string name="prefs_surface_warm">Warm</string>
+    <string name="prefs_surface_neutral">Neutraal</string>
+    <string name="prefs_surface_black">Zwart</string>
+    <!-- Accent colour names, read aloud by TalkBack for the colour swatches. -->
+    <string name="prefs_accent_coral">Koraal</string>
+    <string name="prefs_accent_ocean">Oceaan</string>
+    <string name="prefs_accent_mint">Mint</string>
+    <string name="prefs_accent_violet">Violet</string>
+    <string name="prefs_accent_rose">Roze</string>
+    <string name="prefs_accent_amber">Amber</string>
+
+    <!-- ===== The bubble, its hold menu, chat panel and approval cards (Bubble, RadialMenu, ControlIndicator) ===== -->
+
+    <!-- Floating bubble, read by TalkBack. -->
+    <string name="bubble_face_description">Buddy. Tik om te openen, houd ingedrukt voor acties</string>
+    <string name="bubble_show_actions">acties tonen</string>
+
+    <!-- Status pill beside the bubble: at most two lines, about 250dp wide. -->
+    <string name="bubble_pill_waiting_answer">Wacht op je antwoord</string>
+    <string name="bubble_pill_waiting_approval">Wacht op je goedkeuring</string>
+    <string name="bubble_pill_paused">Gepauzeerd · tik hier om te hervatten</string>
+    <string name="bubble_pill_hands_on">%1$s · tik hier om te antwoorden</string>
+    <string name="bubble_using_phone">Bedient je telefoon</string>
+    <string name="bubble_using_phone_status">Bedient je telefoon · %1$s</string>
+    <string name="bubble_pill_background">Op de achtergrond · je kunt je telefoon gebruiken</string>
+    <string name="activity_reading">Leest het scherm</string>
+    <string name="activity_typing">Typt</string>
+    <string name="activity_scrolling">Scrolt</string>
+    <string name="activity_swiping">Veegt</string>
+    <string name="activity_opening">Opent %1$s</string>
+    <string name="activity_tapping">Tikt op ‘%1$s’</string>
+    <string name="activity_tapping_plain">Tikt</string>
+    <string name="activity_browsing">Surft op %1$s · %2$s</string>
+    <string name="activity_browser_opening">Opent de pagina</string>
+    <string name="activity_browser_reading">Leest de pagina</string>
+    <string name="bubble_pill_hold_hint">houd de bubbel ingedrukt voor Stoppen en meer</string>
+    <string name="bubble_pill_status_hold_hint">%1$s · houd de bubbel ingedrukt voor Stoppen en meer</string>
+
+    <!-- Hold menu: actions fanned out around the bubble while it is held. One line, about 12 characters. -->
+    <string name="menu_stop_task">Stoppen</string>
+    <string name="menu_resume">Hervatten</string>
+    <string name="menu_pause">Pauzeren</string>
+    <string name="menu_add_instruction">Aanvullen</string>
+    <string name="menu_stop_voice">Stem uit</string>
+    <string name="bubble_talk">Spreken</string>
+    <string name="menu_open_chat">Chat openen</string>
+    <string name="menu_hide">Verbergen</string>
+
+    <!-- Hold-menu preview: short forms of Stop task, Add instruction and Stop voice. -->
+    <string name="menu_peek_stop">Stop</string>
+    <string name="menu_peek_add">Aanvullen</string>
+    <string name="menu_peek_voice">Stem</string>
+    <string name="menu_peek_hint">Houd me ingedrukt</string>
+
+    <!-- Toasts from the bubble. -->
+    <string name="bubble_tip_stop_voice">Tip: houd de bubbel ingedrukt om de stem te stoppen</string>
+    <string name="bubble_tip_hold_menu">Tip: houd de bubbel ingedrukt om te pauzeren, te stoppen of iets aan te vullen</string>
+    <string name="bubble_stopping">Stoppen…</string>
+    <string name="bubble_nothing_running">Er loopt nu niets in Buddy\'s chats.</string>
+    <string name="bubble_nothing_running_chat">Er loopt nu niets in deze chat.</string>
+    <string name="bubble_allow_mic_tap_mic">Geef Buddy toegang tot de microfoon en tik daarna opnieuw op de microfoon.</string>
+    <string name="bubble_allow_mic_tap_bubble">Geef Buddy toegang tot de microfoon en tik daarna opnieuw op de bubbel.</string>
+    <string name="bubble_note_added">Begrepen: %1$s houdt er rekening mee</string>
+    <string name="bubble_copied">Gekopieerd</string>
+
+    <!-- Voice input, shown in the status pill beside the bubble. -->
+    <string name="bubble_listening">Luisteren…</string>
+    <string name="bubble_listening_tap_done">Luisteren… tik op de bubbel als je klaar bent</string>
+    <string name="bubble_heard">“%1$s”</string>
+
+    <!-- Chat panel opened from the bubble: header buttons (read by TalkBack) and titles. -->
+    <string name="bubble_new_chat">Nieuwe chat</string>
+    <string name="bubble_open_in_app">Openen in de app</string>
+    <string name="bubble_close">Sluiten</string>
+    <string name="bubble_chats_title">Chats</string>
+    <string name="bubble_model_effort_title">Model &amp; inspanning</string>
+
+    <!-- Strip at the top of the chat panel while the agent works. -->
+    <string name="bubble_working">Bezig…</string>
+    <string name="bubble_stop">Stoppen</string>
+
+    <!-- Composer at the bottom of the chat panel. -->
+    <string name="bubble_attach">Foto of bestand bijvoegen</string>
+    <string name="bubble_input_hint">Vraag %1$s…</string>
+    <string name="bubble_paste">Plakken</string>
+    <string name="bubble_send">Verzenden</string>
+    <string name="bubble_empty_chat">Nieuwe chat met %1$s. Vraag me om iets op je telefoon te doen.</string>
+    <plurals name="bubble_tool_calls">
+        <item quantity="one">%1$d toolaanroep</item>
+        <item quantity="other">%1$d toolaanroepen</item>
+    </plurals>
+
+    <!-- List of chats in the panel. -->
+    <string name="bubble_chat_row_working">bezig…</string>
+    <string name="bubble_chat_row_you">Jij: %1$s</string>
+    <string name="bubble_delete_chat">Deze chat verwijderen?</string>
+    <string name="bubble_delete">Verwijderen</string>
+
+    <!-- Agent picker for a new chat (its title is bubble_new_chat). -->
+    <string name="bubble_agent_default">standaard</string>
+    <string name="bubble_agent_not_signed_in">Niet ingelogd · tik om in te stellen</string>
+    <string name="bubble_agent_not_installed">Niet geïnstalleerd · tik om in te stellen</string>
+
+    <!-- Model and effort picker for the current chat. -->
+    <string name="bubble_model_note">Voor deze chat. Het gesprek gaat door; het volgende bericht gebruikt de nieuwe keuze.</string>
+    <string name="bubble_effort">Inspanning</string>
+    <string name="bubble_effort_note">Met Auto beslist de agent zelf. Hogere niveaus denken langer na en verbruiken meer van je abonnement.</string>
+    <string name="bubble_model">Model</string>
+
+    <!-- Card in the chat panel when the agent asks for approval or asks a question. -->
+    <string name="card_label_approval">AKKOORD NODIG</string>
+    <string name="card_label_question">VRAAG</string>
+    <string name="card_label_other_session">%1$s · UIT EEN ANDERE SESSIE</string>
+    <string name="card_label_queue">%1$s · 1 VAN %2$d</string>
+    <string name="card_deny">Afwijzen</string>
+    <string name="card_change">Wijzigen</string>
+    <string name="card_approve">Toestaan</string>
+    <string name="card_skip">Verder</string>
+    <string name="card_type_own_answer">Zelf antwoorden…</string>
+    <string name="card_change_hint">Wat moet er anders?</string>
+    <string name="card_answer_hint">Je antwoord…</string>
+
+    <!-- Notes posted into the chat after the user answers a card. -->
+    <string name="card_note_answered">✓ Beantwoord: %1$s</string>
+    <string name="card_note_change_requested">✎ Wijziging gevraagd: %1$s</string>
+    <string name="card_note_approved">✓ Toegestaan: %1$s</string>
+    <string name="card_note_denied">✗ Afgewezen</string>
+    <string name="card_note_skipped">Vraag overgeslagen</string>
+
+    <!-- Notification while an agent operates the phone; on Android 16 also a chip in the status bar. -->
+    <string name="control_channel_name">Buddy bedient je telefoon</string>
+    <string name="control_channel_description">Wordt in de statusbalk getoond terwijl een agent de telefoon bedient.</string>
+    <string name="control_title">Buddy bedient je telefoon</string>
+    <string name="control_text">Raak het scherm niet aan tot Buddy klaar is, of tik op Stoppen om het over te nemen.</string>
+    <string name="control_stop">Stoppen</string>
+    <string name="pause_call_ended_title">Gesprek beëindigd · Buddy is gepauzeerd</string>
+    <string name="pause_call_ended_text">Tik om de taak te hervatten</string>
+
+    <!-- ===== Full-screen chat, agent progress lines, transcripts, shared UI, voice (ChatActivity, ChatHub, Ui, BuddyService, Voice) ===== -->
+
+    <!-- Chat screen: app bar -->
+    <string name="chat_back">Terug</string>
+    <string name="chat_read_aloud">Antwoorden voorlezen</string>
+    <string name="chat_read_aloud_on">Antwoorden worden voorgelezen</string>
+    <string name="chat_read_aloud_off">Antwoorden worden niet voorgelezen</string>
+
+    <!-- Chat screen: Linux tools, the chip beside the model chip (also in the bubble's panel and the New chat sheets) -->
+    <string name="chat_linux_tools">Linux-tools</string>
+    <string name="chat_linux_tools_info">Opdrachten, bestanden en apps bouwen in Buddy\'s Linux</string>
+    <string name="chat_linux_tools_title">Linux-tools aanzetten?</string>
+    <string name="chat_linux_tools_what">De agent kan dan opdrachten uitvoeren, pakketten installeren en bestanden bewerken in ~/.buddy/work, zodat hij apps kan bouwen.</string>
+    <string name="chat_linux_tools_when">Alleen in deze chat, vanaf je volgende bericht.</string>
+    <string name="chat_linux_tools_risk">Een kwaadwillend bericht of een kwaadwillende webpagina op het scherm kan proberen hem te misleiden zodat hij opdrachten uitvoert. Goedkeuringskaarten bewaken nog steeds verzenden, plaatsen, kopen en verwijderen.</string>
+    <string name="chat_linux_tools_turn_on">Aanzetten</string>
+
+    <string name="chat_options">Chatopties</string>
+    <string name="chat_keep_awake">Scherm aan laten terwijl het werkt</string>
+    <string name="chat_keep_awake_info">Voor lange taken: de telefoon blijft wakker zolang deze chat werkt, en een melding vertelt je hoe het ging. Als je de telefoon vergrendelt, gaat het scherm gewoon uit.</string>
+    <string name="chat_allowed">Toegestaan zonder te vragen</string>
+    <string name="chat_allowed_info">Tot de taak van deze chat klaar is, gaan routinegoedkeuringen in deze apps vanzelf door: een bericht versturen, of een stap waarover de controleur zou vragen. Elke staat in de chat. Betalen, kopen, verwijderen, installeren, wachtwoorden en beveiligingsinstellingen vragen het je nog steeds.</string>
+    <string name="chat_allowed_kept">Bewaard voor de planning van deze chat: deze apps blijven toegestaan voor de geplande taken, tot je ze of de planning verwijdert.</string>
+    <string name="chat_allowed_add">App toevoegen</string>
+    <string name="chat_allowed_remove">%1$s verwijderen</string>
+    <string name="run_rule_approved">Goedgekeurd door je regel voor deze taak: %1$s</string>
+    <string name="run_end_done">%1$s is klaar</string>
+    <string name="run_end_stopped">%1$s is gestopt</string>
+    <string name="run_end_failed">%1$s liep tegen een probleem aan</string>
+    <string name="schedule_title">Planning</string>
+    <string name="schedule_set">Planning instellen</string>
+    <string name="schedule_set_info">Stuur deze chat op vaste tijden vanzelf een bericht, bijv. elke dag om 14:00.</string>
+    <string name="schedule_info">Op de ingestelde tijd stuurt Buddy dit bericht in de chat alsof je het zelf typte, met de agent en opties van deze chat. Goedkeuringskaarten wachten nog steeds op je. Heeft het het scherm nodig terwijl de telefoon vergrendeld is, dan vraagt het je te ontgrendelen.</string>
+    <string name="schedule_time">Tijd</string>
+    <string name="schedule_days">Dagen</string>
+    <string name="schedule_daily">Elke dag</string>
+    <string name="schedule_weekdays">Werkdagen</string>
+    <string name="schedule_pick_days">Dagen kiezen</string>
+    <string name="schedule_message">Bericht</string>
+    <string name="schedule_message_hint">Wat te sturen, bijv. Open de app en doe de check-in van vandaag</string>
+    <string name="schedule_wake">Telefoon wekken voor deze taak</string>
+    <string name="schedule_wake_info">Als het het scherm nodig heeft, gaat het scherm aan (en een vergrendelscherm zonder pincode, patroon of vingerafdruk gaat open). Zolang het loopt, kan iedereen in de buurt het scherm zien.</string>
+    <string name="schedule_inexact">Exacte wekkers staan uit voor Buddy, dus het kan een paar minuten later beginnen.</string>
+    <string name="schedule_allow_exact">Exacte wekkers toestaan</string>
+    <string name="schedule_save">Opslaan</string>
+    <string name="schedule_remove">Verwijderen</string>
+    <string name="schedule_summary_daily">Elke dag om %1$s</string>
+    <string name="schedule_summary_weekdays">Werkdagen om %1$s</string>
+    <string name="schedule_summary_days">%1$s om %2$s</string>
+    <string name="schedule_next">Volgende: %1$s</string>
+    <string name="schedule_no_days">Kies minstens één dag</string>
+    <string name="schedule_no_message">Schrijf het bericht dat verstuurd moet worden</string>
+    <string name="schedule_channel">Geplande taken</string>
+    <string name="schedule_screen_title">Geplande taak heeft je scherm nodig: ontgrendel om door te gaan</string>
+    <string name="schedule_screen_text">%1$s: gaat verder als je de telefoon ontgrendelt, tot %2$s.</string>
+    <string name="schedule_skipped_title">Geplande taak overgeslagen: %1$s</string>
+    <string name="schedule_stopped_title">Geplande taak gestopt: %1$s</string>
+    <string name="schedule_skip_running">Deze chat was nog bezig met zijn vorige taak.</string>
+    <string name="schedule_skip_busy">Buddy was een uur bezig (een andere taak, een pauze of geen internet).</string>
+    <string name="schedule_skip_screen">De telefoon bleef een uur vergrendeld.</string>
+    <string name="schedule_marker">Gepland</string>
+
+    <!-- Chat screen: the strip shown while the agent works -->
+    <string name="chat_stop">Stoppen</string>
+    <string name="chat_working">Bezig…</string>
+
+    <!-- Chat screen: composer and empty chat -->
+    <string name="chat_attach_description">Foto of bestand bijvoegen</string>
+    <string name="chat_input_hint">Vraag %1$s…</string>
+    <string name="chat_input_hint_running">Voeg een instructie toe terwijl hij bezig is…</string>
+    <string name="chat_talk">Spreken</string>
+    <string name="chat_send">Verzenden</string>
+    <string name="chat_empty_hint">Nieuwe chat met %1$s. Vraag hem om iets op je telefoon te doen.</string>
+    <string name="chat_empty_hint_dev">Nieuwe chat met %1$s en Linux-tools. Vraag hem om iets op je telefoon te doen of om een app te bouwen.</string>
+
+    <!-- Model sheet (tap the model chip under the chat title) -->
+    <string name="chat_model_title">Model voor %1$s</string>
+    <string name="chat_model_subtitle">Voor deze chat. Het gesprek gaat verder met het nieuwe model.</string>
+    <string name="chat_effort">Inspanning</string>
+    <string name="chat_effort_help">Met Auto beslist de agent zelf. Hogere niveaus denken langer na en verbruiken meer van je abonnement.</string>
+    <string name="chat_model">Model</string>
+    <string name="chat_model_other_hint">ander… bijv. %1$s</string>
+    <string name="chat_model_use">Gebruiken</string>
+
+    <!-- Language sheet (long-press the mic) -->
+    <string name="chat_speak_in">Spreken in</string>
+    <string name="chat_speak_in_help">Kies je talen in Instellingen → Spraak.</string>
+    <string name="live_option">Live stem</string>
+    <string name="live_option_sub">Praat hardop met %1$s. Het antwoordt met de stem van ChatGPT en werkt in deze chat op de telefoon.</string>
+    <string name="live_label">Live</string>
+    <string name="live_end">Beëindigen</string>
+    <string name="live_connecting">Verbinden…</string>
+    <string name="live_started">Live stem staat aan. Praat maar: %1$s hoort je, antwoordt hardop en doet in deze chat wat je vraagt.</string>
+    <string name="live_ended">Live stem beëindigd.</string>
+    <string name="live_ended_why">Live stem beëindigd: %1$s</string>
+    <string name="live_ended_screen_off">het scherm ging uit</string>
+    <string name="live_ended_paused">Buddy is gepauzeerd</string>
+    <string name="live_ended_idle">er is 5 minuten niets gezegd</string>
+    <string name="live_notification_title">Live stem met %1$s</string>
+    <string name="live_mic_busy">De live stem gebruikt de microfoon. Beëindig die eerst.</string>
+    <string name="live_hint">Nieuw: praat live met %1$s</string>
+    <string name="live_status_listening">Luistert…</string>
+    <string name="live_status_thinking">Denkt na…</string>
+    <string name="live_status_working">Bezig…</string>
+    <string name="live_status_speaking">Spreekt…</string>
+    <string name="chat_phone_voice">via telefoon</string>
+
+    <!-- Approval card above the composer, when the agent asks for an OK or asks a question -->
+    <string name="chat_card_question">VRAAG</string>
+    <string name="chat_card_needs_ok">AKKOORD NODIG</string>
+    <string name="chat_deny">Afwijzen</string>
+    <string name="chat_change">Wijzigen</string>
+    <string name="chat_approve">Toestaan</string>
+    <string name="chat_skip">Verder</string>
+    <string name="chat_type_own_answer">Zelf antwoorden</string>
+    <string name="chat_answer_hint">Je antwoord</string>
+    <string name="chat_change_hint">Wat moet er anders?</string>
+    <string name="chat_send_answer">Antwoord verzenden</string>
+    <string name="chat_send_change">Wijziging verzenden</string>
+
+    <!-- Attachments -->
+    <string name="chat_attach">Bijvoegen</string>
+    <string name="chat_attach_camera">Foto maken</string>
+    <string name="chat_attach_camera_sub">De camera gebruiken</string>
+    <string name="chat_attach_photos">Foto\'s</string>
+    <string name="chat_attach_photos_sub">Kiezen uit je galerij</string>
+    <string name="chat_attach_files">Bestanden</string>
+    <string name="chat_attach_files_sub">PDF\'s, documenten, alles tot 25 MB</string>
+    <string name="chat_no_app_for_action">Er is geen app op deze telefoon die dat kan.</string>
+    <string name="chat_adding">Toevoegen…</string>
+    <plurals name="chat_adding_files">
+        <item quantity="one">%1$d bestand toevoegen…</item>
+        <item quantity="other">%1$d bestanden toevoegen…</item>
+    </plurals>
+    <string name="chat_attachment_remove">Verwijderen</string>
+    <string name="chat_no_app_for_file">Er is geen app die %1$s kan openen.</string>
+
+    <!-- Chat messages -->
+    <string name="chat_copied">Gekopieerd</string>
+    <plurals name="chat_tool_calls">
+        <item quantity="one">%1$d toolaanroep</item>
+        <item quantity="other">%1$d toolaanroepen</item>
+    </plurals>
+
+    <!-- Notes Buddy posts into a chat, and the chat's status line -->
+    <string name="hub_continuing">Een eerdere sessie van %1$s wordt voortgezet. Als die nog open is in een terminal, sluit die daar dan eerst.</string>
+    <string name="hub_still_working_attachments">Deze chat is nog bezig. Stuur bijlagen als hij klaar is.</string>
+    <string name="hub_thinking">Denkt na…</string>
+    <string name="hub_still_waiting">Wacht nog op antwoord van het model…</string>
+    <string name="hub_no_answer">Het model heeft niet geantwoord. Misschien is het overbelast: probeer het opnieuw of kies bovenaan de chat een ander model.</string>
+    <string name="hub_model_set">Model: %1$s</string>
+    <string name="hub_effort_set">Inspanning: %1$s</string>
+    <string name="hub_effort_default">Inspanning: standaard</string>
+    <string name="hub_stopping">Stoppen…</string>
+    <string name="hub_stopped">Gestopt.</string>
+    <string name="hub_interrupted">Android sloot Buddy terwijl de agent bezig was, dus hij is gestopt.</string>
+    <string name="hub_resume_message">Ga verder waar je gebleven was</string>
+    <string name="chat_interrupted">Android sloot Buddy terwijl %1$s hieraan werkte. Doorgaan kijkt wat al gedaan is en gaat vanaf daar verder.</string>
+    <string name="chat_interrupted_continue">Doorgaan</string>
+    <string name="chat_interrupted_dismiss">Sluiten</string>
+    <string name="hub_agent_stopped">%1$s is gestopt.</string>
+    <string name="hub_something_wrong">Er is iets misgegaan.</string>
+    <string name="hub_note_added">Toegevoegd tijdens het werk: %1$s krijgt het bij de volgende stap</string>
+    <string name="hub_note_not_sent">Je hebt gestopt, dus je notitie is niet verstuurd: hij staat weer in het berichtvak</string>
+    <string name="hub_note_passed">Je aanvulling is doorgegeven</string>
+    <plurals name="hub_pill_chats">
+        <item quantity="one">%1$d chat · %2$s</item>
+        <item quantity="other">%1$d chats · %2$s</item>
+    </plurals>
+
+    <!-- The agent's steps, one line each, shown in the chat and the bubble while it works. -->
+    <string name="hub_tool_read_screen">Leest het scherm</string>
+    <string name="hub_tool_screenshot">Maakt een screenshot</string>
+    <string name="hub_tool_tap_element">Tikt op element %1$d</string>
+    <string name="hub_tool_tap_point">Tikt op (%1$d, %2$d)</string>
+    <string name="hub_tool_long_press">Houdt ingedrukt</string>
+    <string name="hub_tool_type">Typt “%1$s”</string>
+    <string name="hub_tool_scroll_up">Scrolt omhoog</string>
+    <string name="hub_tool_scroll_down">Scrolt omlaag</string>
+    <string name="hub_tool_scroll_left">Scrolt naar links</string>
+    <string name="hub_tool_scroll_right">Scrolt naar rechts</string>
+    <string name="hub_tool_scroll">Scrolt: %1$s</string>
+    <string name="hub_tool_swipe">Veegt</string>
+    <string name="hub_tool_press_back">Gaat terug</string>
+    <string name="hub_tool_press_home">Gaat naar het startscherm</string>
+    <string name="hub_tool_press_recents">Opent recente apps</string>
+    <string name="hub_tool_press_notifications">Opent de meldingen</string>
+    <string name="hub_tool_press_quick_settings">Opent snelle instellingen</string>
+    <string name="hub_tool_press">Drukt op %1$s</string>
+    <string name="hub_tool_open_app">Opent %1$s</string>
+    <string name="hub_tool_open_url">Opent %1$s</string>
+    <string name="hub_tool_clipboard_read">Leest het klembord</string>
+    <string name="hub_tool_clipboard_write">Kopieert naar het klembord</string>
+    <string name="hub_tool_set_alarm">Zet een wekker voor %1$s</string>
+    <string name="hub_tool_set_timer">Start een timer</string>
+    <string name="hub_tool_share">Opent het deelmenu</string>
+    <string name="hub_tool_save_downloads">Slaat %1$s op in Downloads</string>
+    <string name="hub_tool_device_status">Controleert de telefoon</string>
+    <string name="hub_tool_take_photo">Opent de camera</string>
+    <string name="hub_tool_location">Bepaalt de locatie</string>
+    <string name="hub_tool_notifications">Leest meldingen</string>
+    <string name="hub_tool_media">Mediabediening</string>
+    <string name="hub_tool_calendar_events">Leest de agenda</string>
+    <string name="hub_tool_add_event">Zet in de agenda: %1$s</string>
+    <string name="hub_tool_wait_for">Wacht op het scherm</string>
+    <string name="hub_tool_do_steps">Voert %1$d stappen uit</string>
+    <string name="hub_tool_collect">Leest de hele lijst</string>
+    <string name="hub_tool_find">Zoekt naar “%1$s”</string>
+    <string name="schedules_title">Gepland</string>
+    <string name="schedules_row">Taken en herinneringen van alle chats</string>
+    <string name="schedules_intro">De geplande taak van elke chat en de berichten en herinneringen die agents hebben gepland. Tik op de naam van een chat om hem te openen.</string>
+    <string name="schedules_none">Niets gepland. Stel een taak in via de chatopties → Planning, of vraag een agent je ergens aan te herinneren.</string>
+    <string name="schedules_paused">gepauzeerd</string>
+    <string name="schedules_quiet_tag">alleen nieuws</string>
+    <string name="schedules_run_now">Nu uitvoeren</string>
+    <string name="schedules_started">Gestart (of wacht tot de chat vrij is).</string>
+    <string name="schedules_pause">Pauzeren</string>
+    <string name="schedules_resume">Hervatten</string>
+    <string name="schedules_reminder">Herinnering</string>
+    <string name="schedule_quiet">Alleen melden als er nieuws is</string>
+    <string name="schedule_quiet_info">Als een uitvoering niets nieuws vindt, eindigt die zonder melding. Het antwoord staat wel in de chat, en bij een probleem krijg je altijd een melding.</string>
+    <string name="schedule_reminder_title">Herinnering</string>
+    <string name="schedule_reminder_line">Herinnering: %1$s</string>
+    <string name="steps_view">Stappen bekijken</string>
+    <string name="steps_title">Stappen</string>
+    <string name="steps_intro">Wat de agent op de telefoon deed in de laatste 3 uitvoeringen van deze chat, met hoe het scherm eruitzag na elke stap. Alleen op deze telefoon bewaard, verwijderd met de chat. Tik op een afbeelding om die groter te zien.</string>
+    <string name="steps_none">Nog geen stappen in deze chat.</string>
+    <string name="steps_run">%1$s · %2$s · %3$d stappen · %4$s</string>
+    <string name="steps_run_live">%1$s · tot nu toe %2$d stappen</string>
+    <string name="steps_context">context %1$s</string>
+    <string name="steps_no_actions">Geen acties op de telefoon in deze uitvoering.</string>
+    <string name="steps_done">klaar</string>
+    <string name="steps_failed">mislukt</string>
+    <string name="steps_stopped">gestopt</string>
+    <string name="hub_tool_list_apps">Haalt de lijst met apps op</string>
+    <string name="hub_tool_approved">✓ Toegestaan: %1$s</string>
+    <string name="hub_tool_change_requested">✎ Wijziging gevraagd</string>
+    <string name="hub_tool_change_requested_text">✎ Wijziging gevraagd: %1$s</string>
+    <string name="hub_tool_denied">✗ Afgewezen</string>
+    <string name="hub_tool_asking_approval">Vraagt om je goedkeuring</string>
+    <string name="hub_tool_answered">✓ Beantwoord</string>
+    <string name="hub_tool_answered_text">✓ Beantwoord: %1$s</string>
+    <string name="hub_tool_question_skipped">Vraag overgeslagen</string>
+    <string name="hub_tool_asking">Vraagt: %1$s</string>
+    <string name="hub_tool_point_out">Wijst aan: %1$s</string>
+    <string name="hub_tool_point_out_any">Wijst iets aan op het scherm</string>
+    <string name="hub_tool_update_download">Downloadt de Buddy-update</string>
+    <string name="hub_tool_update_check">Zoekt naar een Buddy-update</string>
+    <string name="hub_tool_web_search">Zoekt op het web: %1$s</string>
+    <string name="hub_tool_web_fetch">Leest %1$s</string>
+    <string name="hub_tool_command">Voert uit: %1$s</string>
+    <string name="hub_tool_command_any">Voert een opdracht uit</string>
+    <string name="hub_tool_edit">Bewerkt %1$s</string>
+    <string name="hub_tool_edit_any">Bewerkt bestanden</string>
+    <string name="hub_tool_read_file">Leest %1$s</string>
+    <string name="hub_tool_other">Gebruikt %1$s</string>
+
+    <!-- Transcript of an earlier agent session that isn't a Buddy chat (read-only) -->
+    <string name="transcript_loading">Laden…</string>
+    <string name="transcript_continue">Doorgaan in Buddy</string>
+    <string name="transcript_empty">Geen leesbare berichten in deze sessie.</string>
+    <plurals name="transcript_last_messages">
+        <item quantity="one">laatste bericht · alleen-lezen</item>
+        <item quantity="other">laatste %1$d berichten · alleen-lezen</item>
+    </plurals>
+
+    <!-- Shared screens: links -->
+    <string name="ui_no_app_for_link">Er is geen app die deze link kan openen</string>
+
+    <!-- Accessibility disclosure, shown before Android's accessibility settings open (required by Google Play) -->
+    <string name="ui_a11y_title">Hoe Buddy toegankelijkheid gebruikt</string>
+    <string name="ui_a11y_what">Buddy gebruikt de toegankelijkheidsservice van Android om in andere apps te doen wat je vraagt: Buddy leest wat er op het scherm staat en tikt, typt en scrolt voor je. Buddy toont ook de zwevende bubbel.</string>
+    <string name="ui_a11y_data">Terwijl een taak loopt, wordt de scherminhoud, die persoonlijke gegevens kan bevatten zoals berichten, namen of adressen, naar de AI-dienst van de door jou gekozen agent gestuurd (Anthropic voor Claude Code, OpenAI voor Codex, Google voor Antigravity, xAI voor Grok of de aanbieder van je OpenCode-model), uitsluitend om je verzoek uit te voeren.</string>
+    <string name="ui_a11y_no_servers">Buddy heeft geen eigen servers. Buddy verzamelt, verkoopt of deelt deze gegevens niet en gebruikt ze niet voor advertenties.</string>
+    <string name="ui_a11y_asks">Voordat er iets wordt verzonden, geplaatst, gekocht of verwijderd, vraagt Buddy om je akkoord. Je kunt de service altijd uitzetten in de toegankelijkheidsinstellingen van Android.</string>
+    <string name="ui_privacy_policy">Privacybeleid</string>
+    <string name="ui_no_thanks">Nee, bedankt</string>
+    <string name="ui_agree_continue">Akkoord en doorgaan</string>
+
+    <!-- Bottom navigation of the main screens. Keep very short (about 10 characters). -->
+    <string name="ui_nav_chats">Chats</string>
+    <string name="ui_nav_sessions">Sessies</string>
+    <string name="ui_nav_settings">Instellingen</string>
+
+    <!-- Accessibility service: pause from the bubble's hold menu, Stop on the control indicator -->
+    <string name="service_pause_expired">Na 5 minuten pauze heeft Buddy de taak gestopt.</string>
+    <string name="service_stopped_toast">Gestopt. Je telefoon is weer van jou.</string>
+    <string name="service_paused_note">Gepauzeerd: de telefoon is van jou tot je hervat</string>
+    <string name="service_paused_toast">Gepauzeerd. Gebruik je telefoon en tik daarna op ‘Gepauzeerd’ naast de bubbel om te hervatten.</string>
+    <string name="service_resumed_note">Hervat</string>
+    <string name="service_autopaused_touch">Gepauzeerd omdat je het scherm aanraakte. Tik op ‘Gepauzeerd’ naast de bubbel om te hervatten.</string>
+    <string name="service_autopaused_call">Gepauzeerd vanwege een oproep. Tik op ‘Gepauzeerd’ naast de bubbel om te hervatten.</string>
+
+    <!-- Voice input and output -->
+    <string name="voice_mic_needed">Buddy heeft de microfoon nodig. Open de Buddy-app en tik één keer op 🎙 om toegang te geven.</string>
+    <string name="voice_no_recognizer">Deze telefoon heeft geen spraakherkenningsservice.</string>
+    <string name="voice_starting">Starten…</string>
+    <string name="voice_finishing">Bijna klaar…</string>
+    <string name="voice_didnt_catch">Dat heb ik niet verstaan.</string>
+    <string name="voice_error">Spraakherkenningsfout %1$d.</string>
+    <string name="voice_code_omitted">code weggelaten.</string>
+    <string name="voice_link">link</string>
+    <string name="voice_stop_and_send">Stoppen en verzenden</string>
+
+    <!-- ===== Sign-in, agents and models (SignInActivity, Account, Models, Sessions, RemoteSession, Attachments) ===== -->
+
+    <!-- Sign-in screen (one per agent: Claude Code, Codex or OpenCode). -->
+    <string name="signin_back">Terug</string>
+    <string name="signin_checking">Controleren…</string>
+
+    <!-- Sign-in screen: the agent isn't installed yet. -->
+    <string name="signin_install">%1$s installeren</string>
+    <string name="signin_install_sub_claude">Draait Claude Code binnen Buddy met je Claude-abonnement.</string>
+    <string name="signin_install_sub_opencode">Draait OpenCode binnen Buddy. De gratis modellen werken meteen, zonder account; koppel je eigen aanbieders (Anthropic, OpenAI, GitHub Copilot…) wanneer je wilt.</string>
+    <string name="signin_install_sub_codex">Draait Codex binnen Buddy met je ChatGPT-abonnement.</string>
+    <string name="signin_install_sub_agy">Draait Googles Antigravity CLI binnen Buddy met je Google-account: gratis abonnement, Google AI Pro of Ultra.</string>
+    <string name="signin_install_sub_grok">Draait Grok Build van xAI binnen Buddy met je Grok-account (inloggen met Google of X kan ook).</string>
+    <string name="signin_install_size_claude">Downloadt eenmalig ongeveer 235 MB: Buddy\'s Linux en Claude Code van Anthropic. Gebruik wifi als dat kan.</string>
+    <string name="signin_install_size_opencode">Downloadt eenmalig ongeveer 230 MB: Buddy\'s Linux, Node.js en OpenCode. Gebruik wifi als dat kan.</string>
+    <string name="signin_install_size_codex">Downloadt eenmalig ongeveer 150 MB: Buddy\'s Linux, Node.js en Codex van OpenAI. Gebruik wifi als dat kan.</string>
+    <string name="signin_install_size_agy">Downloadt eenmalig ongeveer 200 MB: Buddy\'s Linux en de Antigravity CLI van Google. Gebruik wifi als dat kan.</string>
+    <string name="signin_install_size_grok">Downloadt eenmalig ongeveer 170 MB: Buddy\'s Linux en Grok Build van xAI. Gebruik wifi als dat kan.</string>
+
+    <!-- Sign-in screen: install or update in progress (screen titles). -->
+    <string name="signin_installing">Installeren</string>
+    <string name="signin_updating">Updaten</string>
+    <string name="signin_install_wait">Dit duurt een paar minuten. Je kunt dit scherm verlaten; het gaat gewoon door.</string>
+
+    <!-- Sign-in screen: installed, not signed in. -->
+    <string name="signin_title_claude">Inloggen bij Claude</string>
+    <string name="signin_title_chatgpt">Inloggen bij ChatGPT</string>
+    <string name="signin_title_google">Inloggen bij Google</string>
+    <string name="signin_title_grok">Inloggen bij Grok</string>
+    <string name="signin_sub_claude">Gebruik je Claude-account (Pro of Max). Je browser wordt geopend; keur het daar goed en Buddy komt vanzelf terug.</string>
+    <string name="signin_sub_chatgpt">Gebruik je ChatGPT-account (Plus, Pro of Business). Je browser wordt geopend; keur het daar goed en Buddy komt vanzelf terug.</string>
+    <string name="signin_sub_agy">Gebruik je Google-account. Je browser wordt geopend; log daar in en Buddy pakt de code vanzelf op. Antigravity wacht ongeveer een minuut.</string>
+    <string name="signin_sub_grok">Gebruik je Grok-account; inloggen met Google of X kan ook. Je browser wordt geopend met een code; bevestig die daar en Buddy komt vanzelf terug.</string>
+    <string name="signin_with_claude">Inloggen met Claude</string>
+    <string name="signin_with_chatgpt">Inloggen met ChatGPT</string>
+    <string name="signin_with_google">Inloggen met Google</string>
+    <string name="signin_with_grok">Inloggen met Grok</string>
+    <string name="signin_other_device">Inloggen op een ander apparaat</string>
+    <string name="signin_with_code">Inloggen met een code</string>
+
+    <!-- Sign-in screen: sign-in in progress. -->
+    <string name="signin_sign_in">Inloggen</string>
+    <string name="signin_starting">Inloggen wordt gestart…</string>
+    <string name="signin_approve_title">Goedkeuren in je browser</string>
+    <string name="signin_approve_claude">Tik op de Claude-pagina op Autoriseren. Buddy pakt de code op en komt vanzelf terug.</string>
+    <string name="signin_approve_codex">Log in en geef Codex toegang. Kom daarna terug naar Buddy; de rest gaat vanzelf.</string>
+    <string name="signin_approve_agy">Log in en geef Antigravity toegang. Buddy pakt de code op die de pagina toont en komt vanzelf terug. Duurt het langer dan een minuut, start het inloggen dan opnieuw.</string>
+    <string name="signin_approve_grok">Controleer of de pagina %1$s toont, bevestig dan en log in. Buddy komt vanzelf terug.</string>
+    <string name="signin_open_again">Inlogpagina opnieuw openen</string>
+    <string name="signin_signing_in">Bezig met inloggen</string>
+    <string name="signin_finishing">Inloggen afronden…</string>
+    <string name="signin_not_finished">Inloggen is niet voltooid. %1$s</string>
+
+    <!-- Sign-in screen: signing in from another device. -->
+    <string name="signin_remote_claude">Open deze link op een willekeurig apparaat en keur het goed. Kopieer daarna de code die de pagina toont en plak die hieronder.</string>
+    <string name="signin_enter_code">Voer deze code in</string>
+    <string name="signin_remote_codex">Open op een willekeurig apparaat de link hieronder, log in bij ChatGPT en voer de code in. Buddy rondt het vanzelf af.</string>
+    <string name="signin_remote_agy">Open deze link op een willekeurig apparaat en log in. Kopieer daarna de code die de pagina toont en plak die hieronder, binnen ongeveer een minuut.</string>
+    <string name="signin_remote_grok">Open op een willekeurig apparaat de link hieronder, log in bij Grok en bevestig de code. Buddy rondt het vanzelf af.</string>
+    <string name="signin_copy_code">Code kopiëren</string>
+    <string name="signin_code_copied">Code gekopieerd</string>
+    <string name="signin_code_expiry">De code is 15 minuten geldig.</string>
+    <string name="signin_copy_link">Link kopiëren</string>
+    <string name="signin_link_copied">Link gekopieerd</string>
+    <string name="signin_share">Delen</string>
+    <string name="signin_open_here">Hier openen</string>
+    <string name="signin_no_browser">Geen browser gevonden.</string>
+    <string name="signin_no_browser_page">Geen browser gevonden om de inlogpagina te openen.</string>
+    <string name="signin_clip_label">Inloggen</string>
+
+    <!-- Sign-in screen: fold-out box for pasting Claude's sign-in code by hand. -->
+    <string name="signin_paste_instead">Code handmatig plakken</string>
+    <string name="signin_paste_help">Komt Buddy niet vanzelf terug? Tik op de Claude-pagina op “Code kopiëren” en plak de code hier.</string>
+    <string name="signin_paste_help_agy">Komt Buddy niet vanzelf terug? Tik op de Antigravity-pagina op “Copy to Clipboard” en plak de code hier.</string>
+    <string name="signin_code_hint">code</string>
+    <string name="signin_use_code">Gebruiken</string>
+    <string name="signin_start_again">Start eerst het inloggen opnieuw.</string>
+
+    <!-- Sign-in screen: signed in, or OpenCode installed (it needs no sign-in). -->
+    <string name="signin_signed_in">Ingelogd</string>
+    <string name="signin_agent_ready">%1$s is klaar voor gebruik.</string>
+    <string name="signin_done">Klaar</string>
+    <string name="signin_sign_out">Uitloggen</string>
+    <string name="signin_sign_out_title">Uitloggen bij %1$s?</string>
+    <string name="signin_sign_out_text">%1$s werkt in Buddy pas weer als je opnieuw inlogt.</string>
+    <string name="signin_opencode_ready">OpenCode is klaar voor gebruik</string>
+    <string name="signin_opencode_free">Gebruikt de gratis modellen van OpenCode. Kies per chat bovenaan een model, of koppel je eigen aanbieder.</string>
+    <string name="signin_opencode_connected">Gekoppeld: %1$s. De gratis modellen van OpenCode blijven ook beschikbaar.</string>
+    <string name="signin_opencode_connect_note">Een aanbieder koppelen opent Buddy\'s terminal met %1$s: kies een aanbieder en volg de stappen. Voer daar later %2$s uit om er een te verwijderen.</string>
+    <string name="signin_connect_provider">Aanbieder koppelen</string>
+    <string name="signin_version">%1$s %2$s.</string>
+    <string name="signin_version_old_opencode">OpenCode %1$s. OpenCode 2 is uit: update om nieuwe versies te blijven krijgen. Je gekoppelde aanbieders blijven behouden.</string>
+    <string name="signin_update_opencode2">Updaten naar OpenCode 2</string>
+    <string name="signin_check_updates">Controleren op updates</string>
+
+    <!-- Sign-in screen: error. -->
+    <string name="signin_error_title">Er is iets misgegaan</string>
+    <string name="signin_try_again">Opnieuw proberen</string>
+
+    <!-- Agent status shown on the sign-in, setup and onboarding screens. -->
+    <string name="account_tagline_claude">Gebruikt je Claude-abonnement</string>
+    <string name="account_tagline_opencode">Zonder account of met je eigen aanbieders</string>
+    <string name="account_tagline_codex">Gebruikt je ChatGPT-abonnement</string>
+    <string name="account_tagline_agy">Gebruikt je Google-account</string>
+    <string name="account_tagline_grok">Gebruikt je Grok-account</string>
+    <string name="agent_tag_free">gratis · beperkt</string>
+    <string name="account_setting_up_linux">Buddy\'s Linux instellen…</string>
+    <string name="account_installing_tools">Tools installeren…</string>
+    <string name="account_downloading_claude">Claude Code downloaden (ongeveer 230 MB)…</string>
+    <string name="account_downloading">%1$s downloaden…</string>
+    <string name="account_check_failed">Kan %1$s niet controleren: %2$s</string>
+    <string name="account_install_failed">Installatie mislukt: %1$s</string>
+    <string name="account_install_no_space">Er is niet genoeg vrije ruimte op de telefoon. Maak ongeveer 1 GB vrij en probeer het opnieuw.</string>
+    <string name="account_install_network">Buddy kon de downloadserver niet bereiken. Controleer wifi of mobiele data (of een vpn of privé-dns die hem blokkeert) en probeer het opnieuw.</string>
+    <string name="account_install_refused">De downloadserver weigerde het verzoek of vroeg om het rustiger aan te doen. Probeer het over een paar minuten opnieuw.</string>
+    <string name="account_install_space_needed">Maar %1$s vrij. Een agent installeren vraagt ongeveer 1 GB: maak ruimte vrij en probeer het opnieuw.</string>
+    <string name="signin_details">Details</string>
+    <string name="account_update_checking">Zoeken naar een nieuwe versie van %1$s…</string>
+    <string name="account_update_latest">Je hebt de nieuwste versie (%1$s).</string>
+    <string name="account_updated">Bijgewerkt naar %1$s.</string>
+    <string name="account_updated_from">Bijgewerkt naar %1$s (was %2$s).</string>
+    <string name="account_update_opencode2_failed">Updaten naar OpenCode 2 is mislukt; je hebt nog steeds %1$s. Probeer het opnieuw via wifi.</string>
+    <string name="account_update_failed">Update mislukt: %1$s</string>
+
+    <!-- Model and effort pickers of a chat, and the chat's chip ("agent · model · effort"). -->
+    <string name="models_default">Standaard</string>
+    <string name="models_name_default">%1$s (standaard)</string>
+    <string name="models_default_model">standaardmodel</string>
+    <string name="models_default_now">nu %1$s</string>
+    <string name="models_default_claude">Claude Code kiest het op basis van je abonnement; na het eerste bericht zie je het hier</string>
+    <string name="models_default_codex">Codex kiest het; na het volgende antwoord zie je het hier</string>
+    <string name="models_default_opencode">Standaardmodel van OpenCode</string>
+    <string name="models_default_agy">Standaardmodel van Antigravity</string>
+    <string name="models_default_grok">Standaardmodel van Grok</string>
+    <!-- Effort levels in a row of up to 6 segments: about 5 characters each. -->
+    <string name="models_effort_auto">Auto</string>
+    <string name="models_effort_low">Laag</string>
+    <string name="models_effort_medium">Matig</string>
+    <string name="models_effort_high">Hoog</string>
+    <string name="models_effort_xhigh">Extra</string>
+    <string name="models_effort_max">Max</string>
+    <string name="models_chip_effort">inspanning %1$s</string>
+
+    <!-- Chats. -->
+    <string name="session_new_chat">Nieuwe chat met %1$s</string>
+    <plurals name="attach_count">
+        <item quantity="one">📎 %1$d bijlage</item>
+        <item quantity="other">📎 %1$d bijlagen</item>
+    </plurals>
+
+    <!-- Attaching a photo or file to a chat message (toasts). -->
+    <string name="attach_cant_open">Kan %1$s niet openen</string>
+    <string name="attach_too_large">%1$s is groter dan 25 MB.</string>
+
+    <!-- Remote Control session in Settings: a Claude Code session that can be continued from the Claude app. -->
+    <string name="remote_sign_in_first">Log eerst in bij Claude Code.</string>
+    <string name="remote_starting">Starten…</string>
+    <string name="remote_restarting">Opnieuw starten…</string>
+    <string name="remote_start_failed">Kan niet starten: %1$s</string>
+    <string name="remote_keeps_stopping">De sessie stopt steeds. Zet hem uit en weer aan, of controleer of je bij Claude Code bent ingelogd.</string>
+    <string name="codex_pair_getting">Code ophalen…</string>
+    <string name="codex_pair_text">Voer deze code in ChatGPT in: in Codex op een telefoon, of via Instellingen → Verbindingen → Andere apparaten bedienen op een computer. Hij werkt één keer, tot %1$s. Buddy staat daar als “localhost”.</string>
+    <string name="codex_pair_failed">Kan geen koppelcode ophalen: %1$s</string>
+    <string name="codex_keeps_stopping">De Codex-sessie stopt steeds: %1$s</string>
+    <string name="ssh_keeps_stopping">De SSH-server stopt steeds: %1$s</string>
+    <string name="ssh_key_added">Klaar. Typ ssh buddy om Buddy\'s Linux vanuit Termux te openen.</string>
+    <string name="ssh_code_expired">Deze opdracht is al gebruikt of is ouder dan 10 minuten. Kopieer hem opnieuw in de Instellingen van Buddy.</string>
+
+    <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
+
+    <!-- Settings screen: header. -->
+    <string name="setup_settings_title">Instellingen</string>
+    <string name="setup_settings_subtitle">Buddy draait Claude Code, Codex, OpenCode, Antigravity of Grok in de app, met je eigen abonnement (of de gratis modellen van OpenCode en het gratis abonnement van Antigravity).</string>
+
+    <!-- Settings screen: the setup checklist card (5 steps). -->
+    <string name="setup_card_title">Instellen</string>
+    <string name="setup_open_guide">Stapsgewijze uitleg openen</string>
+    <string name="setup_all_set">Alles is ingesteld. Buddy is klaar voor gebruik.</string>
+    <string name="setup_next_step">Volgende stap: %1$s</string>
+    <string name="setup_step_a11y_title">Toegankelijkheidsservice van Buddy aanzetten</string>
+    <string name="setup_step_a11y_body">Hiermee verschijnt de bubbel en kan Buddy het scherm lezen en voor je tikken en typen.</string>
+    <string name="setup_step_a11y_restricted">Schakelaar grijs (“Beperkte instelling”)? Android blokkeert dit voor apps die vanuit een bestand zijn geïnstalleerd. Tik op App-info, dan rechtsboven op ⋮ → Beperkte instellingen toestaan, en probeer het opnieuw.</string>
+    <string name="setup_open_settings">Instellingen openen</string>
+    <string name="setup_app_info">App-info</string>
+    <string name="setup_step_install_title">%1$s installeren</string>
+    <string name="setup_step_install_done">%1$s is geïnstalleerd in Buddy.</string>
+    <string name="setup_step_install_claude">Buddy downloadt zijn eigen kleine Linux en %1$s van Anthropic (ongeveer 235 MB).</string>
+    <string name="setup_step_install_opencode">Buddy downloadt zijn eigen kleine Linux en %1$s (ongeveer 230 MB met Node.js).</string>
+    <string name="setup_step_install_codex">Buddy downloadt zijn eigen kleine Linux en %1$s van OpenAI (ongeveer 150 MB).</string>
+    <string name="setup_step_install_grok">Buddy downloadt zijn eigen kleine Linux en %1$s van xAI (ongeveer 170 MB).</string>
+    <string name="setup_install">Installeren</string>
+    <string name="setup_step_signin_title">Inloggen</string>
+    <string name="setup_step_signin_opencode_done">Inloggen is niet nodig: de gratis modellen van OpenCode werken meteen. Koppel je eigen aanbieders wanneer je wilt.</string>
+    <string name="setup_step_signin_opencode">Voor de gratis modellen van OpenCode hoef je niet in te loggen.</string>
+    <string name="setup_step_signin_done">Ingelogd.</string>
+    <string name="setup_step_signin_done_email">Ingelogd als %1$s.</string>
+    <string name="setup_step_signin_claude">Met je Claude-account (Pro of Max). Je browser wordt geopend; keur het daar goed en Buddy komt vanzelf terug.</string>
+    <string name="setup_step_signin_codex">Met je ChatGPT-account. Je browser wordt geopend; keur het daar goed en Buddy komt vanzelf terug.</string>
+    <string name="setup_step_signin_grok">Met je Grok-account. Je browser wordt geopend; bevestig daar de code en Buddy komt vanzelf terug.</string>
+    <string name="setup_sign_in">Inloggen</string>
+    <string name="setup_step_background_title">Buddy op de achtergrond laten draaien</string>
+    <string name="setup_step_background_done">Toegestaan.</string>
+    <string name="setup_step_background_body">Zodat je telefoon Buddy niet stopt om batterij te sparen terwijl de agent bezig is.</string>
+    <string name="setup_allow">Toestaan</string>
+    <string name="setup_step_try_title">Uitproberen</string>
+    <string name="setup_step_try_done">Buddy heeft je geantwoord. Tik wanneer je wilt op de bubbel om meer te vragen.</string>
+    <string name="setup_step_try_body">Tik op de bubbel aan de rand van je scherm en vraag bijvoorbeeld “open Messenger”, of start hier een chat.</string>
+    <string name="setup_step_try_wait">Rond eerst de stappen hierboven af.</string>
+    <!-- Short names of the setup steps, shown after "Next:" in the Chats header. -->
+    <string name="setup_step_name_a11y">Toegankelijkheidsservice aanzetten</string>
+    <string name="setup_step_name_install">Je agent installeren</string>
+    <string name="setup_step_name_background">Achtergrondgebruik toestaan</string>
+
+    <!-- Settings screen: Appearance. Section labels are shown in ALL CAPS. -->
+    <string name="setup_appearance">Uiterlijk</string>
+    <string name="setup_theme_mode">Modus</string>
+    <string name="setup_accent">Accentkleur</string>
+    <string name="setup_surface">Achtergrond</string>
+    <string name="setup_surface_note">Warm is de oorspronkelijke tint van Buddy. Zwart (echt zwart) geldt alleen in de donkere modus.</string>
+    <string name="setup_face">Uiterlijk van Buddy</string>
+    <string name="setup_face_buddy">Origineel</string>
+    <string name="setup_face_picture">Eigen afbeelding</string>
+    <string name="setup_face_note">Een PNG of WebP met een transparante achtergrond werkt het best. Hij staat op de bubbel en naast de antwoorden van Buddy.</string>
+    <string name="setup_face_change">Andere afbeelding kiezen</string>
+    <string name="setup_face_unreadable">Die afbeelding kan niet worden gelezen. Probeer een PNG of WebP.</string>
+    <string name="setup_custom_colour">Eigen kleur</string>
+    <string name="setup_custom_accent_title">Eigen accentkleur</string>
+    <string name="setup_custom_accent_hint">Elke kleur als hexcode, bijvoorbeeld #4F8BFF.</string>
+    <string name="setup_apply">Toepassen</string>
+
+    <!-- Settings screen: Agent. -->
+    <string name="setup_agent">Agent</string>
+    <string name="setup_default_brain">Standaardagent</string>
+    <string name="setup_default_brain_info">Wie nieuwe chats beantwoordt die je via de bubbel of de knop “Nieuwe chat” start. Claude Code gebruikt je Claude-abonnement, Codex je ChatGPT-abonnement, Antigravity je Google-account, Grok je Grok-account en OpenCode zijn gratis modellen of je eigen aanbieders. Je kunt alleen agents kiezen die zijn ingesteld.</string>
+    <string name="setup_default_brain_set">Nieuwe chats gebruiken %1$s. Met de knop “Nieuwe chat” kun je per chat kiezen.</string>
+    <string name="setup_set_up_first">Stel eerst %1$s in.</string>
+    <!-- Agent status under each agent's name: lowercase, monospace, keep short. -->
+    <string name="setup_agent_installing">installeren…</string>
+    <string name="setup_agent_not_installed">niet geïnstalleerd</string>
+    <string name="setup_agent_ready">klaar</string>
+    <string name="setup_agent_ready_plan">klaar · %1$s</string>
+    <string name="setup_agent_signed_in">ingelogd</string>
+    <string name="setup_agent_signed_in_email">ingelogd · %1$s</string>
+    <string name="setup_agent_not_signed_in">niet ingelogd</string>
+    <string name="setup_agent_api_key">niet ingelogd · API-sleutel</string>
+    <string name="signin_key_only">Gebruikt een API-sleutel</string>
+
+    <!-- Settings screen: Phone tools in your own sessions (MCP server). -->
+    <string name="setup_phone_tools">Telefoontools in je eigen sessies</string>
+    <string name="setup_phone_tools_info">De telefoontools van Buddy zijn een gewone MCP-server op deze telefoon. Voer deze opdracht één keer uit in een terminal op de telefoon (bijvoorbeeld in Termux), dan krijgt de agent daar de telefoontools in elke sessie, ook zonder de bubbel.</string>
+    <string name="setup_copy_command">Opdracht kopiëren</string>
+    <string name="setup_command_copied">Gekopieerd. Plak het in je terminal.</string>
+
+    <!-- Settings screen: Voice. -->
+    <string name="setup_voice">Spraak</string>
+    <string name="setup_voice_input">Spraakinvoer</string>
+    <string name="setup_voice_phone">Telefoon</string>
+    <string name="setup_voice_input_claude">De dicteerfunctie van Claude Code via je Claude-abonnement: zeer nauwkeurig. Ondersteunt Engels, Frans, Duits, Spaans, Italiaans, Portugees, Nederlands, Turks, Russisch, Japans en meer, maar geen Arabisch: daarvoor gebruikt Buddy de spraakherkenning van de telefoon. De woorden verschijnen als je even pauzeert.</string>
+    <string name="setup_voice_input_chatgpt">De stem van ChatGPT via Codex, met je ChatGPT-abonnement. Begrijpt elke taal, zelfs gemengd in één zin. Alleen je woorden worden gebruikt: de gesproken antwoorden van ChatGPT zijn gedempt en het kan niets uitvoeren.</string>
+    <string name="setup_voice_input_phone">De spraakherkenning van je telefoon (op de meeste telefoons die van Google). Live tekst terwijl je praat; herkent welke van je talen je spreekt.</string>
+    <string name="setup_voice_output">Spraakuitvoer</string>
+    <string name="setup_voice_output_chatgpt">Antwoorden worden voorgelezen met de natuurlijke stem van ChatGPT (je ChatGPT-abonnement, via Codex). Dit telt mee voor je ChatGPT-spraakgebruik; als die stem niet beschikbaar is, leest de stem van de telefoon voor.</string>
+    <string name="setup_voice_output_phone">De tekst-naar-spraakstemmen van je telefoon, in de taal van het antwoord.</string>
+    <string name="setup_voice_sample">Bonjour ! Hoi, ik ben Buddy. Zo klink ik.</string>
+    <string name="setup_languages">Talen</string>
+    <string name="setup_languages_hint">Tik om de talen te kiezen die je spreekt. Houd er een ingedrukt om die als standaard in te stellen. Houd in een chat de microfoon ingedrukt om van taal te wisselen.</string>
+    <string name="setup_sign_in_first">Log eerst in bij %1$s</string>
+    <string name="setup_needs_claude">De dicteerfunctie van Claude werkt via %1$s met je Claude-abonnement.</string>
+    <string name="setup_needs_chatgpt">De stem van ChatGPT werkt via %1$s met je ChatGPT-abonnement.</string>
+    <string name="setup_set_up_agent">%1$s instellen</string>
+
+    <!-- Settings screen: Remote Control (a Claude Code session you continue from the Claude app). -->
+    <string name="setup_remote_control">Remote Control</string>
+    <string name="setup_remote_session">Claude Code-sessie</string>
+    <string name="setup_remote_session_info">Een Claude Code-sessie die binnen Buddy draait, met de telefoontools. Ga ermee verder vanuit de Claude-app (Code) op deze telefoon of waar dan ook.</string>
+    <string name="setup_remote_sign_in_first">Log eerst in bij Claude Code.</string>
+    <string name="setup_remote_active">actief · “%1$s” in de Claude-app</string>
+    <string name="setup_remote_starting">starten…</string>
+    <string name="setup_remote_stopped">gestopt</string>
+    <string name="setup_remote_open">Openen in de Claude-app</string>
+    <string name="setup_remote_open_failed">Openen is mislukt.</string>
+    <string name="setup_codex_session">Codex-sessie</string>
+    <string name="setup_codex_session_info">Codex met de telefoontools, binnen Buddy. Gebruik het vanuit de ChatGPT-app (Codex) op deze telefoon of op een computer. De sandbox van Codex werkt hier niet, dus met standaardrechten vraagt het voor elke opdracht toestemming.</string>
+    <string name="setup_codex_active">actief · “localhost” in ChatGPT</string>
+    <string name="setup_codex_pair">Apparaat koppelen</string>
+    <string name="setup_ssh">SSH vanuit Termux</string>
+    <string name="setup_ssh_info">Gebruik Buddy\'s Linux vanuit Termux, via SSH. Alleen apps op deze telefoon kunnen verbinden, en alleen met een sleutel.</string>
+    <string name="setup_ssh_active">actief · poort %1$d</string>
+    <string name="setup_ssh_how">Kopieer deze opdracht en voer hem binnen 10 minuten één keer uit in Termux. Typ daarna ssh buddy in Termux om Buddy\'s Linux te openen.</string>
+
+    <!-- Settings screen: chats left over from when Buddy ran its agents in Termux. -->
+    <string name="setup_old_chats_title">Oude Termux-chats verwijderen</string>
+    <plurals name="setup_old_chats_body">
+        <item quantity="one">%1$d chat van voordat Buddy een eigen Linux had. Agents kunnen die niet voortzetten.</item>
+        <item quantity="other">%1$d chats van voordat Buddy een eigen Linux had. Agents kunnen ze niet voortzetten.</item>
+    </plurals>
+    <plurals name="setup_old_chats_remove">
+        <item quantity="one">%1$d oude chat verwijderen?</item>
+        <item quantity="other">%1$d oude chats verwijderen?</item>
+    </plurals>
+    <string name="setup_old_chats_remove_body">Hiermee verdwijnen ze uit de chatlijst van Buddy. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="setup_remove">Verwijderen</string>
+    <string name="setup_removed">Verwijderd.</string>
+
+    <!-- Settings screen: Experience. -->
+    <string name="setup_experience">Gebruik</string>
+    <string name="setup_chat_bubble">Chatbubbel</string>
+    <string name="setup_chat_bubble_info">Zweeft boven andere apps. Sleep hem naar het ✕ om hem te verbergen; goedkeuringskaarten verschijnen nog steeds als een agent je akkoord nodig heeft.</string>
+    <string name="setup_tap_action">Tikken op de bubbel</string>
+    <string name="setup_tap_panel">Chatpaneel</string>
+    <string name="setup_tap_talk">Spreken</string>
+    <string name="setup_tap_app">Hele app</string>
+    <string name="setup_tap_panel_info">Opent de zwevende chat boven de app die je gebruikt. Houd de bubbel ingedrukt voor meer.</string>
+    <string name="setup_tap_app_info">Opent de chat op volledig scherm in Buddy. Houd de bubbel ingedrukt voor meer.</string>
+    <string name="setup_panel_size">Grootte van het chatpaneel</string>
+    <string name="setup_panel_full">Volledig</string>
+    <string name="setup_panel_compact">Compact</string>
+    <string name="setup_panel_size_info">Volledig loopt van rand tot rand. Compact is kleiner en blijft uit de buurt van de schermranden, zodat veeggebaren vanaf de zijkant blijven werken.</string>
+    <string name="setup_tap_to_talk_info">Eén tik opent de microfoon: zeg wat je wilt en het wordt verzonden zodra je pauzeert. Houd de bubbel ingedrukt voor de chat en meer.</string>
+    <string name="setup_read_aloud">Antwoorden voorlezen</string>
+    <string name="setup_read_aloud_info">Buddy leest de antwoorden van de agents voor, met de stem die je kiest onder Spraak.</string>
+    <string name="setup_update_notices">Updatemeldingen</string>
+    <string name="setup_update_notices_info">Buddy controleert GitHub één keer per dag en laat het je weten als er een nieuwe versie is.</string>
+    <string name="setup_check_updates">Controleren op updates</string>
+    <string name="setup_check_updates_info">Je hebt Buddy %1$s. Of vraag een willekeurige agent: “update jezelf”.</string>
+    <string name="setup_app_permissions">App-rechten</string>
+    <string name="setup_app_permissions_info">Kies per app: met Vrij werkt de agent daar zonder pop-ups; met Streng vraagt Buddy het je zelf vóór Verzenden, Betalen, Verwijderen…</string>
+    <string name="setup_dev_mode">Linux-tools in nieuwe chats</string>
+    <string name="setup_dev_mode_info">Met Linux-tools mag de agent opdrachten uitvoeren, pakketten installeren en bestanden bewerken in ~/.buddy/work, zodat hij apps kan bouwen. Nieuwe chats beginnen met deze instelling; elke chat kan die onder zijn titel wijzigen.</string>
+    <string name="setup_agents_tap">Agents laten tikken op Buddy\'s schermen</string>
+    <string name="setup_agents_tap_info">Om Buddy te testen met een agent (bijvoorbeeld Claude Code in Termux met de telefoontools). De bubbel, goedkeuringskaarten, App-rechten en deze schakelaars blijven verboden terrein.</string>
+    <string name="setup_dev_mode_warning">Laat dit liever uit en zet Linux-tools alleen aan in de chats die ze nodig hebben. Als ze aanstaan, kan een kwaadwillend bericht of een kwaadwillende webpagina op het scherm proberen de agent te misleiden zodat hij opdrachten uitvoert. Goedkeuringskaarten bewaken nog steeds verzenden, plaatsen, kopen en verwijderen.</string>
+
+    <!-- Settings screen: footer links. -->
+    <string name="setup_licences">Open-sourcelicenties</string>
+    <string name="setup_privacy_policy">Privacybeleid</string>
+
+    <!-- Errors while installing Buddy's built-in Linux (Alpine). Shown after "Install failed:". -->
+    <string name="linux_download_corrupt">Alpine-download is beschadigd (sha256 %1$s)</string>
+    <string name="linux_move_failed">Kan Alpine niet op zijn plaats zetten</string>
+    <string name="linux_download_failed_http">Downloaden mislukt: HTTP %1$d</string>
+    <string name="linux_unsafe_path">Onveilig pad in archief: %1$s</string>
+    <string name="linux_symlink_failed">symlink %1$s: %2$s</string>
+    <string name="linux_truncated_archive">Archief is onvolledig</string>
+
+    <!-- Terminal screen (a shell in Buddy's Linux, in tabs). -->
+    <string name="terminal_title">Terminal</string>
+    <string name="terminal_back">Terug</string>
+    <string name="terminal_hide_keyboard">Toetsenbord verbergen</string>
+    <string name="terminal_menu">Menu</string>
+    <plurals name="terminal_sessions_count">
+        <item quantity="one">%1$d sessie · buddy linux</item>
+        <item quantity="other">%1$d sessies · buddy linux</item>
+    </plurals>
+    <string name="terminal_listening">luistert · microfoon aan</string>
+    <string name="terminal_session_ended">Sessie beëindigd</string>
+    <string name="terminal_session_ended_code">Sessie beëindigd · exitcode %1$d</string>
+    <string name="terminal_close">Sluiten</string>
+    <string name="terminal_restart">Opnieuw starten</string>
+    <string name="terminal_needs_linux">Installeer eerst Claude Code, Codex, OpenCode, Antigravity of Grok via Instellingen: daarmee wordt Buddy\'s Linux ingesteld.</string>
+    <string name="terminal_start_failed">Kan de terminal niet starten: %1$s</string>
+    <string name="terminal_close_title">%1$s sluiten?</string>
+    <string name="terminal_close_running">Er draait nog iets. Sluiten stopt het, samen met alles wat het heeft gestart.</string>
+    <string name="terminal_shell_name">shell %1$d</string>
+    <string name="terminal_new_session">Nieuwe sessie</string>
+    <string name="terminal_paste">Plakken</string>
+    <string name="terminal_select_all">Alles selecteren</string>
+    <string name="terminal_larger_text">Grotere tekst</string>
+    <string name="terminal_smaller_text">Kleinere tekst</string>
+    <string name="terminal_screen_sleep">Scherm laten uitgaan</string>
+    <string name="terminal_keep_screen_on">Scherm aan laten</string>
+    <string name="terminal_close_session">Deze sessie sluiten</string>
+    <string name="terminal_tips">Houd ingedrukt om tekst of een link te selecteren. Knijp om te zoomen, sleep om terug te scrollen. Houd een tabblad ingedrukt om het te sluiten.</string>
+
+    <!-- Terminal: floating toolbar over selected text. Keep short. -->
+    <string name="terminal_copy">Kopiëren</string>
+    <string name="terminal_open_link">Link openen</string>
+    <string name="terminal_share">Delen</string>
+
+    <!-- Sessions screen: every agent session running on the phone, and recent history. -->
+    <string name="monitor_title">Sessies</string>
+    <string name="monitor_subtitle">Alle sessies van Claude Code, Codex, OpenCode, Antigravity en Grok op deze telefoon.</string>
+    <string name="monitor_terminal_running">Er draait een shell · tik om terug te gaan</string>
+    <string name="monitor_terminal_idle">Een shell in Buddy\'s Linux</string>
+    <string name="monitor_running_now">Nu actief</string>
+    <string name="monitor_refresh">ververst elke 3 s</string>
+    <string name="monitor_checking">Controleren…</string>
+    <string name="monitor_recent">Recent</string>
+    <string name="monitor_loading">Laden…</string>
+    <string name="monitor_service_off">De toegankelijkheidsservice van Buddy staat uit, dus sessies kunnen niet worden gecontroleerd. Zet hem aan in Instellingen.</string>
+    <string name="monitor_nothing_running">Niets actief.</string>
+    <string name="monitor_deleted_chat">Verwijderde Buddy-chat</string>
+    <string name="monitor_background_session">Achtergrondsessie</string>
+    <string name="monitor_terminal_session">Terminalsessie</string>
+    <string name="monitor_tag_background">achtergrond</string>
+    <string name="monitor_tag_terminal">terminal</string>
+    <string name="monitor_proc_meta">%1$s · pid %2$d · %3$s</string>
+    <string name="monitor_background_hint">Draait in de achtergrondservice van Claude Code, bijv. een chat die je voortzet vanuit de Claude-app.</string>
+    <string name="monitor_open_chat">Chat openen</string>
+    <string name="monitor_stop">Stoppen</string>
+    <string name="monitor_stop_title">Deze sessie van %1$s stoppen?</string>
+    <string name="monitor_stop_background_body">Deze draait op de achtergrond, bijvoorbeeld een chat die je voortzet vanuit de Claude-app. Het kan zelfs de sessie zijn die Buddy bestuurt. Stoppen beëindigt het huidige werk van dat gesprek.</string>
+    <string name="monitor_stop_terminal_body">Misschien gebruik je deze sessie nu in een terminal. Het kan zelfs de sessie zijn die Buddy bestuurt. Stoppen beëindigt het huidige werk van dat gesprek.</string>
+    <string name="monitor_stopping">Stoppen…</string>
+    <string name="monitor_service_title">Achtergrondservice van Claude Code</string>
+    <string name="monitor_service_meta">pid %1$d · looptijd %2$s · voor achtergrondsessies</string>
+    <string name="monitor_no_history">Geen geschiedenis gevonden.</string>
+    <string name="monitor_no_messages">(geen berichten)</string>
+
+    <!-- ===== Approvals and app permissions, tool cards, dictation (AppPermissionsActivity, Guard, Tools, Reviewer, dictation) ===== -->
+
+    <!-- App permissions screen (Settings → App permissions): how much the agent may do on its own in each app.
+         The three approval modes are Trust, Hard and Smart (perms_mode_*): Vrij, Streng and Slim here. -->
+    <string name="perms_title">App-rechten</string>
+    <string name="perms_back">Terug</string>
+    <string name="perms_mode_trust">Vrij</string>
+    <string name="perms_mode_hard">Streng</string>
+    <string name="perms_mode_smart">Slim</string>
+    <string name="perms_modes_intro">Vrij: de agent werkt hier zelfstandig, zonder om goedkeuring te vragen.\nStreng: je knopregels beslissen. Verzenden, Betalen, Verwijderen… hebben je akkoord nodig op een kaart.\nSlim: eerst de regels, daarna controleert een aparte AI-beoordelaar elke andere tik aan de hand van je verzoek.\nDe agent kan nooit tikken op Buddy\'s eigen bubbel, kaarten of instellingen.</string>
+    <string name="perms_smart_reviewer">Beoordelaar voor Slim</string>
+    <string name="perms_reviewer_same">Als de chat</string>
+    <string name="perms_reviewer_sign_in">Log eerst in bij %1$s (Instellingen).</string>
+    <string name="perms_reviewer_about">Een tijdelijke sessie per tik, zonder tools: die ziet je verzoek, de notitie van de agent en het scherm, en zegt “toestaan”, “jou vragen” of “afraden”. Ongeveer 3 seconden per tik. OpenCode-, Antigravity- en Grok-chats worden beoordeeld door Claude Code (of Codex).</string>
+    <string name="perms_reviewer_rules">Die controleert ook antwoorden voordat het aftellen van een meldingsregel ze verzendt.</string>
+    <string name="reviewer_default_claude">Haiku: snel en licht. Aanbevolen.</string>
+    <string name="reviewer_default_codex">Een klein, snel model. Aanbevolen.</string>
+    <string name="perms_button_rules">Knopregels</string>
+    <string name="perms_rules_summary">%1$d altijd · %2$d nooit vragen</string>
+    <string name="perms_apps">Apps</string>
+    <string name="perms_all_apps">Alle apps</string>
+    <string name="perms_reset_suggested">Voorgestelde modi herstellen</string>
+
+    <!-- Button rules screen: buttons that always or never need the user's OK. -->
+    <string name="perms_rules_intro">Voor apps op Streng of Slim. Een regel uit de suggesties geldt voor die app; getypte tekst geldt voor alle apps. Tik op een regel om hem te verwijderen.</string>
+    <string name="perms_builtin_title">Ingebouwde risicowoorden</string>
+    <string name="perms_builtin_sub">Bij knoppen als Verzenden, Plaatsen, Betalen, Kopen, Bestellen, Verwijderen, Bellen, Uitloggen… wordt altijd eerst gevraagd, in elke taal van Buddy.</string>
+    <string name="perms_always_ask">Altijd vragen</string>
+    <string name="perms_never_ask">Nooit vragen</string>
+    <string name="perms_ask">Vragen</string>
+    <string name="perms_add_hint">Knop toevoegen, bijv. Verzenden</string>
+    <string name="perms_add">Toevoegen</string>
+    <string name="perms_seen_title">Recent geziene knoppen</string>
+    <string name="perms_seen_empty">Knoppen waarop de agent tikt in apps op Streng en Slim, verschijnen hier.</string>
+
+    <!-- Button rules and modes, as App permissions shows them. -->
+    <string name="guard_rule_all_apps">%1$s · alle apps</string>
+    <string name="guard_why_choice">Jouw keuze</string>
+    <string name="guard_why_category">Voorgesteld: berichten, sociaal, bellen of geld</string>
+    <string name="guard_why_name">Voorgesteld: naam bevat “%1$s”</string>
+    <string name="guard_why_social">Voorgesteld: een sociale app</string>
+    <string name="guard_why_suggested">Voorgesteld</string>
+    <string name="guard_why_setup">Je keuze bij het instellen: eerst vragen</string>
+
+    <!-- Approval card, shown before the agent taps a risky button: the user approves or denies it. -->
+    <string name="tools_card_tap">Op “%1$s” tikken</string>
+    <string name="tools_card_tap_in">In %2$s op “%1$s” tikken</string>
+    <string name="tools_card_tap_this">Op “dit” tikken</string>
+    <string name="tools_card_tap_this_in">In %1$s op “dit” tikken</string>
+    <string name="tools_card_enter">Op Enter drukken om te verzenden</string>
+    <string name="tools_card_enter_in">In %1$s op Enter drukken om te verzenden</string>
+    <string name="tools_card_detail">%1$s:\n%2$s</string>
+    <string name="tools_card_quote">“%1$s”</string>
+    <string name="tools_card_no_reviewer">Er is geen beoordelaar ingelogd, dus Buddy vraagt het jou.</string>
+    <string name="tools_card_reviewer_block">%1$s raadt het af: %2$s</string>
+    <string name="tools_card_reviewer_ask">%1$s raadt aan het jou te vragen: %2$s</string>
+
+    <!-- Status line in the bubble while the agent works. -->
+    <string name="tools_status_checking_tap">Controleert deze tik…</string>
+    <string name="tools_status_tap_install">Tik op Installeren en bevestig daarna</string>
+    <string name="tools_status_tap_update">Tik op Updaten en bevestig daarna</string>
+    <string name="tools_status_installed">Geïnstalleerd</string>
+    <string name="tools_status_downloading">Buddy %1$s downloaden…</string>
+
+    <!-- Smart reviewer: its reason when it fails, shown on the approval card after "Claude says ask you:", so lowercase. -->
+    <string name="reviewer_failed">de beoordelaar kon niet antwoorden (%1$s)</string>
+    <string name="reviewer_no_answer">geen antwoord</string>
+    <string name="reviewer_timed_out">time-out</string>
+
+    <!-- Error when a chat can't start because Buddy's built-in Linux isn't set up yet. -->
+    <string name="helper_linux_missing">Buddy\'s Linux is nog niet geïnstalleerd. Open Instellingen om het in te stellen.</string>
+
+    <!-- Voice input (dictation): "Claude voice" and "ChatGPT voice" are the two voice input options. -->
+    <string name="dictation_claude_sign_in">Log via Instellingen in bij Claude Code om Claude-spraak te gebruiken.</string>
+    <string name="dictation_codex_sign_in">Log via Instellingen in bij Codex om ChatGPT-spraak te gebruiken.</string>
+    <string name="dictation_starting">Starten…</string>
+    <string name="dictation_starting_claude">Claude starten…</string>
+    <string name="dictation_transcribing">Transcriberen…</string>
+    <string name="dictation_no_speech">Dat heb ik niet verstaan.</string>
+    <string name="dictation_mic_failed">Kan de microfoon niet openen.</string>
+    <string name="dictation_claude_start_failed">Claude-spraak kon niet starten: %1$s</string>
+    <string name="dictation_claude_no_start">Claude-spraak is niet gestart.</string>
+    <string name="dictation_claude_code_no_start">Claude Code is niet gestart</string>
+    <string name="dictation_chatgpt_start_failed">ChatGPT-spraak kon niet starten: %1$s</string>
+    <string name="dictation_chatgpt_no_connect">ChatGPT-spraak kon geen verbinding maken (%1$s).</string>
+    <string name="dictation_chatgpt_error">ChatGPT-spraak: %1$s</string>
+    <string name="dictation_connection_failed">de verbinding is mislukt</string>
+    <string name="dictation_stage_page">bij het starten van de pagina</string>
+    <string name="dictation_stage_codex">bij het wachten op Codex</string>
+    <string name="dictation_stage_call">bij het opzetten van het gesprek</string>
+    <string name="dictation_stage_answer">bij het wachten op antwoord van ChatGPT</string>
+    <string name="dictation_stage_connecting">bij het verbinden</string>
+    <string name="dictation_codex_no_start">Codex is niet gestart</string>
+    <string name="dictation_request_timed_out">time-out bij %1$s</string>
+    <string name="dictation_codex_stopped">Codex is gestopt: %1$s</string>
+    <string name="dictation_no_details">geen details</string>
+
+    <!-- Notification rules -->
+    <string name="card_label_countdown">WORDT ZO VANZELF TOEGESTAAN</string>
+    <string name="card_countdown">Wordt over %1$d s vanzelf toegestaan · Tik om te stoppen</string>
+    <string name="card_note_auto_approved">✓ Toegestaan na het aftellen: %1$s</string>
+    <string name="card_note_countdown_stopped">Aftellen gestopt: wacht op je akkoord</string>
+    <string name="hub_tool_reply_notification">Antwoordt: %1$s</string>
+    <string name="setup_rules">Meldingsregels</string>
+    <string name="setup_rules_info">Laat een agent iets doen als er een melding binnenkomt: een bericht beantwoorden, een bezorging in je agenda zetten…</string>
+    <string name="tools_card_reply">%1$s antwoorden in %2$s:\n“%3$s”</string>
+    <string name="tools_card_open_url">%1$s openen</string>
+    <string name="tools_card_clipboard">Mag de agent lezen wat je het laatst hebt gekopieerd?</string>
+    <string name="tools_card_location">De locatie van deze telefoon met de agent delen?</string>
+    <string name="tools_photo_why">Maak een foto: %1$s</string>
+    <string name="rules_service_label">Buddy-meldingsregels</string>
+    <string name="rules_title">Meldingsregels</string>
+    <string name="rules_intro">Als er een melding binnenkomt die je hebt gekozen, geeft Buddy je instructie door aan een agent, net als een bericht dat je zelf zou typen. Meldingen waarop geen enkele regel van toepassing is, worden genegeerd.</string>
+    <string name="rules_access_off_title">Toegang tot meldingen staat uit</string>
+    <string name="rules_access_off_text">Buddy heeft dit nodig om de meldingen te zien waar je regels op letten.</string>
+    <string name="rules_access_turn_on">Aanzetten</string>
+    <string name="rules_run">Regels uitvoeren</string>
+    <string name="rules_run_info">Zet uit om alle regels te pauzeren.</string>
+    <string name="rules_section">Regels</string>
+    <string name="rules_empty">Nog geen regels. Bijvoorbeeld: als een klant je via WhatsApp een bericht stuurt, antwoorden met je openingstijden.</string>
+    <string name="rules_add">Regel toevoegen</string>
+    <string name="rules_any">Alle meldingen</string>
+    <string name="rules_from_summary">Van %1$s</string>
+    <string name="rules_words_summary">Met “%1$s”</string>
+    <string name="rules_tag_ask">Vraagt eerst</string>
+    <string name="rules_tag_countdown">Aftellen %1$s</string>
+    <string name="rules_tag_off">Uit</string>
+    <string name="rules_seconds">%1$d s</string>
+    <string name="rules_minutes">%1$d min</string>
+    <string name="rules_activity">Recente activiteit</string>
+    <string name="rules_activity_empty">Nog niets.</string>
+    <string name="rules_activity_clear">Wissen</string>
+    <string name="rules_log_replied">Geantwoord: “%1$s”</string>
+    <string name="rules_log_done_empty">Klaar, zonder antwoord.</string>
+    <string name="rules_log_limit">Overgeslagen: te vaak in het afgelopen uur.</string>
+    <string name="rules_log_held">Wacht: te vaak in het afgelopen uur. De nieuwe berichten worden om %1$s samen in één keer afgehandeld.</string>
+    <string name="rules_limit">Limiet per uur</string>
+    <string name="rules_limit_off">Uit</string>
+    <string name="rules_limit_info">Hoogstens zoveel keer per uur voor één gesprek, en drie keer zoveel voor de hele regel. Daarboven wachten nieuwe berichten en worden ze daarna samen in één keer afgehandeld. Uit: geen limiet.</string>
+    <string name="rules_tag_limit">%1$d/u</string>
+    <string name="rules_tag_no_limit">Geen limiet</string>
+    <string name="rules_log_busy">Overgeslagen: de telefoon was te lang in gebruik.</string>
+    <string name="card_note_later">Geen antwoord op tijd: het antwoord wacht in “Wacht op jou”</string>
+    <string name="rules_log_waiting">Wacht op je OK: “%1$s”</string>
+    <string name="rules_log_full">Overgeslagen: te veel chats schreven tegelijk.</string>
+    <string name="rules_log_hidden">De nieuwe berichten waren niet te lezen: Android heeft ze verborgen (misschien staat er een code in). Open de chat, dan komen de volgende weer door.</string>
+    <string name="waiting_title">Wacht op jou</string>
+    <string name="waiting_channel">Antwoorden die op jou wachten</string>
+    <string name="waiting_banner_text">Antwoorden wachten op je OK: %1$s</string>
+    <string name="waiting_empty">Niets open. Als het antwoord van een regel je OK nodig heeft en je niet op tijd reageert, wacht het hier.</string>
+    <string name="waiting_their_messages">Ontvangen berichten</string>
+    <string name="waiting_reply">Antwoord</string>
+    <string name="waiting_send">Versturen</string>
+    <string name="waiting_copy_open">Kopiëren en %1$s openen</string>
+    <string name="waiting_edit">Bewerken</string>
+    <string name="waiting_skip">Weggooien</string>
+    <string name="waiting_open_chat">Chat openen</string>
+    <string name="waiting_state_wrote_again">%1$s heeft sindsdien weer geschreven: dit antwoord is misschien verouderd.</string>
+    <string name="waiting_state_answered">Je hebt al geantwoord in %1$s.</string>
+    <string name="waiting_state_gone">De melding is weg: Buddy kopieert het antwoord en opent %1$s om het te plakken.</string>
+    <string name="waiting_sent">Verstuurd naar %1$s</string>
+    <string name="waiting_copied">Gekopieerd. Plak het in %1$s.</string>
+    <string name="waiting_note_sent">✓ Verstuurd vanuit “Wacht op jou”: %1$s</string>
+    <string name="rules_log_error">Niet uitgevoerd: %1$s</string>
+    <string name="rules_log_no_service">de toegankelijkheidsservice van Buddy staat uit</string>
+    <string name="rules_log_not_signed_in">%1$s is niet ingelogd</string>
+    <string name="rules_new">Nieuwe regel</string>
+    <string name="rules_edit">Regel bewerken</string>
+    <string name="rules_app">Als er een melding binnenkomt van</string>
+    <string name="rules_pick_app">Kies een app</string>
+    <string name="rules_search_apps">Apps zoeken</string>
+    <string name="rules_from">Van (optioneel)</string>
+    <string name="rules_from_hint">Iedereen, of namen gescheiden door komma\'s</string>
+    <string name="rules_words">Bevat (optioneel)</string>
+    <string name="rules_words_hint">Alles, of woorden gescheiden door komma\'s</string>
+    <string name="rules_instruction">Wat moet Buddy doen?</string>
+    <string name="rules_instruction_hint">Bijvoorbeeld: Antwoord in mijn stijl. We zijn open van 8 tot 18 uur, op zondag gesloten.</string>
+    <string name="rules_example_reply">Voor mij antwoorden</string>
+    <string name="rules_example_reply_text">Antwoord in mijn stijl, kort en vriendelijk.</string>
+    <string name="rules_example_summary">Samenvatten</string>
+    <string name="rules_example_summary_text">Vertel me in één regel wat erin staat en of ik iets moet doen.</string>
+    <string name="rules_example_calendar">In agenda zetten</string>
+    <string name="rules_example_calendar_text">Als het over een afspraak of een bezorging gaat, zet het dan in mijn agenda.</string>
+    <string name="rules_agent">Agent</string>
+    <string name="rules_approval">Voordat er iets gebeurt</string>
+    <string name="rules_approval_ask">Mij vragen</string>
+    <string name="rules_approval_countdown">Aftellen</string>
+    <string name="rules_approval_ask_info">Goedkeuringskaarten wachten op jou, net als in elke chat.</string>
+    <string name="rules_approval_countdown_info">Als het aftellen afloopt, wordt de kaart vanzelf toegestaan, tenzij je erop tikt om dat tegen te houden. Dat werkt alleen voor het verzenden van een bericht, nadat een tweede AI het aan je regel heeft getoetst. Betalen, kopen, verwijderen en links openen hebben altijd je akkoord nodig.</string>
+    <string name="rules_checker">Tweede AI: %1$s. Tik om dit te wijzigen in App-rechten.</string>
+    <string name="rules_model_default">De standaard van de agent zelf</string>
+    <string name="rules_on">Regel aan</string>
+    <string name="rules_save">Opslaan</string>
+    <string name="rules_delete">Verwijderen</string>
+    <string name="rules_delete_title">Deze regel verwijderen?</string>
+    <string name="rules_need_app">Kies eerst een app.</string>
+    <string name="rules_need_instruction">Schrijf op wat Buddy moet doen.</string>
+    <string name="rules_access_title">Toegang tot meldingen toestaan?</string>
+    <string name="rules_access_what">Buddy vergelijkt elke melding met je regels. Meldingen waarop geen enkele regel van toepassing is, worden meteen genegeerd: niet opgeslagen en nergens heen gestuurd.</string>
+    <string name="rules_access_data">Als er één overeenkomt, gaan de app, de afzender en de tekst ervan samen met je instructie naar de agent van de regel (Claude Code, Codex of OpenCode).</string>
+    <string name="rules_access_reply">Buddy kan antwoorden via de knop Beantwoorden van een melding. Buddy vraagt het je eerst, tenzij je voor de regel Aftellen kiest.</string>
+    <string name="rules_chat_shown">🔔 %1$s · %2$s: %3$s\n⚡ %4$s</string>
+    <string name="rules_status_checking">Toetst het aan je regel…</string>
+    <string name="rules_channel_results">Meldingsregels: resultaten</string>
+    <string name="approvals_channel">Goedkeuringen</string>
+    <string name="rules_result_title">%1$s · %2$s</string>
+    <string name="rules_approval_title">Akkoord nodig: %1$s · %2$s</string>
+    <string name="card_locked_title">Akkoord nodig: %1$s</string>
+    <string name="rules_approval_auto">Wordt over %1$s vanzelf toegestaan, tenzij je het stopt.\n%2$s</string>
+    <!-- Background browser -->
+    <string name="browser_section">Achtergrondbrowser</string>
+    <string name="browser_switch">Achtergrondbrowser</string>
+    <string name="browser_switch_info">Een browser in Buddy waarmee agents webpagina\'s gebruiken zonder je telefoon over te nemen. Je kunt hem in de chat bekijken en gebruiken. De eerste keer downloadt Buddy Chromium (ongeveer 300 MB).</string>
+    <string name="browser_state_installing">Chromium installeren…</string>
+    <string name="browser_state_starting">starten…</string>
+    <string name="browser_state_running">actief</string>
+    <string name="browser_state_idle">klaar · start zodra een agent hem nodig heeft</string>
+    <string name="browser_state_not_installed">nog niet geïnstalleerd</string>
+    <string name="browser_install_failed">Kan Chromium niet installeren. Controleer de verbinding en probeer het opnieuw.</string>
+    <string name="browser_sign_in_help">Agents typen nooit wachtwoorden. Wil je dat ze een site met je account gebruiken, open dan de browser en log zelf in. “Doorgaan met Google” mislukt vaak in geautomatiseerde browsers: gebruik in plaats daarvan e-mail en wachtwoord.</string>
+    <string name="browser_open">Browser openen</string>
+    <string name="browser_wipe">Browsergegevens wissen</string>
+    <string name="browser_wipe_title">Browsergegevens wissen?</string>
+    <string name="browser_wipe_body">Verwijdert alle inlogs, cookies en geschiedenis van de achtergrondbrowser. Chromium blijft geïnstalleerd.</string>
+    <string name="browser_wipe_action">Wissen</string>
+    <string name="browser_wiped">Browsergegevens gewist</string>
+    <string name="browser_live_title">ACHTERGRONDBROWSER</string>
+    <string name="browser_no_page">geen pagina open</string>
+    <string name="browser_continue">Doorgaan</string>
+    <string name="browser_back">Vorige pagina</string>
+    <string name="browser_keyboard">Typen op de pagina</string>
+    <string name="browser_full_screen">Volledig scherm</string>
+    <string name="browser_fold">Pagina tonen of verbergen</string>
+    <string name="browser_backspace">Teken wissen</string>
+    <string name="bubble_browser_thumb">Live weergave van de achtergrondbrowser. Tik om hem op volledig scherm te openen.</string>
+    <string name="bubble_browser_thumb_hide">Verbergen</string>
+    <string name="bubble_pill_show_page">%1$s · tik om de pagina te tonen</string>
+    <string name="browser_type_hint">Typ in de pagina</string>
+    <string name="browser_enter">Enter</string>
+    <string name="browser_dialog">De pagina vraagt: %1$s</string>
+    <string name="browser_go_title">Ga naar</string>
+    <string name="browser_go">Ga</string>
+    <string name="browser_address_hint">Zoek of typ een webadres</string>
+    <string name="browser_installing">Browser installeren…</string>
+    <string name="browser_starting">Browser starten…</string>
+    <string name="browser_paused_note">Gepauzeerd terwijl je de browser gebruikt. Tik op Doorgaan als je klaar bent.</string>
+    <string name="browser_paused_toast">Gepauzeerd terwijl je de browser gebruikt</string>
+    <string name="browser_card_tap">Tik op “%1$s” op %2$s (achtergrondbrowser)</string>
+    <string name="browser_card_enter">Druk op Enter om te verzenden op %1$s (achtergrondbrowser)</string>
+    <string name="browser_card_dialog">Antwoord OK op %1$s:\n“%2$s”</string>
+    <string name="hub_tool_browser_open">Browser: opent %1$s</string>
+    <string name="hub_tool_browser_read">Browser: leest de pagina</string>
+    <string name="hub_tool_browser_click">Browser: tikt op item %1$d</string>
+    <string name="hub_tool_browser_type">Browser: typt \"%1$s\"</string>
+    <string name="hub_tool_browser_scroll">Browser: scrolt</string>
+    <string name="hub_tool_browser_screenshot">Browser: bekijkt de pagina</string>
+    <string name="hub_tool_browser_back">Browser: gaat terug</string>
+    <string name="hub_tool_browser_tabs">Browser: tabbladen</string>
+    <string name="hub_tool_schedule_message">Plant: %1$s</string>
+    <string name="hub_tool_list_scheduled">Bekijkt geplande berichten</string>
+    <string name="hub_tool_cancel_scheduled">Annuleert een gepland bericht</string>
+    <string name="later_title">Bericht van de agent voor %1$s</string>
+    <string name="later_cancel">Bericht annuleren</string>
+    <string name="share_label">Vraag Buddy</string>
+    <string name="share_title">Delen met Buddy</string>
+    <string name="share_new_chat">Nieuwe chat met %1$s</string>
+    <string name="usage_five">5 uur %1$d%% · reset %2$s</string>
+    <string name="usage_week">week %1$d%% · reset %2$s</string>
+    <string name="usage_five_short">5 u %1$d%%</string>
+    <string name="usage_week_short">week %1$d%%</string>
+    <string name="usage_warn_five">Je hebt %1$d%% van de 5-uurslimiet van je abonnement gebruikt. Die wordt om %2$s gereset.</string>
+    <string name="usage_warn_week">Je hebt %1$d%% van de weeklimiet van je abonnement gebruikt. Die wordt %2$s gereset.</string>
+    <string name="check_title">Buddy controleren</string>
+    <string name="check_info">Test nu elk onderdeel van Buddy en zegt hoe je oplost wat er mis is</string>
+    <string name="check_running">Controleren…</string>
+    <string name="check_all_ok">Alles werkt</string>
+    <string name="check_a11y">Toegankelijkheidsservice</string>
+    <string name="check_a11y_bad">Draait niet, dus Buddy kan het scherm niet zien of bedienen. Zet Buddy aan in de toegankelijkheidsinstellingen.</string>
+    <string name="check_notifications">Meldingstoegang</string>
+    <string name="check_notifications_bad">Je meldingsregels hebben het nodig, en het staat uit.</string>
+    <string name="check_battery">Batterijoptimalisatie</string>
+    <string name="check_battery_bad">Aan voor Buddy: Android kan het op de achtergrond stoppen, en geplande taken lopen misschien niet.</string>
+    <string name="check_linux">Linux van Buddy</string>
+    <string name="check_linux_ok">Start in %1$.1f s</string>
+    <string name="check_linux_bad">Start niet: %1$s</string>
+    <string name="check_linux_missing">Nog niet geïnstalleerd. Stel het in bij Instellingen.</string>
+    <string name="check_helper">Helper van Buddy</string>
+    <string name="check_helper_bad">Linux heeft een oudere kopie dan deze versie van Buddy.</string>
+    <string name="check_server">Server voor de telefoontools</string>
+    <string name="check_server_bad">Antwoordt niet op 127.0.0.1:%1$d. Zet Buddy uit en weer aan in de toegankelijkheidsinstellingen.</string>
+    <string name="check_agent_version">Versie %1$s</string>
+    <string name="check_network">Internet</string>
+    <string name="check_network_bad">Kan %1$s niet vinden. Controleer wifi of mobiele data, of een vpn of privé-dns die het blokkeert.</string>
+    <string name="check_space">Vrije ruimte</string>
+    <string name="check_space_ok">%1$s vrij</string>
+    <string name="check_space_bad">Maar %1$s vrij. Een agent installeren of bijwerken vraagt ongeveer 1 GB.</string>
+    <string name="check_fix">Oplossen</string>
+    <string name="check_open_settings">Instellingen openen</string>
+    <string name="check_copy">Rapport kopiëren</string>
+    <string name="check_copied">Rapport gekopieerd</string>
+    <string name="check_report">Bug melden op GitHub</string>
+    <string name="check_report_title">Wat er naar GitHub gaat</string>
+    <string name="check_report_text">Dit opent een nieuwe GitHub-issue met deze gegevens ingevuld. Er wordt niets verstuurd tot je het daar indient, en je kunt het eerst aanpassen. Chats, schermtekst en meldingen zitten er nooit bij.</string>
+    <string name="check_report_open">GitHub openen</string>
+    <plurals name="check_failed">
+        <item quantity="one">%1$d controle mislukt</item>
+        <item quantity="other">%1$d controles mislukt</item>
+    </plurals>
+    <string name="tools_step_cap">Gestopt na %1$d acties achter elkaar, zodat een op hol geslagen taak je abonnement niet opmaakt. Zeg dat hij verder mag als dat moet.</string>
+    <string name="tools_step_loop">Gestopt: het deed %1$d keer achter elkaar hetzelfde, dat lijkt op een lus.</string>
+    <string name="setup_help">Hulp</string>
+    <string name="setup_help_info">De handleiding van Buddy, op GitHub. Je kunt ook elke agent vragen hoe Buddy werkt.</string>
+    <string name="signin_api_key">Gebruik een API-sleutel</string>
+    <string name="signin_api_base_bad">Vul een adres in dat begint met https:// (of http:// op deze telefoon of je eigen netwerk)</string>
+    <string name="account_plan_api_key_at">API-sleutel · %1$s</string>
+    <string name="models_via">%1$s via %2$s</string>
+    <string name="api_keys_remove_text">De sleutel wordt van deze telefoon gewist. Chats die zijn modellen gebruiken gaan terug naar Standaard.</string>
+    <string name="api_keys_choose">Modellen in de keuzelijst: %1$d van %2$d</string>
+    <string name="api_keys_choose_title">Modellen van %1$s</string>
+    <string name="api_keys_choose_info">Kies welke chats aanbieden. Zonder keuze: allemaal.</string>
+    <string name="api_keys_choose_search">Zoeken</string>
+    <string name="skills_title">Skills</string>
+    <string name="skills_row_none">Instructies die de agents delen</string>
+    <string name="skills_intro">Skills zijn instructies die een agent volgt voor een soort taak: een schrijfstijl, een checklist, stappen in een app. Claude Code, Codex en OpenCode gebruiken er een als die bij een taak past, of als je / in het berichtveld typt en hem kiest. Ze gebruiken het SKILL.md-formaat, dus skills uit Claude of ChatGPT werken hier ook.</string>
+    <string name="skills_need_linux">Skills staan in Buddy\'s Linux: stel eerst een agent in.</string>
+    <string name="skills_none">Nog geen skills.</string>
+    <string name="skills_import">Importeren</string>
+    <string name="skills_write">Zelf schrijven</string>
+    <string name="skills_how">Importeren werkt met een .zip- of .skill-bestand (zoals Claude skills exporteert) of een SKILL.md. In een chat met Linux-tools kun je de agent ook vragen een skill te schrijven.</string>
+    <string name="skills_delete">Verwijderen</string>
+    <string name="skills_delete_title">/%1$s verwijderen?</string>
+    <string name="skills_delete_text">De agents hebben hem dan niet meer.</string>
+    <string name="skills_write_info">De beschrijving zegt wanneer hij gebruikt wordt: de agents lezen die om te beslissen.</string>
+    <string name="skills_name_hint">Naam, bijv. weekly-report</string>
+    <string name="skills_desc_hint">Wat hij doet en wanneer je hem gebruikt</string>
+    <string name="skills_instructions_hint">Instructies</string>
+    <string name="skills_need_all">Voeg een beschrijving en de instructies toe.</string>
+    <string name="skills_added">/%1$s toegevoegd.</string>
+    <string name="skills_need_name">Geef hem een naam.</string>
+    <string name="skills_exists">Er is al een skill met de naam %1$s.</string>
+    <string name="skills_bad_file">Dat is geen skill: er moet een SKILL.md met een naam in zitten.</string>
+    <string name="skills_slash_none">Geen skill met die naam. Tik om skills toe te voegen.</string>
+    <string name="github_row_none">Laat agents naar je repository\'s pushen</string>
+    <string name="github_intro">Log in bij GitHub voor de Linux-tools: Buddy installeert git en de GitHub CLI in zijn Linux, logt ze in op je account en stelt git in op je naam en je privé-noreply-e-mailadres.</string>
+    <string name="github_risk">Agents in chats met Linux-tools kunnen dan met je account clonen, committen en pushen, en issues en pull requests openen. Ze krijgen de opdracht het je eerst te vragen voordat ze iets pushen of plaatsen.</string>
+    <string name="github_sign_in">Inloggen met GitHub</string>
+    <string name="github_installing">git en de GitHub CLI installeren…</string>
+    <string name="github_finishing">git instellen…</string>
+    <string name="github_enter_code">Voer deze code in op GitHub en keur goed. Hij is gekopieerd, dus je kunt hem plakken.</string>
+    <string name="github_open">GitHub openen</string>
+    <string name="github_code_copied">Code gekopieerd</string>
+    <string name="github_failed">Inloggen mislukt: %1$s</string>
+    <string name="github_signed_in">Ingelogd als @%1$s</string>
+    <string name="github_signed_in_info">Agents in chats met Linux-tools kunnen git en gh met dit account gebruiken.</string>
+    <string name="github_sign_out_title">Uitloggen bij GitHub?</string>
+    <string name="github_sign_out_text">git en de GitHub CLI in Buddy\'s Linux verliezen toegang tot je account.</string>
+    <string name="backup_title">Back-up en overzetten</string>
+    <string name="backup_row">Je chats en instellingen in één bestand</string>
+    <string name="backup_intro">Slaat je chats, instellingen, regels, afbeeldingen, skills, de projecten van de agents en wat ze van elk gesprek bewaren op in één bestand in Downloads/Buddy. Zet het hier of op een andere telefoon terug.</string>
+    <string name="backup_left_out">Aanmeldingen en API-sleutels zitten er niet in: log na het terugzetten opnieuw in en voeg je sleutels weer toe. Projecten laten hun buildmappen weg.</string>
+    <string name="backup_now">Nu back-up maken</string>
+    <string name="backup_restore">Terugzetten vanaf een back-up</string>
+    <string name="backup_restore_title">Deze back-up terugzetten?</string>
+    <string name="backup_restore_text">Je chats en instellingen op deze telefoon worden vervangen door die uit de back-up. Buddy herstart als het klaar is.</string>
+    <string name="backup_making">Back-up maken… (projecten kunnen even duren)</string>
+    <string name="backup_restoring">Terugzetten…</string>
+    <string name="backup_made">Opgeslagen in Downloads/Buddy/%1$s.</string>
+    <string name="backup_restored">Teruggezet. Buddy herstart nu.</string>
+    <string name="backup_restored_no_linux">Je chats en instellingen zijn teruggezet. Het Linux-deel (skills, projecten, wat de agents bijhouden) heeft Buddy\'s Linux nodig: stel een agent in en zet daarna opnieuw terug. Buddy herstart nu.</string>
+    <string name="backup_failed">Dat lukte niet: %1$s</string>
+    <string name="backup_not_one">Dat bestand is geen Buddy-back-up.</string>
+    <string name="chat_incognito">Incognito</string>
+    <string name="chat_incognito_info">Deze chat wordt verwijderd als Buddy herstart, samen met wat de agent ervan heeft bewaard.</string>
+    <string name="api_keys_remove_title">%1$s verwijderen?</string>
+    <string name="api_keys_remove">Verwijderen</string>
+    <string name="api_keys_failed">Kon de modellen van deze dienst niet ophalen met deze sleutel: %1$s</string>
+    <string name="api_keys_need_address">Voeg minstens één adres toe.</string>
+    <string name="api_keys_need_key">Voer de API-sleutel in.</string>
+    <string name="api_keys_saving">Sleutel controleren…</string>
+    <string name="api_keys_save">Opslaan</string>
+    <string name="api_keys_addresses_info">Claude Code gebruikt het Anthropic-adres. Codex gebruikt het OpenAI-adres, als de dienst de Responses API van OpenAI heeft. OpenCode gebruikt beide. Laat een adres leeg als de dienst het niet heeft.</string>
+    <string name="api_keys_check">Nu controleren</string>
+    <string name="api_keys_check_info">Optioneel: stuurt een heel klein testverzoek, dat een heel klein beetje API-tegoed kan kosten.</string>
+    <string name="api_keys_check_ok">%1$s: werkt.</string>
+    <string name="api_keys_check_chat">%1$s: werkt met OpenCode, maar heeft geen Responses API, dus niet met Codex.</string>
+    <string name="api_keys_check_none">%1$s: geen antwoord op dit adres. %2$s</string>
+    <string name="api_keys_check_unsure">%1$s: geen duidelijk antwoord. %2$s</string>
+    <string name="api_keys_service">Dienst</string>
+    <string name="api_keys_custom">Aangepast</string>
+    <string name="setup_step_signin_key_mismatch">Je API-sleutels (%2$s) werken niet met %1$s. Ze werken met %3$s.</string>
+    <string name="setup_step_signin_free">Geen account? OpenCode heeft gratis modellen en vraagt niet om in te loggen.</string>
+    <string name="setup_use_agent">%1$s gebruiken</string>
+    <string name="api_keys_openai_hint">OpenAI-adres</string>
+    <string name="api_keys_anthropic_hint">Anthropic-adres</string>
+    <string name="api_keys_key_keep_hint">API-sleutel (leeg laten om te bewaren)</string>
+    <string name="api_keys_key_hint">API-sleutel</string>
+    <string name="api_keys_name_hint">Naam</string>
+    <string name="api_keys_own_default">Eigen standaard</string>
+    <string name="api_keys_defaults_info">Wat een chat gebruikt als zijn model Standaard is. De eigen standaard draait op het abonnement van de agent.</string>
+    <string name="api_keys_defaults">Chats op Standaard</string>
+    <string name="api_keys_for">Voor %1$s</string>
+    <string name="api_keys_models">%1$s · %2$d modellen</string>
+    <string name="api_keys_add">API-sleutel toevoegen</string>
+    <string name="api_keys_none">Nog geen API-sleutels.</string>
+    <string name="api_keys_intro">Gebruik modellen van andere diensten met Claude Code, Codex en OpenCode, naast je abonnementen of in plaats daarvan. Elke chat kiest zijn model in het modelmenu. Gebruik met een sleutel wordt gefactureerd aan het account van die sleutel. Sleutels worden versleuteld op deze telefoon bewaard en bereiken de agents nooit: Buddy voegt ze aan elk verzoek toe.</string>
+    <string name="api_keys_row_none">Modellen van andere diensten, met je sleutel</string>
+    <string name="api_keys_title">API-sleutels</string>
+    <string name="signin_api_keys">API-sleutels</string>
+    <string name="models_context">%1$s context</string>
+    <string name="models_chip_context">%1$d%% context</string>
+    <string name="chat_context">Context</string>
+    <string name="chat_context_used">%1$s van %2$s tokens gebruikt (%3$d%%)</string>
+    <string name="chat_context_help">Als hij vol is, vat %1$s oudere berichten zelf samen om ruimte te maken.</string>
+    <string name="chat_context_compact">Nu comprimeren</string>
+    <string name="hub_compacting">Gesprek wordt gecomprimeerd…</string>
+    <string name="hub_compacted">Gesprek gecomprimeerd: %1$s → %2$s tokens</string>
+    <string name="signin_api_models_none">De dienst gaf geen modellen.</string>
+    <string name="setup_step_signin_api_key">Of gebruik een API-sleutel: Instellingen → API-sleutels.</string>
+    <string name="setup_step_signin_others">%1$s is je standaardbrein, maar deze zijn klaar: %2$s. Maak er een de standaard en Buddy werkt meteen.</string>
+    <string name="setup_switch_default">Standaard wisselen</string>
+    <string name="setup_switch_default_title">Standaardbrein</string>
+    <string name="signin_api_key_on">%1$s draait op je API-sleutels: kies een model in het modelmenu van een chat, of de standaard onder API-sleutels.</string>
+    <string name="signin_api_key_on_plan">Chats kunnen ook de modellen van je API-sleutels gebruiken (kies er een in het modelmenu van een chat). Spraak en de andere abonnementsfuncties gebruiken je abonnement.</string>
+    <string name="fdroid_download_note">Deze downloads komen van hun makers, niet van F-Droid, dus F-Droid heeft ze niet gecontroleerd.</string>
+    <string name="api_keys_local_info">Voor een eigen server (Ollama, LM Studio, llama.cpp): laat de API-sleutel leeg. Op een pc vul je het adres op je wifi in plaats van localhost in, bijvoorbeeld http://192.168.1.20:11434/v1.</string>
+    <string name="main_section_pinned">Vastgezet</string>
+    <string name="main_section_archived">Gearchiveerd (%1$d)</string>
+    <string name="chat_pinned_marker">Vastgezet</string>
+    <string name="chat_menu_rename">Naam wijzigen</string>
+    <string name="chat_menu_pin">Bovenaan vastzetten</string>
+    <string name="chat_menu_unpin">Losmaken</string>
+    <string name="chat_menu_archive">Archiveren</string>
+    <string name="chat_menu_unarchive">Uit archief halen</string>
+    <string name="chat_archived">Gearchiveerd. Hij staat onderaan de lijst.</string>
+    <string name="chat_archived_scheduled">Gearchiveerd. De geplande taken blijven lopen.</string>
+    <string name="chat_rename_title">Chat hernoemen</string>
+    <string name="chat_rename_hint">Leeg: het eerste bericht</string>
+    <string name="chat_rename_save">Opslaan</string>
+</resources>

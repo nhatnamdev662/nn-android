@@ -1,0 +1,1455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Every text Buddy shows, in Japanese (です/ます). Source of truth: res/values/strings.xml. -->
+<resources>
+    <string name="service_label">Buddy アシスタント</string>
+    <string name="service_description">Buddy のチャットバブルを表示し、このスマートフォンの Buddy 内で動作する、選択したエージェント（Claude Code、Codex、OpenCode、Antigravity、または Grok）が、画面を読み取って、あなたの代わりにタップ、入力、スクロールできるようにします。エージェント自身がその AI サービス（Anthropic、OpenAI、Google、xAI、または OpenCode で選択したモデルのプロバイダー）に送信する内容以外は、スマートフォンの外に出ません。</string>
+
+    <!-- ===== First run (OnboardingActivity), the Chats home screen (MainActivity), updates, appearance ===== -->
+
+    <!-- First-run setup guide: top bar and buttons shared by several steps. -->
+    <string name="onboarding_skip_setup">スキップ</string>
+    <string name="onboarding_skip_title">セットアップガイドをスキップしますか？</string>
+    <string name="onboarding_skip_text">セットアップは「設定」からいつでも完了できます。完了するまでチャットは動作しません。</string>
+    <string name="onboarding_skip_action">スキップ</string>
+    <string name="onboarding_progress">ステップ %1$d/%2$d</string>
+    <string name="onboarding_continue">次へ</string>
+    <string name="onboarding_stuck">お困りですか？</string>
+
+    <!-- Guide, welcome screen. -->
+    <string name="onboarding_welcome_title">Buddy へようこそ</string>
+    <string name="onboarding_welcome_text">あなたの代わりにスマートフォンを操作できるチャットバブルです。</string>
+    <string name="onboarding_welcome_ask_title">いつもの言葉で頼めます</string>
+    <string name="onboarding_welcome_ask_text">「佐藤さんに遅れるって返信して」「カートに牛乳を入れて」など。</string>
+    <string name="onboarding_welcome_plan_title">お使いのプランで、API キー不要</string>
+    <string name="onboarding_welcome_plan_text">Claude のサブスクリプションで Claude Code が動きます。ChatGPT のプランで Codex、Google アカウントで Antigravity、Google または X のアカウントで Grok、さらに OpenCode の無料モデルも使えます。</string>
+    <string name="onboarding_welcome_control_title">主導権はいつもあなたに</string>
+    <string name="onboarding_welcome_control_text">送信、投稿、購入、削除の前には必ず確認します。</string>
+    <string name="onboarding_welcome_time">セットアップは約 5 分で完了します</string>
+    <string name="onboarding_get_started">始める</string>
+
+    <!-- Guide, step: choose the agent. Agent names next to each option stay in English. -->
+    <string name="onboarding_brain_title">エージェントを選択</string>
+    <string name="onboarding_brain_text">チャットに応答するエージェントを選びます。ほかのエージェントは後から「設定」で追加できます。</string>
+    <string name="onboarding_brain_claude">Claude のサブスクリプション（Pro または Max）を使用します。</string>
+    <string name="onboarding_brain_codex">ChatGPT のプランを使用します。</string>
+    <string name="onboarding_brain_opencode">アカウントなしで使えます。お使いのプロバイダーは後から接続できます。</string>
+    <string name="onboarding_brain_agy">Google アカウントを使用します（Google AI Pro や Ultra でも使えます）。</string>
+    <string name="onboarding_brain_grok">Grok アカウント（Google または X でログイン）を使用します。</string>
+    <string name="onboarding_brain_both">両方をインストールして、チャットごとに選べます。デフォルトは Claude Code です。</string>
+    <string name="onboarding_recommended">おすすめ</string>
+
+    <!-- Guide, step: turn on Buddy's accessibility service. -->
+    <string name="onboarding_access_title">Buddy に画面の操作を許可</string>
+    <string name="onboarding_access_done">ユーザー補助がオンになっています。</string>
+    <string name="onboarding_access_text">Buddy のユーザー補助サービスはバブルを表示し、あなたが何かを頼んだときだけ、エージェントが画面を読み取ってタップや入力をできるようにします。</string>
+    <string name="onboarding_access_privacy">%1$s が応答のために %2$s に送信する内容以外は、スマートフォンの外に出ません。送信、投稿、購入、削除の前には必ず承認を求めます。</string>
+    <string name="onboarding_access_privacy_both">Claude Code と Codex が応答のために Anthropic と OpenAI に送信する内容以外は、スマートフォンの外に出ません。送信、投稿、購入、削除の前には必ず承認を求めます。</string>
+    <string name="onboarding_access_privacy_opencode">%1$s が応答のためにモデルのプロバイダーに送信する内容以外は、スマートフォンの外に出ません。送信、投稿、購入、削除の前には必ず承認を求めます。</string>
+    <string name="onboarding_access_list_hint">一覧で「ダウンロードしたアプリ」→「Buddy アシスタント」を開き、オンにします。</string>
+    <string name="onboarding_access_open">ユーザー補助の設定を開く</string>
+    <string name="onboarding_access_greyed_title">スイッチがグレー表示ですか？</string>
+    <string name="onboarding_access_greyed_text">Android では、ファイルからインストールしたアプリに対してこの設定がブロックされます。下の「アプリ情報」をタップし、右上の ⋮ →「制限付き設定を許可」をタップしてから、もう一度お試しください。</string>
+    <string name="onboarding_access_restricted_steps">1. 下の「アプリ情報」をタップします。\n2. 右上の ⋮ →「制限付き設定を許可」をタップします。\n3. 戻って、もう一度ユーザー補助の設定を開きます。</string>
+    <string name="onboarding_app_info">アプリ情報</string>
+
+    <!-- Guide, step: install the agent inside Buddy and sign in. -->
+    <string name="onboarding_agents_title">インストールとログイン</string>
+    <string name="onboarding_agents_done_title">準備完了</string>
+    <string name="onboarding_agents_done">%1$s のインストールとログインが完了しました。</string>
+    <string name="onboarding_agents_done_both">Claude Code と Codex のインストールとログインが完了しました。</string>
+    <string name="onboarding_agents_text">Buddy がアプリ内に %1$s をインストールします。あとは一度ログインするだけです。Termux は不要です。</string>
+    <string name="onboarding_agent_names_both">Claude Code と Codex</string>
+    <!-- Agent card status lines: small lowercase mono text, one line. -->
+    <string name="onboarding_agent_ready">準備完了 · %1$s</string>
+    <string name="onboarding_agent_free_models">無料モデル</string>
+    <string name="onboarding_agent_signed_in">ログイン済み</string>
+    <string name="onboarding_agent_signed_in_as">ログイン済み · %1$s</string>
+    <string name="onboarding_agent_installing">インストール中…</string>
+    <string name="onboarding_agent_installed">インストール済み · 未ログイン</string>
+    <string name="onboarding_agent_not_installed">未インストール</string>
+    <string name="onboarding_agent_sign_in_claude">Claude アカウントでログインします。ブラウザが開いたら「承認」（Authorize）をタップしてください。自動的に Buddy に戻ります。</string>
+    <string name="onboarding_agent_checking_opencode">OpenCode を確認中…</string>
+    <string name="onboarding_agent_sign_in_codex">ブラウザで ChatGPT アカウントにログインしてから、戻ってきてください。</string>
+    <string name="onboarding_agent_sign_in_agy">Google アカウントでログインします。ブラウザが開いたらそこでログインしてください。Buddy が自動的にコードを受け取ります。</string>
+    <string name="onboarding_agent_sign_in_grok">Grok アカウントでログインします。ブラウザが開いたらそこでコードを確認してください。自動的に Buddy に戻ります。</string>
+    <string name="onboarding_agent_download_claude">初回のみ約 235 MB をダウンロードします（Buddy の Linux と Anthropic の Claude Code）。</string>
+    <string name="onboarding_agent_download_opencode">初回のみ約 230 MB をダウンロードします（Buddy の Linux、Node.js、OpenCode）。アカウントは不要です。</string>
+    <string name="onboarding_agent_download_codex">初回のみ約 150 MB をダウンロードします（Buddy の Linux、Node.js、OpenAI の Codex）。</string>
+    <string name="onboarding_agent_download_agy">初回のみ約 200 MB をダウンロードします（Buddy の Linux と Google の Antigravity CLI）。</string>
+    <string name="onboarding_agent_download_grok">初回のみ約 170 MB をダウンロードします（Buddy の Linux と xAI の Grok Build）。</string>
+    <string name="onboarding_sign_in_claude">Claude でログイン</string>
+    <string name="onboarding_sign_in_chatgpt">ChatGPT でログイン</string>
+    <string name="onboarding_sign_in_google">Google でログイン</string>
+    <string name="onboarding_sign_in_grok">Grok でログイン</string>
+    <string name="onboarding_install_agent">%1$s をインストール</string>
+    <string name="onboarding_agents_wifi">できれば Wi-Fi を使用してください。インストール中はこの画面を離れてもかまいません。</string>
+    <string name="onboarding_stuck_sign_in_q">ログイン後に Buddy に戻りませんか？</string>
+    <string name="onboarding_stuck_sign_in_a">Claude の場合：Claude のページで「コードをコピー」（Copy Code）をタップしてから Buddy に戻ってください。クリップボードからコードが自動で読み取られます。</string>
+    <string name="onboarding_stuck_install_q">インストールに失敗しましたか？</string>
+    <string name="onboarding_stuck_install_a">接続を確認して、もう一度「インストール」をタップしてください。中断したところから再開します。</string>
+
+    <!-- Guide, step: let Buddy run in the background (Android's battery optimization). -->
+    <string name="onboarding_background_title">バックグラウンドで実行</string>
+    <string name="onboarding_background_done">Buddy はバックグラウンドで実行できます。</string>
+    <string name="onboarding_background_text">エージェントの作業中に、電池を節約するためにスマートフォンが Buddy を停止しないようにします。</string>
+    <string name="onboarding_allow">許可</string>
+    <string name="onboarding_skip_for_now">今はスキップ</string>
+
+    <!-- Guide, step: how much the agent asks before acting. -->
+    <string name="onboarding_safety_title">どこまで確認しますか？</string>
+    <string name="onboarding_safety_text">メッセージ、SNS、ショッピング、決済、銀行のアプリでは、Buddy が送信、投稿、購入、削除をする前に必ず承認が必要です。その他のアプリでは：</string>
+    <string name="onboarding_safety_ask_title">先に確認する</string>
+    <string name="onboarding_safety_ask_text">設定の変更など、リスクのある操作の前にエージェントが確認します。より安全ですが、ポップアップが増えます。</string>
+    <string name="onboarding_safety_auto_title">自動で進める</string>
+    <string name="onboarding_safety_auto_text">ポップアップなし：カメラや照明をオンにするなど、頼んだことをエージェントがそのまま実行します。</string>
+    <string name="onboarding_safety_note">アプリごとにいつでも変更できます（設定 → アプリの権限）。アプリを「信頼」にするとエージェントがポップアップなしで操作し、「厳格」にすると Buddy 自身があなたに確認します。</string>
+
+    <!-- Guide, last step: try a first task. -->
+    <string name="onboarding_try_title">準備ができました</string>
+    <string name="onboarding_try_text">最初のタスクを試してみましょう。Buddy が設定アプリを開いて、代わりに確認します。</string>
+    <string name="onboarding_try_prompt">設定を開いて、Android のバージョンを教えて</string>
+    <string name="onboarding_try_prompt_quoted">「%1$s」</string>
+    <string name="onboarding_try_tip">ヒント：バブルは他のアプリの上に表示されます。✕ までドラッグすると非表示になります。</string>
+    <string name="onboarding_try_now">今すぐ試す</string>
+    <string name="onboarding_go_to_chats">チャット一覧へ</string>
+
+    <!-- Home screen: the chat list. -->
+    <string name="main_new_chat">新しいチャット</string>
+    <string name="main_status_ready">準備完了 · %1$s</string>
+    <string name="main_status_setup">セットアップ %1$d/%2$d</string>
+    <string name="main_setup_title">チャットを使うにはセットアップを完了してください</string>
+    <string name="main_setup_next">次：%1$s</string>
+    <string name="main_setup_next_accessibility">次：Buddy のユーザー補助サービスを開く</string>
+    <string name="main_section_working">実行中</string>
+    <string name="main_section_recent">最近</string>
+    <string name="main_empty_title">チャットはまだありません</string>
+    <string name="main_empty_text">「新しいチャット」をタップすると、Claude Code、Codex、OpenCode、Antigravity、または Grok とのチャットを開始できます。チャットを長押しすると削除できます。</string>
+    <string name="main_chat_working">実行中…</string>
+    <string name="main_chat_waiting">あなたの返事待ち…</string>
+    <string name="main_card_other_session">別のセッション</string>
+    <string name="main_chat_last_you">あなた：%1$s</string>
+    <string name="main_delete_title">このチャットを削除しますか？</string>
+    <string name="main_delete_action">削除</string>
+    <string name="main_new_chat_default">デフォルト</string>
+    <string name="main_new_chat_not_signed_in">未ログイン · タップして設定</string>
+    <string name="main_new_chat_not_installed">未インストール · タップして設定</string>
+    <string name="main_ago_now">今</string>
+    <plurals name="main_ago_minutes">
+        <item quantity="other">%1$d分</item>
+    </plurals>
+    <plurals name="main_ago_hours">
+        <item quantity="other">%1$d時間</item>
+    </plurals>
+    <plurals name="main_ago_days">
+        <item quantity="other">%1$d日</item>
+    </plurals>
+
+    <!-- Notification shown after the bubble is dragged away to hide it. -->
+    <string name="notice_channel_name">非表示のバブル</string>
+    <string name="notice_hidden_title">Buddy は非表示です</string>
+    <string name="notice_hidden_text">タップするとバブルを再表示します。</string>
+    <string name="notice_open_chats">チャットを開く</string>
+
+    <!-- Buddy's own updates (GitHub version): notification, update sheet and messages. -->
+    <string name="update_channel_name">Buddy のアップデート</string>
+    <string name="update_available_title">Buddy %1$s を利用できます</string>
+    <string name="update_notification_text">現在のバージョンは %1$s です。タップすると新機能を確認してアップデートできます。チャットはそのまま残ります。</string>
+    <string name="update_action">アップデート</string>
+    <string name="update_mute">通知しない</string>
+    <string name="update_muted">アップデートの通知をオフにしました。「設定」の「アップデートの通知」で再びオンにできます。</string>
+    <string name="update_checking">アップデートを確認中…</string>
+    <string name="update_check_failed">GitHub に接続できませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="update_up_to_date">Buddy %1$s は最新バージョンです。</string>
+    <string name="update_sheet_text">現在のバージョンは %1$s です。アップデートしても、チャット、設定、ログイン状態はそのまま残ります。</string>
+    <string name="update_later">後で</string>
+    <string name="update_downloading">ダウンロード中…</string>
+    <string name="update_needs_permission">Buddy に「不明なアプリのインストール」を許可してから、もう一度「アップデート」をタップしてください。</string>
+    <string name="update_error_no_apk">このリリースにはまだ buddy.apk がありません。</string>
+    <string name="update_error_download">ダウンロードに失敗しました（%1$s）。</string>
+    <string name="update_error_not_newer">ダウンロードしたファイルは新しいバージョンの Buddy ではないため、開きませんでした。</string>
+    <string name="update_failed_manual">%1$s %2$s（buddy.apk）から入手することもできます。Obtainium を使うと自動でアップデートできます（%3$s を参照）。</string>
+
+    <!-- Settings, Appearance: option names. -->
+    <string name="prefs_theme_system">システム</string>
+    <string name="prefs_theme_light">ライト</string>
+    <string name="prefs_theme_dark">ダーク</string>
+    <string name="prefs_surface_warm">ウォーム</string>
+    <string name="prefs_surface_neutral">ニュートラル</string>
+    <string name="prefs_surface_black">ブラック</string>
+    <!-- Accent colour names, read aloud by TalkBack for the colour swatches. -->
+    <string name="prefs_accent_coral">コーラル</string>
+    <string name="prefs_accent_ocean">オーシャン</string>
+    <string name="prefs_accent_mint">ミント</string>
+    <string name="prefs_accent_violet">バイオレット</string>
+    <string name="prefs_accent_rose">ローズ</string>
+    <string name="prefs_accent_amber">アンバー</string>
+
+    <!-- ===== The bubble, its hold menu, chat panel and approval cards (Bubble, RadialMenu, ControlIndicator) ===== -->
+
+    <!-- Floating bubble, read by TalkBack. -->
+    <string name="bubble_face_description">Buddy。タップで開く、長押しでメニューを表示</string>
+    <string name="bubble_show_actions">メニューを表示</string>
+
+    <!-- Status pill beside the bubble: at most two lines, about 250dp wide; longer text is cut off with "…". -->
+    <string name="bubble_pill_waiting_answer">回答を待っています</string>
+    <string name="bubble_pill_waiting_approval">承認を待っています</string>
+    <string name="bubble_pill_paused">一時停止中 · ここをタップして再開</string>
+    <string name="bubble_pill_hands_on">%1$s · ここをタップして回答</string>
+    <string name="bubble_using_phone">スマートフォンを操作中</string>
+    <string name="bubble_using_phone_status">スマートフォンを操作中 · %1$s</string>
+    <string name="bubble_pill_background">バックグラウンドで実行中 · スマホを使えます</string>
+    <string name="activity_reading">画面を読み取り中</string>
+    <string name="activity_typing">入力中</string>
+    <string name="activity_scrolling">スクロール中</string>
+    <string name="activity_swiping">スワイプ中</string>
+    <string name="activity_opening">%1$s を開いています</string>
+    <string name="activity_tapping">「%1$s」をタップ中</string>
+    <string name="activity_tapping_plain">タップ中</string>
+    <string name="activity_browsing">%1$s を閲覧中 · %2$s</string>
+    <string name="activity_browser_opening">ページを開いています</string>
+    <string name="activity_browser_reading">ページを読み取り中</string>
+    <string name="bubble_pill_hold_hint">バブルを長押しで「タスク停止」など</string>
+    <string name="bubble_pill_status_hold_hint">%1$s · バブルを長押しで「タスク停止」など</string>
+
+    <!-- Hold menu: actions fanned out around the bubble while it is held. Very little room: one line, 72dp wide. -->
+    <string name="menu_stop_task">タスク停止</string>
+    <string name="menu_resume">再開</string>
+    <string name="menu_pause">一時停止</string>
+    <string name="menu_add_instruction">指示を追加</string>
+    <string name="menu_stop_voice">音声停止</string>
+    <string name="bubble_talk">話す</string>
+    <string name="menu_open_chat">チャット</string>
+    <string name="menu_hide">非表示</string>
+
+    <!-- Hold-menu preview: the first few times a task starts, three actions peek out of the bubble for a moment. -->
+    <string name="menu_peek_stop">停止</string>
+    <string name="menu_peek_add">追加</string>
+    <string name="menu_peek_voice">音声</string>
+    <string name="menu_peek_hint">長押ししてね</string>
+
+    <!-- Toasts from the bubble. "hold" = long-press. -->
+    <string name="bubble_tip_stop_voice">ヒント：バブルを長押しすると音声を停止できます</string>
+    <string name="bubble_tip_hold_menu">ヒント：バブルを長押しすると、一時停止、停止、指示の追加ができます</string>
+    <string name="bubble_stopping">停止中…</string>
+    <string name="bubble_nothing_running">Buddy のチャットで実行中のタスクはありません。</string>
+    <string name="bubble_nothing_running_chat">このチャットで実行中のタスクはありません。</string>
+    <string name="bubble_allow_mic_tap_mic">Buddy でマイクを許可してから、もう一度マイクをタップしてください。</string>
+    <string name="bubble_allow_mic_tap_bubble">Buddy でマイクを許可してから、もう一度バブルをタップしてください。</string>
+    <string name="bubble_note_added">了解しました：%1$s が指示を反映します</string>
+    <string name="bubble_copied">コピーしました</string>
+
+    <!-- Voice input, shown in the status pill beside the bubble. -->
+    <string name="bubble_listening">聞き取り中…</string>
+    <string name="bubble_listening_tap_done">聞き取り中… 話し終えたらバブルをタップ</string>
+    <string name="bubble_heard">「%1$s」</string>
+
+    <!-- Chat panel opened from the bubble: header buttons (read by TalkBack) and titles. -->
+    <string name="bubble_new_chat">新しいチャット</string>
+    <string name="bubble_open_in_app">アプリで開く</string>
+    <string name="bubble_close">閉じる</string>
+    <string name="bubble_chats_title">チャット</string>
+    <string name="bubble_model_effort_title">モデルと思考レベル</string>
+
+    <!-- Strip at the top of the chat panel while the agent works. -->
+    <string name="bubble_working">実行中…</string>
+    <string name="bubble_stop">停止</string>
+
+    <!-- Composer at the bottom of the chat panel. -->
+    <string name="bubble_attach">写真やファイルを添付</string>
+    <string name="bubble_input_hint">%1$s に依頼…</string>
+    <string name="bubble_paste">貼り付け</string>
+    <string name="bubble_send">送信</string>
+    <string name="bubble_empty_chat">新しい %1$s チャットです。スマートフォンでしてほしいことを頼んでください。</string>
+    <plurals name="bubble_tool_calls">
+        <item quantity="other">ツール呼び出し %1$d 件</item>
+    </plurals>
+
+    <!-- List of chats in the panel. -->
+    <string name="bubble_chat_row_working">実行中…</string>
+    <string name="bubble_chat_row_you">あなた：%1$s</string>
+    <string name="bubble_delete_chat">このチャットを削除しますか？</string>
+    <string name="bubble_delete">削除</string>
+
+    <!-- Agent picker for a new chat (its title is bubble_new_chat). -->
+    <string name="bubble_agent_default">デフォルト</string>
+    <string name="bubble_agent_not_signed_in">未ログイン · タップして設定</string>
+    <string name="bubble_agent_not_installed">未インストール · タップして設定</string>
+
+    <!-- Model and effort picker for the current chat. -->
+    <string name="bubble_model_note">このチャットのみに適用されます。会話はそのまま続き、次のメッセージから新しい設定が使われます。</string>
+    <string name="bubble_effort">思考レベル</string>
+    <string name="bubble_effort_note">「自動」ではエージェントが判断します。高くするほど長く考え、プランの使用量も増えます。</string>
+    <string name="bubble_model">モデル</string>
+
+    <!-- Card in the chat panel when the agent asks for approval or asks a question. -->
+    <string name="card_label_approval">承認が必要</string>
+    <string name="card_label_question">質問</string>
+    <string name="card_label_other_session">%1$s · 別のセッションから</string>
+    <string name="card_label_queue">%1$s · 1 / %2$d 件</string>
+    <string name="card_deny">拒否</string>
+    <string name="card_change">変更</string>
+    <string name="card_approve">承認</string>
+    <string name="card_skip">スキップ</string>
+    <string name="card_type_own_answer">自分で回答を入力…</string>
+    <string name="card_change_hint">何を変更しますか？</string>
+    <string name="card_answer_hint">回答を入力…</string>
+
+    <!-- Notes posted into the chat after the user answers a card. -->
+    <string name="card_note_answered">✓ 回答済み：%1$s</string>
+    <string name="card_note_change_requested">✎ 変更を依頼：%1$s</string>
+    <string name="card_note_approved">✓ 承認済み：%1$s</string>
+    <string name="card_note_denied">✗ 拒否</string>
+    <string name="card_note_skipped">質問をスキップしました</string>
+
+    <!-- Notification while an agent operates the phone; on Android 16 also a chip in the status bar. -->
+    <string name="control_channel_name">Buddy がスマートフォンを操作中</string>
+    <string name="control_channel_description">エージェントがスマートフォンを操作している間、ステータスバーに表示されます。</string>
+    <string name="control_title">Buddy がスマートフォンを操作中</string>
+    <string name="control_text">完了するまで画面に触れないでください。自分で操作する場合は「停止」をタップしてください。</string>
+    <string name="control_stop">停止</string>
+    <string name="pause_call_ended_title">通話終了 · Buddy は一時停止中</string>
+    <string name="pause_call_ended_text">タップしてタスクを再開</string>
+
+    <!-- ===== Full-screen chat, agent progress lines, transcripts, shared UI, voice (ChatActivity, ChatHub, Ui, BuddyService, Voice) ===== -->
+
+    <!-- Chat screen: app bar -->
+    <string name="chat_back">戻る</string>
+    <string name="chat_read_aloud">返信を読み上げる</string>
+    <string name="chat_read_aloud_on">返信を読み上げます</string>
+    <string name="chat_read_aloud_off">返信を読み上げません</string>
+
+    <!-- Chat screen: Linux tools, the chip beside the model chip (also in the bubble's panel and the New chat sheets) -->
+    <string name="chat_linux_tools">Linux ツール</string>
+    <string name="chat_linux_tools_info">Buddy の Linux でのコマンド実行、ファイル編集、アプリのビルド</string>
+    <string name="chat_linux_tools_title">Linux ツールをオンにしますか？</string>
+    <string name="chat_linux_tools_what">エージェントがコマンドの実行、パッケージのインストール、~/.buddy/work 内のファイル編集を行えるようになり、アプリのビルドもできます。</string>
+    <string name="chat_linux_tools_when">このチャットのみで、次のメッセージから有効になります。</string>
+    <string name="chat_linux_tools_risk">画面上の悪意のあるメッセージやウェブページが、エージェントをだましてコマンドを実行させようとするおそれがあります。送信、投稿、購入、削除は引き続き承認カードで保護されます。</string>
+    <string name="chat_linux_tools_turn_on">オンにする</string>
+
+    <string name="chat_options">チャットのオプション</string>
+    <string name="chat_keep_awake">作業中は画面をオンのままにする</string>
+    <string name="chat_keep_awake_info">長い作業向け：このチャットが作業している間はスリープせず、終わると結果を通知でお知らせします。スマホをロックすれば画面は通常どおり消えます。</string>
+    <string name="chat_allowed">確認なしで許可</string>
+    <string name="chat_allowed_info">このチャットの作業が終わるまで、これらのアプリでの定型的な承認は自動で進みます（メッセージの送信や、レビュー担当が確認を求める手順など）。それぞれチャットに表示されます。支払い、購入、削除、インストール、パスワード、セキュリティ設定は引き続き確認します。</string>
+    <string name="chat_allowed_kept">このチャットのスケジュール用に保持：これらのアプリは、削除するかスケジュールを削除するまで、スケジュール実行でも許可されたままです。</string>
+    <string name="chat_allowed_add">アプリを追加</string>
+    <string name="chat_allowed_remove">%1$sを削除</string>
+    <string name="run_rule_approved">この作業のルールで承認：%1$s</string>
+    <string name="run_end_done">%1$sが完了しました</string>
+    <string name="run_end_stopped">%1$sが停止しました</string>
+    <string name="run_end_failed">%1$sで問題が発生しました</string>
+    <string name="schedule_title">スケジュール</string>
+    <string name="schedule_set">スケジュールを設定</string>
+    <string name="schedule_set_info">決まった時刻にこのチャットへ自動でメッセージを送ります（例：毎日14:00）。</string>
+    <string name="schedule_info">設定した時刻に、Buddy があなたが入力したのと同じようにこのメッセージをチャットへ送ります。エージェントとオプションはこのチャットのものです。承認カードはこれまでどおりあなたを待ちます。スマホがロック中に画面が必要になったら、ロック解除をお願いします。</string>
+    <string name="schedule_time">時刻</string>
+    <string name="schedule_days">曜日</string>
+    <string name="schedule_daily">毎日</string>
+    <string name="schedule_weekdays">平日</string>
+    <string name="schedule_pick_days">曜日を選ぶ</string>
+    <string name="schedule_message">メッセージ</string>
+    <string name="schedule_message_hint">送る内容（例：アプリを開いて今日のチェックインをして）</string>
+    <string name="schedule_wake">このタスクのためにスマホを起こす</string>
+    <string name="schedule_wake_info">画面が必要になると画面がオンになります（PIN、パターン、指紋のないロック画面は解除されます）。実行中は近くの人にも画面が見えます。</string>
+    <string name="schedule_inexact">Buddy の正確なアラームがオフのため、数分遅れて始まることがあります。</string>
+    <string name="schedule_allow_exact">正確なアラームを許可</string>
+    <string name="schedule_save">保存</string>
+    <string name="schedule_remove">削除</string>
+    <string name="schedule_summary_daily">毎日 %1$s</string>
+    <string name="schedule_summary_weekdays">平日 %1$s</string>
+    <string name="schedule_summary_days">%1$s %2$s</string>
+    <string name="schedule_next">次回：%1$s</string>
+    <string name="schedule_no_days">曜日を1つ以上選んでください</string>
+    <string name="schedule_no_message">送るメッセージを入力してください</string>
+    <string name="schedule_channel">スケジュールされたタスク</string>
+    <string name="schedule_screen_title">スケジュールされたタスクに画面が必要です：ロックを解除して続行</string>
+    <string name="schedule_screen_text">%1$s：スマホのロックを解除すると続きます（%2$s まで）。</string>
+    <string name="schedule_skipped_title">スケジュールされたタスクをスキップしました：%1$s</string>
+    <string name="schedule_stopped_title">スケジュールされたタスクを停止しました：%1$s</string>
+    <string name="schedule_skip_running">このチャットはまだ前のタスクを実行中でした。</string>
+    <string name="schedule_skip_busy">Buddy が1時間ふさがっていました（別のタスク、一時停止、またはインターネットなし）。</string>
+    <string name="schedule_skip_screen">スマホが1時間ロックされたままでした。</string>
+    <string name="schedule_marker">スケジュール</string>
+
+    <!-- Chat screen: the strip shown while the agent works -->
+    <string name="chat_stop">停止</string>
+    <string name="chat_working">実行中…</string>
+
+    <!-- Chat screen: composer and empty chat -->
+    <string name="chat_attach_description">写真やファイルを添付</string>
+    <string name="chat_input_hint">%1$s に依頼…</string>
+    <string name="chat_input_hint_running">作業中に指示を追加…</string>
+    <string name="chat_talk">話す</string>
+    <string name="chat_send">送信</string>
+    <string name="chat_empty_hint">新しい %1$s チャットです。スマートフォンでしてほしいことを頼んでみましょう。</string>
+    <string name="chat_empty_hint_dev">Linux ツール付きの新しい %1$s チャットです。スマートフォンの操作やアプリの作成を頼んでみましょう。</string>
+
+    <!-- Model sheet (tap the model chip under the chat title) -->
+    <string name="chat_model_title">%1$s のモデル</string>
+    <string name="chat_model_subtitle">このチャットのみに適用されます。会話は新しいモデルで続きます。</string>
+    <string name="chat_effort">思考レベル</string>
+    <string name="chat_effort_help">「自動」ではエージェントが判断します。高くするほど長く考え、プランの使用量も増えます。</string>
+    <string name="chat_model">モデル</string>
+    <string name="chat_model_other_hint">その他… 例：%1$s</string>
+    <string name="chat_model_use">使用</string>
+
+    <!-- Language sheet (long-press the mic) -->
+    <string name="chat_speak_in">話す言語</string>
+    <string name="chat_speak_in_help">言語は「設定」→「音声」で選べます。</string>
+    <string name="live_option">ライブ音声</string>
+    <string name="live_option_sub">%1$s と声で話せます。ChatGPT の声で答え、このチャットでスマホを操作します。</string>
+    <string name="live_label">ライブ</string>
+    <string name="live_end">終了</string>
+    <string name="live_connecting">接続中…</string>
+    <string name="live_started">ライブ音声がオンです。話しかけてください。%1$s が聞き取り、声で答え、頼んだことをこのチャットで実行します。</string>
+    <string name="live_ended">ライブ音声を終了しました。</string>
+    <string name="live_ended_why">ライブ音声を終了しました：%1$s</string>
+    <string name="live_ended_screen_off">画面がオフになりました</string>
+    <string name="live_ended_paused">Buddy が一時停止されました</string>
+    <string name="live_ended_idle">5 分間何も話されませんでした</string>
+    <string name="live_notification_title">%1$s とライブ音声</string>
+    <string name="live_mic_busy">ライブ音声がマイクを使用中です。先に終了してください。</string>
+    <string name="live_hint">新機能：%1$s とライブで話せます</string>
+    <string name="live_status_listening">聞いています…</string>
+    <string name="live_status_thinking">考え中…</string>
+    <string name="live_status_working">作業中…</string>
+    <string name="live_status_speaking">話しています…</string>
+    <string name="chat_phone_voice">端末の音声入力</string>
+
+    <!-- Approval card above the composer, when the agent asks for an OK or asks a question -->
+    <string name="chat_card_question">質問</string>
+    <string name="chat_card_needs_ok">承認が必要</string>
+    <string name="chat_deny">拒否</string>
+    <string name="chat_change">変更</string>
+    <string name="chat_approve">承認</string>
+    <string name="chat_skip">スキップ</string>
+    <string name="chat_type_own_answer">自分で回答を入力</string>
+    <string name="chat_answer_hint">回答を入力</string>
+    <string name="chat_change_hint">何を変更しますか？</string>
+    <string name="chat_send_answer">回答を送信</string>
+    <string name="chat_send_change">変更内容を送信</string>
+
+    <!-- Attachments -->
+    <string name="chat_attach">添付</string>
+    <string name="chat_attach_camera">写真を撮る</string>
+    <string name="chat_attach_camera_sub">カメラを使用</string>
+    <string name="chat_attach_photos">写真</string>
+    <string name="chat_attach_photos_sub">ギャラリーから選択</string>
+    <string name="chat_attach_files">ファイル</string>
+    <string name="chat_attach_files_sub">PDF やドキュメントなど、25 MB までのファイル</string>
+    <string name="chat_no_app_for_action">この操作に対応するアプリがこのスマートフォンにありません。</string>
+    <string name="chat_adding">追加中…</string>
+    <plurals name="chat_adding_files">
+        <item quantity="other">%1$d 個のファイルを追加中…</item>
+    </plurals>
+    <string name="chat_attachment_remove">削除</string>
+    <string name="chat_no_app_for_file">%1$s を開けるアプリがありません。</string>
+
+    <!-- Chat messages -->
+    <string name="chat_copied">コピーしました</string>
+    <plurals name="chat_tool_calls">
+        <item quantity="other">ツール呼び出し %1$d 件</item>
+    </plurals>
+
+    <!-- Notes Buddy posts into a chat, and the chat's status line -->
+    <string name="hub_continuing">以前の %1$s セッションを続けます。ターミナルでまだ開いている場合は、先にそちらで閉じてください。</string>
+    <string name="hub_still_working_attachments">このチャットはまだ実行中です。完了してから添付ファイルを送信してください。</string>
+    <string name="hub_thinking">考え中…</string>
+    <string name="hub_still_waiting">まだモデルの応答を待っています…</string>
+    <string name="hub_no_answer">モデルから応答がありませんでした。混み合っている可能性があります。もう一度試すか、チャット上部で別のモデルを選んでください。</string>
+    <string name="hub_model_set">モデル：%1$s</string>
+    <string name="hub_effort_set">思考レベル：%1$s</string>
+    <string name="hub_effort_default">思考レベル：デフォルト</string>
+    <string name="hub_stopping">停止中…</string>
+    <string name="hub_stopped">停止しました。</string>
+    <string name="hub_interrupted">エージェントの作業中に Android が Buddy を閉じたため、停止しました。</string>
+    <string name="hub_resume_message">中断したところから続けてください</string>
+    <string name="chat_interrupted">%1$s がこの作業中に Android が Buddy を閉じました。「続ける」で完了済みの内容を確認し、そこから再開します。</string>
+    <string name="chat_interrupted_continue">続ける</string>
+    <string name="chat_interrupted_dismiss">閉じる</string>
+    <string name="hub_agent_stopped">%1$s が停止しました。</string>
+    <string name="hub_something_wrong">問題が発生しました。</string>
+    <string name="hub_note_added">作業中に追加しました：%1$s は次のステップで受け取ります</string>
+    <string name="hub_note_not_sent">停止したため、追加したメモは送信されていません。メッセージ欄に戻しました</string>
+    <string name="hub_note_passed">追加した内容を伝えました</string>
+    <plurals name="hub_pill_chats">
+        <item quantity="other">%1$d 件のチャット · %2$s</item>
+    </plurals>
+
+    <!-- The agent's steps, one line each, shown in the chat and the bubble while it works. -->
+    <string name="hub_tool_read_screen">画面を読み取り中</string>
+    <string name="hub_tool_screenshot">スクリーンショットを撮影中</string>
+    <string name="hub_tool_tap_element">要素 %1$d をタップ中</string>
+    <string name="hub_tool_tap_point">座標 %1$d,%2$d をタップ中</string>
+    <string name="hub_tool_long_press">長押し中</string>
+    <string name="hub_tool_type">「%1$s」を入力中</string>
+    <string name="hub_tool_scroll_up">上にスクロール中</string>
+    <string name="hub_tool_scroll_down">下にスクロール中</string>
+    <string name="hub_tool_scroll_left">左にスクロール中</string>
+    <string name="hub_tool_scroll_right">右にスクロール中</string>
+    <string name="hub_tool_scroll">スクロール中（%1$s）</string>
+    <string name="hub_tool_swipe">スワイプ中</string>
+    <string name="hub_tool_press_back">戻る操作中</string>
+    <string name="hub_tool_press_home">ホームに移動中</string>
+    <string name="hub_tool_press_recents">最近使ったアプリを表示中</string>
+    <string name="hub_tool_press_notifications">通知を表示中</string>
+    <string name="hub_tool_press_quick_settings">クイック設定を表示中</string>
+    <string name="hub_tool_press">%1$s ボタンを操作中</string>
+    <string name="hub_tool_open_app">%1$s を起動中</string>
+    <string name="hub_tool_open_url">%1$s を表示中</string>
+    <string name="hub_tool_clipboard_read">クリップボードを読み取り中</string>
+    <string name="hub_tool_clipboard_write">クリップボードにコピー中</string>
+    <string name="hub_tool_set_alarm">%1$s にアラームを設定中</string>
+    <string name="hub_tool_set_timer">タイマーを開始中</string>
+    <string name="hub_tool_share">共有メニューを表示中</string>
+    <string name="hub_tool_save_downloads">%1$s を Downloads に保存中</string>
+    <string name="hub_tool_device_status">スマートフォンの状態を確認中</string>
+    <string name="hub_tool_take_photo">カメラを起動中</string>
+    <string name="hub_tool_location">位置情報を取得中</string>
+    <string name="hub_tool_notifications">通知を読み取り中</string>
+    <string name="hub_tool_media">メディア操作</string>
+    <string name="hub_tool_calendar_events">カレンダーを読み取り中</string>
+    <string name="hub_tool_add_event">カレンダーに追加中：%1$s</string>
+    <string name="hub_tool_wait_for">画面を待機中</string>
+    <string name="hub_tool_do_steps">%1$d 個のステップを実行中</string>
+    <string name="hub_tool_collect">リスト全体を読み取り中</string>
+    <string name="hub_tool_find">「%1$s」を検索中</string>
+    <string name="schedules_title">スケジュール済み</string>
+    <string name="schedules_row">すべてのチャットのタスクとリマインダー</string>
+    <string name="schedules_intro">各チャットのスケジュールされたタスクと、エージェントが予約したメッセージやリマインダーです。チャット名をタップすると開きます。</string>
+    <string name="schedules_none">スケジュールはありません。チャットのオプション → スケジュールでタスクを設定するか、エージェントに何かをリマインドするよう頼んでください。</string>
+    <string name="schedules_paused">一時停止中</string>
+    <string name="schedules_quiet_tag">新着のみ</string>
+    <string name="schedules_run_now">今すぐ実行</string>
+    <string name="schedules_started">開始しました（またはチャットが空くのを待っています）。</string>
+    <string name="schedules_pause">一時停止</string>
+    <string name="schedules_resume">再開</string>
+    <string name="schedules_reminder">リマインダー</string>
+    <string name="schedule_quiet">新しいことがあるときだけ知らせる</string>
+    <string name="schedule_quiet_info">実行で新しいことが見つからなければ、通知せずに終了します。返信はチャットに残り、問題があれば必ず通知します。</string>
+    <string name="schedule_reminder_title">リマインダー</string>
+    <string name="schedule_reminder_line">リマインダー：%1$s</string>
+    <string name="steps_view">ステップを見る</string>
+    <string name="steps_title">ステップ</string>
+    <string name="steps_intro">このチャットの直近 3 回の実行でエージェントがスマートフォンで行ったことと、各ステップ後の画面です。このスマートフォンにのみ保存され、チャットと一緒に削除されます。画像をタップすると拡大します。</string>
+    <string name="steps_none">このチャットにはまだステップがありません。</string>
+    <string name="steps_run">%1$s · %2$s · %3$d ステップ · %4$s</string>
+    <string name="steps_run_live">%1$s · これまで %2$d ステップ</string>
+    <string name="steps_context">コンテキスト %1$s</string>
+    <string name="steps_no_actions">この実行ではスマートフォンの操作はありませんでした。</string>
+    <string name="steps_done">完了</string>
+    <string name="steps_failed">失敗</string>
+    <string name="steps_stopped">停止</string>
+    <string name="hub_tool_list_apps">アプリの一覧を取得中</string>
+    <string name="hub_tool_approved">✓ 承認済み：%1$s</string>
+    <string name="hub_tool_change_requested">✎ 変更を依頼</string>
+    <string name="hub_tool_change_requested_text">✎ 変更を依頼：%1$s</string>
+    <string name="hub_tool_denied">✗ 拒否</string>
+    <string name="hub_tool_asking_approval">承認を依頼中</string>
+    <string name="hub_tool_answered">✓ 回答済み</string>
+    <string name="hub_tool_answered_text">✓ 回答済み：%1$s</string>
+    <string name="hub_tool_question_skipped">質問をスキップしました</string>
+    <string name="hub_tool_asking">質問中：%1$s</string>
+    <string name="hub_tool_point_out">マーク表示中：%1$s</string>
+    <string name="hub_tool_point_out_any">画面上にマークを表示中</string>
+    <string name="hub_tool_update_download">Buddy のアップデートをダウンロード中</string>
+    <string name="hub_tool_update_check">Buddy のアップデートを確認中</string>
+    <string name="hub_tool_web_search">ウェブを検索中：%1$s</string>
+    <string name="hub_tool_web_fetch">%1$s を読み込み中</string>
+    <string name="hub_tool_command">実行中：%1$s</string>
+    <string name="hub_tool_command_any">コマンドを実行中</string>
+    <string name="hub_tool_edit">%1$s を編集中</string>
+    <string name="hub_tool_edit_any">ファイルを編集中</string>
+    <string name="hub_tool_read_file">%1$s を読み込み中</string>
+    <string name="hub_tool_other">%1$s を使用中</string>
+
+    <!-- Transcript of an earlier agent session that isn't a Buddy chat (read-only) -->
+    <string name="transcript_loading">読み込み中…</string>
+    <string name="transcript_continue">Buddy で続ける</string>
+    <string name="transcript_empty">このセッションには表示できるメッセージがありません。</string>
+    <plurals name="transcript_last_messages">
+        <item quantity="other">最新 %1$d 件のメッセージ · 閲覧のみ</item>
+    </plurals>
+
+    <!-- Shared screens: links -->
+    <string name="ui_no_app_for_link">このリンクを開けるアプリがありません</string>
+
+    <!-- Accessibility disclosure, shown before Android's accessibility settings open (required by Google Play) -->
+    <string name="ui_a11y_title">Buddy によるユーザー補助の使用について</string>
+    <string name="ui_a11y_what">Buddy は Android のユーザー補助サービスを使って、他のアプリであなたが頼んだことを実行します。画面に表示されている内容を読み取り、あなたの代わりにタップ、入力、スクロールを行います。フローティングバブルの表示にも使用します。</string>
+    <string name="ui_a11y_data">タスクの実行中は、画面の内容（メッセージ、名前、住所などの個人情報が含まれる場合があります）が、リクエストを実行する目的でのみ、選択したエージェントの AI サービス（Claude Code は Anthropic、Codex は OpenAI、Antigravity は Google、Grok は xAI、OpenCode は選択したモデルのプロバイダー）に送信されます。</string>
+    <string name="ui_a11y_no_servers">Buddy は独自のサーバーを持っていません。このデータを収集、販売、共有することはなく、広告に使用することもありません。</string>
+    <string name="ui_a11y_asks">送信、投稿、購入、削除を行う前に、Buddy は承認を求めます。このサービスは Android のユーザー補助の設定でいつでもオフにできます。</string>
+    <string name="ui_privacy_policy">プライバシーポリシー</string>
+    <string name="ui_no_thanks">同意しない</string>
+    <string name="ui_agree_continue">同意して続行</string>
+
+    <!-- Bottom navigation of the main screens. Keep very short (about 10 characters). -->
+    <string name="ui_nav_chats">チャット</string>
+    <string name="ui_nav_sessions">セッション</string>
+    <string name="ui_nav_settings">設定</string>
+
+    <!-- Accessibility service: pause from the bubble's hold menu, Stop on the control indicator -->
+    <string name="service_pause_expired">5 分間一時停止したままだったため、Buddy はタスクを停止しました。</string>
+    <string name="service_stopped_toast">停止しました。スマートフォンを自由に使えます。</string>
+    <string name="service_paused_note">一時停止中：再開するまでスマートフォンを自由に使えます</string>
+    <string name="service_paused_toast">一時停止しました。スマートフォンを使ったら、バブルの横の「一時停止中」をタップして再開してください。</string>
+    <string name="service_resumed_note">再開しました</string>
+    <string name="service_autopaused_touch">画面に触れたため一時停止しました。バブルの横の「一時停止中」をタップすると再開します。</string>
+    <string name="service_autopaused_call">通話のため一時停止しました。バブルの横の「一時停止中」をタップすると再開します。</string>
+
+    <!-- Voice input and output -->
+    <string name="voice_mic_needed">Buddy にはマイクが必要です。Buddy アプリを開き、🎙 を一度タップして許可してください。</string>
+    <string name="voice_no_recognizer">このスマートフォンには音声認識サービスがありません。</string>
+    <string name="voice_starting">開始中…</string>
+    <string name="voice_finishing">処理中…</string>
+    <string name="voice_didnt_catch">聞き取れませんでした。</string>
+    <string name="voice_error">音声認識エラーが発生しました（%1$d）。</string>
+    <string name="voice_code_omitted">コードは省略します。</string>
+    <string name="voice_link">リンク</string>
+    <string name="voice_stop_and_send">停止して送信</string>
+
+    <!-- ===== Sign-in, agents and models (SignInActivity, Account, Models, Sessions, RemoteSession, Attachments) ===== -->
+
+    <!-- Sign-in screen (one per agent: Claude Code, Codex or OpenCode). -->
+    <string name="signin_back">戻る</string>
+    <string name="signin_checking">確認中…</string>
+
+    <!-- Sign-in screen: the agent isn't installed yet. -->
+    <string name="signin_install">%1$s をインストール</string>
+    <string name="signin_install_sub_claude">Claude のサブスクリプションを使って、Buddy 内で Claude Code を実行します。</string>
+    <string name="signin_install_sub_opencode">Buddy 内で OpenCode を実行します。無料モデルはアカウント不要ですぐに使えます。お使いのプロバイダー（Anthropic、OpenAI、GitHub Copilot など）もいつでも接続できます。</string>
+    <string name="signin_install_sub_codex">ChatGPT のプランを使って、Buddy 内で Codex を実行します。</string>
+    <string name="signin_install_sub_agy">Google アカウント（無料プラン、Google AI Pro、Ultra）を使って、Buddy 内で Google の Antigravity CLI を実行します。</string>
+    <string name="signin_install_sub_grok">Grok アカウント（Google または X でのログインも可）を使って、Buddy 内で xAI の Grok Build を実行します。</string>
+    <string name="signin_install_size_claude">Buddy の Linux と Anthropic の Claude Code を初回のみダウンロードします（約 235 MB）。できれば Wi-Fi を使用してください。</string>
+    <string name="signin_install_size_opencode">Buddy の Linux、Node.js、OpenCode を初回のみダウンロードします（約 230 MB）。できれば Wi-Fi を使用してください。</string>
+    <string name="signin_install_size_codex">Buddy の Linux、Node.js、OpenAI の Codex を初回のみダウンロードします（約 150 MB）。できれば Wi-Fi を使用してください。</string>
+    <string name="signin_install_size_agy">Buddy の Linux と Google の Antigravity CLI を初回のみダウンロードします（約 200 MB）。できれば Wi-Fi を使用してください。</string>
+    <string name="signin_install_size_grok">Buddy の Linux と xAI の Grok Build を初回のみダウンロードします（約 170 MB）。できれば Wi-Fi を使用してください。</string>
+
+    <!-- Sign-in screen: install or update in progress (screen titles). -->
+    <string name="signin_installing">インストール中</string>
+    <string name="signin_updating">アップデート中</string>
+    <string name="signin_install_wait">数分かかります。この画面を離れても処理は続きます。</string>
+
+    <!-- Sign-in screen: installed, not signed in. -->
+    <string name="signin_title_claude">Claude にログイン</string>
+    <string name="signin_title_chatgpt">ChatGPT にログイン</string>
+    <string name="signin_title_google">Google にログイン</string>
+    <string name="signin_title_grok">Grok にログイン</string>
+    <string name="signin_sub_claude">Claude アカウント（Pro または Max）を使用します。ブラウザが開いたらそこで承認してください。自動的に Buddy に戻ります。</string>
+    <string name="signin_sub_chatgpt">ChatGPT アカウント（Plus、Pro、Business）を使用します。ブラウザが開いたらそこで承認してください。自動的に Buddy に戻ります。</string>
+    <string name="signin_sub_agy">Google アカウントを使用します。ブラウザが開いたらそこでログインしてください。Buddy が自動的にコードを受け取ります。Antigravity の待ち時間は約 1 分です。</string>
+    <string name="signin_sub_grok">Grok アカウントを使用します（Google または X でのログインも可）。ブラウザがコード付きで開くので、そこで確認してください。自動的に Buddy に戻ります。</string>
+    <string name="signin_with_claude">Claude でログイン</string>
+    <string name="signin_with_chatgpt">ChatGPT でログイン</string>
+    <string name="signin_with_google">Google でログイン</string>
+    <string name="signin_with_grok">Grok でログイン</string>
+    <string name="signin_other_device">別のデバイスでログイン</string>
+    <string name="signin_with_code">コードでログイン</string>
+
+    <!-- Sign-in screen: sign-in in progress. -->
+    <string name="signin_sign_in">ログイン</string>
+    <string name="signin_starting">ログインを開始しています…</string>
+    <string name="signin_approve_title">ブラウザで承認してください</string>
+    <string name="signin_approve_claude">Claude のページで「承認」（Authorize）をタップしてください。Buddy がコードを受け取り、自動的に戻ります。</string>
+    <string name="signin_approve_codex">ログインして Codex を許可してください。そのあと Buddy に戻ると、自動的に完了します。</string>
+    <string name="signin_approve_agy">ログインして Antigravity を許可してください。ページに表示されたコードを Buddy が受け取り、自動的に戻ります。1 分以上かかった場合は、もう一度ログインを開始してください。</string>
+    <string name="signin_approve_grok">ページに %1$s と表示されていることを確認してから、承認してログインしてください。自動的に Buddy に戻ります。</string>
+    <string name="signin_open_again">ログインページをもう一度開く</string>
+    <string name="signin_signing_in">ログイン中</string>
+    <string name="signin_finishing">ログインを完了しています…</string>
+    <string name="signin_not_finished">ログインが完了しませんでした。%1$s</string>
+
+    <!-- Sign-in screen: signing in from another device. -->
+    <string name="signin_remote_claude">任意のデバイスでこのリンクを開いて承認してください。次に、ページに表示されたコードをコピーして、下に貼り付けてください。</string>
+    <string name="signin_enter_code">このコードを入力してください</string>
+    <string name="signin_remote_codex">任意のデバイスで下のリンクを開き、ChatGPT にログインしてコードを入力してください。あとは Buddy が自動的に完了します。</string>
+    <string name="signin_remote_agy">任意のデバイスでこのリンクを開いてログインしてください。次に、ページに表示されたコードをコピーして、約 1 分以内に下に貼り付けてください。</string>
+    <string name="signin_remote_grok">任意のデバイスで下のリンクを開き、Grok にログインしてコードを確認してください。あとは Buddy が自動的に完了します。</string>
+    <string name="signin_copy_code">コードをコピー</string>
+    <string name="signin_code_copied">コードをコピーしました</string>
+    <string name="signin_code_expiry">コードの有効期間は 15 分です。</string>
+    <string name="signin_copy_link">リンクをコピー</string>
+    <string name="signin_link_copied">リンクをコピーしました</string>
+    <string name="signin_share">共有</string>
+    <string name="signin_open_here">ここで開く</string>
+    <string name="signin_no_browser">ブラウザが見つかりません。</string>
+    <string name="signin_no_browser_page">ログインページを開くためのブラウザが見つかりません。</string>
+    <string name="signin_clip_label">ログイン</string>
+
+    <!-- Sign-in screen: fold-out box for pasting Claude's sign-in code by hand. -->
+    <string name="signin_paste_instead">代わりにコードを貼り付ける</string>
+    <string name="signin_paste_help">Buddy に自動で戻らない場合は、Claude のページで「コードをコピー」（Copy Code）をタップしてから、ここに貼り付けてください。</string>
+    <string name="signin_paste_help_agy">Buddy に自動で戻らない場合は、Antigravity のページで「Copy to Clipboard」（クリップボードにコピー）をタップしてから、コードをここに貼り付けてください。</string>
+    <string name="signin_code_hint">コード</string>
+    <string name="signin_use_code">使用</string>
+    <string name="signin_start_again">先にもう一度ログインを開始してください。</string>
+
+    <!-- Sign-in screen: signed in, or OpenCode installed (it needs no sign-in). -->
+    <string name="signin_signed_in">ログイン済み</string>
+    <string name="signin_agent_ready">%1$s の準備ができました。</string>
+    <string name="signin_done">完了</string>
+    <string name="signin_sign_out">ログアウト</string>
+    <string name="signin_sign_out_title">%1$s からログアウトしますか？</string>
+    <string name="signin_sign_out_text">再度ログインするまで、Buddy の %1$s は使用できなくなります。</string>
+    <string name="signin_opencode_ready">OpenCode の準備ができました</string>
+    <string name="signin_opencode_free">OpenCode の無料モデルを使用しています。チャット上部のモデル表示からチャットごとに選ぶか、お使いのプロバイダーを接続してください。</string>
+    <string name="signin_opencode_connected">接続済み：%1$s。OpenCode の無料モデルも引き続き使えます。</string>
+    <string name="signin_opencode_connect_note">プロバイダーを接続すると、Buddy のターミナルが %1$s で開きます。プロバイダーを選んで手順に従ってください。後で削除するには、そこで %2$s を実行します。</string>
+    <string name="signin_connect_provider">プロバイダーを接続</string>
+    <string name="signin_version">%1$s バージョン %2$s</string>
+    <string name="signin_version_old_opencode">OpenCode %1$s。OpenCode 2 がリリースされました。今後も新しいバージョンを使うにはアップデートしてください。接続済みのプロバイダーはそのまま残ります。</string>
+    <string name="signin_update_opencode2">OpenCode 2 にアップデート</string>
+    <string name="signin_check_updates">アップデートを確認</string>
+
+    <!-- Sign-in screen: error. -->
+    <string name="signin_error_title">問題が発生しました</string>
+    <string name="signin_try_again">再試行</string>
+
+    <!-- Agent status shown on the sign-in, setup and onboarding screens. -->
+    <string name="account_tagline_claude">Claude のプランを使用</string>
+    <string name="account_tagline_opencode">アカウント不要、またはお使いのプロバイダー</string>
+    <string name="account_tagline_codex">ChatGPT のプランを使用</string>
+    <string name="account_tagline_agy">Google アカウントを使用</string>
+    <string name="account_tagline_grok">Grok アカウントを使用</string>
+    <string name="agent_tag_free">無料・上限あり</string>
+    <string name="account_setting_up_linux">Buddy の Linux をセットアップ中…</string>
+    <string name="account_installing_tools">ツールをインストール中…</string>
+    <string name="account_downloading_claude">Claude Code をダウンロード中（約 230 MB）…</string>
+    <string name="account_downloading">%1$s をダウンロード中…</string>
+    <string name="account_check_failed">%1$s を確認できませんでした：%2$s</string>
+    <string name="account_install_failed">インストールに失敗しました：%1$s</string>
+    <string name="account_install_no_space">スマホの空き容量が足りません。約 1 GB 空けてから、もう一度お試しください。</string>
+    <string name="account_install_network">Buddy がダウンロードサーバーに接続できませんでした。Wi-Fi やモバイルデータ（またはブロックしている VPN やプライベート DNS）を確認して、もう一度お試しください。</string>
+    <string name="account_install_refused">ダウンロードサーバーがリクエストを拒否したか、間隔を空けるよう求めました。数分後にもう一度お試しください。</string>
+    <string name="account_install_space_needed">空きは %1$s だけです。エージェントのインストールには約 1 GB 必要です。空き容量を増やしてからもう一度お試しください。</string>
+    <string name="signin_details">詳細</string>
+    <string name="account_update_checking">%1$s の新しいバージョンを確認中…</string>
+    <string name="account_update_latest">最新バージョン（%1$s）を使用しています。</string>
+    <string name="account_updated">%1$s にアップデートしました。</string>
+    <string name="account_updated_from">%1$s にアップデートしました（以前は %2$s）。</string>
+    <string name="account_update_opencode2_failed">OpenCode 2 にアップデートできませんでした。%1$s のままです。Wi-Fi に接続してもう一度お試しください。</string>
+    <string name="account_update_failed">アップデートに失敗しました：%1$s</string>
+
+    <!-- Model and effort pickers of a chat, and the chat's chip ("agent · model · effort"). -->
+    <string name="models_default">デフォルト</string>
+    <string name="models_name_default">%1$s（デフォルト）</string>
+    <string name="models_default_model">デフォルトのモデル</string>
+    <string name="models_default_now">現在は %1$s</string>
+    <string name="models_default_claude">Claude Code がプランに応じて選択します。最初のメッセージの後にここに表示されます</string>
+    <string name="models_default_codex">Codex が選択します。次の返信の後にここに表示されます</string>
+    <string name="models_default_opencode">OpenCode のデフォルトのモデル</string>
+    <string name="models_default_agy">Antigravity のデフォルトのモデル</string>
+    <string name="models_default_grok">Grok のデフォルトのモデル</string>
+    <!-- Effort levels in a row of up to 6 segments: keep each very short. -->
+    <string name="models_effort_auto">自動</string>
+    <string name="models_effort_low">低</string>
+    <string name="models_effort_medium">中</string>
+    <string name="models_effort_high">高</string>
+    <string name="models_effort_xhigh">超高</string>
+    <string name="models_effort_max">最大</string>
+    <string name="models_chip_effort">思考レベル %1$s</string>
+
+    <!-- Chats. -->
+    <string name="session_new_chat">新しい %1$s チャット</string>
+    <plurals name="attach_count">
+        <item quantity="other">📎 添付ファイル %1$d 件</item>
+    </plurals>
+
+    <!-- Attaching a photo or file to a chat message (toasts). -->
+    <string name="attach_cant_open">%1$s を開けません</string>
+    <string name="attach_too_large">%1$s は 25 MB を超えています。</string>
+
+    <!-- Remote Control session in Settings: a Claude Code session that can be continued from the Claude app. -->
+    <string name="remote_sign_in_first">先に Claude Code にログインしてください。</string>
+    <string name="remote_starting">開始中…</string>
+    <string name="remote_restarting">再起動中…</string>
+    <string name="remote_start_failed">開始できませんでした：%1$s</string>
+    <string name="remote_keeps_stopping">セッションが何度も停止します。一度オフにしてからオンに戻すか、Claude Code のログイン状態を確認してください。</string>
+    <string name="codex_pair_getting">コードを取得中…</string>
+    <string name="codex_pair_text">このコードを ChatGPT に入力してください。スマートフォンでは Codex で、パソコンでは［設定］→［接続］→［他のデバイスを操作］で入力します。%1$s まで 1 回だけ使えます。Buddy は「localhost」として表示されます。</string>
+    <string name="codex_pair_failed">ペアリングコードを取得できませんでした：%1$s</string>
+    <string name="codex_keeps_stopping">Codex セッションが何度も停止します：%1$s</string>
+    <string name="ssh_keeps_stopping">SSH サーバーが何度も停止します：%1$s</string>
+    <string name="ssh_key_added">完了しました。Termux から Buddy の Linux を開くには、ssh buddy と入力してください。</string>
+    <string name="ssh_code_expired">このコマンドは使用済みか、10 分以上経過しています。Buddy の「設定」でもう一度コピーしてください。</string>
+
+    <!-- ===== Settings, the built-in Linux, terminal and sessions (SetupActivity, Linux, Terminal*, MonitorActivity) ===== -->
+
+    <!-- Settings screen: header. -->
+    <string name="setup_settings_title">設定</string>
+    <string name="setup_settings_subtitle">Buddy は、お使いのサブスクリプション（または OpenCode の無料モデルや Antigravity の無料プラン）を使って、アプリ内で Claude Code、Codex、OpenCode、Antigravity、Grok を実行します。</string>
+
+    <!-- Settings screen: the setup checklist card (5 steps). -->
+    <string name="setup_card_title">セットアップ</string>
+    <string name="setup_open_guide">ステップごとのガイドを開く</string>
+    <string name="setup_all_set">すべて完了しました。Buddy を使う準備ができています。</string>
+    <string name="setup_next_step">次：%1$s</string>
+    <string name="setup_step_a11y_title">Buddy のユーザー補助サービスをオンにする</string>
+    <string name="setup_step_a11y_body">バブルを表示し、Buddy があなたの代わりに画面を読み取ってタップや入力をできるようにします。</string>
+    <string name="setup_step_a11y_restricted">スイッチがグレー表示（「制限付き設定」）になっていますか？Android では、ファイルからインストールしたアプリに対してこの設定がブロックされます。「アプリ情報」をタップし、右上の ⋮ →「制限付き設定を許可」をタップしてから、もう一度お試しください。</string>
+    <string name="setup_open_settings">設定を開く</string>
+    <string name="setup_app_info">アプリ情報</string>
+    <string name="setup_step_install_title">%1$s をインストール</string>
+    <string name="setup_step_install_done">%1$s は Buddy にインストール済みです。</string>
+    <string name="setup_step_install_claude">Buddy が専用の小さな Linux と Anthropic の %1$s をダウンロードします（約 235 MB）。</string>
+    <string name="setup_step_install_opencode">Buddy が専用の小さな Linux と %1$s をダウンロードします（Node.js を含めて約 230 MB）。</string>
+    <string name="setup_step_install_codex">Buddy が専用の小さな Linux と OpenAI の %1$s をダウンロードします（約 150 MB）。</string>
+    <string name="setup_step_install_grok">Buddy が専用の小さな Linux と xAI の %1$s をダウンロードします（約 170 MB）。</string>
+    <string name="setup_install">インストール</string>
+    <string name="setup_step_signin_title">ログイン</string>
+    <string name="setup_step_signin_opencode_done">ログインは不要です。OpenCode の無料モデルはすぐに使えます。お使いのプロバイダーもいつでも接続できます。</string>
+    <string name="setup_step_signin_opencode">OpenCode の無料モデルはログイン不要です。</string>
+    <string name="setup_step_signin_done">ログインしました。</string>
+    <string name="setup_step_signin_done_email">%1$s でログインしています。</string>
+    <string name="setup_step_signin_claude">Claude アカウント（Pro または Max）でログインします。ブラウザが開いたらそこで承認してください。自動的に Buddy に戻ります。</string>
+    <string name="setup_step_signin_codex">ChatGPT アカウントでログインします。ブラウザが開いたらそこで承認してください。自動的に Buddy に戻ります。</string>
+    <string name="setup_step_signin_grok">Grok アカウントでログインします。ブラウザが開いたらそこでコードを確認してください。自動的に Buddy に戻ります。</string>
+    <string name="setup_sign_in">ログイン</string>
+    <string name="setup_step_background_title">Buddy のバックグラウンド実行を許可</string>
+    <string name="setup_step_background_done">許可されています。</string>
+    <string name="setup_step_background_body">エージェントの作業中に、電池を節約するためにスマートフォンが Buddy を停止しないようにします。</string>
+    <string name="setup_allow">許可</string>
+    <string name="setup_step_try_title">試してみる</string>
+    <string name="setup_step_try_done">Buddy が応答しました。ほかにも頼みたいことがあれば、いつでもバブルをタップしてください。</string>
+    <string name="setup_step_try_body">画面の端にあるバブルをタップして「LINE を開いて」のように頼むか、ここでチャットを始めてください。</string>
+    <string name="setup_step_try_wait">先に上のステップを完了してください。</string>
+    <!-- Short names of the setup steps, shown after "Next:" in the Chats header. -->
+    <string name="setup_step_name_a11y">ユーザー補助サービスをオンにする</string>
+    <string name="setup_step_name_install">エージェントをインストール</string>
+    <string name="setup_step_name_background">バックグラウンド実行を許可</string>
+
+    <!-- Settings screen: Appearance. -->
+    <string name="setup_appearance">外観</string>
+    <string name="setup_theme_mode">モード</string>
+    <string name="setup_accent">アクセントカラー</string>
+    <string name="setup_surface">背景</string>
+    <string name="setup_surface_note">「ウォーム」は Buddy 本来のトーンです。「ブラック」（完全な黒）はダークモードでのみ適用されます。</string>
+    <string name="setup_face">Buddy の見た目</string>
+    <string name="setup_face_buddy">オリジナル</string>
+    <string name="setup_face_picture">自分の画像</string>
+    <string name="setup_face_note">背景が透明な PNG か WebP がおすすめです。バブルと Buddy の返信の横に表示されます。</string>
+    <string name="setup_face_change">別の画像を選ぶ</string>
+    <string name="setup_face_unreadable">この画像を読み込めませんでした。PNG か WebP を試してください。</string>
+    <string name="setup_custom_colour">カスタムカラー</string>
+    <string name="setup_custom_accent_title">カスタムのアクセントカラー</string>
+    <string name="setup_custom_accent_hint">#4F8BFF のような 16 進数のカラーコードで、好きな色を指定できます。</string>
+    <string name="setup_apply">適用</string>
+
+    <!-- Settings screen: Agent. -->
+    <string name="setup_agent">エージェント</string>
+    <string name="setup_default_brain">デフォルトのエージェント</string>
+    <string name="setup_default_brain_info">バブルや「新しいチャット」ボタンから始めたチャットに応答するエージェントです。Claude Code は Claude のプラン、Codex は ChatGPT のプラン、Antigravity は Google アカウント、Grok は Grok アカウント、OpenCode は無料モデルまたはお使いのプロバイダーを使用します。選べるのは設定済みのエージェントのみです。</string>
+    <string name="setup_default_brain_set">新しいチャットでは %1$s を使用します。「新しいチャット」ボタンからチャットごとに選ぶこともできます。</string>
+    <string name="setup_set_up_first">先に %1$s を設定してください。</string>
+    <!-- Agent status under each agent's name: lowercase, monospace, keep short. -->
+    <string name="setup_agent_installing">インストール中…</string>
+    <string name="setup_agent_not_installed">未インストール</string>
+    <string name="setup_agent_ready">準備完了</string>
+    <string name="setup_agent_ready_plan">準備完了 · %1$s</string>
+    <string name="setup_agent_signed_in">ログイン済み</string>
+    <string name="setup_agent_signed_in_email">ログイン済み · %1$s</string>
+    <string name="setup_agent_not_signed_in">未ログイン</string>
+    <string name="setup_agent_api_key">未サインイン · API キー</string>
+    <string name="signin_key_only">API キーを使用中</string>
+
+    <!-- Settings screen: Phone tools in your own sessions (MCP server). -->
+    <string name="setup_phone_tools">自分のセッションでスマートフォンツールを使う</string>
+    <string name="setup_phone_tools_info">Buddy のスマートフォンツールは、このスマートフォン上で動く通常の MCP サーバーです。スマートフォンのターミナル（Termux など）でこれを一度実行すると、そのエージェントはバブルがなくても、すべてのセッションでスマートフォンツールを使えるようになります。</string>
+    <string name="setup_copy_command">コマンドをコピー</string>
+    <string name="setup_command_copied">コピーしました。ターミナルに貼り付けてください。</string>
+
+    <!-- Settings screen: Voice. -->
+    <string name="setup_voice">音声</string>
+    <string name="setup_voice_input">音声入力</string>
+    <string name="setup_voice_phone">端末</string>
+    <string name="setup_voice_input_claude">Claude のプランで使える Claude Code の音声入力です。精度が非常に高く、英語、フランス語、ドイツ語、スペイン語、イタリア語、ポルトガル語、オランダ語、トルコ語、ロシア語、日本語などに対応していますが、アラビア語には対応していません。アラビア語の場合、Buddy は端末の音声認識を使用します。少し間を置くと文字が表示されます。</string>
+    <string name="setup_voice_input_chatgpt">ChatGPT のプランで、Codex 経由で ChatGPT の音声を使います。どの言語でも、1 つの文に複数の言語が混ざっていても理解できます。使われるのはあなたの言葉だけです。ChatGPT の音声による返答はミュートされ、ChatGPT が何かを実行することはできません。</string>
+    <string name="setup_voice_input_phone">端末の音声認識です（ほとんどの端末では Google）。話している間にリアルタイムで文字が表示され、選んだ言語のうちどれを話しているかを自動で判別します。</string>
+    <string name="setup_voice_output">音声出力</string>
+    <string name="setup_voice_output_chatgpt">返信を ChatGPT の自然な音声で読み上げます（ChatGPT のプランで Codex 経由）。ChatGPT の音声の使用量にカウントされます。利用できない場合は、代わりに端末の音声で読み上げます。</string>
+    <string name="setup_voice_output_phone">返信の言語に合わせて、端末のテキスト読み上げ音声を使用します。</string>
+    <string name="setup_voice_sample">Bonjour ! こんにちは、Buddy です。こんな声で話します。</string>
+    <string name="setup_languages">言語</string>
+    <string name="setup_languages_hint">タップして、話す言語を選びます。長押しするとその言語がデフォルトになります。チャットでは、マイクを長押しすると言語を切り替えられます。</string>
+    <string name="setup_sign_in_first">先に %1$s にログインしてください</string>
+    <string name="setup_needs_claude">Claude の音声入力は、%1$s を通じて Claude のプランで動作します。</string>
+    <string name="setup_needs_chatgpt">ChatGPT の音声は、%1$s を通じて ChatGPT のプランで動作します。</string>
+    <string name="setup_set_up_agent">%1$s を設定</string>
+
+    <!-- Settings screen: Remote Control (a Claude Code session you continue from the Claude app). -->
+    <string name="setup_remote_control">リモートコントロール</string>
+    <string name="setup_remote_session">Claude Code セッション</string>
+    <string name="setup_remote_session_info">Buddy 内でスマートフォンツールとともに動作する Claude Code セッションです。このスマートフォンでも、ほかの場所からでも、Claude アプリ（Code）で続けられます。</string>
+    <string name="setup_remote_sign_in_first">先に Claude Code にログインしてください。</string>
+    <string name="setup_remote_active">有効 · Claude アプリの「%1$s」</string>
+    <string name="setup_remote_starting">開始中…</string>
+    <string name="setup_remote_stopped">停止済み</string>
+    <string name="setup_remote_open">Claude アプリで開く</string>
+    <string name="setup_remote_open_failed">開けませんでした。</string>
+    <string name="setup_codex_session">Codex セッション</string>
+    <string name="setup_codex_session_info">Buddy 内でスマートフォンツールとともに動作する Codex です。このスマートフォンやパソコンの ChatGPT アプリ（Codex）から使えます。Codex のサンドボックスはここでは動かないため、デフォルトの権限ではコマンドごとに確認します。</string>
+    <string name="setup_codex_active">実行中 · ChatGPT の「localhost」</string>
+    <string name="setup_codex_pair">デバイスをペアリング</string>
+    <string name="setup_ssh">Termux から SSH</string>
+    <string name="setup_ssh_info">SSH で Termux から Buddy の Linux を使えます。接続できるのはこのスマートフォンのアプリだけで、鍵が必要です。</string>
+    <string name="setup_ssh_active">実行中 · ポート %1$d</string>
+    <string name="setup_ssh_how">このコマンドをコピーし、10 分以内に Termux で 1 回実行してください。その後は、Termux で ssh buddy と入力すると Buddy の Linux が開きます。</string>
+
+    <!-- Settings screen: chats left over from when Buddy ran its agents in Termux. -->
+    <string name="setup_old_chats_title">古い Termux のチャットを削除</string>
+    <plurals name="setup_old_chats_body">
+        <item quantity="other">Buddy に専用の Linux が搭載される前のチャットが %1$d 件あります。エージェントはこれらを続行できません。</item>
+    </plurals>
+    <plurals name="setup_old_chats_remove">
+        <item quantity="other">古いチャット %1$d 件を削除しますか？</item>
+    </plurals>
+    <string name="setup_old_chats_remove_body">Buddy のチャット一覧から削除します。この操作は元に戻せません。</string>
+    <string name="setup_remove">削除</string>
+    <string name="setup_removed">削除しました。</string>
+
+    <!-- Settings screen: Experience. -->
+    <string name="setup_experience">動作</string>
+    <string name="setup_chat_bubble">チャットバブル</string>
+    <string name="setup_chat_bubble_info">他のアプリの上に表示されます。✕ までドラッグすると非表示になりますが、エージェントが承認を必要とするときは承認カードが表示されます。</string>
+    <string name="setup_tap_action">バブルをタップしたとき</string>
+    <string name="setup_tap_panel">パネル</string>
+    <string name="setup_tap_talk">話す</string>
+    <string name="setup_tap_app">アプリ</string>
+    <string name="setup_tap_panel_info">使用中のアプリの上に、フローティングのチャットを開きます。バブルを長押しすると、ほかの操作もできます。</string>
+    <string name="setup_tap_app_info">Buddy でチャットを全画面で開きます。バブルを長押しすると、ほかの操作もできます。</string>
+    <string name="setup_panel_size">チャットパネルのサイズ</string>
+    <string name="setup_panel_full">全画面</string>
+    <string name="setup_panel_compact">コンパクト</string>
+    <string name="setup_panel_size_info">「全画面」は画面の端から端まで広がります。「コンパクト」は小さめで画面の端を空けるので、端からのジェスチャーも引き続き使えます。</string>
+    <string name="setup_tap_to_talk_info">1 回タップするとマイクがオンになります。話して少し間を置くと送信されます。バブルを長押しすると、チャットなどを開けます。</string>
+    <string name="setup_read_aloud">返信を読み上げる</string>
+    <string name="setup_read_aloud_info">エージェントの返信を、「音声」で選んだ声で Buddy が読み上げます。</string>
+    <string name="setup_update_notices">アップデートの通知</string>
+    <string name="setup_update_notices_info">Buddy が 1 日 1 回 GitHub を確認し、新しいバージョンが公開されたらお知らせします。</string>
+    <string name="setup_check_updates">アップデートを確認</string>
+    <string name="setup_check_updates_info">現在のバージョンは Buddy %1$s です。どのエージェントにも「アップデートして」と頼めます。</string>
+    <string name="setup_app_permissions">アプリの権限</string>
+    <string name="setup_app_permissions_info">アプリごとに選べます。「信頼」ではエージェントがポップアップなしで操作し、「厳格」では送信、支払い、削除などの前に Buddy 自身が確認します。</string>
+    <string name="setup_dev_mode">新しいチャットの Linux ツール</string>
+    <string name="setup_dev_mode_info">Linux ツールを使うと、エージェントがコマンドの実行、パッケージのインストール、~/.buddy/work 内のファイル編集を行えるため、アプリのビルドもできます。新しいチャットはこの設定で始まり、各チャットのタイトルの下で変更できます。</string>
+    <string name="setup_agents_tap">エージェントによる Buddy の画面操作を許可</string>
+    <string name="setup_agents_tap_info">エージェントを使って Buddy をテストするための設定です（例：スマートフォンツールを使う Termux の Claude Code）。バブル、承認カード、「アプリの権限」、これらのスイッチは引き続き操作できません。</string>
+    <string name="setup_dev_mode_warning">普段はオフにして、必要なチャットでだけ Linux ツールをオンにしてください。オンのときは、画面上の悪意のあるメッセージやウェブページが、エージェントをだましてコマンドを実行させようとするおそれがあります。送信、投稿、購入、削除は引き続き承認カードで保護されます。</string>
+
+    <!-- Settings screen: footer links. -->
+    <string name="setup_licences">オープンソースライセンス</string>
+    <string name="setup_privacy_policy">プライバシーポリシー</string>
+
+    <!-- Errors while installing Buddy's built-in Linux (Alpine). Shown after "Install failed:". -->
+    <string name="linux_download_corrupt">Alpine のダウンロードデータが破損しています（sha256 %1$s）</string>
+    <string name="linux_move_failed">Alpine を所定の場所に移動できませんでした</string>
+    <string name="linux_download_failed_http">ダウンロードに失敗しました：HTTP %1$d</string>
+    <string name="linux_unsafe_path">アーカイブ内に安全でないパスがあります：%1$s</string>
+    <string name="linux_symlink_failed">シンボリックリンクの作成に失敗しました（%1$s）：%2$s</string>
+    <string name="linux_truncated_archive">アーカイブが途中で切れています</string>
+
+    <!-- Terminal screen (a shell in Buddy's Linux, in tabs). -->
+    <string name="terminal_title">ターミナル</string>
+    <string name="terminal_back">戻る</string>
+    <string name="terminal_hide_keyboard">キーボードを非表示</string>
+    <string name="terminal_menu">メニュー</string>
+    <plurals name="terminal_sessions_count">
+        <item quantity="other">%1$d セッション · buddy linux</item>
+    </plurals>
+    <string name="terminal_listening">聞き取り中 · マイクオン</string>
+    <string name="terminal_session_ended">セッション終了</string>
+    <string name="terminal_session_ended_code">セッション終了 · 終了コード %1$d</string>
+    <string name="terminal_close">閉じる</string>
+    <string name="terminal_restart">再起動</string>
+    <string name="terminal_needs_linux">先に「設定」で Claude Code、Codex、OpenCode、Antigravity、Grok のいずれかをインストールしてください。これで Buddy の Linux がセットアップされます。</string>
+    <string name="terminal_start_failed">ターミナルを起動できませんでした：%1$s</string>
+    <string name="terminal_close_title">%1$s を閉じますか？</string>
+    <string name="terminal_close_running">まだ実行中です。閉じると、このセッションとそこから起動したものがすべて停止します。</string>
+    <string name="terminal_shell_name">シェル %1$d</string>
+    <string name="terminal_new_session">新しいセッション</string>
+    <string name="terminal_paste">貼り付け</string>
+    <string name="terminal_select_all">すべて選択</string>
+    <string name="terminal_larger_text">文字を大きく</string>
+    <string name="terminal_smaller_text">文字を小さく</string>
+    <string name="terminal_screen_sleep">画面のスリープを許可</string>
+    <string name="terminal_keep_screen_on">画面をオンのままにする</string>
+    <string name="terminal_close_session">このセッションを閉じる</string>
+    <string name="terminal_tips">長押しでテキストやリンクを選択できます。ピンチでズーム、ドラッグで前の出力にスクロールできます。タブを長押しすると閉じられます。</string>
+
+    <!-- Terminal: floating toolbar over selected text. Keep short. -->
+    <string name="terminal_copy">コピー</string>
+    <string name="terminal_open_link">リンクを開く</string>
+    <string name="terminal_share">共有</string>
+
+    <!-- Sessions screen: every agent session running on the phone, and recent history. -->
+    <string name="monitor_title">セッション</string>
+    <string name="monitor_subtitle">このスマートフォン上のすべての Claude Code、Codex、OpenCode、Antigravity、Grok のセッションです。</string>
+    <string name="monitor_terminal_running">シェルを実行中 · タップして戻る</string>
+    <string name="monitor_terminal_idle">Buddy の Linux のシェル</string>
+    <string name="monitor_running_now">実行中</string>
+    <string name="monitor_refresh">3 秒ごとに更新</string>
+    <string name="monitor_checking">確認中…</string>
+    <string name="monitor_recent">最近</string>
+    <string name="monitor_loading">読み込み中…</string>
+    <string name="monitor_service_off">Buddy のユーザー補助サービスがオフのため、セッションを確認できません。「設定」でオンにしてください。</string>
+    <string name="monitor_nothing_running">実行中のものはありません。</string>
+    <string name="monitor_deleted_chat">削除された Buddy のチャット</string>
+    <string name="monitor_background_session">バックグラウンドのセッション</string>
+    <string name="monitor_terminal_session">ターミナルのセッション</string>
+    <string name="monitor_tag_background">バックグラウンド</string>
+    <string name="monitor_tag_terminal">ターミナル</string>
+    <string name="monitor_proc_meta">%1$s · pid %2$d · %3$s</string>
+    <string name="monitor_background_hint">Claude Code のバックグラウンドサービスで実行されています（例：Claude アプリから続けているチャット）。</string>
+    <string name="monitor_open_chat">チャットを開く</string>
+    <string name="monitor_stop">停止</string>
+    <string name="monitor_stop_title">この %1$s セッションを停止しますか？</string>
+    <string name="monitor_stop_background_body">バックグラウンドで実行されているセッションです（例：Claude アプリから続けているチャット）。Buddy を操作しているセッションの可能性もあります。停止すると、その会話で進行中の作業が終了します。</string>
+    <string name="monitor_stop_terminal_body">今ターミナルで使っているセッションかもしれません。Buddy を操作しているセッションの可能性もあります。停止すると、その会話で進行中の作業が終了します。</string>
+    <string name="monitor_stopping">停止中…</string>
+    <string name="monitor_service_title">Claude Code のバックグラウンドサービス</string>
+    <string name="monitor_service_meta">pid %1$d · 稼働時間 %2$s · バックグラウンドのセッションを実行</string>
+    <string name="monitor_no_history">履歴が見つかりません。</string>
+    <string name="monitor_no_messages">（メッセージなし）</string>
+
+    <!-- ===== Approvals and app permissions, tool cards, dictation (AppPermissionsActivity, Guard, Tools, Reviewer, dictation) ===== -->
+
+    <!-- App permissions screen (Settings → App permissions): how much the agent may do on its own in each app. -->
+    <string name="perms_title">アプリの権限</string>
+    <string name="perms_back">戻る</string>
+    <string name="perms_mode_trust">信頼</string>
+    <string name="perms_mode_hard">厳格</string>
+    <string name="perms_mode_smart">スマート</string>
+    <string name="perms_modes_intro">信頼：このアプリではエージェントが自分で操作し、承認のポップアップは表示されません。\n厳格：ボタンのルールで判断します。送信、支払い、削除などのボタンは、カードでの承認が必要です。\nスマート：ルールに加えて、それ以外のすべてのタップを別のレビュー AI がリクエストと照らし合わせて確認します。\nエージェントが Buddy 自身のバブル、カード、設定をタップすることはできません。</string>
+    <string name="perms_smart_reviewer">スマートモードのレビュー AI</string>
+    <string name="perms_reviewer_same">チャットと同じ</string>
+    <string name="perms_reviewer_sign_in">先に %1$s にログインしてください（設定）。</string>
+    <string name="perms_reviewer_about">タップごとに、ツールなしの一時的なセッションで確認します。リクエスト、エージェントのメモ、画面を見て、「許可」「確認を求める」「おすすめしない」のいずれかで答えます。1 回のタップにつき約 3 秒かかります。OpenCode、Antigravity、Grok のチャットは Claude Code（または Codex）がレビューします。</string>
+    <string name="perms_reviewer_rules">通知ルールのカウントダウンで返信が送信される前にも、内容を確認します。</string>
+    <string name="reviewer_default_claude">Haiku：高速で軽量です。おすすめです。</string>
+    <string name="reviewer_default_codex">小型で高速なモデルです。おすすめです。</string>
+    <string name="perms_button_rules">ボタンのルール</string>
+    <string name="perms_rules_summary">常に確認 %1$d 件 · 確認しない %2$d 件</string>
+    <string name="perms_apps">アプリ</string>
+    <string name="perms_all_apps">すべてのアプリ</string>
+    <string name="perms_reset_suggested">おすすめ設定に戻す</string>
+
+    <!-- Button rules screen: buttons that always or never need the user's OK. -->
+    <string name="perms_rules_intro">「厳格」または「スマート」のアプリが対象です。候補から選んだルールはそのアプリに、入力したテキストはすべてのアプリに適用されます。ルールをタップすると削除できます。</string>
+    <string name="perms_builtin_title">組み込みの危険ワード</string>
+    <string name="perms_builtin_sub">送信、投稿、支払い、購入、注文、削除、発信、ログアウトなどは、Buddy のどの言語でも常に確認が必要です。</string>
+    <string name="perms_always_ask">常に確認</string>
+    <string name="perms_never_ask">確認しない</string>
+    <string name="perms_ask">確認</string>
+    <string name="perms_add_hint">ボタンを追加（例：送信）</string>
+    <string name="perms_add">追加</string>
+    <string name="perms_seen_title">最近検出したボタン</string>
+    <string name="perms_seen_empty">「厳格」と「スマート」のアプリでエージェントがタップしたボタンがここに表示されます。</string>
+
+    <!-- Button rules and modes, as App permissions shows them. -->
+    <string name="guard_rule_all_apps">%1$s · すべてのアプリ</string>
+    <string name="guard_why_choice">あなたの選択</string>
+    <string name="guard_why_category">おすすめ：メッセージ、SNS、通話、お金</string>
+    <string name="guard_why_name">おすすめ：名前に「%1$s」を含む</string>
+    <string name="guard_why_social">おすすめ：SNS アプリ</string>
+    <string name="guard_why_suggested">おすすめ</string>
+    <string name="guard_why_setup">セットアップ時の選択：先に確認する</string>
+
+    <!-- Approval card, shown before the agent taps a risky button: the user approves or denies it. -->
+    <string name="tools_card_tap">「%1$s」をタップ</string>
+    <string name="tools_card_tap_in">%2$s で「%1$s」をタップ</string>
+    <string name="tools_card_tap_this">このボタンをタップ</string>
+    <string name="tools_card_tap_this_in">%1$s でこのボタンをタップ</string>
+    <string name="tools_card_enter">Enter キーを押して送信</string>
+    <string name="tools_card_enter_in">%1$s で Enter キーを押して送信</string>
+    <string name="tools_card_detail">%1$s：\n%2$s</string>
+    <string name="tools_card_quote">「%1$s」</string>
+    <string name="tools_card_no_reviewer">レビューできるエージェントがログインしていないため、Buddy があなたに確認します。</string>
+    <string name="tools_card_reviewer_block">%1$s はおすすめしません：%2$s</string>
+    <string name="tools_card_reviewer_ask">%1$s は確認を求めています：%2$s</string>
+
+    <!-- Status line in the bubble while the agent works. -->
+    <string name="tools_status_checking_tap">このタップを確認中…</string>
+    <string name="tools_status_tap_install">「インストール」をタップしてから確定してください</string>
+    <string name="tools_status_tap_update">「更新」をタップしてから確定してください</string>
+    <string name="tools_status_installed">インストール済み</string>
+    <string name="tools_status_downloading">Buddy %1$s をダウンロード中…</string>
+
+    <!-- Smart reviewer: its reason when it fails, shown on the approval card after "Claude says ask you:". -->
+    <string name="reviewer_failed">レビュー AI が応答できませんでした（%1$s）</string>
+    <string name="reviewer_no_answer">応答なし</string>
+    <string name="reviewer_timed_out">タイムアウト</string>
+
+    <!-- Error when a chat can't start because Buddy's built-in Linux isn't set up yet. -->
+    <string name="helper_linux_missing">Buddy の Linux がまだインストールされていません。「設定」を開いてセットアップしてください。</string>
+
+    <!-- Voice input (dictation): Claude voice and ChatGPT voice. Status lines show in the voice bar, errors as toasts. -->
+    <string name="dictation_claude_sign_in">Claude 音声を使うには、「設定」で Claude Code にログインしてください。</string>
+    <string name="dictation_codex_sign_in">ChatGPT 音声を使うには、「設定」で Codex にログインしてください。</string>
+    <string name="dictation_starting">開始中…</string>
+    <string name="dictation_starting_claude">Claude を起動中…</string>
+    <string name="dictation_transcribing">文字起こし中…</string>
+    <string name="dictation_no_speech">聞き取れませんでした。</string>
+    <string name="dictation_mic_failed">マイクを起動できませんでした。</string>
+    <string name="dictation_claude_start_failed">Claude 音声を開始できませんでした：%1$s</string>
+    <string name="dictation_claude_no_start">Claude 音声が開始されませんでした。</string>
+    <string name="dictation_claude_code_no_start">Claude Code が起動しませんでした</string>
+    <string name="dictation_chatgpt_start_failed">ChatGPT 音声を開始できませんでした：%1$s</string>
+    <string name="dictation_chatgpt_no_connect">ChatGPT 音声に接続できませんでした（%1$s）。</string>
+    <string name="dictation_chatgpt_error">ChatGPT 音声：%1$s</string>
+    <string name="dictation_connection_failed">接続に失敗しました</string>
+    <string name="dictation_stage_page">ページを起動中</string>
+    <string name="dictation_stage_codex">Codex を待機中</string>
+    <string name="dictation_stage_call">通話を開始中</string>
+    <string name="dictation_stage_answer">ChatGPT の応答を待機中</string>
+    <string name="dictation_stage_connecting">接続中</string>
+    <string name="dictation_codex_no_start">Codex が起動しませんでした</string>
+    <string name="dictation_request_timed_out">%1$s がタイムアウトしました</string>
+    <string name="dictation_codex_stopped">Codex が停止しました：%1$s</string>
+    <string name="dictation_no_details">詳細なし</string>
+
+    <!-- Notification rules -->
+    <string name="card_label_countdown">まもなく自動承認</string>
+    <string name="card_countdown">%1$d 秒後に自動承認 · タップで停止</string>
+    <string name="card_note_auto_approved">✓ カウントダウン後に自動承認：%1$s</string>
+    <string name="card_note_countdown_stopped">カウントダウンを停止しました：承認を待っています</string>
+    <string name="hub_tool_reply_notification">返信中：%1$s</string>
+    <string name="setup_rules">通知ルール</string>
+    <string name="setup_rules_info">通知が届いたら、エージェントに対応を任せられます。メッセージへの返信、配達予定のカレンダー登録など。</string>
+    <string name="tools_card_reply">%2$s で %1$s に返信：\n「%3$s」</string>
+    <string name="tools_card_open_url">%1$s を開く</string>
+    <string name="tools_card_clipboard">最後にコピーした内容をエージェントに読ませますか?</string>
+    <string name="tools_card_location">この端末の位置情報をエージェントと共有しますか?</string>
+    <string name="tools_photo_why">写真を撮ってください: %1$s</string>
+    <string name="rules_service_label">Buddy 通知ルール</string>
+    <string name="rules_title">通知ルール</string>
+    <string name="rules_intro">選んだ通知が届くと、Buddy はあなたの指示を、自分で入力したメッセージと同じようにエージェントに渡します。どのルールにも一致しない通知は無視されます。</string>
+    <string name="rules_access_off_title">通知へのアクセスがオフです</string>
+    <string name="rules_access_off_text">ルールの対象となる通知を Buddy が確認するために必要です。</string>
+    <string name="rules_access_turn_on">オンにする</string>
+    <string name="rules_run">ルールを実行</string>
+    <string name="rules_run_info">オフにすると、すべてのルールが一時停止します。</string>
+    <string name="rules_section">ルール</string>
+    <string name="rules_empty">ルールはまだありません。例：お客様から WhatsApp でメッセージが届いたら、営業時間を返信する。</string>
+    <string name="rules_add">ルールを追加</string>
+    <string name="rules_any">すべての通知</string>
+    <string name="rules_from_summary">%1$s から</string>
+    <string name="rules_words_summary">「%1$s」を含む</string>
+    <string name="rules_tag_ask">先に確認</string>
+    <string name="rules_tag_countdown">カウントダウン %1$s</string>
+    <string name="rules_tag_off">オフ</string>
+    <string name="rules_seconds">%1$d秒</string>
+    <string name="rules_minutes">%1$d分</string>
+    <string name="rules_activity">最近のアクティビティ</string>
+    <string name="rules_activity_empty">まだありません。</string>
+    <string name="rules_activity_clear">クリア</string>
+    <string name="rules_log_replied">返信しました：「%1$s」</string>
+    <string name="rules_log_done_empty">完了しました（応答なし）。</string>
+    <string name="rules_log_limit">スキップ：過去 1 時間の実行回数が多すぎます。</string>
+    <string name="rules_log_held">待機中：過去 1 時間の実行回数が多すぎます。新しいメッセージは %1$s にまとめて 1 回で処理します。</string>
+    <string name="rules_limit">1 時間あたりの上限</string>
+    <string name="rules_limit_off">オフ</string>
+    <string name="rules_limit_info">1 つの会話で 1 時間に実行できる最大回数です。ルール全体ではその 3 倍までです。上限を超えると、新しいメッセージは待機し、あとでまとめて 1 回で処理されます。オフ：制限なし。</string>
+    <string name="rules_tag_limit">%1$d 回/時</string>
+    <string name="rules_tag_no_limit">制限なし</string>
+    <string name="rules_log_busy">スキップ：スマートフォンが長時間ふさがっていました。</string>
+    <string name="card_note_later">時間内に応答がなかったため、返信は「確認待ち」リストで待機しています</string>
+    <string name="rules_log_waiting">確認待ち：「%1$s」</string>
+    <string name="rules_log_full">スキップ：同時にメッセージが来たチャットが多すぎました。</string>
+    <string name="rules_log_hidden">新しいメッセージを読めませんでした。Android が非表示にしました（コードが含まれている可能性があります）。チャットを開くと、次のメッセージから届きます。</string>
+    <string name="waiting_title">確認待ち</string>
+    <string name="waiting_channel">確認待ちの返信</string>
+    <string name="waiting_banner_text">確認を待っている返信：%1$s</string>
+    <string name="waiting_empty">確認待ちの返信はありません。ルールの返信に確認が必要で、時間内に応答しなかった場合、ここで待機します。</string>
+    <string name="waiting_their_messages">受信したメッセージ</string>
+    <string name="waiting_reply">返信</string>
+    <string name="waiting_send">送信</string>
+    <string name="waiting_copy_open">コピーして %1$s を開く</string>
+    <string name="waiting_edit">編集</string>
+    <string name="waiting_skip">破棄</string>
+    <string name="waiting_open_chat">チャットを開く</string>
+    <string name="waiting_state_wrote_again">その後 %1$s さんから新しいメッセージが届きました。この返信は古くなっている可能性があります。</string>
+    <string name="waiting_state_answered">すでに %1$s で返信済みです。</string>
+    <string name="waiting_state_gone">通知が消えています。Buddy が返信をコピーして %1$s を開くので、貼り付けてください。</string>
+    <string name="waiting_sent">%1$s さんに送信しました</string>
+    <string name="waiting_copied">コピーしました。%1$s に貼り付けてください。</string>
+    <string name="waiting_note_sent">✓「確認待ち」リストから送信しました：%1$s</string>
+    <string name="rules_log_error">実行されませんでした：%1$s</string>
+    <string name="rules_log_no_service">Buddy のユーザー補助サービスがオフです</string>
+    <string name="rules_log_not_signed_in">%1$s にログインしていません</string>
+    <string name="rules_new">新しいルール</string>
+    <string name="rules_edit">ルールを編集</string>
+    <string name="rules_app">次のアプリから通知が届いたとき</string>
+    <string name="rules_pick_app">アプリを選択</string>
+    <string name="rules_search_apps">アプリを検索</string>
+    <string name="rules_from">送信者（任意）</string>
+    <string name="rules_from_hint">誰でも、またはカンマ区切りの名前</string>
+    <string name="rules_words">含まれる語句（任意）</string>
+    <string name="rules_words_hint">何でも、またはカンマ区切りの語句</string>
+    <string name="rules_instruction">Buddy に何をしてもらいますか？</string>
+    <string name="rules_instruction_hint">例：私の口調で返信して。営業時間は 8 時〜18 時で、日曜は定休日。</string>
+    <string name="rules_example_reply">代わりに返信</string>
+    <string name="rules_example_reply_text">私の口調で、短くフレンドリーに返信して。</string>
+    <string name="rules_example_summary">内容を要約</string>
+    <string name="rules_example_summary_text">何が書かれているか、私が何か対応する必要があるかを 1 行で教えて。</string>
+    <string name="rules_example_calendar">カレンダーに追加</string>
+    <string name="rules_example_calendar_text">予約や配達に関する内容なら、カレンダーに追加して。</string>
+    <string name="rules_agent">エージェント</string>
+    <string name="rules_approval">実行する前に</string>
+    <string name="rules_approval_ask">確認する</string>
+    <string name="rules_approval_countdown">カウントダウン</string>
+    <string name="rules_approval_ask_info">通常のチャットと同じく、承認カードはあなたの操作を待ちます。</string>
+    <string name="rules_approval_countdown_info">カウントダウンが終わると、タップして止めない限りカードは自動で承認されます。自動承認されるのはメッセージの送信だけで、それも別の AI がルールと照らし合わせて確認した後に限ります。支払い、購入、削除、リンクを開く操作は、常にあなたの承認を待ちます。</string>
+    <string name="rules_checker">レビュー AI：%1$s。タップすると「アプリの権限」で変更できます。</string>
+    <string name="rules_model_default">エージェント自身のデフォルト設定</string>
+    <string name="rules_on">ルールをオンにする</string>
+    <string name="rules_save">保存</string>
+    <string name="rules_delete">削除</string>
+    <string name="rules_delete_title">このルールを削除しますか？</string>
+    <string name="rules_need_app">先にアプリを選択してください。</string>
+    <string name="rules_need_instruction">Buddy にしてほしいことを入力してください。</string>
+    <string name="rules_access_title">通知へのアクセスを許可しますか？</string>
+    <string name="rules_access_what">Buddy は届いた通知を一つひとつルールと照らし合わせます。どのルールにも一致しない通知はすぐに無視され、保存されることも、どこかに送信されることもありません。</string>
+    <string name="rules_access_data">一致した場合は、その通知のアプリ、送信者、本文が、あなたの指示とともに、そのルールで指定したエージェント（Claude Code、Codex、OpenCode のいずれか）に送られます。</string>
+    <string name="rules_access_reply">Buddy は通知の「返信」ボタンから返信できます。ルールにカウントダウンを設定しない限り、先にあなたに確認します。</string>
+    <string name="rules_chat_shown">🔔 %1$s · %2$s：%3$s\n⚡ %4$s</string>
+    <string name="rules_status_checking">ルールと照らし合わせて確認中…</string>
+    <string name="rules_channel_results">通知ルール：結果</string>
+    <string name="approvals_channel">承認の依頼</string>
+    <string name="rules_result_title">%1$s · %2$s</string>
+    <string name="rules_approval_title">承認が必要：%1$s · %2$s</string>
+    <string name="card_locked_title">承認が必要：%1$s</string>
+    <string name="rules_approval_auto">停止しなければ、%1$s後に自動で承認されます。\n%2$s</string>
+
+    <!-- Background browser -->
+    <string name="browser_section">バックグラウンドブラウザ</string>
+    <string name="browser_switch">バックグラウンドブラウザ</string>
+    <string name="browser_switch_info">エージェントがウェブページに使う、Buddy 内のブラウザです。スマートフォンの操作を奪うことはありません。チャットで様子を見たり、自分で操作したりできます。初回は Buddy が Chromium（約 300 MB）をダウンロードします。</string>
+    <string name="browser_state_installing">Chromium をインストール中…</string>
+    <string name="browser_state_starting">起動中…</string>
+    <string name="browser_state_running">実行中</string>
+    <string name="browser_state_idle">準備完了 · エージェントが必要なときに起動</string>
+    <string name="browser_state_not_installed">未インストール</string>
+    <string name="browser_install_failed">Chromium をインストールできませんでした。接続を確認して、もう一度お試しください。</string>
+    <string name="browser_sign_in_help">エージェントがパスワードを入力することはありません。あなたのアカウントでサイトを使わせるには、ブラウザを開いて自分でログインしてください。自動操作のブラウザでは「Google で続行」がよく失敗します。代わりにメールアドレスとパスワードを使ってください。</string>
+    <string name="browser_open">ブラウザを開く</string>
+    <string name="browser_wipe">ブラウザデータを消去</string>
+    <string name="browser_wipe_title">ブラウザデータを消去しますか？</string>
+    <string name="browser_wipe_body">バックグラウンドブラウザのログイン情報、Cookie、履歴をすべて削除します。Chromium はインストールされたままです。</string>
+    <string name="browser_wipe_action">消去</string>
+    <string name="browser_wiped">ブラウザデータを消去しました</string>
+    <string name="browser_live_title">バックグラウンドブラウザ</string>
+    <string name="browser_no_page">ページが開かれていません</string>
+    <string name="browser_continue">続行</string>
+    <string name="browser_back">前のページ</string>
+    <string name="browser_keyboard">ページに入力</string>
+    <string name="browser_full_screen">全画面表示</string>
+    <string name="browser_fold">ページの表示/非表示</string>
+    <string name="browser_backspace">1 文字削除</string>
+    <string name="bubble_browser_thumb">バックグラウンドブラウザのライブ表示。タップすると全画面で開きます。</string>
+    <string name="bubble_browser_thumb_hide">非表示</string>
+    <string name="bubble_pill_show_page">%1$s · タップしてページを表示</string>
+    <string name="browser_type_hint">ページに入力</string>
+    <string name="browser_enter">Enter</string>
+    <string name="browser_dialog">ページからの確認：%1$s</string>
+    <string name="browser_go_title">移動先</string>
+    <string name="browser_go">移動</string>
+    <string name="browser_address_hint">検索またはウェブアドレスを入力</string>
+    <string name="browser_installing">ブラウザをインストール中…</string>
+    <string name="browser_starting">ブラウザを起動中…</string>
+    <string name="browser_paused_note">ブラウザの操作中は一時停止しています。終わったら「続行」をタップしてください。</string>
+    <string name="browser_paused_toast">ブラウザの操作中は一時停止しています</string>
+    <string name="browser_card_tap">%2$s で「%1$s」をタップ（バックグラウンドブラウザ）</string>
+    <string name="browser_card_enter">%1$s で Enter を押して送信（バックグラウンドブラウザ）</string>
+    <string name="browser_card_dialog">%1$s で OK と回答：\n「%2$s」</string>
+    <string name="hub_tool_browser_open">ブラウザ：%1$s を表示中</string>
+    <string name="hub_tool_browser_read">ブラウザ：ページを読み取り中</string>
+    <string name="hub_tool_browser_click">ブラウザ：項目 %1$d をタップ中</string>
+    <string name="hub_tool_browser_type">ブラウザ：「%1$s」を入力中</string>
+    <string name="hub_tool_browser_scroll">ブラウザ：スクロール中</string>
+    <string name="hub_tool_browser_screenshot">ブラウザ：ページを確認中</string>
+    <string name="hub_tool_browser_back">ブラウザ：前のページに戻っています</string>
+    <string name="hub_tool_browser_tabs">ブラウザ：タブ</string>
+    <string name="hub_tool_schedule_message">予約中: %1$s</string>
+    <string name="hub_tool_list_scheduled">予約メッセージを確認中</string>
+    <string name="hub_tool_cancel_scheduled">予約メッセージを取り消し中</string>
+    <string name="later_title">%1$s のエージェントのメッセージ</string>
+    <string name="later_cancel">メッセージを取り消す</string>
+    <string name="share_label">Buddy に聞く</string>
+    <string name="share_title">Buddy と共有</string>
+    <string name="share_new_chat">%1$s で新しいチャット</string>
+    <string name="usage_five">5時間 %1$d%% · %2$s にリセット</string>
+    <string name="usage_week">週間 %1$d%% · %2$s にリセット</string>
+    <string name="usage_five_short">5時間 %1$d%%</string>
+    <string name="usage_week_short">週 %1$d%%</string>
+    <string name="usage_warn_five">プランの5時間の上限の %1$d%% を使いました。%2$s にリセットされます。</string>
+    <string name="usage_warn_week">プランの週間上限の %1$d%% を使いました。%2$s にリセットされます。</string>
+    <string name="check_title">Buddy をチェック</string>
+    <string name="check_info">Buddy の各部分を今テストし、問題の直し方を教えます</string>
+    <string name="check_running">チェック中…</string>
+    <string name="check_all_ok">すべて正常です</string>
+    <string name="check_a11y">ユーザー補助サービス</string>
+    <string name="check_a11y_bad">動いていないため、Buddy は画面を見たり操作したりできません。ユーザー補助の設定で Buddy をオンにしてください。</string>
+    <string name="check_notifications">通知へのアクセス</string>
+    <string name="check_notifications_bad">通知ルールに必要ですが、オフになっています。</string>
+    <string name="check_battery">バッテリーの最適化</string>
+    <string name="check_battery_bad">Buddy に対してオンです。Android がバックグラウンドで停止し、スケジュールしたタスクが動かないことがあります。</string>
+    <string name="check_linux">Buddy の Linux</string>
+    <string name="check_linux_ok">%1$.1f 秒で起動</string>
+    <string name="check_linux_bad">起動しません：%1$s</string>
+    <string name="check_linux_missing">まだインストールされていません。設定でセットアップしてください。</string>
+    <string name="check_helper">Buddy のヘルパー</string>
+    <string name="check_helper_bad">Linux 内のコピーがこのバージョンの Buddy より古いです。</string>
+    <string name="check_server">スマホツールのサーバー</string>
+    <string name="check_server_bad">127.0.0.1:%1$d で応答がありません。ユーザー補助の設定で Buddy をオフにして、もう一度オンにしてください。</string>
+    <string name="check_agent_version">バージョン %1$s</string>
+    <string name="check_network">インターネット</string>
+    <string name="check_network_bad">%1$s が見つかりません。Wi-Fi やモバイルデータ、またはブロックしている VPN やプライベート DNS を確認してください。</string>
+    <string name="check_space">空き容量</string>
+    <string name="check_space_ok">空き %1$s</string>
+    <string name="check_space_bad">空きは %1$s だけです。エージェントのインストールや更新には約 1 GB 必要です。</string>
+    <string name="check_fix">修正</string>
+    <string name="check_open_settings">設定を開く</string>
+    <string name="check_copy">レポートをコピー</string>
+    <string name="check_copied">レポートをコピーしました</string>
+    <string name="check_report">GitHub でバグを報告</string>
+    <string name="check_report_title">GitHub に送られる内容</string>
+    <string name="check_report_text">これらの情報を入力済みの新しい GitHub issue を開きます。そこで送信するまで何も送られず、先に編集もできます。チャット、画面のテキスト、通知は含まれません。</string>
+    <string name="check_report_open">GitHub を開く</string>
+    <plurals name="check_failed">
+        <item quantity="other">%1$d 件のチェックで問題があります</item>
+    </plurals>
+    <string name="tools_step_cap">暴走したタスクがプランを使い切らないよう、続けて %1$d 回操作したところで止めました。必要なら続けるよう伝えてください。</string>
+    <string name="tools_step_loop">止めました：同じ操作を %1$d 回続けて行っており、ループしているようです。</string>
+    <string name="setup_help">ヘルプ</string>
+    <string name="setup_help_info">GitHub にある Buddy のガイドです。Buddy の使い方はどのエージェントにも聞けます。</string>
+    <string name="signin_api_key">代わりに API キーを使う</string>
+    <string name="signin_api_base_bad">https:// で始まるアドレスを入力してください（この端末や自分のネットワーク上なら http:// も可）</string>
+    <string name="account_plan_api_key_at">API キー · %1$s</string>
+    <string name="models_via">%2$s 経由の %1$s</string>
+    <string name="api_keys_remove_text">キーはこの端末から削除されます。そのモデルを使うチャットはデフォルトに戻ります。</string>
+    <string name="api_keys_choose">メニューに表示するモデル: %2$d 個中 %1$d 個</string>
+    <string name="api_keys_choose_title">%1$s のモデル</string>
+    <string name="api_keys_choose_info">チャットに表示するモデルを選びます。何も選ばなければすべて表示します。</string>
+    <string name="api_keys_choose_search">検索</string>
+    <string name="skills_title">スキル</string>
+    <string name="skills_row_none">エージェント共通の手順書</string>
+    <string name="skills_intro">スキルは、エージェントが特定の種類の作業で従う手順書です。文章のスタイル、チェックリスト、アプリでの操作手順などです。Claude Code、Codex、OpenCode は、作業に合うときや、メッセージ欄で / を入力して選んだときにスキルを使います。SKILL.md 形式なので、Claude や ChatGPT のスキルもここで使えます。</string>
+    <string name="skills_need_linux">スキルは Buddy の Linux に保存されます。先にエージェントを設定してください。</string>
+    <string name="skills_none">スキルはまだありません。</string>
+    <string name="skills_import">インポート</string>
+    <string name="skills_write">自分で書く</string>
+    <string name="skills_how">インポートできるのは .zip または .skill ファイル（Claude のスキルのエクスポート形式）か SKILL.md です。Linux ツールのあるチャットでは、エージェントにスキルを書いてもらうこともできます。</string>
+    <string name="skills_delete">削除</string>
+    <string name="skills_delete_title">/%1$s を削除しますか？</string>
+    <string name="skills_delete_text">エージェントはこのスキルを使えなくなります。</string>
+    <string name="skills_write_info">説明には使う場面を書きます。エージェントはそれを読んで判断します。</string>
+    <string name="skills_name_hint">名前（例: weekly-report）</string>
+    <string name="skills_desc_hint">何をするか、いつ使うか</string>
+    <string name="skills_instructions_hint">手順</string>
+    <string name="skills_need_all">説明と手順を入力してください。</string>
+    <string name="skills_added">/%1$s を追加しました。</string>
+    <string name="skills_need_name">名前を付けてください。</string>
+    <string name="skills_exists">%1$s という名前のスキルはすでにあります。</string>
+    <string name="skills_bad_file">スキルではありません。名前の入った SKILL.md が必要です。</string>
+    <string name="skills_slash_none">その名前のスキルはありません。タップしてスキルを追加できます。</string>
+    <string name="github_row_none">エージェントがリポジトリに push できるようにする</string>
+    <string name="github_intro">Linux ツール用に GitHub にログインします。Buddy は自分の Linux に git と GitHub CLI をインストールし、あなたのアカウントでログインさせ、git にあなたの名前と非公開の noreply メールを設定します。</string>
+    <string name="github_risk">これで Linux ツールのあるチャットのエージェントが、あなたのアカウントで clone、commit、push をしたり、issue や pull request を作成したりできます。push や投稿の前には必ずあなたに確認するよう指示されています。</string>
+    <string name="github_sign_in">GitHub でログイン</string>
+    <string name="github_installing">git と GitHub CLI をインストール中…</string>
+    <string name="github_finishing">git を設定中…</string>
+    <string name="github_enter_code">このコードを GitHub に入力して承認してください。コピー済みなので貼り付けられます。</string>
+    <string name="github_open">GitHub を開く</string>
+    <string name="github_code_copied">コードをコピーしました</string>
+    <string name="github_failed">ログインできませんでした: %1$s</string>
+    <string name="github_signed_in">\@%1$s としてログイン中</string>
+    <string name="github_signed_in_info">Linux ツールのあるチャットのエージェントは、このアカウントで git と gh を使えます。</string>
+    <string name="github_sign_out_title">GitHub からログアウトしますか？</string>
+    <string name="github_sign_out_text">Buddy の Linux の git と GitHub CLI は、あなたのアカウントにアクセスできなくなります。</string>
+    <string name="backup_title">バックアップと引っ越し</string>
+    <string name="backup_row">チャットと設定を 1 つのファイルに</string>
+    <string name="backup_intro">チャット、設定、ルール、画像、スキル、エージェントのプロジェクト、各会話についてエージェントが残している内容を、Downloads/Buddy の 1 つのファイルに保存します。この端末でも別の端末でも復元できます。</string>
+    <string name="backup_left_out">ログイン情報と API キーは含まれません。復元後にもう一度ログインし、キーを追加してください。プロジェクトのビルドフォルダも含まれません。</string>
+    <string name="backup_now">今すぐバックアップ</string>
+    <string name="backup_restore">バックアップから復元</string>
+    <string name="backup_restore_title">このバックアップを復元しますか？</string>
+    <string name="backup_restore_text">この端末のチャットと設定がバックアップの内容に置き換わります。完了すると Buddy が再起動します。</string>
+    <string name="backup_making">バックアップ中…（プロジェクトは時間がかかることがあります）</string>
+    <string name="backup_restoring">復元中…</string>
+    <string name="backup_made">Downloads/Buddy/%1$s に保存しました。</string>
+    <string name="backup_restored">復元しました。Buddy を再起動します。</string>
+    <string name="backup_restored_no_linux">チャットと設定を復元しました。Linux 部分（スキル、プロジェクト、エージェントの記録）には Buddy の Linux が必要です。エージェントを設定してから、もう一度復元してください。Buddy を再起動します。</string>
+    <string name="backup_failed">うまくいきませんでした: %1$s</string>
+    <string name="backup_not_one">このファイルは Buddy のバックアップではありません。</string>
+    <string name="chat_incognito">シークレット</string>
+    <string name="chat_incognito_info">このチャットは、エージェントが残した内容とともに、Buddy の再起動時に削除されます。</string>
+    <string name="api_keys_remove_title">%1$s を削除しますか?</string>
+    <string name="api_keys_remove">削除</string>
+    <string name="api_keys_failed">このキーでサービスのモデル一覧を取得できませんでした: %1$s</string>
+    <string name="api_keys_need_address">アドレスを少なくとも1つ追加してください。</string>
+    <string name="api_keys_need_key">APIキーを入力してください。</string>
+    <string name="api_keys_saving">キーを確認しています…</string>
+    <string name="api_keys_save">保存</string>
+    <string name="api_keys_addresses_info">Claude Code は Anthropic 形式のアドレスを使います。Codex はサービスが OpenAI の Responses API に対応していれば OpenAI 形式を使います。OpenCode はどちらでも使えます。サービスにないアドレスは空欄のままにしてください。</string>
+    <string name="api_keys_check">今すぐ確認</string>
+    <string name="api_keys_check_info">任意: ごく小さなテストリクエストを送ります。API クレジットをごくわずかに消費することがあります。</string>
+    <string name="api_keys_check_ok">%1$s: 使えます。</string>
+    <string name="api_keys_check_chat">%1$s: OpenCode で使えますが、Responses API がないため Codex では使えません。</string>
+    <string name="api_keys_check_none">%1$s: このアドレスから応答がありませんでした。%2$s</string>
+    <string name="api_keys_check_unsure">%1$s: 明確な応答がありませんでした。%2$s</string>
+    <string name="api_keys_service">サービス</string>
+    <string name="api_keys_custom">カスタム</string>
+    <string name="setup_step_signin_key_mismatch">API キー (%2$s) は %1$s では使えません。%3$s で使えます。</string>
+    <string name="setup_step_signin_free">アカウントがなくても大丈夫です。OpenCode には無料モデルがあり、サインインは不要です。</string>
+    <string name="setup_use_agent">%1$s を使う</string>
+    <string name="api_keys_openai_hint">OpenAI 形式のアドレス</string>
+    <string name="api_keys_anthropic_hint">Anthropic 形式のアドレス</string>
+    <string name="api_keys_key_keep_hint">APIキー(空欄なら現在のキーを維持)</string>
+    <string name="api_keys_key_hint">APIキー</string>
+    <string name="api_keys_name_hint">名前</string>
+    <string name="api_keys_own_default">エージェント自身のデフォルト</string>
+    <string name="api_keys_defaults_info">モデルがデフォルトのチャットで使うもの。エージェント自身のデフォルトはそのプランで動きます。</string>
+    <string name="api_keys_defaults">デフォルトのチャット</string>
+    <string name="api_keys_for">対象: %1$s</string>
+    <string name="api_keys_models">%1$s · %2$d 個のモデル</string>
+    <string name="api_keys_add">APIキーを追加</string>
+    <string name="api_keys_none">APIキーはまだありません。</string>
+    <string name="api_keys_intro">Claude Code、Codex、OpenCode で他サービスのモデルを、プランと併用またはプランの代わりに使えます。各チャットはモデルメニューでモデルを選びます。キーでの利用はそのキーのアカウントに請求されます。キーはこの端末に暗号化して保存され、エージェントには渡りません。Buddy が各リクエストに付け加えます。</string>
+    <string name="api_keys_row_none">他サービスのモデルを自分のキーで</string>
+    <string name="api_keys_title">APIキー</string>
+    <string name="signin_api_keys">APIキー</string>
+    <string name="models_context">コンテキスト %1$s</string>
+    <string name="models_chip_context">コンテキスト %1$d%%</string>
+    <string name="chat_context">コンテキスト</string>
+    <string name="chat_context_used">%2$s トークン中 %1$s 使用 (%3$d%%)</string>
+    <string name="chat_context_help">いっぱいになると、%1$s が古いメッセージを自動で要約して空きを作ります。</string>
+    <string name="chat_context_compact">今すぐ圧縮</string>
+    <string name="hub_compacting">会話を圧縮しています…</string>
+    <string name="hub_compacted">会話を圧縮しました: %1$s → %2$s トークン</string>
+    <string name="signin_api_models_none">サービスはモデルを返しませんでした。</string>
+    <string name="setup_step_signin_api_key">またはAPIキーを使う: 設定 → APIキー。</string>
+    <string name="setup_step_signin_others">既定の頭脳は %1$s ですが、次のものは準備できています：%2$s。どれかを既定にすればすぐに Buddy を使えます。</string>
+    <string name="setup_switch_default">既定を切り替え</string>
+    <string name="setup_switch_default_title">既定の頭脳</string>
+    <string name="signin_api_key_on">%1$s はAPIキーで動いています。チャットのモデルメニューでモデルを選ぶか、APIキーでデフォルトを設定してください。</string>
+    <string name="signin_api_key_on_plan">チャットではAPIキーのモデルも使えます(チャットのモデルメニューで選択)。音声などのプラン機能はプランを使います。</string>
+    <string name="fdroid_download_note">これらは F-Droid ではなく各提供元から直接ダウンロードされるため、F-Droid による確認は行われていません。</string>
+    <string name="api_keys_local_info">自分のサーバー（Ollama、LM Studio、llama.cpp）の場合: API キーは空のままにします。PC で動かす場合は、localhost の代わりに Wi-Fi 上の PC のアドレスを入力します（例: http://192.168.1.20:11434/v1）。</string>
+    <string name="main_section_pinned">固定済み</string>
+    <string name="main_section_archived">アーカイブ (%1$d)</string>
+    <string name="chat_pinned_marker">固定済み</string>
+    <string name="chat_menu_rename">名前を変更</string>
+    <string name="chat_menu_pin">一番上に固定</string>
+    <string name="chat_menu_unpin">固定を解除</string>
+    <string name="chat_menu_archive">アーカイブ</string>
+    <string name="chat_menu_unarchive">アーカイブから戻す</string>
+    <string name="chat_archived">アーカイブしました。リストの一番下にあります。</string>
+    <string name="chat_archived_scheduled">アーカイブしました。予定したタスクはそのまま動きます。</string>
+    <string name="chat_rename_title">チャットの名前を変更</string>
+    <string name="chat_rename_hint">空欄: 最初のメッセージ</string>
+    <string name="chat_rename_save">保存</string>
+</resources>

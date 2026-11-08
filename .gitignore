@@ -1,0 +1,21 @@
+# build output
+build/
+# native libraries: built from source by native/build.sh (CI and build.sh run it)
+app/src/main/jniLibs/
+app/build/
+dist/
+.gradle/
+.kotlin/
+
+# local machine config
+local.properties
+.idea/
+*.iml
+
+# signing keys — never commit
+*.jks
+*.keystore
+.buddy-keys/
+
+# design exports (kept locally)
+design/
