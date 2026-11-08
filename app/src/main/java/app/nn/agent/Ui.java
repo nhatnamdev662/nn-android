@@ -562,7 +562,8 @@ final class Ui {
                     + "|\\*\\*(?!\\s)(.+?)\\*\\*|__(?!\\s)(.+?)__" // 6, 7: bold
                     + "|~~(.+?)~~" // 8: struck through
                     + "|(?<![\\w*])\\*(?![\\s*])(.+?)(?<!\\s)\\*(?![\\w*])" // 9: italic; not a * b * c
-                    + "|(?<![\\w_])_(?![\\s_])(.+?)(?<!\\s)_(?![\\w_])"); // 10: italic; not snake_case
+                    + "|(?<![\\w_])_(?![\\s_])(.+?)(?<!\\s)_(?![\\w_])" // 10: italic; not snake_case
+                    + "|\\$([^$\\n]+)\\$"); // 11: math / formula
     private static final java.util.regex.Pattern MD_HEADING = java.util.regex.Pattern.compile("#{1,6}\\s+(.*?)\\s*#*\\s*"),
             MD_BULLET = java.util.regex.Pattern.compile("(\\s*)[-*+]\\s+(.*)"),
             MD_NUMBER = java.util.regex.Pattern.compile("(\\s*)(\\d{1,3}[.)])\\s+(.*)"),
@@ -584,7 +585,13 @@ final class Ui {
             java.util.regex.Matcher m;
             if (l.trim().startsWith("```")) {
                 if (code < 0) {
-                    code = start;
+                    String tag = l.trim().substring(3).trim();
+                    if (!tag.isEmpty()) {
+                        out.append("[").append(tag.toUpperCase(java.util.Locale.ROOT)).append("]\n");
+                        set(out, new android.text.style.ForegroundColorSpan(MUTED), start);
+                        set(out, new android.text.style.RelativeSizeSpan(0.85f), start);
+                    }
+                    code = out.length();
                     continue;
                 }
                 if (out.length() > code && out.charAt(out.length() - 1) == '\n') out.delete(out.length() - 1, out.length());
@@ -598,19 +605,47 @@ final class Ui {
                 set(out, new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start);
                 set(out, new android.text.style.RelativeSizeSpan(level == 1 ? 1.25f : level == 2 ? 1.15f : 1.05f), start);
             } else if (MD_RULE.matcher(l).matches()) {
-                out.append("――――――");
+                out.append("\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
                 set(out, new android.text.style.ForegroundColorSpan(MUTED), start);
             } else if ((m = MD_BULLET.matcher(l)).matches()) {
                 indent(out, m.group(1));
-                out.append("•  ");
-                inline(out, m.group(2), then);
+                String contentStr = m.group(2);
+                if (contentStr.startsWith("[ ] ") || contentStr.startsWith("[x] ") || contentStr.startsWith("[X] ")) {
+                    boolean checked = !contentStr.startsWith("[ ] ");
+                    out.append(checked ? "\u2611 " : "\u2610 ");
+                    inline(out, contentStr.substring(4), then);
+                    if (checked) set(out, new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start);
+                } else {
+                    out.append("\u2022  ");
+                    inline(out, contentStr, then);
+                }
             } else if ((m = MD_NUMBER.matcher(l)).matches()) {
                 indent(out, m.group(1));
                 out.append(m.group(2)).append(' ');
                 inline(out, m.group(3), then);
             } else if (l.startsWith(">")) {
-                inline(out, l.replaceFirst(">\\s?", ""), then);
-                set(out, new android.text.style.QuoteSpan(MUTED), start);
+                String q = l.replaceFirst(">\\s?", "");
+                String qTrim = q.trim();
+                if (qTrim.equalsIgnoreCase("[!NOTE]")) {
+                    out.append("\u2139 NOTE\n");
+                    set(out, new android.text.style.ForegroundColorSpan(ACCENT_TEXT), start);
+                    set(out, new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start);
+                } else if (qTrim.equalsIgnoreCase("[!TIP]")) {
+                    out.append("\uD83D\uDCA1 TIP\n");
+                    set(out, new android.text.style.ForegroundColorSpan(0xFF10B981), start);
+                    set(out, new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start);
+                } else if (qTrim.equalsIgnoreCase("[!IMPORTANT]")) {
+                    out.append("\u2757 IMPORTANT\n");
+                    set(out, new android.text.style.ForegroundColorSpan(ACCENT_TEXT), start);
+                    set(out, new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start);
+                } else if (qTrim.equalsIgnoreCase("[!WARNING]") || qTrim.equalsIgnoreCase("[!CAUTION]")) {
+                    out.append("\u26A0 " + (qTrim.equalsIgnoreCase("[!WARNING]") ? "WARNING" : "CAUTION") + "\n");
+                    set(out, new android.text.style.ForegroundColorSpan(ERR), start);
+                    set(out, new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start);
+                } else {
+                    inline(out, q, then);
+                    set(out, new android.text.style.QuoteSpan(MUTED), start);
+                }
             } else if (l.trim().startsWith("|") && l.trim().endsWith("|") && l.trim().length() > 1) {
                 if (MD_TABLE_LINE.matcher(l).matches()) continue; // |---|---|
                 out.append(l.trim());
@@ -649,9 +684,14 @@ final class Ui {
             } else if (m.group(8) != null) {
                 inline(out, m.group(8), then);
                 set(out, new android.text.style.StrikethroughSpan(), a);
-            } else {
+            } else if (m.group(9) != null || m.group(10) != null) {
                 inline(out, m.group(9) != null ? m.group(9) : m.group(10), then);
                 set(out, new android.text.style.StyleSpan(android.graphics.Typeface.ITALIC), a);
+            } else if (m.group(11) != null) {
+                out.append(m.group(11));
+                monospace(out, a, out.length());
+                set(out, new android.text.style.StyleSpan(android.graphics.Typeface.ITALIC), a);
+                set(out, new android.text.style.ForegroundColorSpan(ACCENT_TEXT), a);
             }
             last = m.end();
         }

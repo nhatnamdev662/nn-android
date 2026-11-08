@@ -1699,7 +1699,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 LinearLayout badge = row(this);
                 badge.setGravity(Gravity.CENTER_VERTICAL);
                 badge.setPaddingRelative(dp(this, 8), dp(this, 4), dp(this, 8), dp(this, 4));
-                badge.setBackground(rounded(this, Theme.withAlpha(Ui.color(this, Ui.BG), 0xB8), 10));
+                badge.setBackground(rounded(this, Theme.withAlpha(BG, 0xB8), 10));
 
                 TextView name = single(text(this, Attachments.name(id), 11, TEXT));
                 name.setMaxWidth(dp(this, 140));
@@ -1712,7 +1712,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 bp.setMargins(0, 0, dp(this, 8), dp(this, 8));
                 card.addView(badge, bp);
 
-                card.setForeground(ripple(this, 0, 16));
+                card.setForegroundResource(ripple(this, false));
                 v = card;
             } else {
                 ImageView iv = new ImageView(this);

@@ -45,7 +45,7 @@ final class ImageViewerDialog {
         if (a == null || a.isFinishing() || id == null) return;
         final File file = Attachments.file(a, id);
         if (file == null || !file.exists()) {
-            Toast.makeText(a, R.string.attach_file_missing, Toast.LENGTH_SHORT).show();
+            Toast.makeText(a, a.getString(R.string.attach_cant_open, Attachments.name(id)), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -63,9 +63,8 @@ final class ImageViewerDialog {
         }
 
         final FrameLayout root = new FrameLayout(a);
-        int themeBg = Ui.color(a, Ui.BG);
         // Frosted / dark translucent backdrop synchronized with app theme
-        root.setBackgroundColor(Theme.withAlpha(themeBg, 0xF6));
+        root.setBackgroundColor(Theme.withAlpha(Ui.BG, 0xF6));
 
         final ZoomImageView iv = new ZoomImageView(a);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -90,7 +89,7 @@ final class ImageViewerDialog {
         topBar.setGravity(Gravity.CENTER_VERTICAL);
         int statusBarH = getStatusBarHeight(a);
         topBar.setPaddingRelative(Ui.dp(a, 12), statusBarH + Ui.dp(a, 6), Ui.dp(a, 12), Ui.dp(a, 10));
-        topBar.setBackgroundColor(Theme.withAlpha(Ui.color(a, Ui.CARD), 0xD0));
+        topBar.setBackgroundColor(Theme.withAlpha(Ui.CARD, 0xD0));
 
         // Close button
         ImageButton btnClose = Ui.iconButton(a, R.drawable.ms_close, a.getString(R.string.close), Ui.TEXT);
@@ -100,7 +99,7 @@ final class ImageViewerDialog {
         // Title (filename)
         TextView title = new TextView(a);
         title.setText(Attachments.name(id));
-        title.setTextColor(Ui.color(a, Ui.TEXT));
+        title.setTextColor(Ui.TEXT);
         title.setTextSize(15);
         title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         title.setSingleLine(true);
@@ -175,12 +174,11 @@ final class ImageViewerDialog {
     /**
      * Interactive ImageView with smooth pinch-to-zoom, pan, and double-tap zoom.
      */
-    static class ZoomImageView extends androidx.appcompat.widget.AppCompatImageView {
+    static class ZoomImageView extends ImageView {
         private final Matrix baseMatrix = new Matrix();
         private final Matrix suppMatrix = new Matrix();
         private final Matrix drawMatrix = new Matrix();
         private final RectF displayRect = new RectF();
-        private final float[] matrixValues = new float[9];
 
         private ScaleGestureDetector scaleDetector;
         private GestureDetector gestureDetector;
