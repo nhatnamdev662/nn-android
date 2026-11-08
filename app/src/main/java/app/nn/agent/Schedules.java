@@ -84,6 +84,8 @@ public final class Schedules extends BroadcastReceiver {
         /** Minutes after midnight, the phone's time. */
         int minute = 9 * 60;
         int days = EVERY_DAY;
+        /** Interval in minutes between runs: 0 = specific time of day (once per active day at 'minute'), > 0 = repeat every intervalMin minutes. */
+        int intervalMin = 0;
         /** The message, sent as the user's own. */
         String text = "";
         /**
@@ -100,6 +102,7 @@ public final class Schedules extends BroadcastReceiver {
             Plan p = new Plan();
             p.minute = minute;
             p.days = days;
+            p.intervalMin = intervalMin;
             p.text = text;
             p.wake = wake;
             p.quiet = quiet;
@@ -110,7 +113,7 @@ public final class Schedules extends BroadcastReceiver {
         JSONObject toJson() {
             try {
                 return new JSONObject().put("minute", minute).put("days", days).put("text", text).put("wake", wake)
-                        .put("quiet", quiet).put("paused", paused);
+                        .put("quiet", quiet).put("paused", paused).put("intervalMin", intervalMin);
             } catch (Exception e) {
                 return new JSONObject();
             }
@@ -121,6 +124,7 @@ public final class Schedules extends BroadcastReceiver {
             Plan p = new Plan();
             p.minute = Math.max(0, Math.min(24 * 60 - 1, o.optInt("minute")));
             p.days = o.optInt("days") & EVERY_DAY;
+            p.intervalMin = Math.max(0, o.optInt("intervalMin"));
             p.text = o.optString("text");
             p.wake = o.optBoolean("wake");
             p.quiet = o.optBoolean("quiet");
@@ -134,6 +138,25 @@ public final class Schedules extends BroadcastReceiver {
 
         /** The first time after this moment (wall clock), or 0 with no days picked. */
         long next(long after) {
+            if (intervalMin > 0) {
+                long target = after + (long) intervalMin * 60_000L;
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(target);
+                c.set(Calendar.SECOND, 0);
+                c.set(Calendar.MILLISECOND, 0);
+                target = c.getTimeInMillis();
+                if (target <= after) target += 60_000L;
+                c.setTimeInMillis(target);
+                for (int i = 0; i < 8; i++) {
+                    if (on(c.get(Calendar.DAY_OF_WEEK))) return c.getTimeInMillis();
+                    c.add(Calendar.DAY_OF_YEAR, 1);
+                    c.set(Calendar.HOUR_OF_DAY, 0);
+                    c.set(Calendar.MINUTE, 0);
+                    c.set(Calendar.SECOND, 0);
+                    c.set(Calendar.MILLISECOND, 0);
+                }
+                return 0;
+            }
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(after);
             for (int i = 0; i < 8; i++) {
@@ -155,8 +178,27 @@ public final class Schedules extends BroadcastReceiver {
             return android.text.format.DateFormat.getTimeFormat(c).format(t.getTime());
         }
 
-        /** "Every day at 14:00", "Weekdays at 14:00", "Mon, Thu at 14:00". */
+        private String intervalSummary(Context c) {
+            if (intervalMin < 60) {
+                return c.getString(R.string.schedule_interval_min, intervalMin);
+            } else if (intervalMin % 60 == 0) {
+                return c.getString(R.string.schedule_interval_hours, intervalMin / 60);
+            } else {
+                return c.getString(R.string.schedule_interval_hours_mins, intervalMin / 60, intervalMin % 60);
+            }
+        }
+
+        /** "Every day at 14:00", "Weekdays at 14:00", "Mon, Thu at 14:00", or "Every 30 min". */
         String summary(Context c) {
+            if (intervalMin > 0) {
+                String rep = intervalSummary(c);
+                if (days == EVERY_DAY) return rep;
+                if (days == WEEKDAYS) return rep + " (" + c.getString(R.string.schedule_weekdays) + ")";
+                String[] names = new java.text.DateFormatSymbols(Ui.locale(c)).getShortWeekdays();
+                StringBuilder b = new StringBuilder();
+                for (int d : week()) if (on(d)) b.append(b.length() > 0 ? ", " : "").append(names[d]);
+                return rep + " (" + b + ")";
+            }
             if (days == EVERY_DAY) return c.getString(R.string.schedule_summary_daily, time(c));
             if (days == WEEKDAYS) return c.getString(R.string.schedule_summary_weekdays, time(c));
             String[] names = new java.text.DateFormatSymbols(Ui.locale(c)).getShortWeekdays();
@@ -167,6 +209,17 @@ public final class Schedules extends BroadcastReceiver {
 
         /** For the agent: "every day at 14:00", in English like the rest of its instructions. */
         String english() {
+            if (intervalMin > 0) {
+                String rep = intervalMin < 60 ? "every " + intervalMin + " minutes"
+                        : (intervalMin % 60 == 0 ? "every " + (intervalMin / 60) + " hours"
+                        : "every " + (intervalMin / 60) + " hours and " + (intervalMin % 60) + " minutes");
+                if (days == EVERY_DAY) return rep;
+                if (days == WEEKDAYS) return rep + " on weekdays";
+                String[] names = new java.text.DateFormatSymbols(java.util.Locale.ENGLISH).getShortWeekdays();
+                StringBuilder b = new StringBuilder("on ");
+                for (int d = Calendar.SUNDAY; d <= Calendar.SATURDAY; d++) if (on(d)) b.append(b.length() > 3 ? ", " : "").append(names[d]);
+                return rep + " " + b;
+            }
             String at = String.format(java.util.Locale.ROOT, " at %02d:%02d", minute / 60, minute % 60);
             if (days == EVERY_DAY) return "every day" + at;
             if (days == WEEKDAYS) return "on weekdays" + at;

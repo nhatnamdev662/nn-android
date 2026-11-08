@@ -513,6 +513,15 @@
     <string name="schedule_info">Đến giờ đã đặt, NN gửi tin nhắn này vào cuộc trò chuyện như thể bạn tự gõ, với agent và tùy chọn của cuộc trò chuyện này. Thẻ duyệt vẫn chờ bạn. Nếu cần màn hình khi điện thoại đang khóa, NN sẽ nhờ bạn mở khóa.</string>
     <!-- Schedule sheet: section titles, the day choices and the message field. -->
     <string name="schedule_time">Giờ</string>
+    <string name="schedule_type">Chế độ lặp</string>
+    <string name="schedule_type_fixed">Giờ cố định</string>
+    <string name="schedule_type_interval">Mỗi khoảng thời gian</string>
+    <string name="schedule_interval_title">Khoảng cách mỗi lần gửi</string>
+    <string name="schedule_interval_min">Mỗi %1$d phút</string>
+    <string name="schedule_interval_hours">Mỗi %1$d giờ</string>
+    <string name="schedule_interval_hours_mins">Mỗi %1$d giờ %2$d phút</string>
+    <string name="schedule_custom_interval">Tùy chỉnh...</string>
+    <string name="schedule_enter_minutes">Nhập khoảng cách theo phút (tối thiểu 1):</string>
     <string name="schedule_days">Ngày</string>
     <string name="schedule_daily">Mỗi ngày</string>
     <string name="schedule_weekdays">Ngày thường</string>

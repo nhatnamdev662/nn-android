@@ -518,6 +518,15 @@
     <string name="schedule_info">At the set time NN sends this message into the chat as if you typed it, with this chat\'s agent and options. Approval cards still wait for you. If it needs the screen while the phone is locked, it asks you to unlock.</string>
     <!-- Schedule sheet: section titles, the day choices and the message field. -->
     <string name="schedule_time">Time</string>
+    <string name="schedule_type">Mode</string>
+    <string name="schedule_type_fixed">Specific time</string>
+    <string name="schedule_type_interval">Every interval</string>
+    <string name="schedule_interval_title">Repeat every</string>
+    <string name="schedule_interval_min">Every %1$d min</string>
+    <string name="schedule_interval_hours">Every %1$d hours</string>
+    <string name="schedule_interval_hours_mins">Every %1$d hours %2$d min</string>
+    <string name="schedule_custom_interval">Custom...</string>
+    <string name="schedule_enter_minutes">Enter interval in minutes (min 1):</string>
     <string name="schedule_days">Days</string>
     <string name="schedule_daily">Every day</string>
     <string name="schedule_weekdays">Weekdays</string>

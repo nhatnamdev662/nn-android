@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -745,18 +746,124 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         info.setPaddingRelative(0, dp(this, 4), 0, dp(this, 8));
         c.addView(info);
 
-        TextView tl = sectionLabel(this, getString(R.string.schedule_time));
-        tl.setPaddingRelative(0, dp(this, 8), 0, dp(this, 4));
-        c.addView(tl);
-        TextView time = title(this, p.time(this), 28);
-        time.setTypeface(mono(this, 500));
-        time.setPaddingRelative(dp(this, 12), dp(this, 6), dp(this, 12), dp(this, 6));
-        time.setBackground(outlined(this, BG, 12, OUTLINE, 1));
-        time.setOnClickListener(v -> new android.app.TimePickerDialog(this, (tp, h, m) -> {
-            p.minute = h * 60 + m;
-            time.setText(p.time(this));
-        }, p.minute / 60, p.minute % 60, android.text.format.DateFormat.is24HourFormat(this)).show());
-        c.addView(time, wrap());
+        final String[] schedType = {p.intervalMin > 0 ? "interval" : "fixed"};
+
+        TextView typeLabel = sectionLabel(this, getString(R.string.schedule_type));
+        typeLabel.setPaddingRelative(0, dp(this, 6), 0, dp(this, 4));
+        c.addView(typeLabel);
+
+        FrameLayout typeSegmentHolder = new FrameLayout(this);
+        c.addView(typeSegmentHolder, full());
+
+        FrameLayout timeOrIntervalHolder = new FrameLayout(this);
+        LinearLayout.LayoutParams tip = full();
+        tip.topMargin = dp(this, 6);
+        c.addView(timeOrIntervalHolder, tip);
+
+        final Runnable[] paintTimeOrInterval = new Runnable[1];
+
+        paintTimeOrInterval[0] = () -> {
+            timeOrIntervalHolder.removeAllViews();
+            if ("fixed".equals(schedType[0])) {
+                LinearLayout fixedBox = column(this);
+                TextView tl = sectionLabel(this, getString(R.string.schedule_time));
+                tl.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
+                fixedBox.addView(tl);
+                TextView time = title(this, p.time(this), 28);
+                time.setTypeface(mono(this, 500));
+                time.setPaddingRelative(dp(this, 12), dp(this, 6), dp(this, 12), dp(this, 6));
+                time.setBackground(outlined(this, BG, 12, OUTLINE, 1));
+                time.setOnClickListener(v -> new android.app.TimePickerDialog(this, (tp, h, m) -> {
+                    p.minute = h * 60 + m;
+                    time.setText(p.time(this));
+                }, p.minute / 60, p.minute % 60, android.text.format.DateFormat.is24HourFormat(this)).show());
+                fixedBox.addView(time, wrap());
+                timeOrIntervalHolder.addView(fixedBox, full());
+            } else {
+                LinearLayout intBox = column(this);
+                if (p.intervalMin <= 0) p.intervalMin = 60;
+                TextView il = sectionLabel(this, getString(R.string.schedule_interval_title));
+                il.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
+                intBox.addView(il);
+
+                TextView curInt = title(this, p.intervalSummary(this), 22);
+                curInt.setTypeface(mono(this, 500));
+                curInt.setTextColor(ACCENT_TEXT);
+                curInt.setPaddingRelative(dp(this, 4), dp(this, 2), dp(this, 4), dp(this, 6));
+                intBox.addView(curInt, wrap());
+
+                HorizontalScrollView hsv = new HorizontalScrollView(this);
+                hsv.setHorizontalScrollBarEnabled(false);
+                LinearLayout presets = row(this);
+                presets.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
+
+                int[] mins = {15, 30, 60, 120, 240, 360, 720};
+                String[] labels = {"15m", "30m", "1h", "2h", "4h", "6h", "12h"};
+                for (int idx = 0; idx < mins.length; idx++) {
+                    final int mVal = mins[idx];
+                    boolean sel = (p.intervalMin == mVal);
+                    TextView chip = text(this, labels[idx], 13, sel ? ON_ACCENT : TEXT);
+                    chip.setTypeface(mono(this, 500));
+                    chip.setPaddingRelative(dp(this, 12), dp(this, 7), dp(this, 12), dp(this, 7));
+                    chip.setBackground(sel ? rounded(this, ACCENT, 10) : outlined(this, BG, 10, OUTLINE, 1));
+                    chip.setOnClickListener(v -> {
+                        p.intervalMin = mVal;
+                        paintTimeOrInterval[0].run();
+                    });
+                    LinearLayout.LayoutParams cp = wrap();
+                    cp.setMarginEnd(dp(this, 6));
+                    presets.addView(chip, cp);
+                }
+
+                boolean isCustom = true;
+                for (int mVal : mins) if (p.intervalMin == mVal) { isCustom = false; break; }
+                TextView customChip = text(this, getString(R.string.schedule_custom_interval), 13, isCustom ? ON_ACCENT : TEXT);
+                customChip.setPaddingRelative(dp(this, 12), dp(this, 7), dp(this, 12), dp(this, 7));
+                customChip.setBackground(isCustom ? rounded(this, ACCENT, 10) : outlined(this, BG, 10, OUTLINE, 1));
+                customChip.setOnClickListener(v -> {
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+                    builder.setTitle(getString(R.string.schedule_custom_interval));
+                    builder.setMessage(getString(R.string.schedule_enter_minutes));
+                    EditText input = new EditText(this);
+                    input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    input.setText(String.valueOf(p.intervalMin > 0 ? p.intervalMin : 60));
+                    input.setSelection(input.getText().length());
+                    FrameLayout container = new FrameLayout(this);
+                    container.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 8));
+                    container.addView(input, full());
+                    builder.setView(container);
+                    builder.setPositiveButton(R.string.schedule_save, (di, w) -> {
+                        try {
+                            int val = Integer.parseInt(input.getText().toString().trim());
+                            if (val >= 1) {
+                                p.intervalMin = val;
+                                paintTimeOrInterval[0].run();
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    });
+                    builder.setNegativeButton(android.R.string.cancel, null);
+                    builder.show();
+                });
+                presets.addView(customChip, wrap());
+
+                hsv.addView(presets);
+                intBox.addView(hsv, full());
+                timeOrIntervalHolder.addView(intBox, full());
+            }
+        };
+
+        typeSegmentHolder.addView(segmented(this, new String[][]{
+                {"fixed", getString(R.string.schedule_type_fixed)},
+                {"interval", getString(R.string.schedule_type_interval)}
+        }, schedType[0], false, v -> {
+            schedType[0] = v;
+            if ("fixed".equals(v)) p.intervalMin = 0;
+            else if (p.intervalMin <= 0) p.intervalMin = 60;
+            paintTimeOrInterval[0].run();
+        }));
+
+        paintTimeOrInterval[0].run();
 
         TextView dl = sectionLabel(this, getString(R.string.schedule_days));
         dl.setPaddingRelative(0, dp(this, 14), 0, dp(this, 4));
@@ -874,6 +981,11 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 msg.requestFocus();
                 Toast.makeText(this, R.string.schedule_no_message, Toast.LENGTH_SHORT).show();
                 return;
+            }
+            if ("interval".equals(schedType[0])) {
+                if (p.intervalMin <= 0) p.intervalMin = 60;
+            } else {
+                p.intervalMin = 0;
             }
             d[0].dismiss();
             hub.setSchedule(ses, p);
