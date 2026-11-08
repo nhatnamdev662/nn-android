@@ -92,7 +92,7 @@ final class ImageViewerDialog {
         topBar.setBackgroundColor(Theme.withAlpha(Ui.CARD, 0xD0));
 
         // Close button
-        ImageButton btnClose = Ui.iconButton(a, R.drawable.ms_close, a.getString(R.string.close), Ui.TEXT);
+        ImageButton btnClose = Ui.iconButton(a, R.drawable.ms_close, "Close", Ui.TEXT);
         btnClose.setOnClickListener(v -> d.dismiss());
         topBar.addView(btnClose, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
 

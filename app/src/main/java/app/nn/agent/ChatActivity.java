@@ -1712,7 +1712,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 bp.setMargins(0, 0, dp(this, 8), dp(this, 8));
                 card.addView(badge, bp);
 
-                card.setForegroundResource(ripple(this, false));
+                card.setForeground(getDrawable(ripple(this, false)));
                 v = card;
             } else {
                 ImageView iv = new ImageView(this);
