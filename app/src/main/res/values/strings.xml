@@ -2108,19 +2108,22 @@
 
     <!-- ADB guide sheet (Shizuku style). -->
     <string name="adb_guide_sheet_title">Pair via Wireless Debugging</string>
-    <string name="adb_guide_notify_title">1. Enable notifications</string>
-    <string name="adb_guide_notify_desc">Notification permission is required so NN can show the pairing code input directly in the status bar.</string>
-    <string name="adb_guide_notify_enabled">✔ Notifications allowed</string>
+    <string name="adb_guide_searching_title">Searching for pairing service</string>
+    <string name="adb_guide_stop_search">Stop searching</string>
+    <string name="adb_guide_start_search">Start searching</string>
+    <string name="adb_guide_notify_banner">A notification from NN will help you complete pairing.</string>
     <string name="adb_guide_notify_btn">Allow notifications</string>
-    <string name="adb_guide_step1_title">2. Enable Developer Options</string>
-    <string name="adb_guide_step1_desc">Go to Phone Settings → About Phone → Tap “Build number” 7 times continuously (Skip if already on).</string>
-    <string name="adb_guide_step2_title">3. Open Developer Options</string>
-    <string name="adb_guide_step2_desc">Scroll down and turn on “Wireless Debugging” while connected to Wi-Fi.</string>
-    <string name="adb_guide_step3_title">4. Get pairing code</string>
-    <string name="adb_guide_step3_desc">Tap “Wireless Debugging” → select “Pair device with pairing code”. Enter the code via NN notification or the button below.</string>
-    <string name="adb_guide_step4_title">5. Run in background</string>
-    <string name="adb_guide_step4_desc">After pairing once, NN keeps ADB running persistently in the background like Shizuku!</string>
-    <string name="adb_guide_enter_code_btn">Enter pairing code in NN</string>
+    <string name="adb_guide_network_note">NN requires local network access. It is governed by network permissions.
+
+Some systems (such as MIUI/HyperOS) do not allow apps to access the network when they are not in the foreground, even when using standard foreground services. Please disable battery optimizations for NN on such systems.</string>
+    <string name="adb_guide_step1">Enter “Developer Options” → “Wireless Debugging”.
+Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</string>
+    <string name="adb_guide_step1_note">Please note: the left portion of the “Wireless Debugging” option can be clicked to open a new page. Only flipping the switch on the right is not enough.</string>
+    <string name="adb_guide_open_dev">Developer Options</string>
+    <string name="adb_guide_step2">Enter the pairing code into the notification to complete pairing.</string>
+    <string name="adb_guide_step2_enter_here">Enter code in app</string>
+    <string name="adb_guide_step3">Return to NN and start ADB.</string>
+    <string name="adb_guide_start_adb">Start ADB</string>
     <string name="adb_ask_nn_prompt">I want to connect Wireless ADB so you can unlock full phone automation capabilities. Please check if Wireless Debugging is on and guide or automate the connection for me!</string>
 
     <!-- ADB pairing sheet (bottom sheet modal). -->
@@ -2139,10 +2142,13 @@
 
     <!-- ADB notification quick-input. -->
     <string name="adb_notify_channel">Wireless Debugging pairing</string>
+    <string name="adb_notify_searching_title">Searching for pairing service</string>
+    <string name="adb_notify_searching_text">A notification from NN will help you complete pairing.</string>
+    <string name="adb_notify_stop_search">Stop searching</string>
     <string name="adb_notify_pair_title">Wireless Debugging detected</string>
     <string name="adb_notify_pair_text">Tap to enter pairing code, or type directly below.</string>
     <string name="adb_notify_code_hint">Enter 6-digit code</string>
-    <string name="adb_notify_pair_success">ADB paired and connected.</string>
+    <string name="adb_notify_pair_success">ADB paired and connected successfully.</string>
     <string name="adb_notify_pair_failed">Pairing failed. Tap to try again.</string>
 
     <!-- ADB diagnostics and tool execution. -->

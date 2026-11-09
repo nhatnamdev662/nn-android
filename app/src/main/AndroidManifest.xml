@@ -243,6 +243,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="app.nn.agent.ADB_PAIR_CODE" />
+                <action android:name="app.nn.agent.ADB_STOP_SEARCH" />
             </intent-filter>
         </receiver>
     </application>

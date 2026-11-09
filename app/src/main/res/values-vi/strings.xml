@@ -2090,19 +2090,22 @@
 
     <!-- ADB guide sheet (Shizuku style). -->
     <string name="adb_guide_sheet_title">Ghép nối qua Gỡ lỗi không dây</string>
-    <string name="adb_guide_notify_title">1. Cho phép thông báo</string>
-    <string name="adb_guide_notify_desc">Cần quyền thông báo để khi chọn Ghép nối trong Cài đặt máy, NN sẽ gửi thông báo nhập mã ngay trên thanh trạng thái.</string>
-    <string name="adb_guide_notify_enabled">✔ Đã cho phép thông báo</string>
+    <string name="adb_guide_searching_title">Đang tìm kiếm dịch vụ ghép nối</string>
+    <string name="adb_guide_stop_search">Dừng tìm kiếm</string>
+    <string name="adb_guide_start_search">Bắt đầu tìm kiếm</string>
+    <string name="adb_guide_notify_banner">Một thông báo từ NN sẽ giúp bạn hoàn thành việc ghép nối.</string>
     <string name="adb_guide_notify_btn">Bật thông báo</string>
-    <string name="adb_guide_step1_title">2. Bật Tùy chọn nhà phát triển</string>
-    <string name="adb_guide_step1_desc">Vào Cài đặt máy → Giới thiệu điện thoại → Nhấn 7 lần liên tục vào “Số bản dựng” (Bỏ qua nếu đã bật).</string>
-    <string name="adb_guide_step2_title">3. Mở Tùy chọn nhà phát triển</string>
-    <string name="adb_guide_step2_desc">Cuộn xuống tìm và BẬT mục “Gỡ lỗi không dây” (Wireless Debugging) khi đang kết nối Wi-Fi.</string>
-    <string name="adb_guide_step3_title">4. Lấy mã ghép nối</string>
-    <string name="adb_guide_step3_desc">Chạm vào dòng chữ “Gỡ lỗi không dây” → chọn “Ghép nối thiết bị bằng mã ghép nối”. Bạn có thể nhập mã trực tiếp từ thông báo của NN hoặc nhấn nút bên dưới.</string>
-    <string name="adb_guide_step4_title">5. Duy trì chạy ngầm</string>
-    <string name="adb_guide_step4_desc">Sau khi ghép nối lần đầu thành công, NN sẽ tự động duy trì kết nối ngầm tương tự Shizuku mỗi khi mở app.</string>
-    <string name="adb_guide_enter_code_btn">Nhập mã ghép nối vào NN</string>
+    <string name="adb_guide_network_note">NN cần truy cập mạng cục bộ. Nó được kiểm soát bởi sự cho phép của mạng.
+
+Một số hệ thống (chẳng hạn như MIUI) không cho phép ứng dụng truy cập mạng khi chúng không hiển thị, ngay cả khi ứng dụng sử dụng dịch vụ nền trước làm tiêu chuẩn. Vui lòng tắt các tính năng tối ưu hóa pin cho NN trên các hệ thống như vậy.</string>
+    <string name="adb_guide_step1">Nhập “Tùy chọn nhà phát triển” - “Gỡ lỗi qua Wi-Fi”.
+Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ thấy một mã gồm sáu chữ số.</string>
+    <string name="adb_guide_step1_note">Xin lưu ý, phần bên trái của tùy chọn “Gỡ lỗi không dây” có thể nhấn được, nhấn vào nó sẽ mở ra một trang mới. Chỉ điều chỉnh công tắc ở bên phải là không chính xác.</string>
+    <string name="adb_guide_open_dev">Tùy chọn nhà phát triển</string>
+    <string name="adb_guide_step2">Nhập mã vào thông báo để hoàn tất quá trình ghép nối.</string>
+    <string name="adb_guide_step2_enter_here">Nhập mã trong ứng dụng</string>
+    <string name="adb_guide_step3">Quay lại với NN và khởi động ADB.</string>
+    <string name="adb_guide_start_adb">Khởi động ADB</string>
     <string name="adb_ask_nn_prompt">Tôi muốn kết nối ADB qua Gỡ lỗi không dây để bạn tận dụng tối đa tính năng tự động hoá. Bạn hãy kiểm tra xem Gỡ lỗi không dây đã bật chưa và hướng dẫn hoặc tự động thao tác kết nối hộ tôi nhé!</string>
 
     <!-- ADB pairing sheet (bottom sheet modal). -->
@@ -2121,6 +2124,9 @@
 
     <!-- ADB notification quick-input. -->
     <string name="adb_notify_channel">Ghép nối Gỡ lỗi không dây</string>
+    <string name="adb_notify_searching_title">Đang tìm kiếm dịch vụ ghép nối</string>
+    <string name="adb_notify_searching_text">Một thông báo từ NN sẽ giúp bạn hoàn thành việc ghép nối.</string>
+    <string name="adb_notify_stop_search">Dừng tìm kiếm</string>
     <string name="adb_notify_pair_title">Phát hiện Gỡ lỗi không dây</string>
     <string name="adb_notify_pair_text">Nhấn để nhập mã ghép nối, hoặc nhập trực tiếp bên dưới.</string>
     <string name="adb_notify_code_hint">Nhập mã 6 chữ số</string>

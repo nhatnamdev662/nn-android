@@ -17,7 +17,7 @@ import android.widget.Toast;
 /**
  * Manages foreground notifications and Quick-Input (RemoteInput) for Wireless Debugging pairing.
  * Allows entering the 6-digit pairing code directly from the notification shade without leaving
- * the Developer Options screen.
+ * the Developer Options screen (Shizuku style).
  */
 public final class AdbPairingService {
     private static final String TAG = "AdbPairingService";
@@ -26,11 +26,58 @@ public final class AdbPairingService {
     public static final int NOTIFICATION_ID = 8769;
 
     public static final String ACTION_PAIR_CODE = "app.nn.agent.ADB_PAIR_CODE";
+    public static final String ACTION_STOP_SEARCH = "app.nn.agent.ADB_STOP_SEARCH";
     public static final String EXTRA_PORT = "port";
     public static final String KEY_TEXT_REPLY = "adb_code";
 
     private AdbPairingService() {}
 
+    /** State 1: Searching for pairing service (Shizuku style) */
+    public static void showSearchingNotification(Context context) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null) return;
+        createChannel(context, nm);
+
+        Intent openIntent = new Intent(context, SetupActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent openPi = PendingIntent.getActivity(
+                context, 0, openIntent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                        : PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        Intent stopIntent = new Intent(context, PairingReceiver.class)
+                .setAction(ACTION_STOP_SEARCH);
+        PendingIntent stopPi = PendingIntent.getBroadcast(
+                context, 1, stopIntent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                        : PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        Notification.Builder nb;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nb = new Notification.Builder(context, CHANNEL_ID);
+        } else {
+            nb = new Notification.Builder(context);
+        }
+
+        nb.setSmallIcon(R.drawable.ic_launcher_monochrome)
+          .setContentTitle(context.getString(R.string.adb_notify_searching_title))
+          .setContentText(context.getString(R.string.adb_notify_searching_text))
+          .setContentIntent(openPi)
+          .addAction(new Notification.Action.Builder(
+                  null,
+                  context.getString(R.string.adb_notify_stop_search),
+                  stopPi
+          ).build())
+          .setOngoing(true);
+
+        nm.notify(NOTIFICATION_ID, nb.build());
+    }
+
+    /** State 2: Discovered pairing service -> prompt 6-digit input directly */
     public static void showNotification(Context context, int detectedPort) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) return;
@@ -59,14 +106,10 @@ public final class AdbPairingService {
                 pairPi
         ).addRemoteInput(remoteInput).build();
 
-        // Developer Options shortcut intent
-        Intent devIntent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent devPi = PendingIntent.getActivity(
-                context,
-                1,
-                devIntent,
+        Intent openIntent = new Intent(context, SetupActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent openPi = PendingIntent.getActivity(
+                context, 0, openIntent,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                         ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                         : PendingIntent.FLAG_UPDATE_CURRENT
@@ -82,13 +125,8 @@ public final class AdbPairingService {
         nb.setSmallIcon(R.drawable.ic_launcher_monochrome)
           .setContentTitle(context.getString(R.string.adb_notify_pair_title))
           .setContentText(context.getString(R.string.adb_notify_pair_text))
-          .setContentIntent(devPi)
+          .setContentIntent(openPi)
           .addAction(pairAction)
-          .addAction(new Notification.Action.Builder(
-                  null,
-                  context.getString(R.string.setup_adb_open_dev_options),
-                  devPi
-          ).build())
           .setAutoCancel(true);
 
         nm.notify(NOTIFICATION_ID, nb.build());
@@ -113,6 +151,7 @@ public final class AdbPairingService {
         }
     }
 
+    /** State 3: Pair success -> checkmark, notify, and auto-dismiss */
     public static void showSuccessNotification(Context context, int port) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) return;
@@ -149,14 +188,20 @@ public final class AdbPairingService {
     }
 
     /**
-     * BroadcastReceiver to handle RemoteInput submission from notification shade.
+     * BroadcastReceiver to handle RemoteInput submission and search stopping from notification shade.
      */
     public static class PairingReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent == null || !ACTION_PAIR_CODE.equals(intent.getAction())) {
+            if (intent == null) return;
+            String action = intent.getAction();
+
+            if (ACTION_STOP_SEARCH.equals(action)) {
+                cancelNotification(context);
                 return;
             }
+
+            if (!ACTION_PAIR_CODE.equals(action)) return;
 
             Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
             int port = intent.getIntExtra(EXTRA_PORT, AdbManager.detectedPairingPort);
