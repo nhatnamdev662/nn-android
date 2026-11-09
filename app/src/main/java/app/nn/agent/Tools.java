@@ -534,7 +534,7 @@ final class Tools {
         switch (name) {
             case "update_buddy":
                 if (Flavor.FDROID) return fdroidUpdates();
-                return updateNN Agent(a.optBoolean("install", false));
+                return updateNn(a.optBoolean("install", false));
             case "install_apk":
                 return installApk(a.getString("path"));
             default:
@@ -1770,7 +1770,7 @@ final class Tools {
         String best = top.get(0)[0];
         String bestLabel = top.get(0)[1];
         // NN's own screens hold the safety settings: only the user opens them (unless they let agents in)
-        if (best.equals(svc.getPackageName()) && !Prefs.agentsTapNN Agent(svc))
+        if (best.equals(svc.getPackageName()) && !Prefs.agentsTapNn(svc))
             return "BLOCKED: agents can't open NN AGENT itself. Only the user uses NN's screens.";
         Intent launch = pm.getLaunchIntentForPackage(best);
         if (launch == null) return "App " + bestLabel + " cannot be launched.";
@@ -1872,7 +1872,7 @@ final class Tools {
     }
 
     /** NN's own updates (see {@link Updates}). */
-    private String updateNN Agent(boolean install) {
+    private String updateNn(boolean install) {
         Updates.Release r;
         try {
             r = Updates.latest();
@@ -1920,7 +1920,7 @@ final class Tools {
         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ResolveInfo to = svc.getPackageManager().resolveActivity(i, 0);
         if (to != null && to.activityInfo != null && svc.getPackageName().equals(to.activityInfo.packageName)
-                && !Prefs.agentsTapNN Agent(svc))
+                && !Prefs.agentsTapNn(svc))
             return "BLOCKED: that link opens NN AGENT itself. Only the user uses NN's screens.";
         svc.startActivity(i);
         Thread.sleep(1500);

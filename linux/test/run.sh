@@ -20,7 +20,7 @@ for f in fixtures/*/*.jsonl; do
   case $f in *.expected.jsonl) continue ;; esac
   agent=$(basename "$(dirname "$f")")
   exp=${f%.jsonl}.expected.jsonl
-  got=$(HOME=$H BUDDY_TEST_STREAM=$agent bash ../buddy-run test ask fixture "$agent" 0 x <"$f" | jq -S -c .)
+  got=$(HOME=$H NN_TEST_STREAM=$agent bash ../nn-run test ask fixture "$agent" 0 x <"$f" | jq -S -c .)
   rm -rf "$H/.buddy" "$H/.codex"
   n=$((n + 1))
   if [ "$update" = --update ]; then

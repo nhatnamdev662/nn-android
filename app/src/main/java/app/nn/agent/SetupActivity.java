@@ -914,8 +914,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         })), full());
         ex.addView(divider(), lineParams());
         ex.addView(protect(switchRow(this, getString(R.string.setup_agents_tap), getString(R.string.setup_agents_tap_info),
-                Prefs.agentsTapNN Agent(this), on -> {
-            Prefs.setAgentsTapNN Agent(this, on);
+                Prefs.agentsTapNn(this), on -> {
+            Prefs.setAgentsTapNn(this, on);
             render();
         })), full());
         if (dev) {

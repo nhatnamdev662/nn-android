@@ -57,11 +57,11 @@ final class Prefs {
      * Agents (any MCP client, e.g. Claude Code testing NN Agent) may tap and type in NN's own screens, except the
      * bubble, approval cards, App permissions and the developer switches. Off by default.
      */
-    static boolean agentsTapNN Agent(Context c) {
+    static boolean agentsTapNn(Context c) {
         return sp(c).getBoolean("agents_tap_buddy", false);
     }
 
-    static void setAgentsTapNN Agent(Context c, boolean on) {
+    static void setAgentsTapNn(Context c, boolean on) {
         sp(c).edit().putBoolean("agents_tap_buddy", on).apply();
     }
 

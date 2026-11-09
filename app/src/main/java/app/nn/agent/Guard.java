@@ -472,7 +472,7 @@ final class Guard {
     }
 
     /** Is this NN's own UI (its screens, the bubble, its approval card)? */
-    static boolean isNN Agent(AccessibilityNodeInfo n) {
+    static boolean isNn(AccessibilityNodeInfo n) {
         return n != null && n.getPackageName() != null
                 && BuildInfo.class.getPackage().getName().contentEquals(n.getPackageName());
     }
@@ -483,8 +483,8 @@ final class Guard {
      * switches) stay off-limits. The bubble and its card are overlays that taps never land on (see nodeAt).
      */
     static boolean offLimits(android.content.Context c, AccessibilityNodeInfo n) {
-        if (!isNN Agent(n)) return false;
-        if (!Prefs.agentsTapNN Agent(c)) return true;
+        if (!isNn(n)) return false;
+        if (!Prefs.agentsTapNn(c)) return true;
         AccessibilityNodeInfo cur = n;
         for (int i = 0; cur != null && i < 60; i++) {
             if (cur.getExtras().getBoolean(Ui.PROTECTED, false)) return true;
