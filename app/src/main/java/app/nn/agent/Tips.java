@@ -11,13 +11,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * What agents learned about an app or a site, for the next run: short notes in Buddy's Linux at
+ * What agents learned about an app or a site, for the next run: short notes in NN's Linux at
  * /root/.buddy/tips/<package or site>.md ("com.reddit.frontpage.md", "reddit.com.md"), which the agents write
  * themselves (the system prompt says how). A chat gets an app's or site's notes once, the first time it reads it.
  */
 final class Tips {
     private static final int MAX_CHARS = 1500;
-    /** What each chat was shown already, by chat (null chat: a session outside Buddy). */
+    /** What each chat was shown already, by chat (null chat: a session outside NN Agent). */
     private static final Map<String, Set<String>> shown = new ConcurrentHashMap<>();
 
     private Tips() {

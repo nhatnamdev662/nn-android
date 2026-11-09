@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Buddy's built-in Linux: an Alpine root filesystem in the app's storage, run through proot.
+ * NN's built-in Linux: an Alpine root filesystem in the app's storage, run through proot.
  * proot and its loader ship inside the APK as native libraries (lib*.so), because Android only lets
  * apps targeting SDK 29+ execute files from the APK's library folder, not from their own storage.
  */
@@ -77,14 +77,15 @@ final class Linux {
                 "--kill-on-exit", "--link2symlink", "-0",
                 "-r", root(c).getAbsolutePath(),
                 "-b", "/dev", "-b", "/proc", "-b", "/sys",
-                // one sound card, "Buddy microphone" (Android hides its own): programs then try to record, and
-                // recording goes through Buddy's stand-in arecord/rec (MicServer)
+                // one sound card, "NN Agent microphone" (Android hides its own): programs then try to record, and
+                // recording goes through NN's stand-in arecord/rec (MicServer)
                 "-b", root(c).getAbsolutePath() + "/etc/buddy/asound-cards:/proc/asound/cards",
                 "-w", "/root"));
         // the phone's own fonts, for every script and emoji: the background browser shows pages in any language
         // without a big font download (Alpine's Chromium only brings a Latin one)
         if (new File("/system/fonts").isDirectory()) a.addAll(Arrays.asList("-b", "/system/fonts:/usr/share/fonts/android"));
         a.addAll(Arrays.asList("/usr/bin/env", "-i", "HOME=/root", "LANG=C.UTF-8", "TERM=xterm-256color", "COLORTERM=truecolor",
+                "NN_PORT=" + McpServer.activePort,
                 "BUDDY_PORT=" + McpServer.activePort,
                 "PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"));
         a.addAll(Arrays.asList(cmd));
@@ -99,6 +100,7 @@ final class Linux {
         pb.environment().put("PROOT_LOADER", lib + "/libproot-loader.so");
         pb.environment().put("PROOT_TMP_DIR", tmp.getAbsolutePath());
         pb.environment().put("LD_LIBRARY_PATH", lib);
+        pb.environment().put("NN_PORT", String.valueOf(McpServer.activePort));
         pb.environment().put("BUDDY_PORT", String.valueOf(McpServer.activePort));
         pb.redirectErrorStream(true);
         return pb;
@@ -150,7 +152,7 @@ final class Linux {
     private static InputStream openOk(HttpURLConnection con) throws IOException {
         try {
             if (con.getResponseCode() != 200) {
-                throw new IOException(BuddyApp.str(R.string.linux_download_failed_http, con.getResponseCode()));
+                throw new IOException(NnApp.str(R.string.linux_download_failed_http, con.getResponseCode()));
             }
             return con.getInputStream();
         } catch (IOException e) {
@@ -205,7 +207,7 @@ final class Linux {
                 continue;
             }
             if (name.startsWith("/") || ("/" + name + "/").contains("/../")) {
-                throw new IOException(BuddyApp.str(R.string.linux_unsafe_path, name));
+                throw new IOException(NnApp.str(R.string.linux_unsafe_path, name));
             }
             File f = new File(dest, name);
             f.getParentFile().mkdirs();
@@ -220,7 +222,7 @@ final class Linux {
                     try {
                         Os.symlink(link, f.getPath());
                     } catch (Exception e) {
-                        throw new IOException(BuddyApp.str(R.string.linux_symlink_failed, name, e.getMessage()));
+                        throw new IOException(NnApp.str(R.string.linux_symlink_failed, name, e.getMessage()));
                     }
                     skip(in, size);
                     break;
@@ -239,7 +241,7 @@ final class Linux {
                         byte[] buf = new byte[64 * 1024];
                         while (left > 0) {
                             int n = in.read(buf, 0, (int) Math.min(buf.length, left));
-                            if (n < 0) throw new IOException(BuddyApp.str(R.string.linux_truncated_archive));
+                            if (n < 0) throw new IOException(NnApp.str(R.string.linux_truncated_archive));
                             out.write(buf, 0, n);
                             left -= n;
                         }
@@ -287,7 +289,7 @@ final class Linux {
 
     private static byte[] readData(InputStream in, long size) throws IOException {
         byte[] d = new byte[(int) size];
-        if (!readFully(in, d)) throw new IOException(BuddyApp.str(R.string.linux_truncated_archive));
+        if (!readFully(in, d)) throw new IOException(NnApp.str(R.string.linux_truncated_archive));
         skipPadding(in, size);
         return d;
     }
@@ -297,7 +299,7 @@ final class Linux {
         while (total > 0) {
             long n = in.skip(total);
             if (n <= 0) {
-                if (in.read() < 0) throw new IOException(BuddyApp.str(R.string.linux_truncated_archive));
+                if (in.read() < 0) throw new IOException(NnApp.str(R.string.linux_truncated_archive));
                 n = 1;
             }
             total -= n;

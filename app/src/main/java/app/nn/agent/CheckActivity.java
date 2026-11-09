@@ -31,7 +31,7 @@ import java.util.List;
 import static app.nn.agent.Ui.*;
 
 /**
- * Settings → Check Buddy: tests each part live (off the main thread, each with a short timeout) and says what's wrong
+ * Settings → Check NN Agent: tests each part live (off the main thread, each with a short timeout) and says what's wrong
  * in a sentence, with a button that fixes it or opens the right settings. The report (to copy, or to start a GitHub
  * bug report with) holds versions and results only: never chats, screen text or notifications.
  */
@@ -109,7 +109,7 @@ public class CheckActivity extends Screen {
 
     private List<Result> checks() {
         List<Result> r = new ArrayList<>();
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         r.add(new Result(getString(R.string.check_a11y), svc != null, svc != null ? null : getString(R.string.check_a11y_bad),
                 getString(R.string.check_open_settings), () -> Ui.openAccessibilitySettings(this)));
 
@@ -144,7 +144,7 @@ public class CheckActivity extends Screen {
             r.add(new Result(getString(R.string.check_linux), ok, ok ? getString(R.string.check_linux_ok,
                     (System.currentTimeMillis() - t0) / 1000.0) : getString(R.string.check_linux_bad, clip(out.trim(), 200)),
                     null, null));
-            int want = helperVersion(null), have = helperVersion(new File(Linux.root(this), "root/bin/buddy-run"));
+            int want = helperVersion(null), have = helperVersion(new File(Linux.root(this), "root/bin/nn-run"));
             boolean current = want > 0 && want == have;
             r.add(new Result(getString(R.string.check_helper), current, current ? null : getString(R.string.check_helper_bad),
                     getString(R.string.check_fix), () -> new Thread(() -> {
@@ -204,7 +204,7 @@ public class CheckActivity extends Screen {
 
     /** HELPER_VERSION in the helper copied into Linux (f), or in the app's own copy (null); 0 if not found. */
     private int helperVersion(File f) {
-        try (BufferedReader in = f == null ? new BufferedReader(new InputStreamReader(getAssets().open("linux/buddy-run")))
+        try (BufferedReader in = f == null ? new BufferedReader(new InputStreamReader(getAssets().open("linux/nn-run")))
                 : new BufferedReader(new FileReader(f))) {
             for (int i = 0; i < 40; i++) {
                 String l = in.readLine();
@@ -231,7 +231,7 @@ public class CheckActivity extends Screen {
         int failed = 0;
         for (Result r : results) if (!r.ok) failed++;
         TextView sum = title(this, failed == 0 ? getString(R.string.check_all_ok)
-                : BuddyApp.plural(R.plurals.check_failed, failed, failed), 15);
+                : NnApp.plural(R.plurals.check_failed, failed, failed), 15);
         sum.setPaddingRelative(0, dp(this, 8), 0, dp(this, 12));
         body.addView(sum, full());
         LinearLayout card = column(this);
@@ -313,8 +313,8 @@ public class CheckActivity extends Screen {
     /** A new GitHub issue with the form's fields filled in, after showing exactly what goes in them. */
     private void reportBug() {
         String extra = "Default agent: " + Account.nameOf(Prefs.backend(this)) + "\nAgents: " + agents()
-                + "\n\nCheck Buddy:\n" + failures();
-        String shown = getString(R.string.check_report_text) + "\n\n" + phone() + "\nBuddy " + buddy() + "\n" + extra;
+                + "\n\nCheck NN Agent:\n" + failures();
+        String shown = getString(R.string.check_report_text) + "\n\n" + phone() + "\nNN Agent " + buddy() + "\n" + extra;
         confirmSheet(this, getString(R.string.check_report_title), shown, getString(R.string.check_report_open), false, () -> {
             Uri u = Uri.parse(ISSUES).buildUpon()
                     .appendQueryParameter("phone", phone())

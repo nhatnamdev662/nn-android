@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A shell in Buddy's Linux on a real pseudo-terminal. It lives on when the Terminal screen closes,
+ * A shell in NN's Linux on a real pseudo-terminal. It lives on when the Terminal screen closes,
  * so you can come back to it ({@link #current}).
  */
 final class TermSession implements TermEmulator.Host {
@@ -54,10 +54,10 @@ final class TermSession implements TermEmulator.Host {
 
     String label() {
         String t = emulator.title;
-        return t == null || t.trim().isEmpty() ? BuddyApp.str(R.string.terminal_shell_name, number) : t.trim();
+        return t == null || t.trim().isEmpty() ? NnApp.str(R.string.terminal_shell_name, number) : t.trim();
     }
 
-    /** Starts a login shell in Buddy's Linux, as a new tab. Linux must be installed. */
+    /** Starts a login shell in NN's Linux, as a new tab. Linux must be installed. */
     static TermSession start(Context c, int rows, int cols) throws IOException {
         return start(c, rows, cols, null);
     }
@@ -111,7 +111,7 @@ final class TermSession implements TermEmulator.Host {
                         s.changed();
                     } catch (RuntimeException e) {
                         // a bug on odd output must not take down the whole app (bubble, phone tools, agents)
-                        android.util.Log.e("Buddy", "terminal output", e);
+                        android.util.Log.e("NN Agent", "terminal output", e);
                     }
                 }
             } catch (IOException ignored) {

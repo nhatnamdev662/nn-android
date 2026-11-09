@@ -136,7 +136,7 @@ public final class AdbManager {
                 @Override
                 public void onConnectServiceDiscovered(String host, int p) {
                     detectedConnectPort = p;
-                    if (Prefs.adbEnabled(context) && state != State.CONNECTED && state != State.CONNECTING) {
+                    if (state != State.CONNECTED && state != State.CONNECTING) {
                         connectInternal(p);
                     }
                 }
@@ -145,11 +145,10 @@ public final class AdbManager {
             mdnsActive = true;
         }
 
-        if (Prefs.adbEnabled(context)) {
-            int savedPort = Prefs.adbPort(context);
-            if (savedPort > 0 && state != State.CONNECTED && state != State.CONNECTING) {
-                connectInternal(savedPort);
-            }
+        int savedPort = Prefs.adbPort(context);
+        int targetPort = detectedConnectPort > 0 ? detectedConnectPort : savedPort;
+        if (targetPort > 0 && state != State.CONNECTED && state != State.CONNECTING) {
+            connectInternal(targetPort);
         }
     }
 
@@ -197,6 +196,9 @@ public final class AdbManager {
                     friendly = "Chưa kết nối tới cổng " + targetPort + ".";
                 }
                 updateState(State.DISCONNECTED, friendly, targetPort);
+                if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
+                    mainHandler.postDelayed(() -> connectInternal(detectedConnectPort), 500);
+                }
             }
         });
     }

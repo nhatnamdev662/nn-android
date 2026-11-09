@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 /**
  * How much of the plan is used: the 5-hour and weekly windows from Claude Code's rate_limit_event (and Codex's, which
- * buddy-run reads from Codex's session log and passes on in the same form), kept per agent and account (another account's numbers never show after a sign-in change). Scheduled tasks and rules spend the plan
+ * nn-run reads from Codex's session log and passes on in the same form), kept per agent and account (another account's numbers never show after a sign-in change). Scheduled tasks and rules spend the plan
  * unattended, so a chat says once per window when it passes 80% and 95%.
  */
 final class Usage {

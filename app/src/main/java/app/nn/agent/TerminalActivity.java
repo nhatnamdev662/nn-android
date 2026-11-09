@@ -21,7 +21,7 @@ import android.widget.Toast;
 import static app.nn.agent.Ui.*;
 
 /**
- * Terminals for Buddy's Linux, as tabs. Shells keep running when you leave; come back to them any time.
+ * Terminals for NN's Linux, as tabs. Shells keep running when you leave; come back to them any time.
  */
 public class TerminalActivity extends Screen implements TermView.Callbacks {
     private TermView term;

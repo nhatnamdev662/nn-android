@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
- * The background browser's tools (browser_*), next to the phone tools in Buddy's MCP server, so Buddy's rules apply
+ * The background browser's tools (browser_*), next to the phone tools in NN's MCP server, so NN's rules apply
  * there too: a tap on a Post / Send / Pay / Delete / … button, or Enter that sends what was typed, needs the user's OK
  * (the agent's confirm just before, or an approval card), and agents never type into password, one-time code or
  * payment fields: the user does that in the chat's live view. The browser itself is in Browser.
@@ -28,11 +28,11 @@ final class BrowserTools {
     private static final Pattern RISKY_DIALOG = Pattern.compile("(?iu)\\b(delete|remove|pay|purchase|buy|order|send|post|publish|"
             + "unsubscribe|cancel|transfer|erase|supprimer|payer|envoyer|löschen|bezahlen|senden|eliminar|pagar|enviar)\\b");
 
-    private final BuddyService svc;
+    private final NnService svc;
     /** When the agent was told a page warns that leaving loses what's typed, by chat: going again within 5 min leaves. */
     private final Map<String, Long> leaveWarned = new ConcurrentHashMap<>();
 
-    BrowserTools(BuddyService svc) {
+    BrowserTools(NnService svc) {
         this.svc = svc;
     }
 
@@ -506,6 +506,6 @@ final class BrowserTools {
             ok = answer.startsWith("APPROVED");
         }
         Browser.answerDialog(key, ok);
-        return "The page asked “" + msg + "”: Buddy answered " + (ok ? "OK" : "Cancel (the user didn't approve)") + ".";
+        return "The page asked “" + msg + "”: NN Agent answered " + (ok ? "OK" : "Cancel (the user didn't approve)") + ".";
     }
 }

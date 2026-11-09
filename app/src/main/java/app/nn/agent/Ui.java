@@ -324,10 +324,10 @@ final class Ui {
 
     /** Title + subtitle with a switch on the right. */
     /** Accessibility extra that marks a view (and everything inside it) as off-limits to agents. */
-    static final String PROTECTED = "app.buddy.protected";
+    static final String PROTECTED = "app.nn.protected";
 
     /**
-     * Agents may never tap or type in this view, even when "Let agents tap Buddy's screens" is on (see Guard).
+     * Agents may never tap or type in this view, even when "Let agents tap NN's screens" is on (see Guard).
      * Invisible to the user and to screen readers: it's only an extra on the accessibility node.
      */
     static <T extends View> T protect(T v) {
@@ -544,7 +544,7 @@ final class Ui {
 
     /** The same in plain text, for one-line previews: [text](url) becomes text, **bold** bold, and so on. */
     /**
-     * What Buddy downloads, with F-Droid's notice in its build: downloaded programs (Buddy's Linux, the agents, the
+     * What NN Agent downloads, with F-Droid's notice in its build: downloaded programs (NN's Linux, the agents, the
      * browser) come from their makers, not from F-Droid, and F-Droid asks that users know this before they agree.
      */
     static String downloadNote(Context c, String s) {
@@ -715,7 +715,7 @@ final class Ui {
 
     /**
      * For copying part of a reply as shown (start to end): a link whose text hides its address gets it after it,
-     * "text (address)", so the address isn't lost outside Buddy.
+     * "text (address)", so the address isn't lost outside NN Agent.
      */
     static String linkCopy(CharSequence shown, int start, int end) {
         if (!(shown instanceof android.text.Spanned)) return shown.subSequence(start, end).toString();
@@ -833,7 +833,7 @@ final class Ui {
     static final String PRIVACY_URL = "https://github.com/nhatnamdev662/nn-android/blob/main/docs/PRIVACY.md";
 
     /**
-     * Opens Android's accessibility settings, after the user has agreed to what Buddy's accessibility service does
+     * Opens Android's accessibility settings, after the user has agreed to what NN's accessibility service does
      * (Google Play's prominent disclosure: shown in the app, before the permission, with an explicit choice).
      */
     static void openAccessibilitySettings(Activity a) {

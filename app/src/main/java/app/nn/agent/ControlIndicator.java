@@ -20,14 +20,14 @@ import android.os.SystemClock;
 final class ControlIndicator {
     static final String CHANNEL = "control", ACTION_STOP = "app.nn.agent.STOP_CONTROL";
     private static final int NOTIFICATION_ID = 7;
-    /** Idle time before it hides when no Buddy chat is running (e.g. a terminal session using the tools). */
+    /** Idle time before it hides when no NN Agent chat is running (e.g. a terminal session using the tools). */
     private static final long IDLE_EXTERNAL_MS = 15_000, IDLE_BUDDY_MS = 4_000, TICK_MS = 1_000;
 
-    private final BuddyService svc;
+    private final NnService svc;
     private boolean active;
     private long lastActivity;
 
-    ControlIndicator(BuddyService svc) {
+    ControlIndicator(NnService svc) {
         this.svc = svc;
     }
 
@@ -58,8 +58,8 @@ final class ControlIndicator {
             if (!active) return;
             long idle = SystemClock.elapsedRealtime() - lastActivity;
             ChatHub hub = ChatHub.get(svc);
-            // A Buddy chat keeps it on while it thinks between actions; once the run ends it goes away.
-            // Sessions outside Buddy (e.g. a terminal) only show their activity, so it times out.
+            // A NN Agent chat keeps it on while it thinks between actions; once the run ends it goes away.
+            // Sessions outside NN Agent (e.g. a terminal) only show their activity, so it times out.
             boolean runEnded = hub.runningCount() == 0 && hub.lastRunEndedAt() >= lastActivity;
             boolean buddyRunning = hub.runningCount() > 0;
             if ((runEnded && idle > IDLE_BUDDY_MS) || (!buddyRunning && idle > IDLE_EXTERNAL_MS)) {

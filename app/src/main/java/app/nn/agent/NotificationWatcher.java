@@ -72,11 +72,11 @@ public class NotificationWatcher extends NotificationListenerService {
             Rules.Rule rule = Rules.match(this, note);
             if (rule != null) t.fire(rule, note);
         } catch (Exception e) {
-            android.util.Log.w("Buddy", "notification rule failed", e);
+            android.util.Log.w("NN Agent", "notification rule failed", e);
         }
     }
 
-    /** The notifications on the phone now (none when Buddy has no notification access). */
+    /** The notifications on the phone now (none when NN Agent has no notification access). */
     static StatusBarNotification[] active() {
         NotificationWatcher w = instance;
         if (w == null) return null;
@@ -91,7 +91,7 @@ public class NotificationWatcher extends NotificationListenerService {
         return instance;
     }
 
-    /** Has the user given Buddy notification access? */
+    /** Has the user given NN Agent notification access? */
     static boolean enabled(Context c) {
         return c.getSystemService(android.app.NotificationManager.class)
                 .isNotificationListenerAccessGranted(new ComponentName(c, NotificationWatcher.class));

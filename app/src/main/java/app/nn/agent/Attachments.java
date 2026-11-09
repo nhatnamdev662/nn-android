@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 import java.util.Locale;
 
 /**
- * Photos and files attached to chat messages. They live in the app's own storage; the helper in Buddy's Linux
+ * Photos and files attached to chat messages. They live in the app's own storage; the helper in NN's Linux
  * fetches them over the local server (GET /file/&lt;id&gt;) right before the agent runs.
  */
 final class Attachments {
@@ -59,7 +59,7 @@ final class Attachments {
         return n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp") || n.endsWith(".gif");
     }
 
-    /** Copies what the user picked into Buddy's storage; photos are scaled to 2048px and turned upright. Returns the id. */
+    /** Copies what the user picked into NN's storage; photos are scaled to 2048px and turned upright. Returns the id. */
     static String importUri(Context c, Uri uri) throws IOException {
         String type = c.getContentResolver().getType(uri);
         String name = displayName(c, uri);
@@ -90,7 +90,7 @@ final class Attachments {
         return id;
     }
 
-    /** Copies a picture an agent's reply names (see ChatHub.pictures) into Buddy's storage. Returns the id. */
+    /** Copies a picture an agent's reply names (see ChatHub.pictures) into NN's storage. Returns the id. */
     static String importFile(Context c, File f) throws IOException {
         String base = f.getName().replaceAll("[^A-Za-z0-9._-]", "_");
         if (base.length() > 60) base = base.substring(base.length() - 60);

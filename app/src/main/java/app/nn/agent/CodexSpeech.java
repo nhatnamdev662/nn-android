@@ -12,13 +12,13 @@ import org.json.JSONObject;
 import java.util.ArrayDeque;
 
 /**
- * Buddy's replies read aloud in ChatGPT's voice (the user's ChatGPT plan), through a Codex voice call like
- * {@link CodexDictation}'s. The call only receives: Buddy sends silence, so the microphone isn't used. Each text
+ * NN's replies read aloud in ChatGPT's voice (the user's ChatGPT plan), through a Codex voice call like
+ * {@link CodexDictation}'s. The call only receives: NN Agent sends silence, so the microphone isn't used. Each text
  * is given to the voice to read word for word. If anything goes wrong, the phone's own voice reads it instead.
  */
 final class CodexSpeech {
     static final String[][] VOICES = {{"juniper", "Juniper"}, {"maple", "Maple"}, {"ember", "Ember"}, {"cove", "Cove"}};
-    private static final String PROMPT = "You are the voice of Buddy, a phone assistant. You only read text aloud. "
+    private static final String PROMPT = "You are the voice of NN Agent, a phone assistant. You only read text aloud. "
             + "Each time you're given text, read it exactly as written, word for word, in the language it is in, "
             + "naturally and warmly. Never add, answer, comment, ask, or hand anything off. Say nothing else.";
 
@@ -105,7 +105,7 @@ final class CodexSpeech {
                     if (web == mine) fail();
                 });
             }
-        }, "Buddy");
+        }, "NN Agent");
         web.loadDataWithBaseURL("https://buddy.local/", PAGE, "text/html", "utf-8", null);
         main.postDelayed(watchdog, 1000);
     }
@@ -254,18 +254,18 @@ final class CodexSpeech {
             + "      const an = ctx.createAnalyser(); an.fftSize = 1024; ctx.createMediaStreamSource(s).connect(an);\n"
             + "      const buf = new Float32Array(an.fftSize); let was = false;\n"
             + "      setInterval(() => { an.getFloatTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v));\n"
-            + "        const on = m > 0.01; if (on || was) Buddy.sound(on); was = on; }, 100);\n"
+            + "        const on = m > 0.01; if (on || was) NN Agent.sound(on); was = on; }, 100);\n"
             + "    };\n"
             + "    pc.onconnectionstatechange = () => {\n"
-            + "      if (pc.connectionState === 'connected') Buddy.connected();\n"
-            + "      else if (pc.connectionState === 'failed') Buddy.failed('the connection failed');\n"
+            + "      if (pc.connectionState === 'connected') NN Agent.connected();\n"
+            + "      else if (pc.connectionState === 'failed') NN Agent.failed('the connection failed');\n"
             + "    };\n"
             + "    await pc.setLocalDescription(await pc.createOffer());\n"
             + "    await new Promise(r => { if (pc.iceGatheringState === 'complete') r(); else { pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; setTimeout(r, 1500); } });\n"
-            + "    Buddy.offer(pc.localDescription.sdp);\n"
-            + "  } catch (e) { Buddy.failed(String(e && e.message || e)); }\n"
+            + "    NN Agent.offer(pc.localDescription.sdp);\n"
+            + "  } catch (e) { NN Agent.failed(String(e && e.message || e)); }\n"
             + "}\n"
-            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => Buddy.failed(String(e.message || e))); }\n"
+            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NN Agent.failed(String(e.message || e))); }\n"
             + "start();\n"
             + "</script></body></html>";
 }

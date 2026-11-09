@@ -6,8 +6,8 @@ import android.os.Looper;
 
 /**
  * Voice input through Claude Code's own /voice (Anthropic's speech-to-text on the user's Claude plan).
- * /voice only exists in Claude Code's interactive screen, so Buddy keeps a hidden Claude Code session in
- * Buddy's Linux, holds its push-to-talk key (space) while the user talks, feeds it the phone's microphone
+ * /voice only exists in Claude Code's interactive screen, so NN Agent keeps a hidden Claude Code session in
+ * NN's Linux, holds its push-to-talk key (space) while the user talks, feeds it the phone's microphone
  * (MicServer + the stand-in arecord), then reads the words from the prompt and clears it. Nothing is ever
  * sent as a message in that session.
  */
@@ -97,7 +97,7 @@ final class ClaudeDictation {
         finishing = true;
         MicServer.stopCapture();
         final Voice.Listener l = listener;
-        l.onStatus(BuddyApp.str(R.string.dictation_transcribing));
+        l.onStatus(NnApp.str(R.string.dictation_transcribing));
         final long asked = System.currentTimeMillis();
         main.post(new Runnable() {
             @Override
@@ -105,7 +105,7 @@ final class ClaudeDictation {
                 if (listener != l) return;
                 long now = System.currentTimeMillis();
                 if (!holding) { // Claude is still starting; the audio waits for it
-                    if (now - asked > 45_000) end(l, BuddyApp.str(R.string.dictation_claude_no_start));
+                    if (now - asked > 45_000) end(l, NnApp.str(R.string.dictation_claude_no_start));
                     else main.postDelayed(this, 100);
                     return;
                 }
@@ -141,7 +141,7 @@ final class ClaudeDictation {
                     stopMic();
                     listener = null;
                     finishing = false;
-                    if (t.isEmpty()) l.onEnd(BuddyApp.str(R.string.dictation_no_speech));
+                    if (t.isEmpty()) l.onEnd(NnApp.str(R.string.dictation_no_speech));
                     else l.onFinal(t);
                     return;
                 }
@@ -181,7 +181,7 @@ final class ClaudeDictation {
         if (session != null) session.finish();
         session = null;
         // first-run answers, folder trust, and the dictation language for this folder only
-        // Claude Code's /voice checks that SoX is installed; recording itself goes through Buddy's stand-in rec/arecord
+        // Claude Code's /voice checks that SoX is installed; recording itself goes through NN's stand-in rec/arecord
         String out = Linux.exec(c, "set -e; command -v sox >/dev/null || apk add -q sox; mkdir -p " + DIR + "/.claude; f=/root/.claude.json; [ -s $f ] || echo '{}' > $f;"
                 + " jq --arg d " + DIR + " '.hasCompletedOnboarding=true | .theme=(.theme // \"dark\")"
                 + " | .fullscreenUpsellSeenCount=99 | .hasSeenAutoDefaultNotice=true"

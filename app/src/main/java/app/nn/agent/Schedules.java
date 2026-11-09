@@ -29,13 +29,13 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Scheduled tasks: a chat's "Schedule" (Chat options) sends its saved message into the chat at a time of day, on the
  * days picked, as if the user typed it: same agent, same chat options, the same approval cards. An exact alarm when
- * Android allows Buddy one, otherwise an inexact one (a few minutes late at most, usually); set again at boot, after
+ * Android allows NN Agent one, otherwise an inexact one (a few minutes late at most, usually); set again at boot, after
  * an update and when the clock or time zone changes.
  *
  * At its time the task starts, also with the phone locked: the background browser and Linux tools work without the
  * screen, and a partial wake lock lets the run finish with the screen off. Only when the agent needs the screen while
  * the phone is locked does the run wait (see awaitUnlock): a notification asks the user to unlock (with "Wake the
- * phone for this task" the screen comes on too, see WakeActivity), and after an hour without that the run stops. A chat that's still working, an agent that isn't signed in, or Buddy's service being
+ * phone for this task" the screen comes on too, see WakeActivity), and after an hour without that the run stops. A chat that's still working, an agent that isn't signed in, or NN's service being
  * off skips the task, with a notification; another chat at work, a pause or no internet make it wait, for an hour at
  * most. Main thread, except awaitUnlock (a phone tool's thread).
  *
@@ -239,10 +239,10 @@ public final class Schedules extends BroadcastReceiver {
     }
 
     private static final String ACTION_FIRE = "app.nn.agent.SCHEDULE", CHANNEL = "schedules", TAG = "schedule";
-    /** How long a task waits for Buddy to be free, or a run for the user to unlock, before giving up. */
+    /** How long a task waits for NN Agent to be free, or a run for the user to unlock, before giving up. */
     private static final long WAIT_MS = 3600_000L, LOOK_MS = 30_000L, UNLOCK_WAIT_MS = 45_000L;
     private static final Handler main = new Handler(Looper.getMainLooper());
-    /** Tasks whose time came while Buddy was busy: chat id → when they're given up (elapsedRealtime). Main thread. */
+    /** Tasks whose time came while NN Agent was busy: chat id → when they're given up (elapsedRealtime). Main thread. */
     private static final Map<String, Long> waiting = new LinkedHashMap<>();
     /** Chats in a scheduled task's run (the phone tools look them up from their own threads). */
     private static final Set<String> running = ConcurrentHashMap.newKeySet();
@@ -259,7 +259,7 @@ public final class Schedules extends BroadcastReceiver {
         else fire(c.getApplicationContext(), i.getStringExtra("id"), i.getLongExtra("at", 0));
     }
 
-    /** Boot, an update of Buddy, a clock or time zone change, exact alarms allowed: every chat's alarm is set again. */
+    /** Boot, an update of NN Agent, a clock or time zone change, exact alarms allowed: every chat's alarm is set again. */
     public static final class Boot extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent i) {
@@ -349,7 +349,7 @@ public final class Schedules extends BroadcastReceiver {
         return PendingIntent.getBroadcast(c, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    /** May Buddy set exact alarms? (Android 12+ asks the user; without, the alarm may come a few minutes late.) */
+    /** May NN Agent set exact alarms? (Android 12+ asks the user; without, the alarm may come a few minutes late.) */
     static boolean exact(Context c) {
         return android.os.Build.VERSION.SDK_INT < 31 || c.getSystemService(AlarmManager.class).canScheduleExactAlarms();
     }
@@ -362,7 +362,7 @@ public final class Schedules extends BroadcastReceiver {
 
     // ------------------------------------------------------------------- runs
 
-    /** A chat's time came: its next alarm is set at once, then the task starts, or waits until Buddy is free. */
+    /** A chat's time came: its next alarm is set at once, then the task starts, or waits until NN Agent is free. */
     private static void fire(Context c, String id, long at) {
         Sessions.Session s = ChatHub.get(c).sessions.find(id);
         if (s == null || s.schedule == null) { // deleted meanwhile
@@ -435,7 +435,7 @@ public final class Schedules extends BroadcastReceiver {
                     waiting.remove(key);
                     continue;
                 }
-                BuddyService svc = BuddyService.get();
+                NnService svc = NnService.get();
                 String skip = svc == null ? app.getString(R.string.rules_log_no_service) // its server is how the agent works
                         : !SetupState.signedIn(app, s.backend) ? app.getString(R.string.rules_log_not_signed_in, s.brainName())
                         : s.running && l == null ? app.getString(R.string.schedule_skip_running) : null;
@@ -463,7 +463,7 @@ public final class Schedules extends BroadcastReceiver {
      * Another chat at work (they'd share the screen), a pause, Stop's minute, a card waiting for the user or no
      * internet: the task waits, as notification rules' runs do.
      */
-    private static boolean busy(ChatHub hub, BuddyService svc) {
+    private static boolean busy(ChatHub hub, NnService svc) {
         return hub.runningCount() > 0 || svc.paused() || (svc.bubble() != null && svc.bubble().confirming())
                 || svc.controlRevoked() != null || !online();
     }
@@ -473,10 +473,10 @@ public final class Schedules extends BroadcastReceiver {
         boolean locked = Triggers.locked(app);
         StringBuilder prompt = new StringBuilder(l != null
                 ? "[BUDDY_SCHEDULED] Earlier in this chat you scheduled the message below for " + english(l.at)
-                + " (schedule_message), and Buddy sent it now: the user may not be watching. Do what it says; approval "
+                + " (schedule_message), and NN Agent sent it now: the user may not be watching. Do what it says; approval "
                 + "cards still wait for them.\n"
                 : "[BUDDY_SCHEDULED] The user set this chat to send the message below " + s.schedule.english()
-                + ", and Buddy sent it now on its own: they may not be watching. Do it as if they had just typed it; "
+                + ", and NN Agent sent it now on its own: they may not be watching. Do it as if they had just typed it; "
                 + "approval cards still wait for them.\n");
         if (locked) {
             prompt.append("The phone is locked right now. The background browser and Linux tools work as usual; a ")
@@ -487,7 +487,7 @@ public final class Schedules extends BroadcastReceiver {
         if (quiet) {
             prompt.append("Only tell the user when there's news: if this run finds nothing they need to hear about ")
                     .append("(nothing new or changed, nothing they must do), end your last reply with the line ")
-                    .append(ChatHub.QUIET).append(", and Buddy won't notify them. Leave it out whenever there's news, ")
+                    .append(ChatHub.QUIET).append(", and NN Agent won't notify them. Leave it out whenever there's news, ")
                     .append("a problem, or something for them to do.\n");
         }
         prompt.append('\n').append(text);
@@ -589,7 +589,7 @@ public final class Schedules extends BroadcastReceiver {
             return null;
         }
         if (SystemClock.elapsedRealtime() < until) {
-            return "LOCKED: this is a scheduled task and the phone is locked, so the screen can't be used. Buddy asked "
+            return "LOCKED: this is a scheduled task and the phone is locked, so the screen can't be used. NN Agent asked "
                     + "the user to unlock it. Nothing was done. Call " + tool + " again to keep waiting for them, or "
                     + "finish what you can without the screen.";
         }
@@ -642,7 +642,7 @@ public final class Schedules extends BroadcastReceiver {
      * chat's list changes on the main thread.
      */
     static String agentTool(Context c, String chat, String name, JSONObject a) throws Exception {
-        if (chat == null) return "Only in Buddy's own chats.";
+        if (chat == null) return "Only in NN's own chats.";
         if (Triggers.ruleRun(chat)) return "Not available in a notification rule's run.";
         java.util.concurrent.FutureTask<String> t = new java.util.concurrent.FutureTask<>(() -> {
             Sessions.Session s = ChatHub.get(c).sessions.find(chat);
@@ -688,10 +688,10 @@ public final class Schedules extends BroadcastReceiver {
         ChatHub.get(c).sessions.save(s);
         setLater(c, s, l);
         ChatHub.get(c).changed();
-        return "Scheduled " + l.id + " for " + english(at) + (l.remind ? ". It's a reminder: Buddy shows it to the user "
-                + "then as a notification, without running you." : ". Buddy sends it into this chat then, as a new message "
+        return "Scheduled " + l.id + " for " + english(at) + (l.remind ? ". It's a reminder: NN Agent shows it to the user "
+                + "then as a notification, without running you." : ". NN Agent sends it into this chat then, as a new message "
                 + "to you, also with the phone locked; the user sees it above the chat and can cancel it.")
-                + (exact(c) ? "" : " Android allows Buddy no exact alarms, so it may come a few minutes late.");
+                + (exact(c) ? "" : " Android allows NN Agent no exact alarms, so it may come a few minutes late.");
     }
 
     private static String list(Sessions.Session s) {
@@ -730,7 +730,7 @@ public final class Schedules extends BroadcastReceiver {
     // ---------------------------------------------------------------- helpers
 
     /**
-     * Turns the screen on for a run that needs it (WakeActivity). Buddy's accessibility service lets it start an
+     * Turns the screen on for a run that needs it (WakeActivity). NN's accessibility service lets it start an
      * activity from the background; it never unlocks a PIN, pattern or fingerprint itself.
      */
     private static void wakeScreen(Context c) {

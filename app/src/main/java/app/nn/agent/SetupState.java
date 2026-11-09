@@ -16,7 +16,7 @@ final class SetupState {
 
     /** Short name of step n (0 to 4) in the app's language, e.g. after "Next:" in the Chats header. */
     static String step(int n) {
-        return BuddyApp.str(STEP_NAMES[n]);
+        return NnApp.str(STEP_NAMES[n]);
     }
 
     final boolean[] done = new boolean[5];
@@ -61,13 +61,13 @@ final class SetupState {
 
     /** Chats can run once the service is on and the default agent is installed and signed in. */
     boolean canRun() {
-        return done[0] && done[2] && BuddyService.get() != null;
+        return done[0] && done[2] && NnService.get() != null;
     }
 
     static boolean accessibilityEnabled(Context c) {
         String enabled = Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         if (enabled == null) return false;
-        ComponentName me = new ComponentName(c, BuddyService.class);
+        ComponentName me = new ComponentName(c, NnService.class);
         TextUtils.SimpleStringSplitter s = new TextUtils.SimpleStringSplitter(':');
         s.setString(enabled);
         while (s.hasNext()) {

@@ -51,7 +51,7 @@ public class ApiKeysActivity extends Screen {
         frame.setBackgroundColor(BG);
         frame.setFitsSystemWindows(true);
         frame.addView(root);
-        setContentView(protect(frame)); // agents never see or change keys, even when they may tap Buddy's screens
+        setContentView(protect(frame)); // agents never see or change keys, even when they may tap NN's screens
     }
 
     @Override

@@ -82,7 +82,7 @@ public class RulesActivity extends Screen {
         frame.setBackgroundColor(BG);
         frame.setFitsSystemWindows(true);
         frame.addView(root);
-        // agents never change rules (a rule can let them act on their own), even when they may tap Buddy's screens
+        // agents never change rules (a rule can let them act on their own), even when they may tap NN's screens
         setContentView(protect(frame));
         if (draft != null) renderEditor();
     }
@@ -528,7 +528,7 @@ public class RulesActivity extends Screen {
     // ------------------------------------------------------- notification access
 
     /**
-     * Opens Android's notification access page for Buddy, after the user has agreed to what it's for (Google Play's
+     * Opens Android's notification access page for NN Agent, after the user has agreed to what it's for (Google Play's
      * prominent disclosure: shown in the app, before the permission, with an explicit choice).
      */
     private void openAccess() {

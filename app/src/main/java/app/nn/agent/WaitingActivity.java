@@ -23,7 +23,7 @@ import static app.nn.agent.Ui.*;
 
 /**
  * "Waiting for you": the replies the notification rules wrote that the user didn't approve in time (see Waiting), to
- * send, change or skip. Off-limits to agents, even when they may tap Buddy's screens: they'd approve their own.
+ * send, change or skip. Off-limits to agents, even when they may tap NN's screens: they'd approve their own.
  */
 public class WaitingActivity extends Screen {
     private LinearLayout body;

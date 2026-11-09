@@ -1,12 +1,12 @@
 name: Idea or feature request
-description: Something Buddy could do, or do better
+description: Something NN Agent could do, or do better
 labels: [enhancement]
 body:
   - type: textarea
     id: idea
     attributes:
       label: What would you like?
-      description: Describe what you want to do with Buddy, not only the solution. A real example helps.
+      description: Describe what you want to do with NN Agent, not only the solution. A real example helps.
     validations:
       required: true
   - type: textarea

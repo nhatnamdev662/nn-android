@@ -1,6 +1,6 @@
 package app.nn.agent;
 
-/** The terminal's palette (follows Buddy's light/dark mode and accent) and character widths. */
+/** The terminal's palette (follows NN's light/dark mode and accent) and character widths. */
 final class TermColors {
     static int DEFAULT_FG = 0xFFE6E1D8, DEFAULT_BG = 0xFF151311, CURSOR = 0xFFD97757, SELECTION = 0x55D97757;
     /** 16 base colours: a soft modern palette, readable on the background. */
@@ -22,7 +22,7 @@ final class TermColors {
     private TermColors() {
     }
 
-    /** Set from Buddy's theme before drawing. */
+    /** Set from NN's theme before drawing. */
     static void apply(boolean dark, int accent) {
         int[] base = dark ? DARK16 : LIGHT16;
         System.arraycopy(base, 0, PALETTE, 0, 16);

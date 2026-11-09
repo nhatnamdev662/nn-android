@@ -52,7 +52,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private LinearLayout laterList;
     /** The skills offered while the message starts with "/". */
     private LinearLayout slashList;
-    /** "Android closed Buddy while this chat was working": Continue or Dismiss. */
+    /** "Android closed NN Agent while this chat was working": Continue or Dismiss. */
     private LinearLayout interruptedBox;
     private EditText input;
     private int maxBubble;
@@ -99,7 +99,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         chip.setOnClickListener(v -> chooseModel());
         chips.addView(chip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-        linux = protect(linuxChip(this)); // agents never switch it, even when they may tap Buddy's screens
+        linux = protect(linuxChip(this)); // agents never switch it, even when they may tap NN's screens
         linux.setOnClickListener(v -> switchLinuxTools());
         LinearLayout.LayoutParams lp = wrap();
         lp.setMarginStart(dp(this, 6));
@@ -117,7 +117,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             if (full != null) Toast.makeText(this, full, Toast.LENGTH_LONG).show();
         });
         top.addView(usage);
-        // agents never change these, even when they may tap Buddy's screens
+        // agents never change these, even when they may tap NN's screens
         options = protect(iconButton(this, R.drawable.ms_tune, getString(R.string.chat_options), MUTED));
         options.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 44), dp(this, 44)));
         options.setOnClickListener(v -> chatOptions());
@@ -323,7 +323,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             input.setText(draft);
             input.setSelection(draft.length());
         }
-        // from the bubble's attach button, or images pasted there (already copied into Buddy's storage)
+        // from the bubble's attach button, or images pasted there (already copied into NN's storage)
         if (state == null && getIntent().getBooleanExtra("attach", false)) input.post(this::attachSheet);
         java.util.ArrayList<String> files = getIntent().getStringArrayListExtra("files");
         if (state == null && files != null) {
@@ -733,7 +733,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     /**
-     * The chat's schedule: a time of day, the days (every day, weekdays or picked ones), the message Buddy sends then as
+     * The chat's schedule: a time of day, the days (every day, weekdays or picked ones), the message NN Agent sends then as
      * if the user typed it (at first the chat's first message), and whether to wake the phone for it. Nothing changes
      * until Save.
      */
@@ -1443,7 +1443,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void renderApproval() {
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         String ask = svc != null && svc.bubble() != null && svc.bubble().pendingChat() == ses ? svc.bubble().pendingConfirmText() : null;
         java.util.List<String> options = ask == null ? null : svc.bubble().pendingOptions();
         long[] countdown = ask == null ? new long[]{0, 0} : svc.bubble().countdown();
@@ -1517,7 +1517,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             b.setBackground(outlined(this, CARD2, 12, Theme.withAlpha(ACCENT, 0x40), 1));
             b.setOnClickListener(v -> {
-                BuddyService svc = BuddyService.get();
+                NnService svc = NnService.get();
                 if (svc != null && svc.bubble() != null) svc.bubble().pickFromApp(o);
                 renderApproval();
             });
@@ -1550,7 +1550,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
 
     /** answering: the same box types an answer to a question instead. */
     private void askChange(LinearLayout card, LinearLayout btns, boolean answering) {
-        BuddyService bs = BuddyService.get();
+        NnService bs = NnService.get();
         if (bs != null && bs.bubble() != null) bs.bubble().stopCountdown(); // no approving itself while the user writes
         btns.setVisibility(View.GONE);
         EditText what = new EditText(this);
@@ -1590,7 +1590,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 what.requestFocus();
                 return;
             }
-            BuddyService svc = BuddyService.get();
+            NnService svc = NnService.get();
             if (svc != null && svc.bubble() != null) svc.bubble().changeFromApp(text);
             renderApproval();
         });
@@ -1612,13 +1612,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         t.setPaddingRelative(0, dp(this, 6), 0, 0);
         box.addView(t);
         box.setOnClickListener(v -> {
-            BuddyService svc = BuddyService.get();
+            NnService svc = NnService.get();
             if (svc != null && svc.bubble() != null) svc.bubble().stopCountdown();
         });
         Runnable tick = new Runnable() {
             @Override
             public void run() {
-                BuddyService svc = BuddyService.get();
+                NnService svc = NnService.get();
                 long[] now = svc == null || svc.bubble() == null ? new long[]{0, 0} : svc.bubble().countdown();
                 long left = now[0] - android.os.SystemClock.elapsedRealtime();
                 if (now[0] == 0 || left <= 0) {
@@ -1636,13 +1636,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void answer(boolean approved) {
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null && svc.bubble() != null) svc.bubble().answerFromApp(approved);
         renderApproval();
     }
 
     private void show(Sessions.Msg m) {
-        if (m.scheduled) { // sent by Buddy at the chat's scheduled time: a small "Scheduled" over it
+        if (m.scheduled) { // sent by NN Agent at the chat's scheduled time: a small "Scheduled" over it
             if (log != null) {
                 log.finish();
                 log = null;
@@ -1785,7 +1785,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         if (!uris.isEmpty()) addFiles(uris, null);
     }
 
-    /** Copies picked or pasted files into Buddy's storage and adds them to the next message; then done, if any. */
+    /** Copies picked or pasted files into NN's storage and adds them to the next message; then done, if any. */
     private void addFiles(java.util.List<android.net.Uri> uris, Runnable done) {
         Toast.makeText(this, uris.size() == 1 ? getString(R.string.chat_adding)
                 : getResources().getQuantityString(R.plurals.chat_adding_files, uris.size(), uris.size()), Toast.LENGTH_SHORT).show();

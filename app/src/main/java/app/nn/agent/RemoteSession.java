@@ -14,9 +14,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A Claude Code session with Remote Control, running inside Buddy's Linux, so it can be continued from the
+ * A Claude Code session with Remote Control, running inside NN's Linux, so it can be continued from the
  * Claude app (Code) anywhere. Claude Code's interactive mode needs a terminal, so it runs under `script`
- * (a hidden pseudo-terminal). Buddy restarts it if it stops and resumes the same conversation.
+ * (a hidden pseudo-terminal). NN Agent restarts it if it stops and resumes the same conversation.
  */
 final class RemoteSession {
     enum State { OFF, STARTING, ACTIVE, ERROR }

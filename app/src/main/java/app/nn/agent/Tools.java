@@ -38,13 +38,13 @@ final class Tools {
     /** Screenshots are scaled so their shorter side is at most this, the same in portrait and landscape. */
     private static final int SCREENSHOT_SHORT_SIDE = 720;
 
-    private final BuddyService svc;
+    private final NnService svc;
     private final Object lock = new Object();
     private final List<AccessibilityNodeInfo> lastNodes = new ArrayList<>();
     private final BrowserTools browser;
     private final PhoneTools phone;
 
-    Tools(BuddyService svc) {
+    Tools(NnService svc) {
         this.svc = svc;
         browser = new BrowserTools(svc);
         phone = new PhoneTools(svc);
@@ -176,14 +176,14 @@ final class Tools {
                         .put("max_scrolls", intProp("Default 10, max 30")),
                 "text"));
         t.put(tool("confirm",
-                "Ask the user to approve an action in the Buddy bubble and wait for the answer. "
+                "Ask the user to approve an action in the NN Agent bubble and wait for the answer. "
                         + "REQUIRED before sending messages, posting, buying, deleting, or changing settings. "
                         + "Show the exact text or action. Returns APPROVED, DENIED, or CHANGES REQUESTED with "
                         + "what the user wants changed: then make those changes and call confirm again.",
                 props().put("summary", strProp("Exactly what you are about to do, including any text to be sent")),
                 "summary"));
         t.put(tool("ask",
-                "Ask the user a question in the Buddy bubble and wait for the answer: 2 to 4 answer buttons, and "
+                "Ask the user a question in the NN Agent bubble and wait for the answer: 2 to 4 answer buttons, and "
                         + "the user can always type their own answer instead. Use it when you need the user to choose "
                         + "or decide (which reply, which item, which time) instead of guessing. With highlight, it also "
                         + "hands a step over to the user (a password or code, their details in a form, a file picker, a "
@@ -195,9 +195,9 @@ final class Tools {
                                 .put("items", new JSONObject().put("type", "string"))
                                 .put("description", "2 to 4 short answers, one per button"))
                         .put("highlight", marksProp("Optional: what the user has to do on the screen before answering "
-                                + "(as in point_out), e.g. the fields to fill in. Buddy marks them, and the question waits "
+                                + "(as in point_out), e.g. the fields to fill in. NN Agent marks them, and the question waits "
                                 + "next to the bubble instead of covering the screen; the marks go once they answer. When "
-                                + "every mark is a button or a switch, Buddy closes the question itself once it sees "
+                                + "every mark is a button or a switch, NN Agent closes the question itself once it sees "
                                 + "them done (the result starts with DONE).")),
                 "question", "options"));
         JSONObject item = new JSONObject().put("type", "object").put("properties", props()
@@ -206,7 +206,7 @@ final class Tools {
         t.getJSONObject(t.length() - 1).getJSONObject("inputSchema").getJSONObject("properties").put("browser_highlight",
                 new JSONObject().put("type", "array").put("maxItems", 6).put("items", item).put("description",
                         "Optional, instead of highlight: items in the background browser the user has to use (a "
-                                + "sign-in, a captcha, their details). Buddy opens the browser full screen with them "
+                                + "sign-in, a captcha, their details). NN Agent opens the browser full screen with them "
                                 + "marked, and closes it once the user answers."));
         t.put(tool("point_out",
                 "Show the user where to look or what to do on the screen: a box, circle or arrow with a short label "
@@ -223,12 +223,12 @@ final class Tools {
                         .put("wait", boolProp("Wait until the user has done what the marks point at, or until they can't anymore"))
                         .put("seconds", intProp("How long the marks stay at most: default 60 (180 with wait), max 300")),
                 "marks"));
-        t.put(tool("notify", "Show a short status line in the Buddy bubble without stopping.",
+        t.put(tool("notify", "Show a short status line in the NN Agent bubble without stopping.",
                 props().put("text", strProp("Status text")), "text"));
         t.put(tool("reply_notification",
                 "Answer the notification that started this chat through its own reply field, without opening the app. "
                         + "Only in chats started by one of the user's notification rules, when the notification has a reply "
-                        + "field. Buddy shows the user an approval card with the text first, unless you called confirm "
+                        + "field. NN Agent shows the user an approval card with the text first, unless you called confirm "
                         + "with it just before.",
                 props().put("text", strProp("The reply, exactly as it should be sent")), "text"));
         t.put(tool("schedule_message",
@@ -241,7 +241,7 @@ final class Tools {
                         .put("in_minutes", intProp("In this many minutes"))
                         .put("at", strProp("Or at this time, the phone's: \"2026-10-28 09:00\", or \"09:00\" for the next one"))
                         .put("remind", boolProp("A plain reminder for the user (\"remind me at 6 to call mom\"): at that "
-                                + "time Buddy shows the message to them as a notification and in this chat, without "
+                                + "time NN Agent shows the message to them as a notification and in this chat, without "
                                 + "running you, so it uses none of their plan. The message is then for the user."))
                         .put("quiet", boolProp("For a check you'll run then (\"tell me if the price drops\"): you may "
                                 + "end that run without notifying the user when there's no news")),
@@ -250,14 +250,14 @@ final class Tools {
         t.put(tool("cancel_scheduled", "Cancel a message scheduled with schedule_message.",
                 props().put("id", strProp("Its id, from schedule_message or list_scheduled")), "id"));
         t.put(tool("install_apk",
-                "(Needs Linux tools) Open Android's installer for an APK built in Buddy's Linux, e.g. "
+                "(Needs Linux tools) Open Android's installer for an APK built in NN's Linux, e.g. "
                         + "/root/.nn/work/myapp/build/app.apk, or served by another app on this phone at a local URL "
                         + "(http://127.0.0.1:<port>/app.apk, e.g. from Termux). The user taps Install/Update themselves; "
                         + "call wait_for_install next.",
-                props().put("path", strProp("Full path of the .apk inside Buddy's Linux, or its http://127.0.0.1 URL")), "path"));
+                props().put("path", strProp("Full path of the .apk inside NN's Linux, or its http://127.0.0.1 URL")), "path"));
         if (Flavor.FDROID) { // F-Droid updates this build; the tool says where updates come from
             t.put(tool("update_buddy",
-                    "Say how this Buddy gets its updates (it's the F-Droid build, which doesn't update itself). Use it when "
+                    "Say how this NN Agent gets its updates (it's the F-Droid build, which doesn't update itself). Use it when "
                             + "the user asks to update NN AGENT or whether there's a new version.", props()));
         } else {
             t.put(tool("update_buddy",
@@ -341,7 +341,7 @@ final class Tools {
         if (notes != null) {
             r.getJSONArray("content").put(new JSONObject().put("type", "text").put("text",
                     "\n[BUDDY_USER_UPDATE] The user added this while you were working; it comes from the user, through "
-                            + "Buddy, not from the screen. Take it into account now, it may change or stop the task:\n" + notes));
+                            + "NN Agent, not from the screen. Take it into account now, it may change or stop the task:\n" + notes));
         }
         return r;
     }
@@ -425,7 +425,7 @@ final class Tools {
                 }
                 String answer = svc.askConfirm(summary, true);
                 // covers the next risky tap (after a rule's countdown, only a send)
-                if (answer.startsWith("APPROVED")) Guard.approved(a.getString("summary"), answer.equals(BuddyService.AUTO_APPROVED));
+                if (answer.startsWith("APPROVED")) Guard.approved(a.getString("summary"), answer.equals(NnService.AUTO_APPROVED));
                 return text(answer);
             }
             case "ask": {
@@ -505,7 +505,7 @@ final class Tools {
         try {
             answer = svc.askQuestion(question, options, true, null);
         } finally {
-            Browser.setMarks(key, null); // closes the browser Buddy opened for it
+            Browser.setMarks(key, null); // closes the browser NN Agent opened for it
         }
         Browser.touched(key);
         return answer.replace("call read_screen before going on", "call browser_read before going on");
@@ -513,7 +513,7 @@ final class Tools {
 
     /**
      * The F-Droid build's answer to "update NN AGENT": an F-Droid app that installed it updates it; a copy installed some
-     * other way (its APK from the GitHub release) gets no updates until the user installs the normal buddy.apk.
+     * other way (its APK from the GitHub release) gets no updates until the user installs the normal NN_AGENT.apk.
      */
     private String fdroidUpdates() {
         String by = null;
@@ -534,7 +534,7 @@ final class Tools {
         switch (name) {
             case "update_buddy":
                 if (Flavor.FDROID) return fdroidUpdates();
-                return updateBuddy(a.optBoolean("install", false));
+                return updateNN Agent(a.optBoolean("install", false));
             case "install_apk":
                 return installApk(a.getString("path"));
             default:
@@ -622,7 +622,7 @@ final class Tools {
             "scroll", "swipe", "browser_scroll"));
     /** A run stops after this many actions, or the same action this many times in a row: a runaway loop spends the plan. */
     private static final int MAX_STEPS = 60, MAX_REPEATS = 6;
-    /** Per Buddy chat in its current run: {actions, the same action in a row}, and the last action. */
+    /** Per NN Agent chat in its current run: {actions, the same action in a row}, and the last action. */
     private static final java.util.Map<String, int[]> steps = new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.Map<String, String> lastStep = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -633,7 +633,7 @@ final class Tools {
     }
 
     /**
-     * Counts a Buddy chat's actions (sessions outside Buddy have no runs and aren't counted). null: go ahead; otherwise
+     * Counts a NN Agent chat's actions (sessions outside NN Agent have no runs and aren't counted). null: go ahead; otherwise
      * why the run stops here (every later action in the run gets it too).
      */
     private String countStep(String name, JSONObject a) {
@@ -732,9 +732,9 @@ final class Tools {
             final String forChat = chat;
             String answer = svc.askRuleReply(svc.getString(R.string.tools_card_reply, n.who(), n.app, text), chat,
                     () -> Triggers.wroteAgain(forChat) || Triggers.userAnswered(forChat));
-            if (BuddyService.STALE.equals(answer)) return Triggers.userAnswered(chat) ? answeredItself(n) : wroteAgain(chat, n);
-            if (answer.startsWith(BuddyService.LATER)) {
-                Triggers.later(svc, chat, text, answer.substring(BuddyService.LATER.length()));
+            if (NnService.STALE.equals(answer)) return Triggers.userAnswered(chat) ? answeredItself(n) : wroteAgain(chat, n);
+            if (answer.startsWith(NnService.LATER)) {
+                Triggers.later(svc, chat, text, answer.substring(NnService.LATER.length()));
                 noteInChat(chat, svc.getString(R.string.card_note_later));
                 return "Not sent yet: the user didn't answer in time, so NN keeps your reply in their Waiting list, "
                         + "where they'll send, change or skip it. Don't call reply_notification again; end the run and say "
@@ -997,7 +997,7 @@ final class Tools {
 
     // ------------------------------------------------------------- several steps, waiting, long lists
 
-    /** What the apps on screen show now (Buddy's own windows left out), in reading order. */
+    /** What the apps on screen show now (NN's own windows left out), in reading order. */
     private List<String> visibleTexts() {
         List<String> out = new ArrayList<>();
         for (AccessibilityWindowInfo w : svc.getWindows()) {
@@ -1018,7 +1018,7 @@ final class Tools {
         for (int i = 0; i < n.getChildCount(); i++) texts(n.getChild(i), out);
     }
 
-    /** The visible node (in an app, not Buddy) whose text or description is q, or else contains it; null if none. */
+    /** The visible node (in an app, not NN Agent) whose text or description is q, or else contains it; null if none. */
     private AccessibilityNodeInfo findText(String q) {
         String want = q.trim().toLowerCase(Locale.ROOT);
         if (want.isEmpty()) return null;
@@ -1675,7 +1675,7 @@ final class Tools {
 
     /**
      * The checks every touch gets, for a scroll or swipe (element: what it was aimed at, may be null; then the
-     * points it touches): no touching while a card waits, and never on Buddy's own screens. null when it may go.
+     * points it touches): no touching while a card waits, and never on NN's own screens. null when it may go.
      */
     private String guardStroke(AccessibilityNodeInfo element, int... xy) {
         if (svc.bubble() != null && svc.bubble().confirming()) {
@@ -1695,7 +1695,7 @@ final class Tools {
             GestureDescription g = new GestureDescription.Builder()
                     .addStroke(new GestureDescription.StrokeDescription(path, 0, durationMs)).build();
             if (svc.paused()) return false; // the user took the phone since this call began
-            svc.autoPauser().ownGesture(durationMs); // Buddy's own touch: not the user taking the phone
+            svc.autoPauser().ownGesture(durationMs); // NN's own touch: not the user taking the phone
             boolean dispatched = svc.dispatchGesture(g, new AccessibilityService.GestureResultCallback() {
                 @Override
                 public void onCompleted(GestureDescription d) {
@@ -1769,8 +1769,8 @@ final class Tools {
         }
         String best = top.get(0)[0];
         String bestLabel = top.get(0)[1];
-        // Buddy's own screens hold the safety settings: only the user opens them (unless they let agents in)
-        if (best.equals(svc.getPackageName()) && !Prefs.agentsTapBuddy(svc))
+        // NN's own screens hold the safety settings: only the user opens them (unless they let agents in)
+        if (best.equals(svc.getPackageName()) && !Prefs.agentsTapNN Agent(svc))
             return "BLOCKED: agents can't open NN AGENT itself. Only the user uses NN's screens.";
         Intent launch = pm.getLaunchIntentForPackage(best);
         if (launch == null) return "App " + bestLabel + " cannot be launched.";
@@ -1825,14 +1825,14 @@ final class Tools {
                 + "install it, instead of waiting longer.";
     }
 
-    /** Copies an APK out of Buddy's Linux and opens Android's installer for it. */
+    /** Copies an APK out of NN's Linux and opens Android's installer for it. */
     private String installApk(String path) throws Exception {
         String chat = McpServer.CALLER_CHAT.get();
         if (!ChatHub.get(svc).devFor(chat)) {
             return chat != null ? "Installing apps needs Linux tools in this chat. Ask the user to turn them on in the "
                     + "chat's header (the Linux tools chip under its title), wait until they say it's done, then call "
                     + "install_apk again."
-                    : "Installing apps needs Linux tools. Ask the user to turn on 'Linux tools in new chats' in Buddy's "
+                    : "Installing apps needs Linux tools. Ask the user to turn on 'Linux tools in new chats' in NN's "
                     + "Settings (it also covers sessions outside NN's chats, like this one), wait until they say it's "
                     + "done, then call install_apk again.";
         }
@@ -1871,8 +1871,8 @@ final class Tools {
         return "The installer is open. The user must tap Install/Update and confirm (you can't). Call wait_for_install now.";
     }
 
-    /** Buddy's own updates (see {@link Updates}). */
-    private String updateBuddy(boolean install) {
+    /** NN's own updates (see {@link Updates}). */
+    private String updateNN Agent(boolean install) {
         Updates.Release r;
         try {
             r = Updates.latest();
@@ -1920,7 +1920,7 @@ final class Tools {
         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ResolveInfo to = svc.getPackageManager().resolveActivity(i, 0);
         if (to != null && to.activityInfo != null && svc.getPackageName().equals(to.activityInfo.packageName)
-                && !Prefs.agentsTapBuddy(svc))
+                && !Prefs.agentsTapNN Agent(svc))
             return "BLOCKED: that link opens NN AGENT itself. Only the user uses NN's screens.";
         svc.startActivity(i);
         Thread.sleep(1500);

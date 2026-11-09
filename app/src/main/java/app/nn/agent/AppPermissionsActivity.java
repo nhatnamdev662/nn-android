@@ -24,7 +24,7 @@ import java.util.Locale;
 import static app.nn.agent.Ui.*;
 
 /**
- * What Buddy lets the agent do, per app (Trust / Hard / Smart), the smart reviewer, and (page "rules") the
+ * What NN Agent lets the agent do, per app (Trust / Hard / Smart), the smart reviewer, and (page "rules") the
  * button rules: always ask / never ask, with the buttons the agent has tapped as suggestions.
  */
 public class AppPermissionsActivity extends Screen {
@@ -69,7 +69,7 @@ public class AppPermissionsActivity extends Screen {
         frame.setBackgroundColor(BG);
         frame.setFitsSystemWindows(true);
         frame.addView(root);
-        setContentView(protect(frame)); // agents never change App permissions, even when they may tap Buddy's screens
+        setContentView(protect(frame)); // agents never change App permissions, even when they may tap NN's screens
     }
 
     @Override

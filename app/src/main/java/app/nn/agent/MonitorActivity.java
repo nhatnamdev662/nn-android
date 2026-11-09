@@ -64,7 +64,7 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
         head.addView(sub);
         list.addView(head, full());
 
-        // a shell in Buddy's Linux
+        // a shell in NN's Linux
         LinearLayout tc = row(this);
         tc.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 12), dp(this, 14));
         tc.setBackground(rounded(this, CARD, 16));
@@ -133,7 +133,7 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
         visible = true;
         hub.monitor = this;
         pulse.start();
-        if (BuddyService.get() == null) {
+        if (NnService.get() == null) {
             runningEmpty.setText(R.string.monitor_service_off);
             return;
         }

@@ -31,7 +31,7 @@ final class Prefs {
         return new int[]{sp(c).getInt("bx", -1), sp(c).getInt("by", 400)};
     }
 
-    /** Agents installed in Buddy's Linux from the last helper ping ("claude,codex", "none"), or null if never answered. */
+    /** Agents installed in NN's Linux from the last helper ping ("claude,codex", "none"), or null if never answered. */
     static String helperStatus(Context c) {
         return sp(c).getString("helper", null);
     }
@@ -54,18 +54,18 @@ final class Prefs {
     }
 
     /**
-     * Agents (any MCP client, e.g. Claude Code testing Buddy) may tap and type in Buddy's own screens, except the
+     * Agents (any MCP client, e.g. Claude Code testing NN Agent) may tap and type in NN's own screens, except the
      * bubble, approval cards, App permissions and the developer switches. Off by default.
      */
-    static boolean agentsTapBuddy(Context c) {
+    static boolean agentsTapNN Agent(Context c) {
         return sp(c).getBoolean("agents_tap_buddy", false);
     }
 
-    static void setAgentsTapBuddy(Context c, boolean on) {
+    static void setAgentsTapNN Agent(Context c, boolean on) {
         sp(c).edit().putBoolean("agents_tap_buddy", on).apply();
     }
 
-    /** Notify when a new Buddy release is out (checked about once a day). */
+    /** Notify when a new NN Agent release is out (checked about once a day). */
     static boolean updateNotices(Context c) {
         return !Flavor.FDROID && sp(c).getBoolean("update_notices", true);
     }
@@ -113,7 +113,7 @@ final class Prefs {
 
     /**
      * Linux tools in new chats (was developer mode, for every chat): what a new chat starts with (each chat then has
-     * its own, Sessions.Session.dev), and whether the user's own sessions outside Buddy's chats may install apps.
+     * its own, Sessions.Session.dev), and whether the user's own sessions outside NN's chats may install apps.
      */
     static boolean devMode(Context c) {
         return sp(c).getBoolean("dev", false);
@@ -132,7 +132,7 @@ final class Prefs {
         sp(c).edit().putBoolean("a11y_consent_v3", true).apply();
     }
 
-    /** The version of Buddy whose start last cleaned up the Linux folders of chats Buddy no longer has (ChatHub). */
+    /** The version of NN Agent whose start last cleaned up the Linux folders of chats NN Agent no longer has (ChatHub). */
     static int prunedFor(Context c) {
         return sp(c).getInt("pruned_for", 0);
     }
@@ -180,7 +180,7 @@ final class Prefs {
         sp(c).edit().putString("panel_size", size).apply();
     }
 
-    /** Buddy's face on the bubble and in the chats: "buddy" (the drawn one) or "picture" (one the user picked). */
+    /** NN's face on the bubble and in the chats: "buddy" (the drawn one) or "picture" (one the user picked). */
     static String face(Context c) {
         return sp(c).getString("face", "buddy");
     }
@@ -251,7 +251,7 @@ final class Prefs {
         sp(c).edit().putString("signed", s).apply();
     }
 
-    /** Codex's model list from its cache in Buddy's Linux, as JSON [[slug, name], …]. */
+    /** Codex's model list from its cache in NN's Linux, as JSON [[slug, name], …]. */
     static String codexModels(Context c) {
         return sp(c).getString("codex_models", "[]");
     }
@@ -322,7 +322,7 @@ final class Prefs {
         sp(c).edit().putString("agents", a).apply();
     }
 
-    /** Unused since Buddy has its own Linux (was: Termux setup watch). */
+    /** Unused since NN Agent has its own Linux (was: Termux setup watch). */
     static long setupWatchUntil(Context c) {
         return sp(c).getLong("watch_until", 0);
     }
@@ -331,7 +331,7 @@ final class Prefs {
         sp(c).edit().putLong("watch_until", t).apply();
     }
 
-    /** Last known state of an agent in Buddy's Linux: NEED_INSTALL, SIGNED_OUT or SIGNED_IN (null = never checked). */
+    /** Last known state of an agent in NN's Linux: NEED_INSTALL, SIGNED_OUT or SIGNED_IN (null = never checked). */
     static String agentState(Context c, String agent) {
         return sp(c).getString("agent_" + agent, null);
     }
@@ -340,7 +340,7 @@ final class Prefs {
         sp(c).edit().putString("agent_" + agent, state).apply();
     }
 
-    /** Chats whose agent is working right now: one still here when Buddy starts again was cut off (see ChatHub). */
+    /** Chats whose agent is working right now: one still here when NN Agent starts again was cut off (see ChatHub). */
     static java.util.Set<String> busyChats(Context c) {
         return new java.util.HashSet<>(sp(c).getStringSet("busy_chats", new java.util.HashSet<>()));
     }
@@ -391,7 +391,7 @@ final class Prefs {
         sp(c).edit().putBoolean("agent_plan_" + agent, plan).apply();
     }
 
-    /** Keep a Claude Code session with Remote Control running inside Buddy's Linux. */
+    /** Keep a Claude Code session with Remote Control running inside NN's Linux. */
     static boolean remoteSession(Context c) {
         return sp(c).getBoolean("remote_session", false);
     }
@@ -405,7 +405,7 @@ final class Prefs {
         return sp(c).getString("remote_name", "NN");
     }
 
-    /** Keep a Codex session with remote control running inside Buddy's Linux, for the ChatGPT app (CodexRemote). */
+    /** Keep a Codex session with remote control running inside NN's Linux, for the ChatGPT app (CodexRemote). */
     static boolean codexRemote(Context c) {
         return sp(c).getBoolean("codex_remote", false);
     }
@@ -414,7 +414,7 @@ final class Prefs {
         sp(c).edit().putBoolean("codex_remote", on).apply();
     }
 
-    /** Keep an SSH server running in Buddy's Linux, for Termux (SshServer). */
+    /** Keep an SSH server running in NN's Linux, for Termux (SshServer). */
     static boolean sshServer(Context c) {
         return sp(c).getBoolean("ssh_server", false);
     }

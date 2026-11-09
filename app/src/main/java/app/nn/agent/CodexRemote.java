@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * A Codex session with remote control: Codex's app-server inside Buddy's Linux, so Codex here can be used from the
+ * A Codex session with remote control: Codex's app-server inside NN's Linux, so Codex here can be used from the
  * ChatGPT app (Codex) on this phone or on a computer, with the phone tools. It runs linux/codex-remote, which also hands
  * out pairing codes: pairing has to run in the server's own proot (its socket path is too long for Android, so proot
  * moves it where only that proot finds it). Codex's own background service can't run under proot (it needs the boot
- * time, which Android hides), so Buddy runs the server itself and restarts it if it stops.
+ * time, which Android hides), so NN Agent runs the server itself and restarts it if it stops.
  */
 final class CodexRemote {
     enum State { OFF, STARTING, ACTIVE, ERROR }

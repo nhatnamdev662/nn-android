@@ -14,7 +14,7 @@ import javax.crypto.spec.GCMParameterSpec;
 
 /**
  * Secrets the app keeps for the user (an agent's API key), encrypted with a key in Android's Keystore: a copy of
- * Buddy's storage alone doesn't reveal them. They stay out of Buddy's Linux, where any agent could read a file.
+ * NN's storage alone doesn't reveal them. They stay out of NN's Linux, where any agent could read a file.
  */
 final class Secrets {
     private static final String ALIAS = "buddy_secrets";

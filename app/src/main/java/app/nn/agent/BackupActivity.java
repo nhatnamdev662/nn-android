@@ -12,7 +12,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import static app.nn.agent.Ui.*;
 
-/** Settings → Backup and move: a backup file in Downloads/Buddy, or a restore from one (see Backup). */
+/** Settings → Backup and move: a backup file in Downloads/NN Agent, or a restore from one (see Backup). */
 public class BackupActivity extends Screen {
     private static final int PICK = 43;
     private LinearLayout body;

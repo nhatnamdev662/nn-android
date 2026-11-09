@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 /**
- * The phone's microphone for programs in Buddy's Linux (Claude Code's /voice, Codex's dictation): raw 16-bit
+ * The phone's microphone for programs in NN's Linux (Claude Code's /voice, Codex's dictation): raw 16-bit
  * mono PCM over a local socket. A stand-in `arecord` (linux/arecord) connects with a token. It only runs while
  * the Terminal is on screen, so nothing in Linux can listen in the background.
  */
@@ -156,7 +156,7 @@ final class MicServer {
 
     private static int pullChunk, pullOff;
 
-    /** For a reader in Buddy itself (ChatGPT voice): the next captured audio, at most max bytes, from the start. */
+    /** For a reader in NN Agent itself (ChatGPT voice): the next captured audio, at most max bytes, from the start. */
     static byte[] pull(int max) {
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(max);
         synchronized (chunks) {

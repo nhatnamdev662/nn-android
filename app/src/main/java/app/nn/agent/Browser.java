@@ -31,10 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * The background browser: one headless Chromium inside Buddy's Linux (linux/buddy-browser), started when an agent or
- * the user first needs it and stopped after a while unused. Buddy drives it with the DevTools protocol over the
+ * The background browser: one headless Chromium inside NN's Linux (linux/nn-browser), started when an agent or
+ * the user first needs it and stopped after a while unused. NN Agent drives it with the DevTools protocol over the
  * script's stdin and stdout (NUL-separated JSON, Chromium's --remote-debugging-pipe) instead of a debugging port: a
- * port on 127.0.0.1 would let any app or agent on the phone drive the browser around Buddy's approvals, and the pipe
+ * port on 127.0.0.1 would let any app or agent on the phone drive the browser around NN's approvals, and the pipe
  * needs no WebSocket client. Each chat gets its own tab; the chat's live card shows it (Page.startScreencast) and
  * passes the user's taps, scrolls and typing on to it. The agents' tools are in BrowserTools.
  */
@@ -53,7 +53,7 @@ final class Browser {
 
     /** The page's size in CSS pixels; frames are scaled from it. */
     static final int WIDTH = 400, HEIGHT = 820;
-    /** The chat key of the tab the user opens from Settings (signing in to sites), and of agents outside Buddy's chats. */
+    /** The chat key of the tab the user opens from Settings (signing in to sites), and of agents outside NN's chats. */
     static final String USER = "user";
     private static final long IDLE_STOP_MS = 3 * 60_000L, FRAME_GAP_MS = 280;
 
@@ -79,7 +79,7 @@ final class Browser {
     /** Live views: chat key → its frame sinks, and the session its screencast runs in. */
     private static final Map<String, List<Frames>> viewers = new ConcurrentHashMap<>();
     private static final Map<String, String> casting = new ConcurrentHashMap<>();
-    /** The isolated world Buddy's page helpers run in, by session (see world). */
+    /** The isolated world NN's page helpers run in, by session (see world). */
     private static final Map<String, Integer> worlds = new ConcurrentHashMap<>();
     private static volatile long lastUse;
 
@@ -93,7 +93,7 @@ final class Browser {
         return Prefs.browser(c);
     }
 
-    /** Chromium is installed in Buddy's Linux. */
+    /** Chromium is installed in NN's Linux. */
     static boolean installed(Context c) {
         return new File(Linux.root(c), "usr/lib/chromium/chromium").exists();
     }
@@ -181,7 +181,7 @@ final class Browser {
         work.execute(() -> {
             try {
                 Helper.sync(a);
-                String out = Linux.exec(a, "/bin/sh /root/bin/buddy-browser install 2>&1", 1800);
+                String out = Linux.exec(a, "/bin/sh /root/bin/nn-browser install 2>&1", 1800);
                 set(out.contains("BUDDY_INSTALLED") ? State.OFF : State.ERROR,
                         out.contains("BUDDY_INSTALLED") ? "" : lastLines(out));
             } catch (Exception e) {
@@ -195,7 +195,7 @@ final class Browser {
         try {
             Helper.sync(app);
             String lang = java.util.Locale.getDefault().toLanguageTag();
-            ProcessBuilder pb = Linux.builder(app, "/usr/bin/env", "BUDDY_LANG=" + lang, "/bin/sh", "/root/bin/buddy-browser", "run");
+            ProcessBuilder pb = Linux.builder(app, "/usr/bin/env", "BUDDY_LANG=" + lang, "/bin/sh", "/root/bin/nn-browser", "run");
             pb.redirectErrorStream(false); // stdout carries the protocol; proot's and the script's notes come on stderr
             p = pb.start();
         } catch (Exception e) {
@@ -227,10 +227,10 @@ final class Browser {
             } catch (IOException ignored) {
             }
             launching.countDown();
-        }, "buddy-browser-err");
+        }, "nn-browser-err");
         err.setDaemon(true);
         err.start();
-        Thread reader = new Thread(() -> read(p), "buddy-browser");
+        Thread reader = new Thread(() -> read(p), "nn-browser");
         reader.setDaemon(true);
         reader.start();
         try {
@@ -275,7 +275,7 @@ final class Browser {
                     try {
                         onMessage(new JSONObject(text));
                     } catch (Exception e) {
-                        android.util.Log.w("BuddyBrowser", "bad message", e);
+                        android.util.Log.w("NN AgentBrowser", "bad message", e);
                     }
                 }
                 msg.write(buf, from, n - from);
@@ -499,7 +499,7 @@ final class Browser {
     // ------------------------------------------------------------------ tabs
 
     /**
-     * The key of the tab a tool call works in: its Buddy chat, or for an agent outside Buddy's chats (a terminal, Remote
+     * The key of the tab a tool call works in: its NN Agent chat, or for an agent outside NN's chats (a terminal, Remote
      * Control) the user's own tab, which they watch from Settings.
      */
     static String key(String chat) {
@@ -658,7 +658,7 @@ final class Browser {
 
     // ---------------------------------------------------------------- the page
 
-    /** Runs expression in the chat's tab, with Buddy's page helpers (assets/browser.js), and returns its value. */
+    /** Runs expression in the chat's tab, with NN's page helpers (assets/browser.js), and returns its value. */
     static Object eval(String key, String expression) throws Exception {
         if (js == null) {
             try (InputStream in = app.getAssets().open("browser.js")) {
@@ -870,7 +870,7 @@ final class Browser {
             deliver(key, BitmapFactory.decodeByteArray(jpg, 0, jpg.length));
             changed();
         } catch (Exception e) {
-            android.util.Log.w("BuddyBrowser", "screencast", e);
+            android.util.Log.w("NN AgentBrowser", "screencast", e);
         }
     }
 
@@ -913,7 +913,7 @@ final class Browser {
             try {
                 r.run();
             } catch (Exception e) {
-                android.util.Log.w("BuddyBrowser", "live view action", e);
+                android.util.Log.w("NN AgentBrowser", "live view action", e);
             }
         });
     }
@@ -926,7 +926,7 @@ final class Browser {
     static void wipe(Context c) {
         stop();
         Linux.deleteTree(new File(Linux.root(c), "root/.nn/browser"));
-        c.getSharedPreferences("browser", 0).edit().remove("signins").apply(); // from the Signed-in sites list Buddy had
+        c.getSharedPreferences("browser", 0).edit().remove("signins").apply(); // from the Signed-in sites list NN Agent had
         changed();
     }
 }

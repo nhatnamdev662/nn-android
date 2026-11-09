@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Buddy's face: the built-in drawings, or a picture picked in Settings (issue #10). The picture lives in the app's
- * own storage, so it stays through updates; when it's missing or can't be read, Buddy's own face shows.
+ * NN's face: the built-in drawings, or a picture picked in Settings (issue #10). The picture lives in the app's
+ * own storage, so it stays through updates; when it's missing or can't be read, NN's own face shows.
  */
 final class Face {
     /** Longest side of the saved picture, in px: sharp at the bubble's 60dp on any screen. */
@@ -37,7 +37,7 @@ final class Face {
         return new File(c.getFilesDir(), "face.png");
     }
 
-    /** The picked picture while "Your picture" is on, or null for Buddy's own face. */
+    /** The picked picture while "Your picture" is on, or null for NN's own face. */
     static synchronized Bitmap picture(Context c) {
         if (!"picture".equals(Prefs.face(c))) return null;
         if (!loaded) {
@@ -54,14 +54,14 @@ final class Face {
     }
 
     /**
-     * The size, in dp, for Buddy's face in an avatar or tile: {@code buddy} for the drawing (it has margins of its
+     * The size, in dp, for NN's face in an avatar or tile: {@code buddy} for the drawing (it has margins of its
      * own), {@code picture} for a picture, which is trimmed to its edges and often detailed.
      */
     static int size(Context c, int buddy, int picture) {
         return picture(c) != null ? picture : buddy;
     }
 
-    /** Shows Buddy's face in an avatar or tile: the picked picture, else the drawing {@code res}. */
+    /** Shows NN's face in an avatar or tile: the picked picture, else the drawing {@code res}. */
     static void set(ImageView v, int res) {
         Bitmap b = picture(v.getContext());
         if (b != null) v.setImageBitmap(b);
@@ -139,7 +139,7 @@ final class Face {
 
     /**
      * Reads a picked image (PNG, WebP, JPEG…; an animation's first frame), trims its transparent edges, scales it
-     * down and saves it as Buddy's face. Throws if it isn't a picture.
+     * down and saves it as NN's face. Throws if it isn't a picture.
      */
     static void save(Context c, Uri uri) throws IOException {
         int box = SIDE * 2;

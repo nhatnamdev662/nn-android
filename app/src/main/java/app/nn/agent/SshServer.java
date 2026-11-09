@@ -21,9 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * An SSH server (OpenSSH) inside Buddy's Linux, so Termux can sign in to it with a key. It listens on 127.0.0.1
+ * An SSH server (OpenSSH) inside NN's Linux, so Termux can sign in to it with a key. It listens on 127.0.0.1
  * only, so only apps on this phone reach it. A key gets in once: Settings copies a Termux command with a one-time
- * code, and the command posts its public key to the local server (POST /ssh-key). Buddy restarts the server if it
+ * code, and the command posts its public key to the local server (POST /ssh-key). NN Agent restarts the server if it
  * stops. Dropbear can't be used: it re-executes itself through a file descriptor, which proot doesn't support.
  */
 final class SshServer {
@@ -147,19 +147,19 @@ final class SshServer {
         main.postDelayed(() -> ensure(app), 3000L * (quickFails + 1));
     }
 
-    /** OpenSSH, host keys, the key file and Buddy's own server settings (rewritten each start). */
+    /** OpenSSH, host keys, the key file and NN's own server settings (rewritten each start). */
     private static void prepare(Context app) throws Exception {
         String out = Linux.exec(app, "set -e; [ -x /usr/sbin/sshd ] || apk add -q openssh-server; ssh-keygen -A >/dev/null;"
                 + " mkdir -p /etc/buddy /root/.ssh; chmod 700 /root/.ssh; touch /root/.ssh/authorized_keys;"
                 + " chmod 600 /root/.ssh/authorized_keys; echo PREP_OK", 300);
         if (!out.contains("PREP_OK")) throw new Exception(out.trim());
-        Linux.write(new File(Linux.root(app), CONFIG.substring(1)), "# Buddy's SSH server (Settings > Remote Control)."
-                + " Buddy rewrites this file each time it starts the server.\n"
+        Linux.write(new File(Linux.root(app), CONFIG.substring(1)), "# NN's SSH server (Settings > Remote Control)."
+                + " NN Agent rewrites this file each time it starts the server.\n"
                 + "ListenAddress 127.0.0.1\nPort " + PORT + "\n"
                 + "PermitRootLogin prohibit-password\nPasswordAuthentication no\nKbdInteractiveAuthentication no\n"
                 + "AuthorizedKeysFile .ssh/authorized_keys\nAllowTcpForwarding yes\nPrintMotd no\nPidFile none\n"
                 + "Subsystem sftp internal-sftp\n"
-                // sessions get a fresh environment: Buddy's PATH (Claude Code lives in ~/.local/bin) and UTF-8
+                // sessions get a fresh environment: NN's PATH (Claude Code lives in ~/.local/bin) and UTF-8
                 + "SetEnv PATH=/root/.local/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
                 + " LANG=C.UTF-8 COLORTERM=truecolor\n");
     }
@@ -198,7 +198,7 @@ final class SshServer {
                     }
                 }
             } catch (Exception e) {
-                android.util.Log.w("Buddy", "ssh key not saved", e);
+                android.util.Log.w("NN Agent", "ssh key not saved", e);
                 return null;
             }
         }

@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="docs/banner.png" alt="NN Agent: Claude Code, Codex, OpenCode, Antigravity and Grok in a bubble on your Android phone" width="100%">
-</p>
+# NN AGENT
 
 <p align="center">
   <a href="https://github.com/nhatnamdev662/nn-android/releases/latest"><img src="https://img.shields.io/github/v/release/nhatnamdev662/nn-android?style=for-the-badge&label=release" alt="Latest release"></a>
@@ -9,8 +7,6 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=for-the-badge" alt="License: Apache-2.0"></a>
 </p>
 
-# NN AGENT
-
 **A floating chat bubble that lets Claude Code, Codex, OpenCode, Antigravity or Grok use your Android phone.**
 
 Type or say what you want, like "reply to Sam that I'm running late" or "add a Switch 2 to my Amazon cart". NN Agent reads the screen, taps and types to get it done, and asks you before anything is sent, posted, bought or deleted.
@@ -18,14 +14,6 @@ Type or say what you want, like "reply to Sam that I'm running late" or "add a S
 It runs inside the app, on your own plan: [Claude Code](https://docs.claude.com/en/docs/claude-code) with your Claude plan, Codex with your ChatGPT plan, Google's [Antigravity CLI](https://antigravity.google) with your Google account, xAI's [Grok Build](https://x.ai/build) with your Google or X account, or [OpenCode](https://opencode.ai) with its free models and no account at all. No PC, no adb, no root, and no API key needed (you can add keys for other services, such as DeepSeek or OpenRouter, and use them with Claude Code, Codex or OpenCode).
 
 <p align="center"><a href="https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk"><b>Download NN_AGENT.apk</b></a> · Android 11+, 64-bit</p>
-
-<table>
-  <tr>
-    <td width="33%" align="center"><img src="docs/screens/chats.jpg" alt="Chats with different agents"><br><sub>Chats with any agent</sub></td>
-    <td width="33%" align="center"><img src="docs/screens/chat.jpg" alt="A chat with grouped tool calls"><br><sub>Tool calls fold into one line</sub></td>
-    <td width="33%" align="center"><img src="docs/screens/settings.jpg" alt="Settings"><br><sub>Setup guide and themes</sub></td>
-  </tr>
-</table>
 
 ## What it can do
 

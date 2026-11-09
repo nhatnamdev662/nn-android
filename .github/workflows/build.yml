@@ -11,7 +11,7 @@ permissions:
   contents: write # needed to attach the APK to a GitHub release on tags
 
 jobs:
-  # buddy-run's translation of each agent's output, on recorded runs (linux/test/run.sh); jq comes with the runner
+  # nn-run's translation of each agent's output, on recorded runs (linux/test/run.sh); jq comes with the runner
   helper-tests:
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +64,7 @@ jobs:
           apk=$(find app/build/outputs/apk/github/release -name '*.apk' | head -1)
           cp "$apk" "dist/buddy-${GITHUB_REF_NAME//\//-}.apk"
           # fixed name too, so releases/latest/download/buddy.apk always gets the newest version
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then cp "$apk" dist/buddy.apk; fi
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then cp "$apk" dist/NN_AGENT.apk; cp "$apk" dist/buddy.apk; fi
           fd=$(find app/build/outputs/apk/fdroid/release -name '*.apk' | head -1)
           # named so nobody picks it by mistake: it doesn't update itself (F-Droid's Binaries line must match this name)
           cp "$fd" "dist/fdroid-check-only-${GITHUB_REF_NAME//\//-}.apk"
@@ -73,7 +73,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: buddy-apk
+          name: nn-agent-apk
           path: dist/*.apk
 
       - name: Publish GitHub release
@@ -85,13 +85,13 @@ jobs:
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" dist/*.apk --clobber
           else
-            gh release create "$GITHUB_REF_NAME" dist/*.apk --title "Buddy $GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" dist/*.apk --title "NN Agent $GITHUB_REF_NAME" --generate-notes
           fi
           # which of the APKs to download, at the end of the notes (once)
           notes=$(gh release view "$GITHUB_REF_NAME" --json body -q .body)
           case "$notes" in
             *"Which file?"*) ;;
-            *) printf '%s\n\n%s\n' "$notes" "**Which file?** Download \`buddy.apk\`: it updates itself. \`fdroid-check-only-$GITHUB_REF_NAME.apk\` is only there for F-Droid's reproducible-build check, and doesn't update itself." \
+            *) printf '%s\n\n%s\n' "$notes" "**Which file?** Download \`NN_AGENT.apk\`: it updates itself. \`fdroid-check-only-$GITHUB_REF_NAME.apk\` is only there for F-Droid's reproducible-build check, and doesn't update itself." \
                  | gh release edit "$GITHUB_REF_NAME" --notes-file - ;;
           esac
 

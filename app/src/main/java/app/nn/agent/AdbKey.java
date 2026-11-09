@@ -99,7 +99,7 @@ public final class AdbKey {
     private static final String FILE_CERT = "adb_cert.der";
 
     private static AdbKey loadOrCreate(Context context) throws Exception {
-        Context ctx = context != null ? context : BuddyApp.context();
+        Context ctx = context != null ? context : NnApp.context();
 
         byte[] privBytes = null;
         byte[] certBytes = null;

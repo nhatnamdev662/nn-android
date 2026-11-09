@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.Window;
 
 /**
- * Computes Buddy's palette from the user's appearance settings (mode, accent, surface style) and
+ * Computes NN's palette from the user's appearance settings (mode, accent, surface style) and
  * writes it into the {@link Ui} colour fields. Every screen calls {@link #apply(Activity)} in onCreate.
  */
 final class Theme {
@@ -128,7 +128,7 @@ final class Theme {
     static void changed(Context c) {
         applied = "";
         load(c);
-        BuddyService s = BuddyService.get();
+        NnService s = NnService.get();
         if (s != null) s.applyTheme();
     }
 

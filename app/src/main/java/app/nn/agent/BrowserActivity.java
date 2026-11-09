@@ -67,7 +67,7 @@ public class BrowserActivity extends Screen implements Browser.Listener {
     }
 
     private static void bubbleRefresh() {
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         Bubble b = svc == null ? null : svc.bubble();
         if (b != null) b.onBrowserScreen();
     }

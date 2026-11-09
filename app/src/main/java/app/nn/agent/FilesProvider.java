@@ -30,12 +30,12 @@ public class FilesProvider extends ContentProvider {
         return Uri.parse("content://" + AUTHORITY + "/apk/app.apk");
     }
 
-    /** An app built in Buddy's Linux, copied here for Android's installer (install_apk). */
+    /** An app built in NN's Linux, copied here for Android's installer (install_apk). */
     static File apkFile(android.content.Context c) {
         return new File(c.getCacheDir(), "install.apk");
     }
 
-    /** A file from Buddy's Linux handed to the share sheet (share): a copy, by its name. */
+    /** A file from NN's Linux handed to the share sheet (share): a copy, by its name. */
     static File shareFile(android.content.Context c, String name) {
         File dir = new File(c.getCacheDir(), "share");
         File[] old = dir.listFiles();

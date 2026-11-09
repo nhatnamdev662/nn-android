@@ -14,8 +14,8 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Skills shared by the agents (Settings → Skills): folders with a SKILL.md (a name and description up top, then the
- * instructions), the format Claude, ChatGPT and Codex use. They live in ~/.agents/skills in Buddy's Linux, where Codex
- * and OpenCode look; buddy-run links each into ~/.claude/skills for Claude Code. An agent uses one when a task fits, or
+ * instructions), the format Claude, ChatGPT and Codex use. They live in ~/.agents/skills in NN's Linux, where Codex
+ * and OpenCode look; nn-run links each into ~/.claude/skills for Claude Code. An agent uses one when a task fits, or
  * when the user picks it with / in the message box.
  */
 final class Skills {
@@ -89,7 +89,7 @@ final class Skills {
         return s.length() > 64 ? s.substring(0, 64) : s;
     }
 
-    /** A new skill written in Buddy. Returns its name. */
+    /** A new skill written in NN Agent. Returns its name. */
     static String create(Context c, String name, String description, String instructions) throws Exception {
         String n = slug(name);
         if (n.isEmpty()) throw new IllegalArgumentException(c.getString(R.string.skills_need_name));

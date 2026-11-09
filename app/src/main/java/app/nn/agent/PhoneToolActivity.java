@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A see-through screen for the phone tools that need Buddy in front: reading the clipboard (Android allows only the
+ * A see-through screen for the phone tools that need NN Agent in front: reading the clipboard (Android allows only the
  * app in front), taking a photo with the camera, and asking for the location permission. It does its one thing,
  * hands the result to the waiting tool and closes.
  */

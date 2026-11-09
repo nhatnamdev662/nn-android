@@ -33,7 +33,7 @@ android {
             create("release") {
                 storeFile = file(keystorePath)
                 storePassword = System.getenv("BUDDY_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("BUDDY_KEY_ALIAS") ?: "buddy"
+                keyAlias = System.getenv("NN_KEY_ALIAS") ?: System.getenv("BUDDY_KEY_ALIAS") ?: "nn"
                 keyPassword = System.getenv("BUDDY_KEY_PASSWORD") ?: System.getenv("BUDDY_KEYSTORE_PASSWORD")
             }
         }

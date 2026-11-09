@@ -7,7 +7,7 @@ import android.graphics.RectF;
 import android.view.View;
 
 /**
- * Accent-coloured arcs swirling around Buddy while it's working; calm (fainter, slower) while the agent works only in
+ * Accent-coloured arcs swirling around NN Agent while it's working; calm (fainter, slower) while the agent works only in
  * the background and the phone is free (see Bubble.refreshStatus).
  */
 final class RingView extends View {
@@ -49,7 +49,7 @@ final class RingView extends View {
         float[] len = {95f, 70f, 55f};
         int[] alpha = {235, 170, 120};
         for (int i = 0; i < 3; i++) {
-            float r = Math.min(cx, cy) - (2.5f + i * 3f) * dp; // all three stay outside Buddy's body
+            float r = Math.min(cx, cy) - (2.5f + i * 3f) * dp; // all three stay outside NN's body
             box.set(cx - r, cy - r, cx + r, cy + r);
             paint.setStrokeWidth((3.4f - i * 0.7f) * dp);
             paint.setColor(Theme.withAlpha(Ui.ACCENT, calm ? alpha[i] * 2 / 5 : alpha[i]));

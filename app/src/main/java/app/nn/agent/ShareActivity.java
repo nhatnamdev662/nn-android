@@ -11,8 +11,8 @@ import java.util.List;
 import static app.nn.agent.Ui.*;
 
 /**
- * "Share to Buddy" from any app: a photo, a file, a link or text. The user picks a new chat or a recent one; the files
- * are copied into Buddy's storage at once (the share's read access ends with this screen) and the chat opens with them
+ * "Share to NN Agent" from any app: a photo, a file, a link or text. The user picks a new chat or a recent one; the files
+ * are copied into NN's storage at once (the share's read access ends with this screen) and the chat opens with them
  * attached and the text in its message box, to send when they're ready. Nothing is sent on its own.
  */
 public final class ShareActivity extends Screen {
@@ -106,7 +106,7 @@ public final class ShareActivity extends Screen {
             runOnUiThread(() -> {
                 if (error != null) Toast.makeText(this, error, Toast.LENGTH_LONG).show();
                 hub.select(ses);
-                // in Buddy's own task, not the sharing app's
+                // in NN's own task, not the sharing app's
                 Intent i = new Intent(this, ChatActivity.class).putExtra("id", ses.id)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (!text.isEmpty()) i.putExtra("draft", text);

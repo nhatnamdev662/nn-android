@@ -1,6 +1,6 @@
 # Third-party components
 
-Buddy's built-in Linux runs through **proot**, which ships inside the APK as native libraries
+NN Agent's built-in Linux runs through **proot**, which ships inside the APK as native libraries
 (named `lib*.so` so Android extracts them). They are built from source by [`native/build.sh`](../native/build.sh)
 with the Android NDK in CI (or Termux's clang on a phone), the way Termux builds them. The sources are here:
 proot and libandroid-shmem as git submodules at their release tags, and the three files of talloc that the build

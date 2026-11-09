@@ -11,8 +11,8 @@ import org.json.JSONObject;
  * API keys for other services (Settings → API keys): each with an Anthropic-style address (Claude Code, OpenCode), an
  * OpenAI-style one (OpenCode, and Codex when it has the Responses API), or both, and the models it lists. A chat picks
  * one of its models in the model sheet ("@id/model"); an agent can also use one by default. Keys stay in Secrets and
- * never enter Buddy's Linux: the agents talk to Relay, which adds them. Linux only gets $D/providers/&lt;id&gt;.json
- * (no key), so buddy-run knows how to point each agent there.
+ * never enter NN's Linux: the agents talk to Relay, which adds them. Linux only gets $D/providers/&lt;id&gt;.json
+ * (no key), so nn-run knows how to point each agent there.
  */
 final class Providers {
     static final class P {
@@ -104,7 +104,7 @@ final class Providers {
         if (cache != null) return cache;
         cache = new ArrayList<>();
         try {
-            JSONArray a = new JSONArray(Prefs.providers(BuddyApp.context()));
+            JSONArray a = new JSONArray(Prefs.providers(NnApp.context()));
             for (int i = 0; i < a.length(); i++) {
                 JSONObject o = a.getJSONObject(i);
                 P p = new P(o.getString("id"));
@@ -179,7 +179,7 @@ final class Providers {
         return ref.startsWith("@") && ref.indexOf('/') > 0 ? ref.substring(1, ref.indexOf('/')) : "";
     }
 
-    /** Saves the list (no keys) and gives Buddy's Linux one file per service: its kind of address and its models. */
+    /** Saves the list (no keys) and gives NN's Linux one file per service: its kind of address and its models. */
     private static void store(Context c) throws Exception {
         JSONArray a = new JSONArray();
         for (P p : all()) a.put(json(p).put("models", p.models));
@@ -233,7 +233,7 @@ final class Providers {
                 if (first == null) first = e;
             }
         }
-        throw first != null ? first : new Exception(BuddyApp.str(R.string.signin_api_models_none));
+        throw first != null ? first : new Exception(NnApp.str(R.string.signin_api_models_none));
     }
 
     /**
@@ -247,7 +247,7 @@ final class Providers {
         String better = "";
         if (!anthropic.isEmpty()) {
             Relay.Probe m = ask(2, key, anthropic, models);
-            out.append(line(BuddyApp.str(R.string.api_keys_anthropic_hint), m, false));
+            out.append(line(NnApp.str(R.string.api_keys_anthropic_hint), m, false));
         }
         if (!openai.isEmpty()) {
             Relay.Probe r = null;
@@ -261,15 +261,15 @@ final class Providers {
                 }
             }
             if (out.length() > 0) out.append('\n');
-            out.append(line(BuddyApp.str(R.string.api_keys_openai_hint), r, chat));
+            out.append(line(NnApp.str(R.string.api_keys_openai_hint), r, chat));
         }
         return new String[]{out.toString(), better};
     }
 
     private static String line(String label, Relay.Probe p, boolean chat) {
-        if (chat) return BuddyApp.str(R.string.api_keys_check_chat, label);
-        if (Relay.YES.equals(p.result)) return BuddyApp.str(R.string.api_keys_check_ok, label);
-        return BuddyApp.str(Relay.NO.equals(p.result) ? R.string.api_keys_check_none : R.string.api_keys_check_unsure, label, p.detail);
+        if (chat) return NnApp.str(R.string.api_keys_check_chat, label);
+        if (Relay.YES.equals(p.result)) return NnApp.str(R.string.api_keys_check_ok, label);
+        return NnApp.str(Relay.NO.equals(p.result) ? R.string.api_keys_check_none : R.string.api_keys_check_unsure, label, p.detail);
     }
 
     /** The address as given, then with /v1 added or at the service's root. */

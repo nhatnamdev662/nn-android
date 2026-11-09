@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * GitHub for the Linux tools (Settings → GitHub): installs git and the GitHub CLI in Buddy's Linux and signs gh in with
+ * GitHub for the Linux tools (Settings → GitHub): installs git and the GitHub CLI in NN's Linux and signs gh in with
  * its own device flow (a one-time code the user enters on github.com), then sets git to the account's name and noreply
  * email. Agents with Linux tools can then clone, commit, push and open pull requests as the user.
  */

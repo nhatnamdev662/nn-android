@@ -22,10 +22,10 @@ import android.view.WindowManager;
 final class KeepAwake {
     private static final String TAG = "run_end";
 
-    private final BuddyService svc;
+    private final NnService svc;
     private View window;
 
-    KeepAwake(BuddyService svc) {
+    KeepAwake(NnService svc) {
         this.svc = svc;
     }
 

@@ -12,21 +12,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Runs Buddy's helper script (assets/linux/buddy-run) inside the built-in Linux. The helper streams
+ * Runs NN's helper script (assets/linux/nn-run) inside the built-in Linux. The helper streams
  * the agent's progress back to the app over the local server (POST /event), like before.
  */
 final class Helper {
     private static final String[][] FILES = {
             // asset, path inside Linux, mode
-            {"linux/buddy-run", "/root/bin/buddy-run", "700"},
+            {"linux/nn-run", "/root/bin/nn-run", "700"},
+            {"linux/nn-run", "/root/bin/nn-run", "700"}, // compat
             {"linux/codex-remote", "/root/bin/codex-remote", "700"}, // the Codex session (CodexRemote)
-            {"linux/buddy-browser", "/root/bin/buddy-browser", "700"}, // the background browser (Browser)
+            {"linux/nn-browser", "/root/bin/nn-browser", "700"}, // the background browser (Browser)
+            {"linux/nn-browser", "/root/bin/nn-browser", "700"}, // compat
             {"linux/profile.sh", "/etc/profile.d/nn.sh", "644"},
             {"linux/arecord", "/usr/local/bin/arecord", "755"},
+            {"linux/asound-cards", "/etc/nn/asound-cards", "644"},
             {"linux/asound-cards", "/etc/buddy/asound-cards", "644"},
             {"linux/arecord", "/usr/local/bin/rec", "755"}, // SoX's recorder, same arguments that matter (-r, -c)
             {"linux/system-prompt.md", "/root/.nn/system-prompt.md", "600"},
-            {"linux/GUIDE.md", "/root/.nn/GUIDE.md", "644"}, // Buddy's user guide, for questions about Buddy itself
+            {"linux/GUIDE.md", "/root/.nn/GUIDE.md", "644"},
             {"linux/browser-prompt.md", "/root/.nn/browser-prompt.md", "600"},
             {"linux/AGENTS.md", "/root/.nn/work/AGENTS.md", "600"},
             {"linux/android-app/SKILL.md", "/root/.nn/work/.claude/skills/android-app/SKILL.md", "600"},
@@ -44,7 +47,7 @@ final class Helper {
         return Linux.installed(c);
     }
 
-    /** Runs `buddy-run <token> args…` in the background. Throws with a readable message if Linux isn't set up. */
+    /** Runs `nn-run <token> args…` in the background. Throws with a readable message if Linux isn't set up. */
     static void run(Context c, String... args) {
         final Context app = c.getApplicationContext();
         if (!Linux.installed(app)) {
@@ -54,7 +57,7 @@ final class Helper {
         final String sessionId = args.length > 1 ? args[1] : null;
         final String[] cmd = new String[args.length + 3];
         cmd[0] = "/bin/bash";
-        cmd[1] = "/root/bin/buddy-run";
+        cmd[1] = new File(Linux.root(app), "root/bin/nn-run").exists() ? "/root/bin/nn-run" : "/root/bin/nn-run";
         cmd[2] = Prefs.token(app);
         System.arraycopy(args, 0, cmd, 3, args.length);
         pool.execute(() -> {
@@ -75,7 +78,7 @@ final class Helper {
                     ChatHub.get(app).onHelperFinished(sessionId, code);
                 }
             } catch (Exception e) {
-                android.util.Log.w("Buddy", "helper failed", e);
+                android.util.Log.w("NN Agent", "helper failed", e);
                 if ("ask".equals(cmdName) && sessionId != null) {
                     ChatHub.get(app).onHelperFinished(sessionId, -1);
                 }
@@ -83,9 +86,9 @@ final class Helper {
         });
     }
 
-    /** The user's App permissions choices, which buddy-run appends to the agent's instructions. */
+    /** The user's App permissions choices, which nn-run appends to the agent's instructions. */
     static void writePermissions(Context c) {
-        // the background browser's instructions go along only while it's on (buddy-run looks for this file)
+        // the background browser's instructions go along only while it's on (nn-run looks for this file)
         File on = new File(Linux.root(c), "root/.nn/browser-on");
         try {
             if (Browser.available(c)) on.createNewFile();
@@ -119,7 +122,7 @@ final class Helper {
                 }
             }
         } catch (IOException e) {
-            android.util.Log.w("Buddy", "permissions not written", e);
+            android.util.Log.w("NN Agent", "permissions not written", e);
         }
     }
 
@@ -131,7 +134,7 @@ final class Helper {
         }
     }
 
-    /** Copies the helper files again now (Check Buddy's fix when Linux still has an older copy). */
+    /** Copies the helper files again now (Check NN's fix when Linux still has an older copy). */
     static synchronized void resync(Context c) throws IOException {
         syncedFor = -1;
         sync(c);
@@ -139,7 +142,7 @@ final class Helper {
 
     /** Copies the helper files from the APK into Linux once per app version. */
     static synchronized void sync(Context c) throws IOException {
-        if (syncedFor == BuildInfo.VERSION_CODE && new File(Linux.root(c), "root/bin/buddy-run").length() > 500) return;
+        if (syncedFor == BuildInfo.VERSION_CODE && new File(Linux.root(c), "root/bin/nn-run").length() > 500) return;
         File root = Linux.root(c);
         for (String[] f : FILES) {
             File out = new File(root, f[1].substring(1));

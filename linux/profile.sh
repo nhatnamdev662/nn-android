@@ -1,10 +1,10 @@
-if [ -d "$HOME/.buddy" ] && [ ! -d "$HOME/.nn" ]; then
-  mv "$HOME/.buddy" "$HOME/.nn" 2>/dev/null
+if [ -d "$HOME/.nn" ] && [ ! -d "$HOME/.nn" ]; then
+  mv "$HOME/.nn" "$HOME/.nn" 2>/dev/null
 fi
-[ -d "$HOME/.nn" ] && [ ! -e "$HOME/.buddy" ] && ln -s "$HOME/.nn" "$HOME/.buddy" 2>/dev/null
+[ -d "$HOME/.nn" ] && [ ! -e "$HOME/.nn" ] && ln -s "$HOME/.nn" "$HOME/.nn" 2>/dev/null
 
-# Buddy's shell setup (installed as /etc/profile.d/buddy.sh by the app; changes are overwritten on update)
-# Alpine's /etc/profile resets PATH: keep Claude Code (~/.local/bin) and Buddy's tools reachable.
+# NN Agent's shell setup (installed as /etc/profile.d/nn.sh by the app; changes are overwritten on update)
+# Alpine's /etc/profile resets PATH: keep Claude Code (~/.local/bin) and NN Agent's tools reachable.
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 export EDITOR="${EDITOR:-vi}"
 alias ls='ls --color=auto'

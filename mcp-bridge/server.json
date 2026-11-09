@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.nhatnamdev662/buddy-phone-bridge",
-  "title": "Buddy phone tools",
-  "description": "Android phone tools for AI agents (read the screen, tap, type, open apps), served by the Buddy app.",
+  "name": "io.github.nhatnamdev662/nn-phone-bridge",
+  "title": "NN Agent phone tools",
+  "description": "Android phone tools for AI agents (read the screen, tap, type, open apps), served by the NN Agent app.",
   "repository": {
     "url": "https://github.com/nhatnamdev662/nn-android",
     "source": "github",
@@ -13,7 +13,7 @@
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "buddy-phone-bridge",
+      "identifier": "nn-phone-bridge",
       "version": "1.2.0",
       "transport": {
         "type": "stdio"
@@ -21,13 +21,13 @@
       "environmentVariables": [
         {
           "name": "BUDDY_TOKEN",
-          "description": "Token from Buddy's Settings > Phone tools in your own sessions",
+          "description": "Token from NN Agent's Settings > Phone tools in your own sessions",
           "isRequired": true,
           "isSecret": true
         },
         {
           "name": "BUDDY_URL",
-          "description": "Buddy's address, if not http://127.0.0.1:8765/mcp",
+          "description": "NN Agent's address, if not http://127.0.0.1:8765/mcp",
           "isRequired": false
         }
       ]

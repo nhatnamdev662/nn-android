@@ -46,7 +46,7 @@ import android.window.OnBackInvokedDispatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** The floating Buddy bubble and its mini chat panel, drawn as an accessibility overlay. */
+/** The floating NN Agent bubble and its mini chat panel, drawn as an accessibility overlay. */
 final class Bubble implements ChatHub.Listener {
     interface ConfirmCallback {
         /**
@@ -62,7 +62,7 @@ final class Bubble implements ChatHub.Listener {
     }
 
 
-    private final BuddyService svc;
+    private final NnService svc;
     private final WindowManager wm;
     private final Vibrator vibrator;
 
@@ -130,7 +130,7 @@ final class Bubble implements ChatHub.Listener {
     private ScrollView listScroll;
     private LinearLayout sessionList;
 
-    Bubble(BuddyService svc) {
+    Bubble(NnService svc) {
         this.svc = svc;
         this.wm = svc.getSystemService(WindowManager.class);
         this.vibrator = svc.getSystemService(Vibrator.class);
@@ -762,7 +762,7 @@ final class Bubble implements ChatHub.Listener {
     /**
      * Keep the composer above the keyboard: pad the open panel by the keyboard's height. The window's own
      * insets slide it smoothly, but they come late (or not at all) over some apps, so the keyboard's position
-     * on screen counts too (only for Buddy's own text field, not when another app's is focused).
+     * on screen counts too (only for NN's own text field, not when another app's is focused).
      */
     private void fitKeyboard() {
         if (!expanded || passThrough) return;
@@ -783,7 +783,7 @@ final class Bubble implements ChatHub.Listener {
         }
     }
 
-    /** Buddy's text field or window gained or lost focus: check the composer is above the keyboard. */
+    /** NN's text field or window gained or lost focus: check the composer is above the keyboard. */
     private void refit() {
         root.removeCallbacks(lateFit);
         root.postDelayed(lateFit, 350);
@@ -801,8 +801,8 @@ final class Bubble implements ChatHub.Listener {
         boolean compact = "compact".equals(Prefs.panelSize(svc));
         int side = compact ? Math.max(Math.max(edges.left, edges.right) + dp(8), usable.width() / 8) : 0;
         lp.width = usable.width() - 2 * side;
-        // full height (in "compact", in portrait, that has Buddy's face above the panel and two buttons below it); the
-        // keyboard is made room for by padding (fitKeyboard), only when it's for Buddy's own text field (not another
+        // full height (in "compact", in portrait, that has NN's face above the panel and two buttons below it); the
+        // keyboard is made room for by padding (fitKeyboard), only when it's for NN's own text field (not another
         // app's, e.g. while the agent types in Messenger)
         lp.height = Math.max(dp(220), usable.height() - dp(8) - dp(8));
         lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
@@ -813,12 +813,12 @@ final class Bubble implements ChatHub.Listener {
                 | (passThrough ? WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE : 0) | dimFlags();
         lp.dimAmount = 0.45f;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) lp.setBlurBehindRadius(dp(16));
-        // Buddy moves the panel itself (followKeyboard), so the system must not resize the window too
+        // NN Agent moves the panel itself (followKeyboard), so the system must not resize the window too
         lp.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
     }
 
     /**
-     * "compact" in portrait looks like a messenger's chat heads: Buddy's face above the panel, Close and Open in the
+     * "compact" in portrait looks like a messenger's chat heads: NN's face above the panel, Close and Open in the
      * app below it, and the screen behind dimmed. Only the look: the window stays clear of the screen edges, and a
      * touch outside it still reaches the app behind, so side gestures keep working (issue #3).
      */
@@ -842,7 +842,7 @@ final class Bubble implements ChatHub.Listener {
         return (lp.flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0;
     }
 
-    /** Puts the panel in the window: on its own, or between Buddy's face and the two buttons (heads()). */
+    /** Puts the panel in the window: on its own, or between NN's face and the two buttons (heads()). */
     private void placePanel() {
         boolean heads = heads();
         if (panel.getParent() != null) ((android.view.ViewGroup) panel.getParent()).removeView(panel);
@@ -933,7 +933,7 @@ final class Bubble implements ChatHub.Listener {
         badge.setVisibility(View.GONE);
         updateThumb();
         placePanel();
-        // with Back/Home/Recents buttons the keyboard would cover them (it's layered above Buddy's overlay, so
+        // with Back/Home/Recents buttons the keyboard would cover them (it's layered above NN's overlay, so
         // above the navigation bar): open it only when the text field is tapped
         boolean keyboard = pendingConfirm == null && !sessions.current.running && !showingList && !navButtons();
         int room = keyboard ? lastKeyboard[keyboardSlot()] : 0;
@@ -950,7 +950,7 @@ final class Bubble implements ChatHub.Listener {
         wm.updateViewLayout(root, lp);
         fitPanelHeight();
         boolean right = Prefs.bubblePos(svc)[0] != 0;
-        panel.setPivotX(headButtons != null ? lp.width / 2f : right ? lp.width : 0); // chat heads: from Buddy's face
+        panel.setPivotX(headButtons != null ? lp.width / 2f : right ? lp.width : 0); // chat heads: from NN's face
         panel.setPivotY(0);
         panel.setScaleX(0.85f);
         panel.setScaleY(0.85f);
@@ -1099,7 +1099,7 @@ final class Bubble implements ChatHub.Listener {
         }, 300);
     }
 
-    /** The dismiss target drawn as an electrode: dark core and cyan rim; white-blue when Buddy is on it. */
+    /** The dismiss target drawn as an electrode: dark core and cyan rim; white-blue when NN Agent is on it. */
     private GradientDrawable electrode(boolean hot) {
         GradientDrawable d = new GradientDrawable();
         d.setShape(GradientDrawable.OVAL);
@@ -1288,7 +1288,7 @@ final class Bubble implements ChatHub.Listener {
         }
         backDispatcher = root.findOnBackInvokedDispatcher();
         if (backDispatcher != null)
-            // Overlay priority so Buddy sees every Back (including gesture start) and closes the keyboard itself.
+            // Overlay priority so NN Agent sees every Back (including gesture start) and closes the keyboard itself.
             backDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, backCallback);
     }
 
@@ -2038,7 +2038,7 @@ final class Bubble implements ChatHub.Listener {
         openInApp(attach, null);
     }
 
-    /** files: attachments already in Buddy's storage (pasted images), to go with the draft. */
+    /** files: attachments already in NN's storage (pasted images), to go with the draft. */
     private void openInApp(boolean attach, java.util.ArrayList<String> files) {
         String draft = input.getText().toString();
         android.content.Intent i = new android.content.Intent(svc, ChatActivity.class)
@@ -2241,7 +2241,7 @@ final class Bubble implements ChatHub.Listener {
     /** The waiting card has a step for the user to do on the screen first (see askQuestion). */
     private boolean handsOn;
 
-    /** The Buddy chat the waiting card belongs to, or null when it comes from another session (a terminal…). */
+    /** The NN Agent chat the waiting card belongs to, or null when it comes from another session (a terminal…). */
     private Sessions.Session cardChat;
 
     /** The chat the waiting card belongs to (null: none, or another session). */
@@ -2367,7 +2367,7 @@ final class Bubble implements ChatHub.Listener {
         return pendingConfirm != null;
     }
 
-    /** The chat panel is open (the user is talking to Buddy). */
+    /** The chat panel is open (the user is talking to NN Agent). */
     boolean expanded() {
         return expanded;
     }
@@ -2681,7 +2681,7 @@ final class Bubble implements ChatHub.Listener {
         if (face.getOutlineProvider() != outline) face.setOutlineProvider(outline);
     }
 
-    /** Buddy's look changed in Settings: the new face now, and in the chat panel's replies. */
+    /** NN's look changed in Settings: the new face now, and in the chat panel's replies. */
     void applyFace() {
         showFace(faceRes);
         if (!expanded && !showingList) renderCurrent();
@@ -2916,7 +2916,7 @@ final class Bubble implements ChatHub.Listener {
     }
 
     /**
-     * Images pasted here, or picked in the keyboard's clipboard: copied into Buddy's storage, then the chat opens in
+     * Images pasted here, or picked in the keyboard's clipboard: copied into NN's storage, then the chat opens in
      * the app with them attached and the draft kept, to check or remove them before sending (issue #6).
      */
     private void pasteImages(java.util.List<android.net.Uri> uris, Runnable done) {

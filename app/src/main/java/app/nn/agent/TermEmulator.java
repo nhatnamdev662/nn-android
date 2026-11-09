@@ -5,7 +5,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 
 /**
- * Buddy's terminal emulator: turns the program's output (UTF-8 text with VT100/xterm escape sequences)
+ * NN's terminal emulator: turns the program's output (UTF-8 text with VT100/xterm escape sequences)
  * into a grid of styled cells. Covers what shells, vim, htop and Claude Code use: cursor movement,
  * scroll regions, the alternate screen, 16/256/true colours, line drawing, wide characters and the
  * usual status queries. The view draws {@link #line(int)}; input goes back through {@link Host#write}.
@@ -437,7 +437,7 @@ final class TermEmulator {
         }
         if (privateMark == '>') {
             if (f == 'c') reply("\033[>1;10;0c");
-            else if (f == 'q') reply("\033P>|Buddy\033\\");
+            else if (f == 'q') reply("\033P>|NN Agent\033\\");
             return;
         }
         if (privateMark != 0) return;

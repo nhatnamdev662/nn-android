@@ -42,7 +42,7 @@ final class ChatHub {
         if (monitor != null) monitor.onMonitor(ev);
     }
 
-    /** Turn an existing Claude Code / Codex session into a Buddy chat that continues it. */
+    /** Turn an existing Claude Code / Codex session into a NN Agent chat that continues it. */
     Sessions.Session adopt(String backend, String agentSessionId, String title) {
         Sessions.Session s = sessions.create(backend);
         s.title = title == null ? "" : title;
@@ -67,7 +67,7 @@ final class ChatHub {
     private ChatHub(Context app) {
         this.app = app;
         sessions = new Sessions(app);
-        // a chat still marked working when Buddy starts was cut off: Android closed Buddy (an update, low memory), and
+        // a chat still marked working when NN Agent starts was cut off: Android closed NN Agent (an update, low memory), and
         // its agent with it
         for (String id : Prefs.busyChats(app)) {
             Sessions.Session s = sessions.find(id);
@@ -76,7 +76,7 @@ final class ChatHub {
             s.interrupted = true;
             sessions.add(s, Bubble.Kind.STEP, app.getString(R.string.hub_interrupted), null);
         }
-        // incognito chats don't outlive Buddy: they go, with what their agent kept of them
+        // incognito chats don't outlive NN Agent: they go, with what their agent kept of them
         List<String> forgetting = new ArrayList<>();
         for (Sessions.Session s : new ArrayList<>(sessions.all)) {
             if (!s.incognito) continue;
@@ -94,8 +94,8 @@ final class ChatHub {
     }
 
     /**
-     * Removes the folders in Buddy's Linux of chats Buddy no longer has (before 2.2.26 the 21st chat dropped the oldest,
-     * but its folder stayed), once per version of Buddy. Only when every chat was read, so one that failed to read
+     * Removes the folders in NN's Linux of chats NN Agent no longer has (before 2.2.26 the 21st chat dropped the oldest,
+     * but its folder stayed), once per version of NN Agent. Only when every chat was read, so one that failed to read
      * keeps its agent's session; chats being forgotten (incognito) keep theirs for their own delete, which reads it.
      */
     private void pruneLinux(List<String> forgetting) {
@@ -105,7 +105,7 @@ final class ChatHub {
         List<String> keep = new ArrayList<>(forgetting);
         for (Sessions.Session s : sessions.all) keep.add(s.id);
         for (String id : keep) {
-            if (!id.matches("[0-9a-f]{12}")) return; // not one Buddy made: better keep everything
+            if (!id.matches("[0-9a-f]{12}")) return; // not one NN Agent made: better keep everything
             if (ids.length() > 0) ids.append(',');
             ids.append(id);
         }
@@ -156,7 +156,7 @@ final class ChatHub {
 
     /** After a cut-off run: the agent checks what's done and goes on. */
     String resume(Sessions.Session ses) {
-        return send(ses, app.getString(R.string.hub_resume_message), null, "(From Buddy, not the user) Android closed Buddy "
+        return send(ses, app.getString(R.string.hub_resume_message), null, "(From NN Agent, not the user) Android closed NN Agent "
                 + "in the middle of your last task, and stopped you with it. Check what is already done (the screen, the "
                 + "files, the conversation so far), then carry on from where you stopped. Don't redo steps that already "
                 + "happened, such as sending a message again.", false, false);
@@ -260,7 +260,7 @@ final class ChatHub {
         boolean hasFiles = files != null && !files.isEmpty();
         if (text.isEmpty() && !hasFiles) return null;
         String forAgent = prompt != null ? prompt : text.isEmpty() && hasFiles ? "Have a look at what I attached." : text;
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         // only the user's own message lifts a Stop: a queued rule run must not undo it
         if (svc != null && prompt == null) svc.allowControl();
         try {
@@ -314,7 +314,7 @@ final class ChatHub {
         return modelUsage.optLong("inputTokens") + modelUsage.optLong("cacheReadInputTokens");
     }
 
-    /** The end of what the agent wrote to stderr this run (buddy-run keeps it), or "": a hung agent often says why there. */
+    /** The end of what the agent wrote to stderr this run (nn-run keeps it), or "": a hung agent often says why there. */
     private String lastError(Sessions.Session ses) {
         java.io.File f = new java.io.File(Linux.root(app), "root/.nn/sessions/" + ses.id + "/last-error.log");
         try (java.io.RandomAccessFile r = new java.io.RandomAccessFile(f, "r")) {
@@ -386,7 +386,7 @@ final class ChatHub {
         changed();
     }
 
-    /** The calling chat's "Allowed without asking" apps (any thread); empty for a session outside Buddy's chats. */
+    /** The calling chat's "Allowed without asking" apps (any thread); empty for a session outside NN's chats. */
     java.util.Set<String> allowedFor(String chat) {
         if (chat == null) return java.util.Collections.emptySet();
         for (Sessions.Session s : new ArrayList<>(sessions.all)) {
@@ -400,7 +400,7 @@ final class ChatHub {
 
     /**
      * Whether the agent behind a phone tool call has Linux tools (any thread): its chat's own, or for the user's own
-     * sessions outside Buddy's chats (no chat), the Settings default.
+     * sessions outside NN's chats (no chat), the Settings default.
      */
     boolean devFor(String chat) {
         if (chat == null) return Prefs.devMode(app);
@@ -415,7 +415,7 @@ final class ChatHub {
 
     void stop(Sessions.Session ses) {
         if (!ses.running) return;
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.stopPaused();
         try {
             Helper.run(app, "stop", ses.id);
@@ -456,13 +456,13 @@ final class ChatHub {
 
     void onEvent(JSONObject ev) {
         Sessions.Session ses = sessions.find(ev.optString("buddy_session", null));
-        if (ses == null) return; // unknown chat (deleted, or started outside Buddy)
+        if (ses == null) return; // unknown chat (deleted, or started outside NN Agent)
         ses.lastEventAt = SystemClock.elapsedRealtime();
         String type = ev.optString("type");
         if (!ses.running && (("system".equals(type) && !"model".equals(ev.optString("subtype"))) || "assistant".equals(type))) startRun(ses);
         switch (type) {
             case "system":
-                if ("model".equals(ev.optString("subtype"))) { // Codex, after its turn (see buddy-run)
+                if ("model".equals(ev.optString("subtype"))) { // Codex, after its turn (see nn-run)
                     String m = ev.optString("model", "");
                     if (!m.isEmpty() && !m.equals(ses.actualModel)) {
                         ses.actualModel = m;
@@ -595,7 +595,7 @@ final class ChatHub {
                 if (warning != null) add(ses, Bubble.Kind.STEP, warning);
                 break;
             }
-            case "buddy_context": // Codex, after its turn (see buddy-run): how full the context is, and its size
+            case "buddy_context": // Codex, after its turn (see nn-run): how full the context is, and its size
                 if (ev.optLong("used") > 0) ses.ctxUsed = ev.optLong("used");
                 if (ev.optLong("window") > 0) ses.ctxWindow = ev.optLong("window");
                 sessions.save(ses);
@@ -673,7 +673,7 @@ final class ChatHub {
         if (text.isEmpty()) return null;
         if (!ses.running) return send(ses, text, null);
         // writing to the agent while paused in the browser's live view: the user is done there
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null && svc.pausedForBrowser()) svc.resume();
         synchronized (ses.notes) {
             ses.notes.add(text);
@@ -686,7 +686,7 @@ final class ChatHub {
 
     /**
      * The model to run. OpenCode's own default free model can take over 30 seconds to answer, so without
-     * connected providers Buddy uses Big Pickle, which answers in seconds.
+     * connected providers NN Agent uses Big Pickle, which answers in seconds.
      */
     /** The helper's mode for a chat's run: "1" with Linux tools, "0" without. */
     private static String devArg(Sessions.Session ses) {
@@ -970,11 +970,11 @@ final class ChatHub {
         boolean now = runningCount() > 0;
         if (wasRunning && !now) {
             lastRunEndedAt = SystemClock.elapsedRealtime();
-            BuddyService svc = BuddyService.get();
+            NnService svc = NnService.get();
             if (svc != null) svc.onRunsEnded();
         }
         wasRunning = now;
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.keepAwake().update(); // a long-task chat started, ended or changed its switch
         for (Listener l : new ArrayList<>(listeners)) l.onChatsChanged();
     }
@@ -983,37 +983,37 @@ final class ChatHub {
         if (in == null) in = new JSONObject();
         String n = name.startsWith(TOOL_PREFIX) ? name.substring(TOOL_PREFIX.length()) : name;
         switch (n) {
-            case "read_screen": return BuddyApp.str(R.string.hub_tool_read_screen);
-            case "screenshot": return BuddyApp.str(R.string.hub_tool_screenshot);
-            case "tap": return in.has("element") ? BuddyApp.str(R.string.hub_tool_tap_element, in.optInt("element"))
-                    : BuddyApp.str(R.string.hub_tool_tap_point, in.optInt("x"), in.optInt("y"));
-            case "long_press": return BuddyApp.str(R.string.hub_tool_long_press);
-            case "type_text": return BuddyApp.str(R.string.hub_tool_type, clip(in.optString("text"), 40));
+            case "read_screen": return NnApp.str(R.string.hub_tool_read_screen);
+            case "screenshot": return NnApp.str(R.string.hub_tool_screenshot);
+            case "tap": return in.has("element") ? NnApp.str(R.string.hub_tool_tap_element, in.optInt("element"))
+                    : NnApp.str(R.string.hub_tool_tap_point, in.optInt("x"), in.optInt("y"));
+            case "long_press": return NnApp.str(R.string.hub_tool_long_press);
+            case "type_text": return NnApp.str(R.string.hub_tool_type, clip(in.optString("text"), 40));
             case "scroll": {
                 String d = in.optString("direction"); // the tool's enum values get whole translated lines
                 switch (d) {
-                    case "up": return BuddyApp.str(R.string.hub_tool_scroll_up);
-                    case "down": return BuddyApp.str(R.string.hub_tool_scroll_down);
-                    case "left": return BuddyApp.str(R.string.hub_tool_scroll_left);
-                    case "right": return BuddyApp.str(R.string.hub_tool_scroll_right);
-                    default: return BuddyApp.str(R.string.hub_tool_scroll, d);
+                    case "up": return NnApp.str(R.string.hub_tool_scroll_up);
+                    case "down": return NnApp.str(R.string.hub_tool_scroll_down);
+                    case "left": return NnApp.str(R.string.hub_tool_scroll_left);
+                    case "right": return NnApp.str(R.string.hub_tool_scroll_right);
+                    default: return NnApp.str(R.string.hub_tool_scroll, d);
                 }
             }
-            case "swipe": return BuddyApp.str(R.string.hub_tool_swipe);
+            case "swipe": return NnApp.str(R.string.hub_tool_swipe);
             case "press": {
                 String b = in.optString("button"); // as for scroll
                 switch (b) {
-                    case "back": return BuddyApp.str(R.string.hub_tool_press_back);
-                    case "home": return BuddyApp.str(R.string.hub_tool_press_home);
-                    case "recents": return BuddyApp.str(R.string.hub_tool_press_recents);
-                    case "notifications": return BuddyApp.str(R.string.hub_tool_press_notifications);
-                    case "quick_settings": return BuddyApp.str(R.string.hub_tool_press_quick_settings);
-                    default: return BuddyApp.str(R.string.hub_tool_press, b);
+                    case "back": return NnApp.str(R.string.hub_tool_press_back);
+                    case "home": return NnApp.str(R.string.hub_tool_press_home);
+                    case "recents": return NnApp.str(R.string.hub_tool_press_recents);
+                    case "notifications": return NnApp.str(R.string.hub_tool_press_notifications);
+                    case "quick_settings": return NnApp.str(R.string.hub_tool_press_quick_settings);
+                    default: return NnApp.str(R.string.hub_tool_press, b);
                 }
             }
-            case "open_app": return BuddyApp.str(R.string.hub_tool_open_app, in.optString("app"));
-            case "list_apps": return BuddyApp.str(R.string.hub_tool_list_apps);
-            case "open_url": return BuddyApp.str(R.string.hub_tool_open_url, clip(in.optString("url"), 40));
+            case "open_app": return NnApp.str(R.string.hub_tool_open_app, in.optString("app"));
+            case "list_apps": return NnApp.str(R.string.hub_tool_list_apps);
+            case "open_url": return NnApp.str(R.string.hub_tool_open_url, clip(in.optString("url"), 40));
             case "wait":
             case "ToolSearch":
             case "TodoWrite":
@@ -1021,24 +1021,24 @@ final class ChatHub {
             case "confirm": {
                 // OpenCode reports a step only once it's done, so its approval step carries the answer (_answer)
                 String ans = in.optString("_answer", "");
-                if (ans.startsWith("APPROVED")) return BuddyApp.str(R.string.hub_tool_approved, clip(in.optString("summary"), 80));
+                if (ans.startsWith("APPROVED")) return NnApp.str(R.string.hub_tool_approved, clip(in.optString("summary"), 80));
                 if (ans.startsWith("CHANGES")) {
                     int a = ans.indexOf('“'), b = ans.lastIndexOf('”');
-                    return a >= 0 && b > a ? BuddyApp.str(R.string.hub_tool_change_requested_text, clip(ans.substring(a + 1, b), 80))
-                            : BuddyApp.str(R.string.hub_tool_change_requested);
+                    return a >= 0 && b > a ? NnApp.str(R.string.hub_tool_change_requested_text, clip(ans.substring(a + 1, b), 80))
+                            : NnApp.str(R.string.hub_tool_change_requested);
                 }
-                if (ans.startsWith("DENIED")) return BuddyApp.str(R.string.hub_tool_denied);
-                return BuddyApp.str(R.string.hub_tool_asking_approval);
+                if (ans.startsWith("DENIED")) return NnApp.str(R.string.hub_tool_denied);
+                return NnApp.str(R.string.hub_tool_asking_approval);
             }
             case "ask": {
                 String ans = in.optString("_answer", ""); // OpenCode, as for confirm
                 if (ans.startsWith("ANSWER")) {
                     int a = ans.indexOf('“'), b = ans.lastIndexOf('”');
-                    return a >= 0 && b > a ? BuddyApp.str(R.string.hub_tool_answered_text, clip(ans.substring(a + 1, b), 80))
-                            : BuddyApp.str(R.string.hub_tool_answered);
+                    return a >= 0 && b > a ? NnApp.str(R.string.hub_tool_answered_text, clip(ans.substring(a + 1, b), 80))
+                            : NnApp.str(R.string.hub_tool_answered);
                 }
-                if (ans.startsWith("NO ANSWER")) return BuddyApp.str(R.string.hub_tool_question_skipped);
-                return BuddyApp.str(R.string.hub_tool_asking, clip(in.optString("question"), 80));
+                if (ans.startsWith("NO ANSWER")) return NnApp.str(R.string.hub_tool_question_skipped);
+                return NnApp.str(R.string.hub_tool_asking, clip(in.optString("question"), 80));
             }
             case "point_out": {
                 JSONArray marks = in.optJSONArray("marks");
@@ -1048,52 +1048,52 @@ final class ChatHub {
                     String l = m == null ? "" : m.optString("label", "").trim();
                     if (!l.isEmpty()) labels.append(labels.length() > 0 ? ", " : "").append(l);
                 }
-                return labels.length() > 0 ? BuddyApp.str(R.string.hub_tool_point_out, clip(labels.toString(), 60))
-                        : BuddyApp.str(R.string.hub_tool_point_out_any);
+                return labels.length() > 0 ? NnApp.str(R.string.hub_tool_point_out, clip(labels.toString(), 60))
+                        : NnApp.str(R.string.hub_tool_point_out_any);
             }
-            case "update_buddy": return BuddyApp.str(in.optBoolean("install") ? R.string.hub_tool_update_download : R.string.hub_tool_update_check);
+            case "update_buddy": return NnApp.str(in.optBoolean("install") ? R.string.hub_tool_update_download : R.string.hub_tool_update_check);
             case "notify": return in.optString("text");
-            case "schedule_message": return BuddyApp.str(R.string.hub_tool_schedule_message, clip(in.optString("message"), 40));
-            case "list_scheduled": return BuddyApp.str(R.string.hub_tool_list_scheduled);
-            case "cancel_scheduled": return BuddyApp.str(R.string.hub_tool_cancel_scheduled);
-            case "reply_notification": return BuddyApp.str(R.string.hub_tool_reply_notification, clip(in.optString("text"), 40));
-            case "browser_open": return BuddyApp.str(R.string.hub_tool_browser_open, clip(in.optString("url"), 40));
-            case "browser_read": return BuddyApp.str(R.string.hub_tool_browser_read);
-            case "browser_click": return BuddyApp.str(R.string.hub_tool_browser_click, in.optInt("ref"));
-            case "browser_type": return BuddyApp.str(R.string.hub_tool_browser_type, clip(in.optString("text"), 40));
-            case "browser_scroll": return BuddyApp.str(R.string.hub_tool_browser_scroll);
-            case "browser_screenshot": return BuddyApp.str(R.string.hub_tool_browser_screenshot);
-            case "browser_back": return BuddyApp.str(R.string.hub_tool_browser_back);
-            case "browser_tabs": return BuddyApp.str(R.string.hub_tool_browser_tabs);
-            case "clipboard_read": return BuddyApp.str(R.string.hub_tool_clipboard_read);
-            case "clipboard_write": return BuddyApp.str(R.string.hub_tool_clipboard_write);
-            case "set_alarm": return BuddyApp.str(R.string.hub_tool_set_alarm, in.optString("time"));
-            case "set_timer": return BuddyApp.str(R.string.hub_tool_set_timer);
-            case "share": return BuddyApp.str(R.string.hub_tool_share);
-            case "save_to_downloads": return BuddyApp.str(R.string.hub_tool_save_downloads, clip(in.optString("path").replaceAll(".*/", ""), 40));
-            case "device_status": return BuddyApp.str(R.string.hub_tool_device_status);
-            case "take_photo": return BuddyApp.str(R.string.hub_tool_take_photo);
-            case "location": return BuddyApp.str(R.string.hub_tool_location);
-            case "notifications": return BuddyApp.str(R.string.hub_tool_notifications);
-            case "media": return BuddyApp.str(R.string.hub_tool_media);
-            case "calendar_events": return BuddyApp.str(R.string.hub_tool_calendar_events);
-            case "add_calendar_event": return BuddyApp.str(R.string.hub_tool_add_event, clip(in.optString("title"), 40));
-            case "wait_for": return BuddyApp.str(R.string.hub_tool_wait_for);
+            case "schedule_message": return NnApp.str(R.string.hub_tool_schedule_message, clip(in.optString("message"), 40));
+            case "list_scheduled": return NnApp.str(R.string.hub_tool_list_scheduled);
+            case "cancel_scheduled": return NnApp.str(R.string.hub_tool_cancel_scheduled);
+            case "reply_notification": return NnApp.str(R.string.hub_tool_reply_notification, clip(in.optString("text"), 40));
+            case "browser_open": return NnApp.str(R.string.hub_tool_browser_open, clip(in.optString("url"), 40));
+            case "browser_read": return NnApp.str(R.string.hub_tool_browser_read);
+            case "browser_click": return NnApp.str(R.string.hub_tool_browser_click, in.optInt("ref"));
+            case "browser_type": return NnApp.str(R.string.hub_tool_browser_type, clip(in.optString("text"), 40));
+            case "browser_scroll": return NnApp.str(R.string.hub_tool_browser_scroll);
+            case "browser_screenshot": return NnApp.str(R.string.hub_tool_browser_screenshot);
+            case "browser_back": return NnApp.str(R.string.hub_tool_browser_back);
+            case "browser_tabs": return NnApp.str(R.string.hub_tool_browser_tabs);
+            case "clipboard_read": return NnApp.str(R.string.hub_tool_clipboard_read);
+            case "clipboard_write": return NnApp.str(R.string.hub_tool_clipboard_write);
+            case "set_alarm": return NnApp.str(R.string.hub_tool_set_alarm, in.optString("time"));
+            case "set_timer": return NnApp.str(R.string.hub_tool_set_timer);
+            case "share": return NnApp.str(R.string.hub_tool_share);
+            case "save_to_downloads": return NnApp.str(R.string.hub_tool_save_downloads, clip(in.optString("path").replaceAll(".*/", ""), 40));
+            case "device_status": return NnApp.str(R.string.hub_tool_device_status);
+            case "take_photo": return NnApp.str(R.string.hub_tool_take_photo);
+            case "location": return NnApp.str(R.string.hub_tool_location);
+            case "notifications": return NnApp.str(R.string.hub_tool_notifications);
+            case "media": return NnApp.str(R.string.hub_tool_media);
+            case "calendar_events": return NnApp.str(R.string.hub_tool_calendar_events);
+            case "add_calendar_event": return NnApp.str(R.string.hub_tool_add_event, clip(in.optString("title"), 40));
+            case "wait_for": return NnApp.str(R.string.hub_tool_wait_for);
             case "do_steps": {
                 JSONArray st = in.optJSONArray("steps");
-                return BuddyApp.str(R.string.hub_tool_do_steps, st == null ? 0 : st.length());
+                return NnApp.str(R.string.hub_tool_do_steps, st == null ? 0 : st.length());
             }
-            case "collect": return BuddyApp.str(R.string.hub_tool_collect);
-            case "find": return BuddyApp.str(R.string.hub_tool_find, clip(in.optString("text"), 40));
-            case "WebSearch": return BuddyApp.str(R.string.hub_tool_web_search, clip(in.optString("query"), 40));
-            case "WebFetch": return BuddyApp.str(R.string.hub_tool_web_fetch, clip(in.optString("url"), 40));
-            case "Bash": return in.has("command") ? BuddyApp.str(R.string.hub_tool_command, clip(in.optString("command"), 40))
-                    : BuddyApp.str(R.string.hub_tool_command_any);
+            case "collect": return NnApp.str(R.string.hub_tool_collect);
+            case "find": return NnApp.str(R.string.hub_tool_find, clip(in.optString("text"), 40));
+            case "WebSearch": return NnApp.str(R.string.hub_tool_web_search, clip(in.optString("query"), 40));
+            case "WebFetch": return NnApp.str(R.string.hub_tool_web_fetch, clip(in.optString("url"), 40));
+            case "Bash": return in.has("command") ? NnApp.str(R.string.hub_tool_command, clip(in.optString("command"), 40))
+                    : NnApp.str(R.string.hub_tool_command_any);
             case "Edit":
-            case "Write": return in.has("file_path") ? BuddyApp.str(R.string.hub_tool_edit, clip(in.optString("file_path").replaceAll(".*/", ""), 40))
-                    : BuddyApp.str(R.string.hub_tool_edit_any);
-            case "Read": return BuddyApp.str(R.string.hub_tool_read_file, clip(in.optString("file_path").replaceAll(".*/", ""), 40));
-            default: return BuddyApp.str(R.string.hub_tool_other, n);
+            case "Write": return in.has("file_path") ? NnApp.str(R.string.hub_tool_edit, clip(in.optString("file_path").replaceAll(".*/", ""), 40))
+                    : NnApp.str(R.string.hub_tool_edit_any);
+            case "Read": return NnApp.str(R.string.hub_tool_read_file, clip(in.optString("file_path").replaceAll(".*/", ""), 40));
+            default: return NnApp.str(R.string.hub_tool_other, n);
         }
     }
 

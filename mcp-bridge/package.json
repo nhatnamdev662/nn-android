@@ -1,11 +1,11 @@
 {
-  "name": "buddy-phone-bridge",
+  "name": "nn-phone-bridge",
   "version": "1.2.0",
-  "description": "Buddy's Android phone tools as a stdio MCP server (a bridge to the free Buddy app on your phone)",
-  "mcpName": "io.github.nhatnamdev662/buddy-phone-bridge",
+  "description": "NN Agent's Android phone tools as a stdio MCP server (a bridge to the free NN Agent app on your phone)",
+  "mcpName": "io.github.nhatnamdev662/nn-phone-bridge",
   "type": "module",
   "bin": {
-    "buddy-phone-bridge": "bridge.mjs"
+    "nn-phone-bridge": "bridge.mjs"
   },
   "files": [
     "bridge.mjs",
@@ -29,6 +29,6 @@
     "accessibility",
     "claude-code",
     "codex",
-    "buddy"
+    "nn"
   ]
 }

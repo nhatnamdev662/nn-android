@@ -19,8 +19,8 @@ import android.widget.Toast;
 import static app.nn.agent.Ui.*;
 
 /**
- * Install an agent (Claude Code, Codex, OpenCode, Antigravity or Grok) in Buddy's built-in Linux and sign in: one
- * button, approve in the browser, done. OpenCode needs no sign-in; its providers are connected in Buddy's terminal.
+ * Install an agent (Claude Code, Codex, OpenCode, Antigravity or Grok) in NN's built-in Linux and sign in: one
+ * button, approve in the browser, done. OpenCode needs no sign-in; its providers are connected in NN's terminal.
  */
 public class SignInActivity extends Screen implements Account.Listener {
     private LinearLayout body, bottom;
@@ -315,7 +315,7 @@ public class SignInActivity extends Screen implements Account.Listener {
         String u = acc.url;
         if (u == null || u.equals(openedUrl)) return;
         openedUrl = u;
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.watchForLoginCode();
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(u)));
@@ -370,7 +370,7 @@ public class SignInActivity extends Screen implements Account.Listener {
 
     /**
      * Claude Code or Codex with an API key (and, for a compatible service, its base URL) instead of the plan. Billed to
-     * the key's account; the key stays in Buddy's private storage.
+     * the key's account; the key stays in NN's private storage.
      */
     private void apiKeys() {
         startActivity(new Intent(this, ApiKeysActivity.class));

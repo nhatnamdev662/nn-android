@@ -71,7 +71,7 @@ final class Models {
     static java.util.List<String[]> options(String backend, boolean services) {
         java.util.List<String[]> out = new java.util.ArrayList<>();
         String[][] own = forBackend(backend);
-        boolean plan = !("claude".equals(backend) || "codex".equals(backend)) || SetupState.planSignedIn(BuddyApp.context(), backend);
+        boolean plan = !("claude".equals(backend) || "codex".equals(backend)) || SetupState.planSignedIn(NnApp.context(), backend);
         for (String[] m : own) if (m[0].isEmpty() || plan) out.add(m);
         if (!services) return out;
         for (Providers.P p : Providers.forAgent(backend)) {
@@ -88,7 +88,7 @@ final class Models {
 
     /** What a chat on Default uses with this agent: "" (its plan's default) or "@service/model". */
     static String agentDefault(String backend) {
-        String d = Prefs.agentDefault(BuddyApp.context(), backend);
+        String d = Prefs.agentDefault(NnApp.context(), backend);
         Providers.P p = Providers.of(d);
         if (p == null || !p.fits(backend)) return "";
         String m = Providers.model(d);
@@ -112,7 +112,7 @@ final class Models {
         if (id.isEmpty()) return defaultHint;
         long w = window(id);
         String shown = Providers.of(id) != null ? Providers.model(id) : id;
-        return w > 0 ? shown + " · " + BuddyApp.str(R.string.models_context, tokens(w)) : shown;
+        return w > 0 ? shown + " · " + NnApp.str(R.string.models_context, tokens(w)) : shown;
     }
 
     /** 1048576 → "1M", 200000 → "200K", 8104 → "8.1K". */
@@ -136,7 +136,7 @@ final class Models {
     /** A copy of a list with its "" row (the agent's default) labeled in the user's language; the lists keep "Default". */
     private static String[][] withDefault(String[][] list) {
         String[][] m = list.clone();
-        for (int i = 0; i < m.length; i++) if (m[i][0].isEmpty()) m[i] = new String[]{"", BuddyApp.str(R.string.models_default)};
+        for (int i = 0; i < m.length; i++) if (m[i][0].isEmpty()) m[i] = new String[]{"", NnApp.str(R.string.models_default)};
         return m;
     }
 
@@ -181,7 +181,7 @@ final class Models {
     }
 
     /**
-     * Effort levels the chat's agent accepts ([value, label]; "" is the agent's default), or null if Buddy can't set it.
+     * Effort levels the chat's agent accepts ([value, label]; "" is the agent's default), or null if NN Agent can't set it.
      * A service model that lists its levels (DeepSeek: low, high, max) keeps only those, besides Auto.
      */
     static String[][] efforts(Sessions.Session s) {
@@ -199,13 +199,13 @@ final class Models {
     }
 
     private static String[][] agentEfforts(String backend) {
-        if ("claude".equals(backend)) return new String[][]{{"", BuddyApp.str(R.string.models_effort_auto)},
-                {"low", BuddyApp.str(R.string.models_effort_low)}, {"medium", BuddyApp.str(R.string.models_effort_medium)},
-                {"high", BuddyApp.str(R.string.models_effort_high)}, {"xhigh", BuddyApp.str(R.string.models_effort_xhigh)},
-                {"max", BuddyApp.str(R.string.models_effort_max)}};
-        if ("codex".equals(backend)) return new String[][]{{"", BuddyApp.str(R.string.models_effort_auto)},
-                {"low", BuddyApp.str(R.string.models_effort_low)}, {"medium", BuddyApp.str(R.string.models_effort_medium)},
-                {"high", BuddyApp.str(R.string.models_effort_high)}};
+        if ("claude".equals(backend)) return new String[][]{{"", NnApp.str(R.string.models_effort_auto)},
+                {"low", NnApp.str(R.string.models_effort_low)}, {"medium", NnApp.str(R.string.models_effort_medium)},
+                {"high", NnApp.str(R.string.models_effort_high)}, {"xhigh", NnApp.str(R.string.models_effort_xhigh)},
+                {"max", NnApp.str(R.string.models_effort_max)}};
+        if ("codex".equals(backend)) return new String[][]{{"", NnApp.str(R.string.models_effort_auto)},
+                {"low", NnApp.str(R.string.models_effort_low)}, {"medium", NnApp.str(R.string.models_effort_medium)},
+                {"high", NnApp.str(R.string.models_effort_high)}};
         // OpenCode: effort ("variants") depends on the model; Antigravity's model ids include it; Grok's depends on the
         // model too (it lists no levels)
         return null;
@@ -215,8 +215,8 @@ final class Models {
     static String summary(Sessions.Session s) {
         int ctx = contextPercent(s); // only once it matters: past half full
         return s.brainName() + " · " + shownModel(s)
-                + (s.effort.isEmpty() ? "" : " · " + BuddyApp.str(R.string.models_chip_effort, s.effort))
-                + (ctx >= 50 ? " · " + BuddyApp.str(R.string.models_chip_context, ctx) : "");
+                + (s.effort.isEmpty() ? "" : " · " + NnApp.str(R.string.models_chip_effort, s.effort))
+                + (ctx >= 50 ? " · " + NnApp.str(R.string.models_chip_context, ctx) : "");
     }
 
     /** The API key service the chat's model comes from (its name), or null for the agent's own. */
@@ -229,10 +229,10 @@ final class Models {
     static String shownModel(Sessions.Session s) {
         String eff = effective(s);
         Providers.P p = Providers.of(eff);
-        if (p != null) return BuddyApp.str(R.string.models_via, serviceModelName(p, Providers.model(eff)), p.name);
+        if (p != null) return NnApp.str(R.string.models_via, serviceModelName(p, Providers.model(eff)), p.name);
         if (!s.model.isEmpty()) return label(s.backend, s.model);
-        if (!s.actualModel.isEmpty()) return BuddyApp.str(R.string.models_name_default, nameOf(s.backend, s.actualModel));
-        return BuddyApp.str(R.string.models_default_model);
+        if (!s.actualModel.isEmpty()) return NnApp.str(R.string.models_name_default, nameOf(s.backend, s.actualModel));
+        return NnApp.str(R.string.models_default_model);
     }
 
     private static String serviceModelName(Providers.P p, String model) {
@@ -244,18 +244,18 @@ final class Models {
     static String defaultHint(Sessions.Session s) {
         String d = agentDefault(s.backend);
         Providers.P p = Providers.of(d);
-        if (p != null) return BuddyApp.str(R.string.models_via, Providers.model(d), p.name);
-        if (!s.actualModel.isEmpty()) return BuddyApp.str(R.string.models_default_now, nameOf(s.backend, s.actualModel));
+        if (p != null) return NnApp.str(R.string.models_via, Providers.model(d), p.name);
+        if (!s.actualModel.isEmpty()) return NnApp.str(R.string.models_default_now, nameOf(s.backend, s.actualModel));
         return defaultHint(s.backend);
     }
 
     /** What the agent's own default is, before it has said. */
     static String defaultHint(String backend) {
-        if ("claude".equals(backend)) return BuddyApp.str(R.string.models_default_claude);
-        if ("codex".equals(backend)) return BuddyApp.str(R.string.models_default_codex);
-        if ("agy".equals(backend)) return BuddyApp.str(R.string.models_default_agy);
-        if ("grok".equals(backend)) return BuddyApp.str(R.string.models_default_grok);
-        return BuddyApp.str(R.string.models_default_opencode);
+        if ("claude".equals(backend)) return NnApp.str(R.string.models_default_claude);
+        if ("codex".equals(backend)) return NnApp.str(R.string.models_default_codex);
+        if ("agy".equals(backend)) return NnApp.str(R.string.models_default_agy);
+        if ("grok".equals(backend)) return NnApp.str(R.string.models_default_grok);
+        return NnApp.str(R.string.models_default_opencode);
     }
 
     /** A model id the agent reported, by its name in the model list if it's there. */
@@ -273,9 +273,9 @@ final class Models {
     }
 
     static String label(String backend, String model) {
-        if (model == null || model.isEmpty()) return BuddyApp.str(R.string.models_default);
+        if (model == null || model.isEmpty()) return NnApp.str(R.string.models_default);
         Providers.P p = Providers.of(model);
-        if (p != null) return BuddyApp.str(R.string.models_via, serviceModelName(p, Providers.model(model)), p.name);
+        if (p != null) return NnApp.str(R.string.models_via, serviceModelName(p, Providers.model(model)), p.name);
         for (String[] m : forBackend(backend)) if (m[0].equals(model)) return m[1];
         return model;
     }

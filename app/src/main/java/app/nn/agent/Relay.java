@@ -12,10 +12,10 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * An agent's requests to another service's API with an API key saved in Buddy (Settings → API keys): the agent is
+ * An agent's requests to another service's API with an API key saved in NN Agent (Settings → API keys): the agent is
  * pointed at http://127.0.0.1:8765/llm/&lt;service&gt;/a/… (its Anthropic-style address) or …/o/… (its OpenAI-style one),
- * with Buddy's per-install token, and this sends each request on with the real key, streaming the reply back. The key
- * stays in Buddy's encrypted storage (Secrets) and never enters Buddy's Linux, so no agent, command or page it reads
+ * with NN's per-install token, and this sends each request on with the real key, streaming the reply back. The key
+ * stays in NN's encrypted storage (Secrets) and never enters NN's Linux, so no agent, command or page it reads
  * can see it or send it anywhere.
  */
 final class Relay {
@@ -24,7 +24,7 @@ final class Relay {
     private Relay() {
     }
 
-    /** Where an agent in Buddy's Linux sends its requests for this service: its Anthropic-style or OpenAI-style API. */
+    /** Where an agent in NN's Linux sends its requests for this service: its Anthropic-style or OpenAI-style API. */
     static String url(String service, boolean anthropic) {
         return "http://127.0.0.1:" + McpServer.PORT + PATH + service + (anthropic ? "/a" : "/o");
     }
@@ -74,7 +74,7 @@ final class Relay {
                 con.disconnect();
             }
         }
-        throw new Exception(error != null ? error : BuddyApp.str(R.string.signin_api_models_none));
+        throw new Exception(error != null ? error : NnApp.str(R.string.signin_api_models_none));
     }
 
     /** What a test request to a service's API found: it answered, it has no such API, or no clear answer. */
@@ -207,7 +207,7 @@ final class Relay {
         return out;
     }
 
-    /** rawPath: /llm/deepseek/a/v1/messages?beta=true. Already checked to carry Buddy's token. */
+    /** rawPath: /llm/deepseek/a/v1/messages?beta=true. Already checked to carry NN's token. */
     static void handle(Context c, String method, String rawPath, Map<String, String> headers, byte[] body,
                        OutputStream out) throws Exception {
         String[] parts = rawPath.substring(PATH.length()).split("/", 3);
@@ -216,7 +216,7 @@ final class Relay {
         String base = p == null ? "" : anthropic ? p.anthropic : "o".equals(parts[1]) ? p.openai : "";
         String key = p == null ? null : Secrets.get(c, Providers.secretName(p.id));
         if (key == null || base.isEmpty()) {
-            error(out, 401, "No API key saved in Buddy for this service. Add one in Buddy's Settings, under API keys.");
+            error(out, 401, "No API key saved in NN Agent for this service. Add one in NN's Settings, under API keys.");
             return;
         }
         String rest = parts.length == 3 ? "/" + parts[2] : "";

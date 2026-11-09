@@ -1,0 +1,2 @@
+NN Agent 1.0.0: Initial standalone release.
+Independent autonomous AI agent framework for Android with full device control, local MCP server, and Wireless ADB support.

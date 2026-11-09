@@ -34,12 +34,12 @@ import java.util.concurrent.Executors;
  * Live voice (any agent's chat, with Codex signed in; both builds): a two-way ChatGPT voice call through Codex's app
  * server, like {@link CodexDictation}'s, where the user talks to the chat's agent (Claude, Codex, …) out loud and hears its answers. The voice is only
  * the voice: each thing the user says goes to the chat as if typed (a new task, or a note for the one under way), so
- * the chat's agent answers and does the work with Buddy's phone tools, its approval cards and Guard exactly as always;
+ * the chat's agent answers and does the work with NN's phone tools, its approval cards and Guard exactly as always;
  * what the agent says goes back to the call for the voice to say. (The voice's own hand-off tool is unreliable for short
- * commands, and it then claims things it never did, so Buddy doesn't depend on it: a hand-off is taken like the rest.)
- * One call at a time; it ends with End (the chat's live bar or the notification), when the screen goes off, when Buddy
+ * commands, and it then claims things it never did, so NN Agent doesn't depend on it: a hand-off is taken like the rest.)
+ * One call at a time; it ends with End (the chat's live bar or the notification), when the screen goes off, when NN Agent
  * is paused or stopped, or after a while with nothing said. Every call logs what happens to ~/.nn/live.log in
- * Buddy's Linux.
+ * NN's Linux.
  */
 final class CodexLive {
     static final String ACTION_END = "app.nn.agent.END_LIVE";
@@ -50,8 +50,8 @@ final class CodexLive {
     private static final long CONNECT_MS = 30_000, IDLE_MS = 5 * 60_000;
     /** No new words for this long after the user spoke: they're done, even if the call hasn't said so yet. */
     private static final long PAUSE_MS = 2_500;
-    private static final String PROMPT = "You are only the voice of Buddy, an assistant that operates the user's "
-            + "Android phone. You don't decide or do anything yourself: everything the user says goes to Buddy's phone "
+    private static final String PROMPT = "You are only the voice of NN Agent, an assistant that operates the user's "
+            + "Android phone. You don't decide or do anything yourself: everything the user says goes to NN's phone "
             + "agent automatically, and the agent does the work and gives the answers. So when the user asks for "
             + "something, don't answer it and never say it's done; call remain_silent, or say only a very short "
             + "acknowledgement such as \"On it\" or \"Okay\". Messages starting with " + AGENT.trim() + " are the agent "
@@ -131,7 +131,7 @@ final class CodexLive {
         return t != null && t.equals(thread);
     }
 
-    // ------------------------------------------------------------------ the log (~/.nn/live.log in Buddy's Linux)
+    // ------------------------------------------------------------------ the log (~/.nn/live.log in NN's Linux)
 
     private static final ExecutorService logger = Executors.newSingleThreadExecutor();
     private static volatile long logStart;
@@ -160,7 +160,7 @@ final class CodexLive {
                 File f = logFile();
                 f.getParentFile().mkdirs();
                 try (FileOutputStream o = new FileOutputStream(f, false)) {
-                    o.write(("live voice call, " + new java.util.Date() + ", Buddy " + BuildInfo.VERSION + "\n")
+                    o.write(("live voice call, " + new java.util.Date() + ", NN Agent " + BuildInfo.VERSION + "\n")
                             .getBytes(StandardCharsets.UTF_8));
                 }
             } catch (Exception ignored) {
@@ -551,13 +551,13 @@ final class CodexLive {
 
     /**
      * The user said something while this chat's approval or question waits (main thread): a clear answer answers it,
-     * as a tap on the card would. Buddy decides from the transcript of what the user said, never from the voice. A
+     * as a tap on the card would. NN Agent decides from the transcript of what the user said, never from the voice. A
      * question takes a choice ("the second one", or its words) or, with more words, the user's own answer; an approval
      * takes only a short clear yes (three words at most) or no, and a longer sentence asks for that change. Returns whether the words were
      * taken (or the user is asked again), so they don't go to the chat as well.
      */
     private static boolean answerCard(Sessions.Session s, String words) {
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         Bubble b = svc == null ? null : svc.bubble();
         if (b == null || b.pendingChat() != s) return false;
         String w = " " + words.toLowerCase(java.util.Locale.ROOT).replaceAll("[\\p{Punct}¿¡。、！？，]+", " ")
@@ -640,15 +640,15 @@ final class CodexLive {
                 new Thread(() -> startCall(mine, sdp), "codex-live-call").start();
             }
 
-            /** The page couldn't open the microphone itself: Buddy records instead (see pull). */
+            /** The page couldn't open the microphone itself: NN Agent records instead (see pull). */
             @JavascriptInterface
             public boolean ownMic() {
                 boolean ok = web == mine && startCapture();
-                CodexLive.log("Buddy's own recording (fallback): " + (ok ? "on" : "failed"));
+                CodexLive.log("NN's own recording (fallback): " + (ok ? "on" : "failed"));
                 return ok;
             }
 
-            /** The next bit of Buddy's recording (16-bit mono, 16 kHz) as base64; "" when there's none yet. */
+            /** The next bit of NN's recording (16-bit mono, 16 kHz) as base64; "" when there's none yet. */
             @JavascriptInterface
             public String pull(int bytes) {
                 return web == mine ? android.util.Base64.encodeToString(pullCapture(bytes), android.util.Base64.NO_WRAP) : "";
@@ -699,7 +699,7 @@ final class CodexLive {
                             "the connection failed".equals(why) ? app.getString(R.string.dictation_connection_failed) : why));
                 });
             }
-        }, "Buddy");
+        }, "NN Agent");
         web.loadDataWithBaseURL("https://buddy.local/", PAGE, "text/html", "utf-8", null);
     }
 
@@ -733,7 +733,7 @@ final class CodexLive {
         }
     }
 
-    // ------------------------------------------------------------------ Buddy's own recording (fallback)
+    // ------------------------------------------------------------------ NN's own recording (fallback)
 
     private static volatile boolean recording;
     private static final ArrayDeque<byte[]> chunks = new ArrayDeque<>();
@@ -807,19 +807,19 @@ final class CodexLive {
 
     /**
      * The phone side of the call: the microphone with the WebView's own echo cancellation (it knows what it plays,
-     * so the user can talk over the voice), or Buddy's recording when the WebView can't open it; the voice plays aloud.
-     * It logs its states and the data channel's events through Buddy.log.
+     * so the user can talk over the voice), or NN's recording when the WebView can't open it; the voice plays aloud.
+     * It logs its states and the data channel's events through NN Agent.log.
      */
     private static final String PAGE = "<!doctype html><html><body><audio id=out autoplay></audio><script>\n"
             + "let pc, ctx, mic, timer, stats;\n"
-            + "const L = s => { try { Buddy.log(s); } catch (e) {} };\n"
+            + "const L = s => { try { NN Agent.log(s); } catch (e) {} };\n"
             + "function meter(stream) {\n"
             + "  const an = ctx.createAnalyser(); an.fftSize = 1024; ctx.createMediaStreamSource(stream).connect(an);\n"
             + "  const buf = new Float32Array(an.fftSize);\n"
             + "  return () => { an.getFloatTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v)); return m; };\n"
             + "}\n"
-            + "async function ownTrack() {\n" // Buddy's recording played into the call, resampled to the page's rate
-            + "  if (!Buddy.ownMic()) throw new Error('microphone');\n"
+            + "async function ownTrack() {\n" // NN's recording played into the call, resampled to the page's rate
+            + "  if (!NN Agent.ownMic()) throw new Error('microphone');\n"
             + "  const ratio = 16000 / ctx.sampleRate;\n"
             + "  L('fallback: page rate ' + ctx.sampleRate);\n"
             + "  const proc = ctx.createScriptProcessor(1024, 1, 1), dest = ctx.createMediaStreamDestination();\n"
@@ -827,7 +827,7 @@ final class CodexLive {
             + "  let fifo = new Float32Array(0), pos = 0;\n"
             + "  proc.onaudioprocess = e => {\n"
             + "    const out = e.outputBuffer.getChannelData(0); out.fill(0);\n"
-            + "    const bin = atob(Buddy.pull(6400));\n"
+            + "    const bin = atob(NN Agent.pull(6400));\n"
             + "    if (bin.length > 1) {\n"
             + "      const add = new Float32Array(bin.length >> 1);\n"
             + "      for (let i = 0; i < add.length; i++) { let v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v > 32767) v -= 65536; add[i] = v / 32768; }\n"
@@ -858,7 +858,7 @@ final class CodexLive {
             + "    pc = new RTCPeerConnection();\n"
             + "    pc.addTrack(stream.getAudioTracks()[0], stream);\n"
             + "    const dc = pc.createDataChannel('oai-events');\n"
-            + "    dc.onopen = () => { L('data channel open'); Buddy.connected(); }; dc.onclose = () => L('data channel closed');\n"
+            + "    dc.onopen = () => { L('data channel open'); NN Agent.connected(); }; dc.onclose = () => L('data channel closed');\n"
             + "    dc.onmessage = m => { try { const j = JSON.parse(m.data), ty = j.type || '?';\n"
             + "      if (/delta|transcript\\.added|audio/.test(ty) && !/error/.test(ty)) return;\n"
             + "      let more = '';\n"
@@ -877,7 +877,7 @@ final class CodexLive {
             + "      said = meter(s);\n"
             + "    };\n"
             + "    timer = setInterval(() => { const h = heard(), v = said(), voice = v > 0.02;\n"
-            + "      Buddy.level(Math.min(1, Math.max(h, v) * 3), voice); }, 70);\n"
+            + "      NN Agent.level(Math.min(1, Math.max(h, v) * 3), voice); }, 70);\n"
             + "    let lastIn = 0, lastOut = 0;\n"
             + "    stats = setInterval(async () => { if (!pc) return; let a = '', b = '';\n"
             + "      (await pc.getStats()).forEach(r => { if (r.type === 'outbound-rtp' && r.kind === 'audio') a = 'sent ' + (r.bytesSent - lastOut) + ' B', lastOut = r.bytesSent;\n"
@@ -885,18 +885,18 @@ final class CodexLive {
             + "      L('rtp 10 s: ' + a + '; ' + b + '; mic peak ' + heard().toFixed(3)); }, 10000);\n"
             + "    pc.oniceconnectionstatechange = () => { L('ice ' + pc.iceConnectionState);\n"
             // some WebViews never report connectionState 'connected': the network connection or the data channel says it too
-            + "      if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') Buddy.connected(); };\n"
+            + "      if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') NN Agent.connected(); };\n"
             + "    pc.onconnectionstatechange = () => {\n"
             + "      L('connection ' + pc.connectionState);\n"
-            + "      if (pc.connectionState === 'connected') Buddy.connected();\n"
-            + "      else if (pc.connectionState === 'failed') Buddy.failed('the connection failed');\n"
+            + "      if (pc.connectionState === 'connected') NN Agent.connected();\n"
+            + "      else if (pc.connectionState === 'failed') NN Agent.failed('the connection failed');\n"
             + "    };\n"
             + "    await pc.setLocalDescription(await pc.createOffer());\n"
             + "    await new Promise(r => { if (pc.iceGatheringState === 'complete') r(); else { pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; setTimeout(r, 1500); } });\n"
-            + "    Buddy.offer(pc.localDescription.sdp);\n"
-            + "  } catch (e) { Buddy.failed(String(e && e.message || e)); }\n"
+            + "    NN Agent.offer(pc.localDescription.sdp);\n"
+            + "  } catch (e) { NN Agent.failed(String(e && e.message || e)); }\n"
             + "}\n"
-            + "function answer(sdp) { L('answer received'); pc.setRemoteDescription({type: 'answer', sdp}).catch(e => Buddy.failed(String(e.message || e))); }\n"
+            + "function answer(sdp) { L('answer received'); pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NN Agent.failed(String(e.message || e))); }\n"
             + "function hangUp() {\n"
             + "  L('hang up');\n"
             + "  clearInterval(timer); clearInterval(stats);\n"

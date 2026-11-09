@@ -33,7 +33,7 @@ import java.net.URL;
 import static app.nn.agent.Ui.*;
 
 /**
- * Buddy's own updates, only ever from its official GitHub release (Android also refuses an APK that isn't signed
+ * NN's own updates, only ever from its official GitHub release (Android also refuses an APK that isn't signed
  * like the installed one). Used by the update_buddy tool, the daily check behind the "update available"
  * notification (Settings → Update notices), and the sheet that notification opens.
  */
@@ -70,7 +70,7 @@ public final class Updates extends BroadcastReceiver {
         for (int i = 0; assets != null && i < assets.length(); i++) {
             JSONObject a = assets.getJSONObject(i);
             String url = a.optString("browser_download_url");
-            if (("buddy.apk".equals(a.optString("name")) || "NN_AGENT.apk".equals(a.optString("name"))) && url.startsWith(REPO + "/releases/download/")) apk = url;
+            if (("NN_AGENT.apk".equals(a.optString("name")) || "NN_AGENT.apk".equals(a.optString("name"))) && url.startsWith(REPO + "/releases/download/")) apk = url;
         }
         String notes = rel.optString("body").trim();
         if (notes.length() > 1200) notes = notes.substring(0, 1200) + "…";
@@ -81,7 +81,7 @@ public final class Updates extends BroadcastReceiver {
     static final String OPENED = "opened", NEEDS_PERMISSION = "permission";
 
     /**
-     * Downloads the release's buddy.apk, checks it's a newer Buddy, and opens Android's installer (network: off the
+     * Downloads the release's NN_AGENT.apk, checks it's a newer NN Agent, and opens Android's installer (network: off the
      * main thread). Returns OPENED, NEEDS_PERMISSION, or what went wrong (in English, for the agent).
      */
     static String install(Context c, Release r) {
@@ -185,7 +185,7 @@ public final class Updates extends BroadcastReceiver {
 
     // ------------------------------------------------------------ the sheet
 
-    /** "Buddy X is available": what's new, and Update. Checks GitHub first; says so if Buddy is up to date. */
+    /** "NN Agent X is available": what's new, and Update. Checks GitHub first; says so if NN Agent is up to date. */
     static void showSheet(Activity a) {
         Handler main = new Handler(Looper.getMainLooper());
         Toast checking = Toast.makeText(a, R.string.update_checking, Toast.LENGTH_SHORT);

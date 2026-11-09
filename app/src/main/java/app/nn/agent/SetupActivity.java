@@ -186,7 +186,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
     /** The bubble, and these settings, show the face just picked. */
     private void faceChanged() {
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.applyFace();
         if (!isFinishing() && !isDestroyed()) render();
     }
@@ -329,7 +329,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         }), topGap(8));
         TextView sn = text(this, getString(R.string.setup_surface_note), 13, MUTED);
         ap.addView(sn, topGap(8));
-        // Buddy's look: the drawn face, or a picture the user picks (issue #10)
+        // NN's look: the drawn face, or a picture the user picks (issue #10)
         boolean own = Face.picture(this) != null;
         ap.addView(fieldLabel(getString(R.string.setup_face), null), topGap(18));
         LinearLayout fr = row(this);
@@ -610,7 +610,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 rcc.addView(pairBtn, pbp);
             }
         }
-        // SSH into Buddy's Linux from Termux (SshServer)
+        // SSH into NN's Linux from Termux (SshServer)
         rcc.addView(divider(), lineParams());
         rcc.addView(switchRow(this, getString(R.string.setup_ssh), getString(R.string.setup_ssh_info),
                 Prefs.sshServer(this), on -> {
@@ -804,7 +804,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 Prefs.bubbleEnabled(this), on -> {
             Prefs.setBubbleEnabled(this, on);
             if (on) HiddenNotice.cancel(this);
-            BuddyService svc = BuddyService.get();
+            NnService svc = NnService.get();
             if (svc != null) svc.applyBubbleSetting();
         }), full());
         ex.addView(divider(), lineParams());
@@ -914,8 +914,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         })), full());
         ex.addView(divider(), lineParams());
         ex.addView(protect(switchRow(this, getString(R.string.setup_agents_tap), getString(R.string.setup_agents_tap_info),
-                Prefs.agentsTapBuddy(this), on -> {
-            Prefs.setAgentsTapBuddy(this, on);
+                Prefs.agentsTapNN Agent(this), on -> {
+            Prefs.setAgentsTapNN Agent(this, on);
             render();
         })), full());
         if (dev) {
@@ -1216,7 +1216,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         return p;
     }
 
-    /** Chats with messages but no conversation folder in Buddy's Linux: they ran in Termux. */
+    /** Chats with messages but no conversation folder in NN's Linux: they ran in Termux. */
     /** A fresh pairing code for the Codex session, to enter in ChatGPT on a phone or a computer. */
     /** The background browser (Browser): the switch, its state, the user's own tab and the sites it's signed in to. */
     private void browserSection() {

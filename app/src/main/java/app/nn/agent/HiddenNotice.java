@@ -8,7 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-/** The "Buddy is hidden" notification shown after the bubble is dragged away, and its actions. */
+/** The "NN Agent is hidden" notification shown after the bubble is dragged away, and its actions. */
 public final class HiddenNotice extends BroadcastReceiver {
     private static final String CHANNEL = "bubble_hidden";
     private static final int ID = 1;
@@ -47,7 +47,7 @@ public final class HiddenNotice extends BroadcastReceiver {
     @Override
     public void onReceive(Context c, Intent intent) {
         if (ControlIndicator.ACTION_STOP.equals(intent.getAction())) {
-            BuddyService s = BuddyService.get();
+            NnService s = NnService.get();
             if (s != null) s.takeBackControl();
             return;
         }
@@ -56,7 +56,7 @@ public final class HiddenNotice extends BroadcastReceiver {
             return;
         }
         if (AutoPause.ACTION_RESUME.equals(intent.getAction())) { // "Call ended": resume the paused task
-            BuddyService s = BuddyService.get();
+            NnService s = NnService.get();
             if (s != null) s.resume();
             AutoPause.cancelCallEnded(c); // also when it had ended already
             return;
@@ -64,7 +64,7 @@ public final class HiddenNotice extends BroadcastReceiver {
         if (!ACTION_SHOW.equals(intent.getAction())) return;
         Prefs.setBubbleEnabled(c, true);
         cancel(c);
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.applyBubbleSetting();
     }
 }

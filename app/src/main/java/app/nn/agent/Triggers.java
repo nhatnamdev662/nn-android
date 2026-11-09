@@ -357,7 +357,7 @@ final class Triggers implements ChatHub.Listener {
         if (starting) return;
         long now = SystemClock.elapsedRealtime();
         if (queue.isEmpty() || !active.isEmpty()) return;
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc == null) { // its server is how the agent works the phone
             while (!queue.isEmpty()) log(queue.poll(), "error", app.getString(R.string.rules_log_no_service));
             return;

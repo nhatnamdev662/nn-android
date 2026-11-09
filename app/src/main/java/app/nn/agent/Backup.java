@@ -19,30 +19,30 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Backup and move (Settings): chats, settings, rules, pictures, skills, projects and what the agents keep of each
- * conversation, in one file in Downloads/Buddy, to restore on this phone or another. Sign-ins and API keys stay out:
+ * conversation, in one file in Downloads/NN Agent, to restore on this phone or another. Sign-ins and API keys stay out:
  * they're secrets, and the keys can't leave this phone's keystore anyway.
  */
 final class Backup {
-    /** Buddy's settings and chats (the API key services' list and choices stay out, as their keys do). */
+    /** NN's settings and chats (the API key services' list and choices stay out, as their keys do). */
     private static final String[] PREFS = {"buddy", "buddy_sessions", "browser"};
-    /** In Buddy's Linux, what to keep (no sign-ins): projects without their builds, skills, the agents' conversations. */
+    /** In NN's Linux, what to keep (no sign-ins): projects without their builds, skills, the agents' conversations. */
     private static final String LINUX_PARTS = "root/.nn/sessions root/.nn/work root/.agents/skills root/.claude/projects "
             + "root/.codex/sessions root/.local/share/opencode/opencode.db";
 
     private Backup() {
     }
 
-    /** Writes the backup to Downloads/Buddy and returns its name. */
+    /** Writes the backup to Downloads/NN Agent and returns its name. */
     static String create(Context c) throws Exception {
-        String name = "buddy-backup-" + new SimpleDateFormat("yyyy-MM-dd-HHmm", Locale.ROOT).format(new Date()) + ".zip";
+        String name = "nn-backup-" + new SimpleDateFormat("yyyy-MM-dd-HHmm", Locale.ROOT).format(new Date()) + ".zip";
         File tmp = new File(c.getCacheDir(), "backup.zip");
         File linux = new File(c.getCacheDir(), "linux.tar.gz");
         linux.delete();
         if (Linux.installed(c)) {
-            String out = Linux.exec(c, "cd / && rm -f /tmp/buddy-backup.tar.gz; p=$(ls -d " + LINUX_PARTS + " 2>/dev/null); "
-                    + "[ -z \"$p\" ] || tar czf /tmp/buddy-backup.tar.gz --exclude=node_modules --exclude=build "
+            String out = Linux.exec(c, "cd / && rm -f /tmp/nn-backup.tar.gz; p=$(ls -d " + LINUX_PARTS + " 2>/dev/null); "
+                    + "[ -z \"$p\" ] || tar czf /tmp/nn-backup.tar.gz --exclude=node_modules --exclude=build "
                     + "--exclude=.gradle --exclude=.cxx $p 2>&1 && echo DONE", 1800);
-            File made = new File(Linux.root(c), "tmp/buddy-backup.tar.gz");
+            File made = new File(Linux.root(c), "tmp/nn-backup.tar.gz");
             if (!out.contains("DONE")) throw new Exception(out);
             if (made.isFile()) {
                 if (!made.renameTo(linux)) copyFile(made, linux);
@@ -51,7 +51,7 @@ final class Backup {
         }
         File prefsDir = new File(c.getApplicationInfo().dataDir, "shared_prefs");
         try (ZipOutputStream z = new ZipOutputStream(new FileOutputStream(tmp))) {
-            z.putNextEntry(new ZipEntry("buddy-backup.txt"));
+            z.putNextEntry(new ZipEntry("nn-backup.txt"));
             z.write(("NN AGENT " + BuildInfo.VERSION + " backup\n").getBytes());
             for (String p : PREFS) {
                 File f = new File(prefsDir, p + ".xml");
@@ -85,8 +85,8 @@ final class Backup {
     }
 
     /**
-     * Puts a backup's chats, settings and files in place of this phone's, then restarts Buddy so they're read fresh.
-     * Its Linux part needs Buddy's Linux set up first: false when it was skipped for that.
+     * Puts a backup's chats, settings and files in place of this phone's, then restarts NN Agent so they're read fresh.
+     * Its Linux part needs NN's Linux set up first: false when it was skipped for that.
      */
     static boolean restore(Context c, Uri uri) throws Exception {
         File prefsDir = new File(c.getApplicationInfo().dataDir, "shared_prefs");
@@ -104,7 +104,7 @@ final class Backup {
                 try (OutputStream o = new FileOutputStream(out)) {
                     pump(z, o);
                 }
-                if (e.getName().equals("buddy-backup.txt")) ok = true;
+                if (e.getName().equals("nn-backup.txt")) ok = true;
             }
         }
         if (!ok) throw new IllegalArgumentException(c.getString(R.string.backup_not_one));
@@ -160,7 +160,7 @@ final class Backup {
         return !skipped;
     }
 
-    /** Starts Buddy again in a new process, so the restored settings and chats are what it reads. */
+    /** Starts NN Agent again in a new process, so the restored settings and chats are what it reads. */
     static void restart(Context c) {
         Intent i = new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         android.app.PendingIntent pi = android.app.PendingIntent.getActivity(c, 0, i,

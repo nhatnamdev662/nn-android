@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Bubble conversations. Each has its own brain (claude/codex), history and agent session in Buddy's Linux.
+ * Bubble conversations. Each has its own brain (claude/codex), history and agent session in NN's Linux.
  * Each chat is its own file (files/chats/&lt;id&gt;.json), so a message rewrites only its chat; the list's order and
  * the current chat are in the buddy_sessions settings. There's no limit on how many chats there are: archiving
  * hides one from the list instead.
@@ -24,7 +24,7 @@ final class Sessions {
         final String text;
         /** Attachment ids (see Attachments); empty for most messages. */
         final List<String> files;
-        /** A user message Buddy sent on its own at a scheduled time (see Schedules): the chat marks it so. */
+        /** A user message NN Agent sent on its own at a scheduled time (see Schedules): the chat marks it so. */
         boolean scheduled;
 
         Msg(Bubble.Kind kind, String text) {
@@ -46,7 +46,7 @@ final class Sessions {
         String label() {
             if (files.isEmpty()) return text;
             String n = files.size() == 1 ? "📎 " + Attachments.name(files.get(0))
-                    : BuddyApp.plural(R.plurals.attach_count, files.size(), files.size());
+                    : NnApp.plural(R.plurals.attach_count, files.size(), files.size());
             return text.isEmpty() ? n : kind == Bubble.Kind.BUDDY ? text + "\n" + n : n + "\n" + text;
         }
     }
@@ -63,13 +63,13 @@ final class Sessions {
         String actualModel = "";
         /** How much of the model's context the conversation fills, and its size, in tokens (0: the agent hasn't said). */
         long ctxUsed, ctxWindow;
-        /** Android closed Buddy while the agent was working: the chat offers to continue (see ChatHub.resume). */
+        /** Android closed NN Agent while the agent was working: the chat offers to continue (see ChatHub.resume). */
         boolean interrupted;
-        /** Incognito: deleted, with what the agent kept of it, when Buddy starts again (see ChatHub). */
+        /** Incognito: deleted, with what the agent kept of it, when NN Agent starts again (see ChatHub). */
         boolean incognito;
         /** This run may end quietly (a scheduled task's "only tell me when there's news"); quietSaid: it did. Runtime. */
         boolean quietRun, quietSaid;
-        /** Linux tools: the agent may run commands and edit files in ~/.buddy/work (buddy-run's dev). Never on Play. */
+        /** Linux tools: the agent may run commands and edit files in ~/.buddy/work (nn-run's dev). Never on Play. */
         boolean dev;
         /** Long-task mode: the screen stays on while this chat works, and its end is a notification (see KeepAwake). */
         boolean awake;
@@ -114,7 +114,7 @@ final class Sessions {
         }
 
         String label() {
-            return title.isEmpty() ? BuddyApp.str(R.string.session_new_chat, brainName()) : title;
+            return title.isEmpty() ? NnApp.str(R.string.session_new_chat, brainName()) : title;
         }
     }
 
@@ -226,7 +226,7 @@ final class Sessions {
     }
 
     /**
-     * Stops saving until Buddy restarts: a restore has put the backup's chats and settings in place, and nothing from
+     * Stops saving until NN Agent restarts: a restore has put the backup's chats and settings in place, and nothing from
      * the chats in memory may write over them.
      */
     void freeze() {

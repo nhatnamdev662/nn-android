@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 import static app.nn.agent.Ui.*;
 
-/** Read the last messages of a Claude Code / Codex session that isn't a Buddy chat, and optionally continue it. */
+/** Read the last messages of a Claude Code / Codex session that isn't a NN Agent chat, and optionally continue it. */
 public class TranscriptActivity extends Screen implements ChatHub.MonitorListener {
     private ChatHub hub;
     private LinearLayout messages;

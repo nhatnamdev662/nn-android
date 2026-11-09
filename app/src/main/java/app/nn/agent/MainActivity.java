@@ -43,7 +43,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
             if (new SetupState(this).count() >= 3) Prefs.setOnboarded(this, true);
             else startActivity(new Intent(this, OnboardingActivity.class));
         }
-        // Needed for the "Buddy is hidden" notification after dragging the bubble away.
+        // Needed for the "NN Agent is hidden" notification after dragging the bubble away.
         // from the "update available" notification
         if (state == null && getIntent().getBooleanExtra("update", false)) Updates.showSheet(this);
         if (getIntent().getBooleanExtra("askMic", false) && !Voice.micAllowed(this)) {
@@ -207,7 +207,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         }
 
         // approvals and questions waiting in the bubble, one row each: a tap opens the chat with its card
-        Bubble bubble = BuddyService.get() == null ? null : BuddyService.get().bubble();
+        Bubble bubble = NnService.get() == null ? null : NnService.get().bubble();
         List<String[]> cards = bubble == null ? new ArrayList<>() : bubble.openCards();
         if (!cards.isEmpty()) {
             list.addView(sectionHeader(getString(R.string.waiting_title), cards.size()));
@@ -342,7 +342,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         col.addView(single(monoText(this, agent + " · " + Models.shownModel(ses).toLowerCase(Ui.locale(this)),
                 12, MUTED)));
         if (ses.running) {
-            Bubble b = BuddyService.get() == null ? null : BuddyService.get().bubble();
+            Bubble b = NnService.get() == null ? null : NnService.get().bubble();
             TextView s = single(monoText(this, b != null && b.waitingIn(ses) ? getString(R.string.main_chat_waiting)
                     : ses.status.isEmpty() ? getString(R.string.main_chat_working) : ses.status, 12, ACCENT_TEXT));
             s.setPaddingRelative(0, dp(this, 4), 0, dp(this, 6));
@@ -509,10 +509,10 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
 
     static String ago(long t) {
         long s = Math.max(0, (System.currentTimeMillis() - t) / 1000);
-        if (s < 60) return BuddyApp.str(R.string.main_ago_now);
-        if (s < 3600) return BuddyApp.plural(R.plurals.main_ago_minutes, (int) (s / 60), s / 60);
-        if (s < 86400) return BuddyApp.plural(R.plurals.main_ago_hours, (int) (s / 3600), s / 3600);
-        return BuddyApp.plural(R.plurals.main_ago_days, (int) (s / 86400), s / 86400);
+        if (s < 60) return NnApp.str(R.string.main_ago_now);
+        if (s < 3600) return NnApp.plural(R.plurals.main_ago_minutes, (int) (s / 60), s / 60);
+        if (s < 86400) return NnApp.plural(R.plurals.main_ago_hours, (int) (s / 3600), s / 3600);
+        return NnApp.plural(R.plurals.main_ago_days, (int) (s / 86400), s / 86400);
     }
 
     private void go(Class<?> c) {

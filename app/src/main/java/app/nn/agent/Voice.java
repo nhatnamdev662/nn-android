@@ -294,7 +294,7 @@ final class Voice {
         return null;
     }
 
-    /** Buddy is reading something aloud (phone voice or ChatGPT's). */
+    /** NN Agent is reading something aloud (phone voice or ChatGPT's). */
     static boolean isSpeaking() {
         return CodexSpeech.active() || (tts != null && ttsReady && tts.isSpeaking());
     }

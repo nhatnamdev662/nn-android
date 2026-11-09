@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Voice input through ChatGPT's voice on the user's ChatGPT plan, via Codex. Codex's app server (in Buddy's
+ * Voice input through ChatGPT's voice on the user's ChatGPT plan, via Codex. Codex's app server (in NN's
  * Linux) starts a realtime voice session over WebRTC; the phone side of the call is a small page in a WebView
- * (Android's WebRTC). Buddy only wants the transcript of what the user says: the voice's replies are never
+ * (Android's WebRTC). NN Agent only wants the transcript of what the user says: the voice's replies are never
  * played, the session runs read-only with no phone tools, and any Codex task it tries to start is stopped.
  */
 final class CodexDictation {
@@ -64,7 +64,7 @@ final class CodexDictation {
         done.setLength(0);
         partial = "";
         l.onPartial("");
-        // Buddy records from now on (the WebView can't open the mic on some phones); ChatGPT hears it all once connected
+        // NN Agent records from now on (the WebView can't open the mic on some phones); ChatGPT hears it all once connected
         final Voice.EndOfSpeech eos = new Voice.EndOfSpeech();
         MicServer.levels = v -> main.post(() -> {
             if (listener != l || finishing) return;
@@ -98,7 +98,7 @@ final class CodexDictation {
         if (listener == null || finishing) return;
         finishing = true;
         final Voice.Listener l = listener;
-        l.onStatus(BuddyApp.str(R.string.dictation_transcribing));
+        l.onStatus(NnApp.str(R.string.dictation_transcribing));
         MicServer.stopCapture();
         final long asked = System.currentTimeMillis();
         main.post(new Runnable() {
@@ -107,7 +107,7 @@ final class CodexDictation {
                 if (listener != l) return;
                 long now = System.currentTimeMillis();
                 if (!connected) {
-                    if (now - asked > 30_000) end(l, BuddyApp.str(R.string.dictation_chatgpt_no_connect, BuddyApp.str(stage)));
+                    if (now - asked > 30_000) end(l, NnApp.str(R.string.dictation_chatgpt_no_connect, NnApp.str(stage)));
                     else main.postDelayed(this, 100);
                     return;
                 }
@@ -118,7 +118,7 @@ final class CodexDictation {
                     String text = (done + " " + partial).replaceAll("\\s+", " ").trim();
                     stopSession();
                     listener = null;
-                    if (text.isEmpty()) l.onEnd(BuddyApp.str(R.string.dictation_no_speech));
+                    if (text.isEmpty()) l.onEnd(NnApp.str(R.string.dictation_no_speech));
                     else l.onFinal(text);
                     return;
                 }
@@ -208,11 +208,11 @@ final class CodexDictation {
             public void failed(String why) {
                 main.post(() -> {
                     // the page's own 'the connection failed' (see PAGE) in the user's language; other reasons come from the WebView
-                    if (web == mine && listener != null) end(listener, BuddyApp.str(R.string.dictation_chatgpt_error,
-                            "the connection failed".equals(why) ? BuddyApp.str(R.string.dictation_connection_failed) : why));
+                    if (web == mine && listener != null) end(listener, NnApp.str(R.string.dictation_chatgpt_error,
+                            "the connection failed".equals(why) ? NnApp.str(R.string.dictation_connection_failed) : why));
                 });
             }
-        }, "Buddy");
+        }, "NN Agent");
         web.loadDataWithBaseURL("https://buddy.local/", PAGE, "text/html", "utf-8", null);
     }
 
@@ -220,7 +220,7 @@ final class CodexDictation {
     private static void startCall(WebView page, String sdp) {
         try {
             for (int i = 0; i < 600 && threadId == null; i++) Thread.sleep(100); // the server is still starting
-            if (threadId == null) throw new Exception(BuddyApp.str(R.string.dictation_codex_no_start));
+            if (threadId == null) throw new Exception(NnApp.str(R.string.dictation_codex_no_start));
             stage = R.string.dictation_stage_call;
             JSONObject r = request("thread/realtime/start", new JSONObject()
                     .put("threadId", threadId)
@@ -234,7 +234,7 @@ final class CodexDictation {
             stage = R.string.dictation_stage_answer;
         } catch (Exception e) {
             main.post(() -> {
-                if (web == page && listener != null) end(listener, BuddyApp.str(R.string.dictation_chatgpt_start_failed, e.getMessage()));
+                if (web == page && listener != null) end(listener, NnApp.str(R.string.dictation_chatgpt_start_failed, e.getMessage()));
             });
         }
     }
@@ -250,7 +250,7 @@ final class CodexDictation {
         if (server != null) server.destroy();
         threadId = null;
         appContext = c.getApplicationContext();
-        // Buddy's phone tools are only given to chats (on their command line), never here; no app connectors either
+        // NN's phone tools are only given to chats (on their command line), never here; no app connectors either
         Linux.exec(c, "mkdir -p " + DIR, 30);
         Process p = Linux.builder(c, "/bin/sh", "-c", "cd " + DIR + " && exec codex app-server -c features.apps=false 2>" + DIR + "/server.log").start();
         server = p;
@@ -425,7 +425,7 @@ final class CodexDictation {
             case "thread/realtime/error": {
                 final String msg = p.optString("message");
                 main.post(() -> {
-                    if (listener != null) end(listener, BuddyApp.str(R.string.dictation_chatgpt_error, msg));
+                    if (listener != null) end(listener, NnApp.str(R.string.dictation_chatgpt_error, msg));
                 });
                 break;
             }
@@ -460,9 +460,9 @@ final class CodexDictation {
     private static String serverLog() {
         try {
             String t = Linux.exec(appContext, "tail -c 400 " + DIR + "/server.log | grep -v bubblewrap | tail -3", 20).trim();
-            return t.isEmpty() ? BuddyApp.str(R.string.dictation_no_details) : t;
+            return t.isEmpty() ? NnApp.str(R.string.dictation_no_details) : t;
         } catch (Exception e) {
-            return BuddyApp.str(R.string.dictation_no_details);
+            return NnApp.str(R.string.dictation_no_details);
         }
     }
 
@@ -484,8 +484,8 @@ final class CodexDictation {
                 }
             }
             // the messages reach the user (ChatGPT voice errors, the reviewer's card)
-            if (slot[0] == null) throw new Exception(BuddyApp.str(R.string.dictation_request_timed_out, method));
-            if (slot[0] == DIED) throw new Exception(BuddyApp.str(R.string.dictation_codex_stopped, serverLog()));
+            if (slot[0] == null) throw new Exception(NnApp.str(R.string.dictation_request_timed_out, method));
+            if (slot[0] == DIED) throw new Exception(NnApp.str(R.string.dictation_codex_stopped, serverLog()));
             return slot[0];
         } finally {
             synchronized (replies) {
@@ -495,7 +495,7 @@ final class CodexDictation {
     }
 
     /**
-     * The phone side of the call. Buddy records from the tap (MicServer); once the call is connected the page
+     * The phone side of the call. NN Agent records from the tap (MicServer); once the call is connected the page
      * plays that recording into it at real time from the start, so nothing said while connecting is lost.
      */
     private static final String PAGE = "<!doctype html><html><body><script>\n"
@@ -510,17 +510,17 @@ final class CodexDictation {
             + "    let fifo = new Float32Array(0), pos = 0, playing = false;\n"
             + "    proc.onaudioprocess = e => {\n"
             + "      const out = e.outputBuffer.getChannelData(0); out.fill(0);\n"
-            + "      if (!connected) return;\n" // Buddy keeps recording meanwhile: nothing is lost
-            + "      const bin = atob(Buddy.pull(6400));\n" // up to 200 ms per call: catches up on the backlog
+            + "      if (!connected) return;\n" // NN Agent keeps recording meanwhile: nothing is lost
+            + "      const bin = atob(NN Agent.pull(6400));\n" // up to 200 ms per call: catches up on the backlog
             + "      if (bin.length > 1) {\n"
             + "        const add = new Float32Array(bin.length >> 1);\n"
             + "        for (let i = 0; i < add.length; i++) { let v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v > 32767) v -= 65536; add[i] = v / 32768; }\n"
             + "        const f = new Float32Array(fifo.length + add.length); f.set(fifo); f.set(add, fifo.length); fifo = f;\n"
             + "      }\n"
             + "      const need = Math.ceil(out.length * ratio + pos) + 2;\n"
-            + "      if (!playing && fifo.length < need + 2400) { if (!bin.length) Buddy.idle(); return; }\n" // keep a 150 ms cushion: no gaps
+            + "      if (!playing && fifo.length < need + 2400) { if (!bin.length) NN Agent.idle(); return; }\n" // keep a 150 ms cushion: no gaps
             + "      playing = true;\n"
-            + "      if (fifo.length < need) { if (!bin.length) Buddy.idle(); return; }\n"
+            + "      if (fifo.length < need) { if (!bin.length) NN Agent.idle(); return; }\n"
             + "      for (let i = 0; i < out.length; i++) { const x = i * ratio + pos, k = x | 0, t = x - k; out[i] = fifo[k] * (1 - t) + fifo[k + 1] * t; }\n"
             + "      const end = out.length * ratio + pos, used = Math.floor(end); pos = end - used; fifo = fifo.subarray(used);\n"
             + "    };\n"
@@ -530,15 +530,15 @@ final class CodexDictation {
             + "    pc.createDataChannel('oai-events');\n"
             + "    pc.ontrack = e => { e.track.enabled = false; };\n" // never play the voice's replies
             + "    pc.onconnectionstatechange = () => {\n"
-            + "      if (pc.connectionState === 'connected') { connected = true; Buddy.connected(); }\n"
-            + "      else if (pc.connectionState === 'failed') Buddy.failed('the connection failed');\n"
+            + "      if (pc.connectionState === 'connected') { connected = true; NN Agent.connected(); }\n"
+            + "      else if (pc.connectionState === 'failed') NN Agent.failed('the connection failed');\n"
             + "    };\n"
             + "    await pc.setLocalDescription(await pc.createOffer());\n"
             + "    await new Promise(r => { if (pc.iceGatheringState === 'complete') r(); else { pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; setTimeout(r, 1500); } });\n"
-            + "    Buddy.offer(pc.localDescription.sdp);\n"
-            + "  } catch (e) { Buddy.failed(String(e && e.message || e)); }\n"
+            + "    NN Agent.offer(pc.localDescription.sdp);\n"
+            + "  } catch (e) { NN Agent.failed(String(e && e.message || e)); }\n"
             + "}\n"
-            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => Buddy.failed(String(e.message || e))); }\n"
+            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NN Agent.failed(String(e.message || e))); }\n"
             + "start();\n"
             + "</script></body></html>";
 }

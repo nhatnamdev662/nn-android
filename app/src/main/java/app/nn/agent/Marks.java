@@ -23,7 +23,7 @@ import java.util.List;
  * look or what to do. Each mark is a small window of its own that touches go through: no full-screen overlay (see
  * ControlIndicator). Marks follow their element as the screen scrolls or the keyboard opens, and go when it's gone,
  * when the app in front changes, when the agent acts on the phone again, or when their time is up. They hide while
- * Buddy's panel is open and while the agent looks at or touches the screen.
+ * NN's panel is open and while the agent looks at or touches the screen.
  *
  * When the user does what a mark points at (flips the switch, taps the button, fills in the field and moves on), the
  * mark turns green with a check and goes; whoever waits for that (point_out with wait, ask with highlight) is told.
@@ -59,7 +59,7 @@ final class Marks {
             startText = field ? typed(node) : null;
         }
 
-        /** Buddy can tell when the user has done this one (it's on an element, not a bare point). */
+        /** NN Agent can tell when the user has done this one (it's on an element, not a bare point). */
         boolean detectable() {
             return node != null;
         }
@@ -81,7 +81,7 @@ final class Marks {
 
     private static final long FOLLOW_MS = 350, DONE_SHOWN_MS = 1100;
 
-    private final BuddyService svc;
+    private final NnService svc;
     private final WindowManager wm;
     private final float d;
     /** On the screen right now. */
@@ -100,7 +100,7 @@ final class Marks {
             labelBg = new Paint(Paint.ANTI_ALIAS_FLAG), labelEdge = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
-    Marks(BuddyService svc) {
+    Marks(NnService svc) {
         this.svc = svc;
         this.wm = svc.getSystemService(WindowManager.class);
         this.d = svc.getResources().getDisplayMetrics().density;
@@ -167,7 +167,7 @@ final class Marks {
         return onEnd != null;
     }
 
-    /** Buddy's panel is open: the marks wait behind it (main thread). */
+    /** NN's panel is open: the marks wait behind it (main thread). */
     void setPanelOpen(boolean open) {
         panelOpen = open;
         applyVisibility();
@@ -181,7 +181,7 @@ final class Marks {
 
     /** Something was tapped (an accessibility event; main thread): the step of a mark it belongs to is done. */
     void onClicked(AccessibilityNodeInfo src, long uptime) {
-        if (src == null || svc.autoPauser().own(uptime)) return; // Buddy's own tap isn't the user doing it
+        if (src == null || svc.autoPauser().own(uptime)) return; // NN's own tap isn't the user doing it
         for (Mark m : new ArrayList<>(marks)) {
             if (m.byTap() && !m.done && (within(src, m.node) || within(m.node, src))) {
                 markDone(m, "tapped “" + m.name() + "”");
@@ -277,7 +277,7 @@ final class Marks {
         settle();
     }
 
-    /** Every mark Buddy can watch is done or gone: tell the waiter. */
+    /** Every mark NN Agent can watch is done or gone: tell the waiter. */
     private void settle() {
         if (onEnd == null) return;
         List<String> did = new ArrayList<>(), missed = new ArrayList<>();

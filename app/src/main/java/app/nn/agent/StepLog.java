@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 /**
  * "View steps" for a chat's runs: each phone action an agent took (the chat's step line, its result) with a small
- * screenshot just after it, and the run's time and outcome. Kept in Buddy's own storage for the chat's last 3 runs,
+ * screenshot just after it, and the run's time and outcome. Kept in NN's own storage for the chat's last 3 runs,
  * deleted with the chat, never for an incognito chat. Screens an app protects come out black.
  */
 final class StepLog {
@@ -64,7 +64,7 @@ final class StepLog {
     }
 
     /** One action of a chat's run, and a screenshot of how the screen looks right after it. */
-    static void record(BuddyService svc, String chat, String tool, JSONObject args, String result) {
+    static void record(NnService svc, String chat, String tool, JSONObject args, String result) {
         File d = chat == null ? null : current.get(chat);
         if (d == null) return;
         int n = counts.merge(chat, 1, Integer::sum);
@@ -87,7 +87,7 @@ final class StepLog {
     }
 
     /** A small JPEG of the screen, a moment after the action (the screen needs it to settle). */
-    private static void shoot(BuddyService svc, File out) {
+    private static void shoot(NnService svc, File out) {
         try {
             Thread.sleep(600);
             java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(1);

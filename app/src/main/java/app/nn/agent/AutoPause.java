@@ -18,28 +18,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Pauses an agent that's operating the phone when the user takes the phone back (see BuddyService.autoPause): they
+ * Pauses an agent that's operating the phone when the user takes the phone back (see NnService.autoPause): they
  * touch the screen, or a call rings or starts. Touches: a 1-pixel window nobody can see or touch hears about every
  * touch elsewhere, but not where it landed. Calls: the phone's audio mode and, with notification access, a call's
  * notification (only its category is looked at). Nothing is kept.
  */
 final class AutoPause {
     static final String ACTION_RESUME = "app.nn.agent.RESUME";
-    /** MotionEvent.FLAG_IS_ACCESSIBILITY_EVENT (hidden, Android 12+): an accessibility service made it (Buddy's own taps). */
+    /** MotionEvent.FLAG_IS_ACCESSIBILITY_EVENT (hidden, Android 12+): an accessibility service made it (NN's own taps). */
     private static final int FLAG_FROM_ACCESSIBILITY = 0x800;
     private static final long POLL_MS = 700;
     private static final int CALL_ENDED_ID = 9;
     /** The call notifications showing right now (their keys), from NotificationWatcher. */
     private static final Set<String> calls = Collections.synchronizedSet(new HashSet<>());
 
-    private final BuddyService svc;
+    private final NnService svc;
     private View watcher;
     private boolean watching, inCall, pausedForCall;
-    /** Until then (uptime ms) Buddy's own gesture may be touching the screen. */
+    /** Until then (uptime ms) NN's own gesture may be touching the screen. */
     private volatile long ownUntil;
     private final Runnable poll = this::check;
 
-    AutoPause(BuddyService svc) {
+    AutoPause(NnService svc) {
         this.svc = svc;
     }
 
@@ -77,12 +77,12 @@ final class AutoPause {
         c.getSystemService(NotificationManager.class).cancel(CALL_ENDED_ID);
     }
 
-    /** Buddy is about to touch the screen itself for this long (tool thread). */
+    /** NN Agent is about to touch the screen itself for this long (tool thread). */
     void ownGesture(long ms) {
         ownUntil = SystemClock.uptimeMillis() + ms + 600;
     }
 
-    /** Something that happened then (uptime ms) may have been Buddy's own touch. */
+    /** Something that happened then (uptime ms) may have been NN's own touch. */
     boolean own(long uptime) {
         return uptime <= ownUntil;
     }
@@ -110,10 +110,10 @@ final class AutoPause {
     }
 
     private void onOutside(MotionEvent e) {
-        // Buddy's own taps come here too: Android 12+ marks them, and they come while one runs
+        // NN's own taps come here too: Android 12+ marks them, and they come while one runs
         if ((e.getFlags() & FLAG_FROM_ACCESSIBILITY) != 0 || e.getEventTime() <= ownUntil) return;
-        // Android only says where a touch landed when it's on one of Buddy's own windows (the bubble, a card): that's
-        // the user talking to Buddy, not taking the phone. Elsewhere every axis reads 0, the pressure too.
+        // Android only says where a touch landed when it's on one of NN's own windows (the bubble, a card): that's
+        // the user talking to NN Agent, not taking the phone. Elsewhere every axis reads 0, the pressure too.
         if (e.getPressure() != 0f || e.getTouchMajor() != 0f) return;
         svc.mainHandler().post(svc::onScreenTouched); // not from inside the watcher's own event: pausing removes it
     }
@@ -129,7 +129,7 @@ final class AutoPause {
             return;
         }
         calls.add(s.getKey());
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.runOnMain(() -> svc.autoPauser().check()); // at once: the call screen may cover the app
     }
 

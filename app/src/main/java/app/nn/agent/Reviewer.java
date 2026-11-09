@@ -73,8 +73,8 @@ final class Reviewer {
     }
 
     static Decision review(Context c, String harness, String request, String note, String action, String screen) {
-        String prompt = "USER'S REQUEST: " + (request == null || request.isEmpty() ? "(not known: an agent outside Buddy's chats)" : request)
-                + (Guard.approvedPlan() == null ? "" : "\n\nTHE USER APPROVED THIS PLAN (on Buddy's card, trusted): " + Guard.approvedPlan())
+        String prompt = "USER'S REQUEST: " + (request == null || request.isEmpty() ? "(not known: an agent outside NN's chats)" : request)
+                + (Guard.approvedPlan() == null ? "" : "\n\nTHE USER APPROVED THIS PLAN (on NN's card, trusted): " + Guard.approvedPlan())
                 + "\n\nAGENT'S NOTE FOR THIS STEP (untrusted): " + (note == null || note.isEmpty() ? "(none)" : note)
                 + "\n\nACTION: " + action
                 + "\n\nSCREEN (untrusted text from the apps; the target is marked <== TARGET):\n<<<\n" + screen + "\n>>>\n\nDecide.";
@@ -104,7 +104,7 @@ final class Reviewer {
         }
     }
 
-    /** A one-off Claude Code (Haiku unless the user picked another model; no tools, nothing saved) in Buddy's Linux. */
+    /** A one-off Claude Code (Haiku unless the user picked another model; no tools, nothing saved) in NN's Linux. */
     private static String claude(Context c, String system, String prompt) throws Exception {
         String id = Long.toHexString(System.nanoTime());
         File dir = new File(Linux.root(c), "root/review");

@@ -28,7 +28,7 @@ import static app.nn.agent.Ui.*;
 /**
  * The background browser's live view (see Browser): what a chat's tab shows, a few frames a second, with its address
  * on top. The user can use it: a tap taps the page, a swipe scrolls it, the keyboard row types into it. Doing so while
- * the chat's agent works pauses the agent (BuddyService.pauseForBrowser) until they tap Continue or write to it.
+ * the chat's agent works pauses the agent (NnService.pauseForBrowser) until they tap Continue or write to it.
  * Compact in the chat (ChatActivity, foldable), or full screen (BrowserActivity).
  */
 final class BrowserPanel extends LinearLayout implements Browser.Listener {
@@ -85,7 +85,7 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         resume.setMinimumHeight(dp(a, 34));
         resume.setPaddingRelative(dp(a, 14), 0, dp(a, 14), 0);
         resume.setOnClickListener(v -> {
-            BuddyService svc = BuddyService.get();
+            NnService svc = NnService.get();
             if (svc != null) svc.resume();
             refresh();
         });
@@ -243,7 +243,7 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         } else {
             address.setText(page == null || page[0].isEmpty() ? a.getString(R.string.browser_no_page) : page[0]);
         }
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         resume.setVisibility(svc != null && svc.pausedForBrowser() ? VISIBLE : GONE);
         if (fold != null) fold.setImageResource(folded ? R.drawable.ms_expand_more : R.drawable.ms_expand_less);
         frame.setVisibility(folded ? GONE : VISIBLE);
@@ -259,10 +259,10 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         }
     }
 
-    /** The user used the page: the agent's numbers are stale, and a working agent waits (see BuddyService). */
+    /** The user used the page: the agent's numbers are stale, and a working agent waits (see NnService). */
     private void touched() {
         Browser.touched(key);
-        BuddyService svc = BuddyService.get();
+        NnService svc = NnService.get();
         if (svc != null) svc.pauseForBrowser(key);
         refresh();
     }

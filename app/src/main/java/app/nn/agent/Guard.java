@@ -9,16 +9,16 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * The hard limit behind "Buddy asks before anything risky", for the apps the user puts on it (Settings →
- * App permissions; trusted apps leave asking to the agent). Enforced here, in Buddy: before a tap lands on a
+ * The hard limit behind "NN Agent asks before anything risky", for the apps the user puts on it (Settings →
+ * App permissions; trusted apps leave asking to the agent). Enforced here, in NN Agent: before a tap lands on a
  * send / pay / delete / … button (by its text, icon description or id), or text is typed with "submit", the
  * user must have approved it: either through the agent's own confirm call just
- * before (one approval covers one action), or on a card Buddy shows right then. The agent can't tap Buddy's
+ * before (one approval covers one action), or on a card NN Agent shows right then. The agent can't tap NN's
  * own bubble or approval card, so it can't approve for the user.
  */
 final class Guard {
     /** Words on buttons that send, pay, delete or otherwise can't be taken back, and add-to-cart buttons, so every
-     * agent asks the same way before shopping, in each of Buddy's languages. */
+     * agent asks the same way before shopping, in each of NN's languages. */
     private static final Pattern RISKY = Pattern.compile("(?iu)^[^\\p{L}]*(?:(?:proceed|continue|go) to |passer (?:à la|au) |weiter zur |zur )?("
             + "send|post|publish|share now|tweet|reply all|submit|confirm|pay|pay now|buy|buy now|purchase|"
             + "order|place order|checkout|check out|payment|add to cart|add to basket|add to bag|add to trolley|subscribe|transfer|donate|delete|remove|erase|uninstall|"
@@ -64,7 +64,7 @@ final class Guard {
             + "thêm vào giỏ|thêm vào giỏ hàng|xóa|xoá|gỡ|gỡ bỏ|gỡ cài đặt|xác nhận|chuyển tiền|chuyển khoản|đăng ký|"
             + "hủy đăng ký|huỷ đăng ký|chặn|báo cáo|đăng xuất|gọi|gọi điện"
             + ")(?![\\p{L}])");
-    /** Of those, the ones that send or post a message, in each of Buddy's languages: a notification rule's countdown
+    /** Of those, the ones that send or post a message, in each of NN's languages: a notification rule's countdown
      * may approve these (see Triggers), never paying, buying, deleting and the rest. */
     private static final Pattern SEND = Pattern.compile("(?iu)^[^\\p{L}]*("
             + "send|send now|post|publish|share now|tweet|reply|reply all|"
@@ -87,7 +87,7 @@ final class Guard {
     /** The last approved confirm's text: the plan the user OK'd, for the smart reviewer. */
     private static String plan;
     /**
-     * The chat whose confirm the approval and the plan were (null: a session outside Buddy): they cover that chat's
+     * The chat whose confirm the approval and the plan were (null: a session outside NN Agent): they cover that chat's
      * actions only, never another agent's, least of all a notification rule's run for someone else's message.
      */
     private static String approvedFor, planFor;
@@ -128,7 +128,7 @@ final class Guard {
         }
 
         String describe() {
-            return pkg == null ? BuddyApp.str(R.string.guard_rule_all_apps, label) : label + " · " + (app == null || app.isEmpty() ? pkg : app);
+            return pkg == null ? NnApp.str(R.string.guard_rule_all_apps, label) : label + " · " + (app == null || app.isEmpty() ? pkg : app);
         }
     }
 
@@ -269,7 +269,7 @@ final class Guard {
         return pkg != null && "trust".equals(mode(c, pkg, null));
     }
 
-    /** "hard": Buddy enforces approval in this app; "smart": the lists, then a reviewer AI for every tap;
+    /** "hard": NN Agent enforces approval in this app; "smart": the lists, then a reviewer AI for every tap;
      *  "trust": the agent works on its own, without asking. */
     static String mode(android.content.Context c, String pkg, CharSequence label) {
         return modeWhy(c, pkg, label)[0];
@@ -350,7 +350,7 @@ final class Guard {
     }
 
     /**
-     * As above, for an action whose content Buddy knows (a reply's text, a link): the approval covers it only if
+     * As above, for an action whose content NN Agent knows (a reply's text, a link): the approval covers it only if
      * the approved confirm named exactly that, so an OK for one message never sends another. Used up either way.
      */
     static synchronized boolean takeApproval(boolean send, String content) {
@@ -377,7 +377,7 @@ final class Guard {
         return SEND.matcher(l.trim()).find() || SEND_ID.matcher(l.trim()).find();
     }
 
-    /** A payment, banking or crypto app by its name (or one Buddy can't tell). */
+    /** A payment, banking or crypto app by its name (or one NN Agent can't tell). */
     static boolean moneyApp(android.content.Context c, CharSequence pkg) {
         if (pkg == null) return true;
         String p = pkg.toString();
@@ -444,8 +444,8 @@ final class Guard {
         AccessibilityWindowInfo top = null;
         Rect r = new Rect();
         for (AccessibilityWindowInfo w : windows) {
-            // Buddy's floating bubble and panel let taps through while a gesture runs (see
-            // BuddyService.setBubblePassThrough), so what counts is the app underneath
+            // NN's floating bubble and panel let taps through while a gesture runs (see
+            // NnService.setBubblePassThrough), so what counts is the app underneath
             if (w.getType() == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY) continue;
             w.getBoundsInScreen(r);
             if (!r.contains(x, y)) continue;
@@ -471,20 +471,20 @@ final class Guard {
         return n;
     }
 
-    /** Is this Buddy's own UI (its screens, the bubble, its approval card)? */
-    static boolean isBuddy(AccessibilityNodeInfo n) {
+    /** Is this NN's own UI (its screens, the bubble, its approval card)? */
+    static boolean isNN Agent(AccessibilityNodeInfo n) {
         return n != null && n.getPackageName() != null
                 && BuildInfo.class.getPackage().getName().contentEquals(n.getPackageName());
     }
 
     /**
-     * Must the agent keep out of this node? All of Buddy's UI, unless the user turned on "Let agents tap Buddy's
+     * Must the agent keep out of this node? All of NN's UI, unless the user turned on "Let agents tap NN's
      * screens"; even then the protected parts (Ui.protect: approval cards, App permissions, the developer
      * switches) stay off-limits. The bubble and its card are overlays that taps never land on (see nodeAt).
      */
     static boolean offLimits(android.content.Context c, AccessibilityNodeInfo n) {
-        if (!isBuddy(n)) return false;
-        if (!Prefs.agentsTapBuddy(c)) return true;
+        if (!isNN Agent(n)) return false;
+        if (!Prefs.agentsTapNN Agent(c)) return true;
         AccessibilityNodeInfo cur = n;
         for (int i = 0; cur != null && i < 60; i++) {
             if (cur.getExtras().getBoolean(Ui.PROTECTED, false)) return true;

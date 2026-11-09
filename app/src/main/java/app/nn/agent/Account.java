@@ -18,8 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * One agent (Claude Code, Codex, OpenCode, Antigravity or Grok) inside Buddy's built-in Linux: install it, sign in,
- * check the account. Claude Code's and Antigravity's sign-ins show a one-time code in the browser; Buddy reads it off
+ * One agent (Claude Code, Codex, OpenCode, Antigravity or Grok) inside NN's built-in Linux: install it, sign in,
+ * check the account. Claude Code's and Antigravity's sign-ins show a one-time code in the browser; NN Agent reads it off
  * the screen (accessibility), the clipboard, or a paste box. Codex's sign-in returns to a local address inside Linux by
  * itself; Grok's is a device code the user confirms in the browser. OpenCode needs no sign-in (its free models work
  * right away); providers are connected in the terminal.
@@ -43,7 +43,7 @@ final class Account {
                 : "grok".equals(agent) ? GROK : CLAUDE;
     }
 
-    /** Is this one of Buddy's agents ("claude", "codex", "opencode", "agy" or "grok")? */
+    /** Is this one of NN's agents ("claude", "codex", "opencode", "agy" or "grok")? */
     static boolean known(String agent) {
         return of(agent).agent.equals(agent);
     }
@@ -120,12 +120,12 @@ final class Account {
 
     /** The plan to show: OpenCode's "free models" marker in the user's language, anything else as it is. */
     String planLabel() {
-        return "free models".equals(plan) ? BuddyApp.str(R.string.onboarding_agent_free_models) : plan;
+        return "free models".equals(plan) ? NnApp.str(R.string.onboarding_agent_free_models) : plan;
     }
 
     /** One line on what the agent runs on, for pickers. */
     String tagline() {
-        return BuddyApp.str(claude() ? R.string.account_tagline_claude : opencode() ? R.string.account_tagline_opencode
+        return NnApp.str(claude() ? R.string.account_tagline_claude : opencode() ? R.string.account_tagline_opencode
                 : agy() ? R.string.account_tagline_agy : grok() ? R.string.account_tagline_grok : R.string.account_tagline_codex);
     }
 
@@ -228,7 +228,7 @@ final class Account {
                         }
                     }
                 } else if (agy()) {
-                    // signed in = its saved Google login (a file: Buddy's Linux has no keyring)
+                    // signed in = its saved Google login (a file: NN's Linux has no keyring)
                     String out = Linux.exec(app, "[ -x " + AGY_BIN + " ] || { echo NOTINSTALLED; exit 0; }; "
                             + "[ -s " + AGY_TOKEN + " ] && echo AGY_SIGNED; echo VER=$(" + AGY_BIN + " --version 2>/dev/null)", 60);
                     version = ver(out);
@@ -325,7 +325,7 @@ final class Account {
         }).start();
     }
 
-    /** Installs Buddy's Linux (4 MB) if needed, then the agent: Claude Code (~230 MB) or Codex. */
+    /** Installs NN's Linux (4 MB) if needed, then the agent: Claude Code (~230 MB) or Codex. */
     void install(Context c) {
         app = c.getApplicationContext();
         if (busy()) return;
@@ -391,7 +391,7 @@ final class Account {
     }
 
     /**
-     * Removes OpenCode (2 or 1.x) before npm installs it again. Its install hard-links the binary, and Buddy's
+     * Removes OpenCode (2 or 1.x) before npm installs it again. Its install hard-links the binary, and NN's
      * Linux fakes hard links with symlinks (proot --link2symlink): when npm replaces an installed copy and
      * deletes the old links, the new binary goes with them ("opencode: not found"). A fresh install is fine.
      * Twice: the first rm can leave the binary behind as a hidden .l2s file (~200 MB).
@@ -400,7 +400,7 @@ final class Account {
             + " /usr/local/lib/node_modules/@opencode/.cli-* /usr/local/lib/node_modules/opencode-ai"
             + " /usr/local/bin/opencode /usr/local/bin/opencode2 2>/dev/null; done;";
 
-    /** npm also fetches OpenCode's glibc build; Buddy's Alpine only runs the musl one, so drop the other (~200 MB). */
+    /** npm also fetches OpenCode's glibc build; NN's Alpine only runs the musl one, so drop the other (~200 MB). */
     private static final String OC_GLIBC = " rm -rf /usr/local/lib/node_modules/@opencode/cli/node_modules/@opencode/cli-linux-arm64;";
 
     private static final String AGY_BIN = "/root/.local/bin/agy";
@@ -557,7 +557,7 @@ final class Account {
                 // nothing printed: the exit code is all there is to show why
                 if (exit != 0 && out.toString().trim().isEmpty()) out.append("exit ").append(exit);
                 if (exit == 0) {
-                    // signed in: bring Buddy back from the browser
+                    // signed in: bring NN Agent back from the browser
                     main.post(() -> {
                         try {
                             app.startActivity(new android.content.Intent(app, SignInActivity.class).putExtra("agent", agent)
@@ -593,7 +593,7 @@ final class Account {
             loginIn.write((code.trim() + (agy() ? "\r" : "\n")).getBytes(StandardCharsets.UTF_8));
             loginIn.flush();
             codeSentAt = System.currentTimeMillis();
-            set(Step.FINISHING, BuddyApp.str(R.string.signin_finishing));
+            set(Step.FINISHING, NnApp.str(R.string.signin_finishing));
             return true;
         } catch (IOException e) {
             return false;
@@ -622,7 +622,7 @@ final class Account {
     private String keyPlan() {
         StringBuilder b = new StringBuilder();
         for (Providers.P p : Providers.forAgent(agent)) b.append(b.length() == 0 ? "" : ", ").append(p.name);
-        return BuddyApp.str(R.string.account_plan_api_key_at, b.toString());
+        return NnApp.str(R.string.account_plan_api_key_at, b.toString());
     }
 
     /** The confirmation code if this text contains it, else null: Claude's "&lt;code&gt;#&lt;state&gt;", or the Google
@@ -640,7 +640,7 @@ final class Account {
     }
 
     /** Can run notification rules? A rule's run works for someone else's message and gets no shell, files or web;
-     *  Buddy can't yet hold Antigravity to that (only its allow list is known), so its chats are for the user only. */
+     *  NN Agent can't yet hold Antigravity to that (only its allow list is known), so its chats are for the user only. */
     boolean runsRules() {
         return !agy();
     }
