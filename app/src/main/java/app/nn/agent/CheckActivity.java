@@ -36,7 +36,7 @@ import static app.nn.agent.Ui.*;
  * bug report with) holds versions and results only: never chats, screen text or notifications.
  */
 public class CheckActivity extends Screen {
-    private static final String ISSUES = "https://github.com/nhatnamdev662/buddy-android/issues/new?template=bug_report.yml";
+    private static final String ISSUES = "https://github.com/nhatnamdev662/nn-android/issues/new?template=bug_report.yml";
     /** About what an agent, node and Alpine's packages need to install or update. */
     private static final long SPACE_NEEDED = 1024L * 1024 * 1024;
 

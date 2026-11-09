@@ -27,11 +27,11 @@ The short version is in the [README](../README.md). This page has the details.
 
 **Automatic updates with [Obtainium](https://obtainium.imranr.dev)** (free, open source; it checks GitHub for you and installs new versions):
 1. Install Obtainium (from its website, F-Droid or IzzyOnDroid).
-2. In Obtainium, tap **Add App** and paste `https://github.com/nhatnamdev662/buddy-android`, then **Add**.
-3. Each release has two identical APKs (`buddy.apk` and `buddy-vX.Y.Z.apk`). If Obtainium asks which one, pick `buddy.apk`. To never be asked, set **Filter APKs by regular expression** to `^buddy\.apk$` in the app's settings in Obtainium.
+2. In Obtainium, tap **Add App** and paste `https://github.com/nhatnamdev662/nn-android`, then **Add**.
+3. Each release has `NN_AGENT.apk`. To never be asked, set **Filter APKs by regular expression** to `^NN_AGENT\.apk$` in the app's settings in Obtainium.
 4. Obtainium now notifies you when a new version is out; tap **Update** and confirm Android's installer (the first time, allow Obtainium to install apps).
 
-**By hand:** open the [latest `buddy.apk`](https://github.com/nhatnamdev662/buddy-android/releases/latest/download/buddy.apk) on the phone and install it over the current one. To get an email for each new version, sign in to GitHub and choose **Watch → Custom → Releases** on the repository.
+**By hand:** open the [latest `NN_AGENT.apk`](https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk) on the phone and install it over the current one. To get an email for each new version, sign in to GitHub and choose **Watch → Custom → Releases** on the repository.
 
 **The agents** (Claude Code, Codex, OpenCode, Antigravity, Grok) update separately: Settings → the agent → **Check for updates**. An OpenCode 1.x install gets **Update to OpenCode 2** there; your connected providers are kept.
 

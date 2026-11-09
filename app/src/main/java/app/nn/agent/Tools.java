@@ -524,8 +524,8 @@ final class Tools {
         boolean fdroid = by != null && (by.contains("fdroid") || by.equals("com.looker.droidify") || by.contains("neo_store"));
         if (fdroid) return "This NN AGENT is from F-Droid, which updates it: the user checks for updates in their F-Droid app.";
         return "This is NN AGENT's F-Droid build, but no F-Droid app installed it (" + (by == null ? "installed from a file" : "installed by " + by)
-                + "), so nothing updates it. Tell the user: install the latest buddy.apk from "
-                + "https://github.com/nhatnamdev662/buddy-android/releases/latest over it (chats and settings stay, and that one "
+                + "), so nothing updates it. Tell the user: install the latest NN_AGENT.apk from "
+                + "https://github.com/nhatnamdev662/nn-android/releases/latest over it (chats and settings stay, and that one "
                 + "updates itself), or get NN AGENT from F-Droid.";
     }
 

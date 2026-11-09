@@ -38,11 +38,11 @@ import static app.nn.agent.Ui.*;
  * notification (Settings → Update notices), and the sheet that notification opens.
  */
 public final class Updates extends BroadcastReceiver {
-    static final String REPO = "https://github.com/nhatnamdev662/buddy-android";
+    static final String REPO = "https://github.com/nhatnamdev662/nn-android";
     /** For the agent (update_buddy), so English; the sheet shows R.string.update_failed_manual instead. */
-    static final String MANUAL = "You can also get it at " + REPO + "/releases/latest (buddy.apk), or with Obtainium "
+    static final String MANUAL = "You can also get it at " + REPO + "/releases/latest (NN_AGENT.apk), or with Obtainium "
             + "for automatic updates (see " + REPO + "#updating).";
-    private static final String API = "https://api.github.com/repos/nhatnamdev662/buddy-android/releases/latest";
+    private static final String API = "https://api.github.com/repos/nhatnamdev662/nn-android/releases/latest";
     private static final String CHANNEL = "updates", ACTION_MUTE = "app.nn.agent.MUTE_UPDATES";
     private static final int ID = 3;
     private static final long DAY = 24 * 3600_000L;

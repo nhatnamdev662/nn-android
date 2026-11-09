@@ -1,6 +1,6 @@
 # Buddy phone bridge (stdio)
 
-**This needs the free Buddy app on your Android phone: [download the APK](https://github.com/nhatnamdev662/buddy-android/releases/latest/download/buddy.apk) or see [Buddy on GitHub](https://github.com/nhatnamdev662/buddy-android).** Buddy lets AI agents read your screen, tap and type, and asks before anything risky. No root, no adb, no PC.
+**This needs the free NN Agent app on your Android phone: [download the APK](https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk) or see [NN Agent on GitHub](https://github.com/nhatnamdev662/nn-android).** NN Agent lets AI agents read your screen, tap and type, and asks before anything risky. No root, no adb, no PC.
 
 Buddy's phone tools (read the screen, tap, type, scroll, open apps, screenshots, notifications, the background browser…) are a local MCP server inside the Buddy app on your Android phone: `http://127.0.0.1:8765/mcp`. Most agents connect to it directly; Buddy's **Settings → Phone tools in your own sessions** gives the command for Claude Code, Codex, OpenCode, Antigravity and Grok.
 

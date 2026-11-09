@@ -4,11 +4,11 @@
   "title": "Buddy phone tools",
   "description": "Android phone tools for AI agents (read the screen, tap, type, open apps), served by the Buddy app.",
   "repository": {
-    "url": "https://github.com/nhatnamdev662/buddy-android",
+    "url": "https://github.com/nhatnamdev662/nn-android",
     "source": "github",
     "subfolder": "mcp-bridge"
   },
-  "websiteUrl": "https://nhatnamdev662.github.io/buddy-android/",
+  "websiteUrl": "https://nhatnamdev662.github.io/nn-android/",
   "version": "1.2.0",
   "packages": [
     {

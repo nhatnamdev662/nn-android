@@ -13,7 +13,7 @@ import { createInterface } from "node:readline";
 
 const URL_ = process.env.BUDDY_URL || "http://127.0.0.1:8765/mcp";
 const TOKEN = (process.env.BUDDY_TOKEN || "").replace(/^Bearer\s+/i, "");
-const GET_BUDDY = "Buddy is a free Android app, https://github.com/nhatnamdev662/buddy-android (APK: https://github.com/nhatnamdev662/buddy-android/releases/latest/download/buddy.apk)";
+const GET_BUDDY = "NN Agent is a free Android app, https://github.com/nhatnamdev662/nn-android (APK: https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk)";
 const TIMEOUT_MS = 10 * 60_000; // an approval card can wait for the user
 const TOOLS = JSON.parse(readFileSync(new URL("./tools.json", import.meta.url), "utf8"));
 // Buddy's own instructions (McpServer.INSTRUCTIONS), for when Buddy can't be asked

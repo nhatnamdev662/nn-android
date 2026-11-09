@@ -1,12 +1,12 @@
-# Buddy privacy policy
+# NN Agent privacy policy
 
-*Last updated: 22 October 2026*
+*Last updated: November 2026*
 
-Buddy is an open-source Android app (Apache 2.0) by Hamdi Ghorbel. It lets an AI agent of your choice (Claude Code, Codex, OpenCode, Antigravity or Grok) use your phone's apps for you. This policy explains what data Buddy handles. The source code is public at https://github.com/nhatnamdev662/buddy-android, so every statement here can be checked.
+NN Agent is an open-source Android app (Apache 2.0). It lets an AI agent of your choice (Claude Code, Codex, OpenCode, Antigravity or Grok) use your phone's apps for you. This policy explains what data NN Agent handles. The source code is public at https://github.com/nhatnamdev662/nn-android, so every statement here can be checked.
 
-## Buddy has no servers
+## NN Agent has no servers
 
-Buddy doesn't run any servers or analytics. It doesn't collect, store, sell or share your data with us or with advertisers, and it shows no ads.
+NN Agent doesn't run any servers or analytics. It doesn't collect, store, sell or share your data with us or with advertisers, and it shows no ads.
 
 ## Accessibility service
 
@@ -74,4 +74,4 @@ Buddy is not directed at children under 13.
 
 ## Changes and contact
 
-Changes to this policy are published in this file, with their history in the repository. Questions: open an issue at https://github.com/nhatnamdev662/buddy-android/issues or email duoboard.support@gmail.com.
+Changes to this policy are published in this file, with their history in the repository. Questions: open an issue at https://github.com/nhatnamdev662/nn-android/issues.

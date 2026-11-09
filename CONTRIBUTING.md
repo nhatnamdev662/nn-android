@@ -1,10 +1,10 @@
-# Contributing to Buddy
+# Contributing to NN Agent
 
 Thanks for helping. Bug reports, ideas and translation fixes are all welcome. Features and bug fixes are built in the project itself, so please open an issue for them rather than a pull request.
 
 ## Reporting a bug
 
-Open an [issue](https://github.com/nhatnamdev662/buddy-android/issues/new/choose) with the bug form. The most useful details are your phone and Android version, the agent and model (Claude Code, Codex, OpenCode, Antigravity or Grok), what you asked, and what happened instead. A screenshot of the chat (open its "N tool calls" line) usually shows where it went wrong.
+Open an [issue](https://github.com/nhatnamdev662/nn-android/issues/new/choose) with the bug form. The most useful details are your phone and Android version, the agent and model (Claude Code, Codex, OpenCode, Antigravity or Grok), what you asked, and what happened instead. A screenshot of the chat (open its "N tool calls" line) usually shows where it went wrong.
 
 Found a way for an agent to act without your approval, or to approve for you? Please don't post it publicly: see [SECURITY.md](SECURITY.md).
 
