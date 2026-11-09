@@ -1600,13 +1600,14 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 return;
             }
 
+            final int finalPort = port;
             pair.setEnabled(false);
             pair.setText(R.string.adb_pair_pairing);
-            AdbManager.pair(port, code, (ok, why) -> runOnUiThread(() -> {
+            AdbManager.pair(finalPort, code, (ok, why) -> runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 if (d.isShowing()) d.dismiss();
                 if (ok) {
-                    AdbPairingService.showSuccessNotification(this, port);
+                    AdbPairingService.showSuccessNotification(this, finalPort);
                     Toast.makeText(this, R.string.adb_pair_success, Toast.LENGTH_SHORT).show();
                     render();
                 } else {
