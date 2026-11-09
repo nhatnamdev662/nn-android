@@ -70,9 +70,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         Browser.addListener(this);
         AdbManager.get(this);
         AdbManager.addListener(this);
-        if (Prefs.adbEnabled(this)) {
-            AdbManager.ensure(this);
-        }
+        AdbManager.ensure(this);
         Account.CLAUDE.refresh(this);
         Account.CODEX.refresh(this);
         Account.OPENCODE.refresh(this);
@@ -664,113 +662,79 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             addCard(oc);
         }
 
-        // --------------------------------------------------- wireless debugging (adb)
+        // --------------------------------------------------- adb
         list.addView(sectionLabel(this, getString(R.string.setup_adb_section)));
         LinearLayout ac = card();
-        ac.addView(switchRow(this, getString(R.string.setup_adb_switch),
-                getString(R.string.setup_adb_switch_info),
-                Prefs.adbEnabled(this), on -> {
-            Prefs.setAdbEnabled(this, on);
-            if (on) AdbManager.ensure(this);
-            else AdbManager.stop();
-            render();
-        }), full());
 
-        if (Prefs.adbEnabled(this)) {
-            ac.addView(divider(), lineParams());
+        // Status banner card
+        LinearLayout sc = column(this);
+        sc.setBackground(rounded(this, CARD2, 12));
+        sc.setPaddingRelative(dp(this, 16), dp(this, 12), dp(this, 16), dp(this, 12));
+        LinearLayout.LayoutParams scp = full();
+        scp.setMargins(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
 
-            // Status banner card
-            LinearLayout sc = column(this);
-            sc.setBackground(rounded(this, CARD2, 12));
-            sc.setPaddingRelative(dp(this, 16), dp(this, 12), dp(this, 16), dp(this, 12));
-            LinearLayout.LayoutParams scp = full();
-            scp.setMargins(dp(this, 16), dp(this, 12), dp(this, 16), dp(this, 12));
+        LinearLayout sr = row(this);
+        sr.setGravity(Gravity.CENTER_VERTICAL);
 
-            LinearLayout sr = row(this);
-            sr.setGravity(Gravity.CENTER_VERTICAL);
+        AdbManager.State as = AdbManager.state;
+        boolean isConn = AdbManager.isConnected();
+        int dotColor = isConn ? OK
+                : (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRING) ? ACCENT
+                : ERR;
+        sr.addView(dot(this, dotColor, 10));
 
-            AdbManager.State as = AdbManager.state;
-            boolean isConn = AdbManager.isConnected();
-            int dotColor = isConn ? OK
-                    : (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRING) ? ACCENT
-                    : ERR;
-            sr.addView(dot(this, dotColor, 10));
+        LinearLayout stCol = column(this);
+        stCol.setPaddingRelative(dp(this, 12), 0, 0, 0);
 
-            LinearLayout stCol = column(this);
-            stCol.setPaddingRelative(dp(this, 12), 0, 0, 0);
+        String statusTitle;
+        int titleColor;
+        if (isConn) {
+            statusTitle = getString(R.string.setup_adb_status_active);
+            titleColor = OK;
+        } else if (as == AdbManager.State.CONNECTING) {
+            statusTitle = getString(R.string.setup_adb_status_connecting);
+            titleColor = TEXT;
+        } else if (as == AdbManager.State.PAIRING) {
+            statusTitle = getString(R.string.setup_adb_status_pairing);
+            titleColor = TEXT;
+        } else {
+            statusTitle = getString(R.string.setup_adb_status_inactive);
+            titleColor = TEXT;
+        }
 
-            String statusTitle;
-            int titleColor;
-            if (isConn) {
-                statusTitle = getString(R.string.setup_adb_status_active);
-                titleColor = OK;
-            } else if (as == AdbManager.State.CONNECTING) {
-                statusTitle = getString(R.string.setup_adb_status_connecting);
-                titleColor = TEXT;
-            } else if (as == AdbManager.State.PAIRING) {
-                statusTitle = getString(R.string.setup_adb_status_pairing);
-                titleColor = TEXT;
-            } else {
-                statusTitle = getString(R.string.setup_adb_status_inactive);
-                titleColor = TEXT;
-            }
+        TextView stTitle = title(this, statusTitle, 15);
+        stTitle.setTextColor(titleColor);
+        stCol.addView(stTitle);
 
-            TextView stTitle = title(this, statusTitle, 15);
-            stTitle.setTextColor(titleColor);
-            stCol.addView(stTitle);
+        String statusSub;
+        if (isConn) {
+            statusSub = getString(R.string.setup_adb_status_sub_connected, AdbManager.port);
+        } else if (as == AdbManager.State.CONNECTING) {
+            statusSub = AdbManager.port > 0
+                    ? getString(R.string.setup_adb_status_connecting_port, AdbManager.port)
+                    : getString(R.string.setup_adb_status_connecting);
+        } else if (!AdbManager.detail.isEmpty()) {
+            statusSub = AdbManager.detail;
+        } else {
+            statusSub = getString(R.string.setup_adb_status_sub_disconnected);
+        }
 
-            String statusSub;
-            if (isConn) {
-                statusSub = getString(R.string.setup_adb_status_sub_connected, AdbManager.port);
-            } else if (as == AdbManager.State.CONNECTING) {
-                statusSub = AdbManager.port > 0
-                        ? getString(R.string.setup_adb_status_connecting_port, AdbManager.port)
-                        : getString(R.string.setup_adb_status_connecting);
-            } else if (!AdbManager.detail.isEmpty()) {
-                statusSub = AdbManager.detail;
-            } else {
-                statusSub = getString(R.string.setup_adb_status_sub_disconnected);
-            }
+        TextView stSub = monoText(this, statusSub, 12, MUTED);
+        stSub.setPaddingRelative(0, dp(this, 3), 0, 0);
+        stCol.addView(stSub);
 
-            TextView stSub = monoText(this, statusSub, 12, MUTED);
-            stSub.setPaddingRelative(0, dp(this, 3), 0, 0);
-            stCol.addView(stSub);
+        sr.addView(stCol, weight1());
+        sc.addView(sr, full());
+        ac.addView(sc, scp);
 
-            sr.addView(stCol, weight1());
-            sc.addView(sr, full());
-            ac.addView(sc, scp);
-
-            // Action Buttons
+        if (!isConn) {
+            // Action button: Pair
             LinearLayout btns = row(this);
             btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
-
-            if (!isConn) {
-                Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
-                pairBtn.setOnClickListener(v -> adbGuideSheet());
-                btns.addView(pairBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
-
-                Button startBtn = button(this, getString(R.string.setup_adb_start), false);
-                startBtn.setOnClickListener(v -> {
-                    Prefs.setAdbEnabled(this, true);
-                    AdbManager.ensure(this);
-                    render();
-                });
-                LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
-                sp.setMarginStart(dp(this, 8));
-                btns.addView(startBtn, sp);
-
-                ac.addView(btns, full());
-            } else {
-                Button stopBtn = button(this, getString(R.string.setup_adb_stop), false);
-                stopBtn.setTextColor(ERR);
-                stopBtn.setOnClickListener(v -> {
-                    Prefs.setAdbEnabled(this, false);
-                    AdbManager.stop();
-                    render();
-                });
-                btns.addView(stopBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
-                ac.addView(btns, full());
-            }
+            Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
+            pairBtn.setOnClickListener(v -> adbGuideSheet());
+            btns.addView(pairBtn, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(this, 44)));
+            ac.addView(btns, full());
 
             ac.addView(divider(), lineParams());
 
@@ -1607,6 +1571,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 if (isFinishing() || isDestroyed()) return;
                 if (d.isShowing()) d.dismiss();
                 if (ok) {
+                    Prefs.setAdbEnabled(this, true);
+                    AdbManager.ensure(this);
                     AdbPairingService.showSuccessNotification(this, finalPort);
                     Toast.makeText(this, R.string.adb_pair_success, Toast.LENGTH_SHORT).show();
                     render();
@@ -1844,17 +1810,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         LinearLayout col3 = column(this);
         col3.setPaddingRelative(dp(this, 12), 0, 0, 0);
         col3.addView(text(this, getString(R.string.adb_guide_step3), 14, TEXT));
-
-        Button startBtn = button(this, getString(R.string.adb_guide_start_adb), true);
-        startBtn.setOnClickListener(v -> {
-            Prefs.setAdbEnabled(this, true);
-            AdbManager.ensure(this);
-            render();
-        });
-        LinearLayout.LayoutParams spParams = wrap();
-        spParams.topMargin = dp(this, 6);
-        col3.addView(startBtn, spParams);
-
         step3Row.addView(col3, weight1());
         content.addView(step3Row, topGap(6));
 

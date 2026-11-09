@@ -2071,7 +2071,7 @@
     <string name="chat_rename_save">Save</string>
 
     <!-- Settings screen: Wireless Debugging (ADB). -->
-    <string name="setup_adb_section">Wireless Debugging (ADB)</string>
+    <string name="setup_adb_section">ADB</string>
     <string name="setup_adb_section_info">Direct on-device ADB connection via loopback. Lets agents run ADB shell commands without a computer.</string>
     <string name="setup_adb_switch">Enable ADB connection</string>
     <string name="setup_adb_switch_info">Connecting ADB lets NN automate high-speed actions, type instantly, inspect system status, and manage apps without root.</string>
@@ -2081,10 +2081,10 @@
     <string name="setup_adb_status_connecting_port">connecting to port %1$d…</string>
     <string name="setup_adb_status_pairing">pairing in progress…</string>
     <string name="setup_adb_status_error">not connected: %1$s</string>
-    <string name="setup_adb_status_active">Wireless ADB Active</string>
-    <string name="setup_adb_status_inactive">Wireless ADB Disconnected</string>
+    <string name="setup_adb_status_active">ADB Active</string>
+    <string name="setup_adb_status_inactive">ADB Disconnected</string>
     <string name="setup_adb_status_sub_connected">127.0.0.1:%1$d · Shell UID 2000 (sh)</string>
-    <string name="setup_adb_status_sub_disconnected">Turn on Wireless Debugging or enter port to connect.</string>
+    <string name="setup_adb_status_sub_disconnected">Enable Wireless Debugging to pair or connect.</string>
     <string name="setup_adb_pair">Pair with pairing code</string>
     <string name="setup_adb_connect_manual">Enter Port &amp; Connect</string>
     <string name="setup_adb_change_port">Change Port</string>
@@ -2122,7 +2122,7 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="adb_guide_open_dev">Developer Options</string>
     <string name="adb_guide_step2">Enter the pairing code into the notification to complete pairing.</string>
     <string name="adb_guide_step2_enter_here">Enter code in app</string>
-    <string name="adb_guide_step3">Return to NN and start ADB.</string>
+    <string name="adb_guide_step3">Return to NN Agent. ADB connects automatically once paired.</string>
     <string name="adb_guide_start_adb">Start ADB</string>
     <string name="adb_ask_nn_prompt">I want to connect Wireless ADB so you can unlock full phone automation capabilities. Please check if Wireless Debugging is on and guide or automate the connection for me!</string>
 

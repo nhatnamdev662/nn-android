@@ -2053,7 +2053,7 @@
     <string name="chat_rename_save">Lưu</string>
 
     <!-- Settings screen: Wireless Debugging (ADB). -->
-    <string name="setup_adb_section">Gỡ lỗi không dây (ADB)</string>
+    <string name="setup_adb_section">ADB</string>
     <string name="setup_adb_section_info">Kết nối ADB trực tiếp trên thiết bị qua loopback. Cho phép agent chạy lệnh adb shell mà không cần máy tính.</string>
     <string name="setup_adb_switch">Bật kết nối ADB</string>
     <string name="setup_adb_switch_info">Kết nối ADB giúp NN can thiệp sâu, tự động hoá tác vụ tốc độ cao, gõ phím nhanh và quản lý ứng dụng mà không cần root.</string>
@@ -2066,7 +2066,7 @@
     <string name="setup_adb_status_active">ADB đang hoạt động</string>
     <string name="setup_adb_status_inactive">ADB chưa kết nối</string>
     <string name="setup_adb_status_sub_connected">127.0.0.1:%1$d · Quyền Shell UID 2000 (sh)</string>
-    <string name="setup_adb_status_sub_disconnected">Bật Gỡ lỗi không dây hoặc nhập số cổng để kết nối.</string>
+    <string name="setup_adb_status_sub_disconnected">Bật Gỡ lỗi không dây để ghép nối hoặc kết nối.</string>
     <string name="setup_adb_pair">Ghép nối bằng mã</string>
     <string name="setup_adb_connect_manual">Nhập cổng &amp; Kết nối</string>
     <string name="setup_adb_change_port">Đổi cổng</string>
@@ -2104,7 +2104,7 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="adb_guide_open_dev">Tùy chọn nhà phát triển</string>
     <string name="adb_guide_step2">Nhập mã vào thông báo để hoàn tất quá trình ghép nối.</string>
     <string name="adb_guide_step2_enter_here">Nhập mã trong ứng dụng</string>
-    <string name="adb_guide_step3">Quay lại với NN và khởi động ADB.</string>
+    <string name="adb_guide_step3">Quay lại với NN Agent. ADB sẽ tự động kết nối ngay khi ghép nối thành công.</string>
     <string name="adb_guide_start_adb">Khởi động ADB</string>
     <string name="adb_ask_nn_prompt">Tôi muốn kết nối ADB qua Gỡ lỗi không dây để bạn tận dụng tối đa tính năng tự động hoá. Bạn hãy kiểm tra xem Gỡ lỗi không dây đã bật chưa và hướng dẫn hoặc tự động thao tác kết nối hộ tôi nhé!</string>
 

@@ -213,6 +213,8 @@ public final class AdbPairingService {
                     if (code.length() == 6 && port > 0) {
                         AdbManager.pair(port, code, (success, error) -> {
                             if (success) {
+                                Prefs.setAdbEnabled(context, true);
+                                AdbManager.ensure(context);
                                 showSuccessNotification(context, port);
                                 Toast.makeText(context, R.string.adb_notify_pair_success, Toast.LENGTH_SHORT).show();
                                 try {

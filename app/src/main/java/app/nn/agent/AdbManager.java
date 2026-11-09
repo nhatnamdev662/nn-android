@@ -180,6 +180,11 @@ public final class AdbManager {
                 Prefs.setAdbPort(context, targetPort);
                 Prefs.setAdbEnabled(context, true);
                 updateState(State.CONNECTED, "", targetPort);
+
+                // AxManager-style UID 2000 shell daemon presence
+                try {
+                    AdbConnection.execute("nohup sh -c 'while true; do sleep 3600; done' >/dev/null 2>&1 &", 3000);
+                } catch (Throwable ignored) {}
             } catch (Throwable t) {
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
                 String msg = t.getMessage();

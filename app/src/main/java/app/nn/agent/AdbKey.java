@@ -93,55 +93,103 @@ public final class AdbKey {
         return certificate;
     }
 
-    private static AdbKey loadOrCreate(Context context) throws Exception {
-        try {
-            KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
-            ks.load(null);
+    private static final String PREF_PRIV_KEY = "adb_priv_key_pk8_b64";
+    private static final String PREF_CERT = "adb_cert_der_b64";
+    private static final String FILE_PRIV_KEY = "adb_key.pk8";
+    private static final String FILE_CERT = "adb_cert.der";
 
-            if (ks.containsAlias(KEY_ALIAS)) {
+    private static AdbKey loadOrCreate(Context context) throws Exception {
+        Context ctx = context != null ? context : BuddyApp.ctx;
+
+        byte[] privBytes = null;
+        byte[] certBytes = null;
+
+        if (ctx != null) {
+            java.io.File keyFile = new java.io.File(ctx.getFilesDir(), FILE_PRIV_KEY);
+            java.io.File certFile = new java.io.File(ctx.getFilesDir(), FILE_CERT);
+            if (keyFile.exists() && certFile.exists()) {
                 try {
-                    PrivateKey priv = (PrivateKey) ks.getKey(KEY_ALIAS, null);
-                    X509Certificate cert = (X509Certificate) ks.getCertificate(KEY_ALIAS);
-                    if (priv instanceof RSAPrivateKey && cert != null && cert.getPublicKey() instanceof RSAPublicKey) {
-                        return new AdbKey((RSAPrivateKey) priv, (RSAPublicKey) cert.getPublicKey(), cert);
-                    }
-                } catch (Exception ignored) {
-                    // Keystore entry invalidated, regenerate
-                }
+                    privBytes = readFileBytes(keyFile);
+                    certBytes = readFileBytes(certFile);
+                } catch (Throwable ignored) {}
             }
 
-            // Generate new RSA-2048 keypair in AndroidKeyStore
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
-            KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
-                    KEY_ALIAS,
-                    KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
-                    .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512, KeyProperties.DIGEST_NONE)
-                    .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1, KeyProperties.SIGNATURE_PADDING_RSA_PSS)
-                    .setKeySize(2048)
-                    .setCertificateSubject(new X500Principal("CN=buddy"))
-                    .setCertificateSerialNumber(BigInteger.ONE)
-                    .setCertificateNotBefore(new Date(System.currentTimeMillis() - 24 * 3600 * 1000L))
-                    .setCertificateNotAfter(new Date(System.currentTimeMillis() + 100L * 365 * 24 * 3600 * 1000L))
-                    .build();
-            kpg.initialize(spec);
-            KeyPair kp = kpg.generateKeyPair();
-            X509Certificate cert = (X509Certificate) ks.getCertificate(KEY_ALIAS);
+            if (privBytes == null || certBytes == null) {
+                try {
+                    android.content.SharedPreferences sp = ctx.getSharedPreferences("app.nn.agent_preferences", Context.MODE_PRIVATE);
+                    String privB64 = sp.getString(PREF_PRIV_KEY, null);
+                    String certB64 = sp.getString(PREF_CERT, null);
+                    if (privB64 != null && certB64 != null) {
+                        privBytes = Base64.getDecoder().decode(privB64);
+                        certBytes = Base64.getDecoder().decode(certB64);
+                    }
+                } catch (Throwable ignored) {}
+            }
+        }
 
-            return new AdbKey((RSAPrivateKey) kp.getPrivate(), (RSAPublicKey) kp.getPublic(), cert);
+        if (privBytes != null && certBytes != null) {
+            try {
+                java.security.spec.PKCS8EncodedKeySpec spec = new java.security.spec.PKCS8EncodedKeySpec(privBytes);
+                java.security.KeyFactory kf = java.security.KeyFactory.getInstance("RSA");
+                RSAPrivateKey privKey = (RSAPrivateKey) kf.generatePrivate(spec);
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));
+                RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
+                return new AdbKey(privKey, pubKey, cert);
+            } catch (Throwable t) {
+                android.util.Log.w("AdbKey", "Failed to restore persistent ADB key, generating new one", t);
+            }
+        }
 
-        } catch (Throwable t) {
-            // Fallback for non-Android / testing environments where AndroidKeyStore is unavailable
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
-            KeyPair kp = kpg.generateKeyPair();
-            X509Certificate cert = generateSelfSignedCertificate(kp);
-            return new AdbKey((RSAPrivateKey) kp.getPrivate(), (RSAPublicKey) kp.getPublic(), cert);
+        // Generate persistent software RSA-2048 keypair (AxManager / Shizuku architecture)
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+        RSAPrivateKey privKey = (RSAPrivateKey) kp.getPrivate();
+        RSAPublicKey pubKey = (RSAPublicKey) kp.getPublic();
+        X509Certificate cert = generateSelfSignedCertificate(kp);
+
+        if (ctx != null) {
+            try {
+                byte[] encPriv = privKey.getEncoded();
+                byte[] encCert = cert.getEncoded();
+                java.io.File keyFile = new java.io.File(ctx.getFilesDir(), FILE_PRIV_KEY);
+                java.io.File certFile = new java.io.File(ctx.getFilesDir(), FILE_CERT);
+                writeFileBytes(keyFile, encPriv);
+                writeFileBytes(certFile, encCert);
+
+                android.content.SharedPreferences sp = ctx.getSharedPreferences("app.nn.agent_preferences", Context.MODE_PRIVATE);
+                sp.edit()
+                        .putString(PREF_PRIV_KEY, Base64.getEncoder().encodeToString(encPriv))
+                        .putString(PREF_CERT, Base64.getEncoder().encodeToString(encCert))
+                        .apply();
+            } catch (Throwable t) {
+                android.util.Log.w("AdbKey", "Failed to persist ADB key", t);
+            }
+        }
+
+        return new AdbKey(privKey, pubKey, cert);
+    }
+
+    private static byte[] readFileBytes(java.io.File file) throws Exception {
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(file);
+             java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream()) {
+            byte[] buf = new byte[4096];
+            int n;
+            while ((n = fis.read(buf)) != -1) {
+                bos.write(buf, 0, n);
+            }
+            return bos.toByteArray();
         }
     }
 
-    /**
-     * Fallback pure-Java self-signed X.509 certificate generator for JVM testing environments.
-     */
+    private static void writeFileBytes(java.io.File file, byte[] data) throws Exception {
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
+            fos.write(data);
+            fos.flush();
+        }
+    }
+
     private static X509Certificate generateSelfSignedCertificate(KeyPair keyPair) throws Exception {
         RSAPublicKey pubKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privKey = (RSAPrivateKey) keyPair.getPrivate();
