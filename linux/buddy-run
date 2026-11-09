@@ -574,7 +574,7 @@ stream_opencode() {
 # like Codex's full access. timeoutSeconds: an approval card may wait for the user (10 minutes, as for the others).
 AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url",
 "screenshot","wait","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled",
-"update_buddy","install_apk","wait_for_install","point_out"]'
+"update_buddy","install_apk","wait_for_install","point_out","adb_shell"]'
 run_agy() {
   local h=$S/agy-home g=$HOME/.gemini/antigravity-cli f list tools sigs
   mkdir -p "$h/.gemini/config" "$h/.gemini/antigravity-cli" "$g" "$HOME/.gemini/config"

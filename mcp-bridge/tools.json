@@ -1067,5 +1067,26 @@
         }
       }
     }
+  },
+  {
+    "name": "adb_shell",
+    "description": "Execute an ADB shell command via on-device Wireless Debugging loopback.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Shell command to execute"
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "description": "Optional timeout in ms (1000-60000)"
+        }
+      },
+      "required": [
+        "command"
+      ]
+    }
   }
 ]
+

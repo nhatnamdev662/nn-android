@@ -28,7 +28,7 @@ import static app.nn.agent.Ui.*;
 
 /** Settings: setup checklist, appearance, agents and experience. */
 public class SetupActivity extends Screen implements Account.Listener, RemoteSession.Listener, SshServer.Listener,
-        CodexRemote.Listener, Browser.Listener {
+        CodexRemote.Listener, Browser.Listener, AdbManager.Listener {
     private ScrollView scroll;
     private LinearLayout list;
     /** Setup card open state; null = automatic (open until all steps are done). */
@@ -68,6 +68,11 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         SshServer.addListener(this);
         CodexRemote.addListener(this);
         Browser.addListener(this);
+        AdbManager.get(this);
+        AdbManager.addListener(this);
+        if (Prefs.adbEnabled(this)) {
+            AdbManager.ensure(this);
+        }
         Account.CLAUDE.refresh(this);
         Account.CODEX.refresh(this);
         Account.OPENCODE.refresh(this);
@@ -83,7 +88,18 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         SshServer.removeListener(this);
         CodexRemote.removeListener(this);
         Browser.removeListener(this);
+        AdbManager.removeListener(this);
         super.onPause();
+    }
+
+    @Override
+    public void onAdbStateChanged(AdbManager.State state, String host, int port, String error) {
+        if (!isFinishing() && !isDestroyed()) render();
+    }
+
+    @Override
+    public void onAdbPairingDiscovered(String host, int port) {
+        if (!isFinishing() && !isDestroyed()) render();
     }
 
     @Override
@@ -647,6 +663,66 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             oc.addView(r, full());
             addCard(oc);
         }
+
+        // --------------------------------------------------- wireless debugging (adb)
+        list.addView(sectionLabel(this, getString(R.string.setup_adb_section)));
+        LinearLayout ac = card();
+        ac.addView(switchRow(this, getString(R.string.setup_adb_switch),
+                getString(R.string.setup_adb_switch_info),
+                Prefs.adbEnabled(this), on -> {
+            Prefs.setAdbEnabled(this, on);
+            if (on) AdbManager.ensure(this);
+            else AdbManager.stop();
+            render();
+        }), full());
+
+        if (Prefs.adbEnabled(this)) {
+            ac.addView(divider(), lineParams());
+            LinearLayout st = row(this);
+            st.setPaddingRelative(dp(this, 16), dp(this, 10), dp(this, 16), dp(this, 10));
+            AdbManager.State as = AdbManager.state;
+            int dotColor = as == AdbManager.State.CONNECTED ? OK
+                    : as == AdbManager.State.ERROR ? ERR
+                    : (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRING) ? ACCENT
+                    : MUTED;
+            st.addView(dot(this, dotColor, 8));
+
+            String statusText = as == AdbManager.State.CONNECTED
+                    ? getString(R.string.setup_adb_status_connected, AdbManager.port)
+                    : as == AdbManager.State.ERROR ? getString(R.string.setup_adb_status_error, AdbManager.detail)
+                    : as == AdbManager.State.PAIRING ? getString(R.string.setup_adb_status_pairing)
+                    : as == AdbManager.State.CONNECTING ? getString(R.string.setup_adb_status_connecting)
+                    : getString(R.string.setup_adb_status_disconnected);
+
+            TextView stt = monoText(this, statusText, 12, as == AdbManager.State.ERROR ? ERR : MUTED);
+            stt.setPaddingRelative(dp(this, 8), 0, 0, 0);
+            st.addView(stt, weight1());
+            ac.addView(st, full());
+
+            LinearLayout btns = row(this);
+            btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
+
+            if (as != AdbManager.State.CONNECTED) {
+                Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
+                pairBtn.setOnClickListener(v -> adbPairSheet());
+                btns.addView(pairBtn, wrap());
+
+                Button devBtn = button(this, getString(R.string.setup_adb_open_dev_options), false);
+                devBtn.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)));
+                LinearLayout.LayoutParams dpParams = wrap();
+                dpParams.setMarginStart(dp(this, 8));
+                btns.addView(devBtn, dpParams);
+            } else {
+                Button discBtn = button(this, getString(R.string.setup_adb_disconnect), false);
+                discBtn.setOnClickListener(v -> {
+                    AdbManager.disconnect();
+                    render();
+                });
+                btns.addView(discBtn, wrap());
+            }
+            ac.addView(btns, full());
+        }
+        addCard(ac);
 
         // ----------------------------------------------------------- experience
         list.addView(sectionLabel(this, getString(R.string.setup_experience)));
@@ -1350,6 +1426,104 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
         r.setOnClickListener(v -> startActivity(new Intent(this, screen)));
         return r;
+    }
+
+    private void adbPairSheet() {
+        LinearLayout c = column(this);
+
+        TextView h = title(this, getString(R.string.adb_pair_sheet_title), 18);
+        h.setPaddingRelative(0, 0, 0, dp(this, 6));
+        c.addView(h);
+
+        TextView desc = text(this, getString(R.string.adb_pair_sheet_desc), 13, MUTED);
+        desc.setPaddingRelative(0, 0, 0, dp(this, 14));
+        c.addView(desc);
+
+        c.addView(text(this, getString(R.string.adb_pair_code_label), 12, MUTED));
+        EditText codeInput = new EditText(this);
+        codeInput.setHint("123456");
+        codeInput.setHintTextColor(MUTED);
+        codeInput.setTextColor(TEXT);
+        codeInput.setTextSize(22);
+        codeInput.setTypeface(mono(this, 600));
+        codeInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        codeInput.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
+        codeInput.setGravity(Gravity.CENTER);
+        codeInput.setLetterSpacing(0.12f);
+        codeInput.setPaddingRelative(dp(this, 12), dp(this, 12), dp(this, 12), dp(this, 12));
+        codeInput.setBackground(outlined(this, BG, 12, OUTLINE, 1));
+        LinearLayout.LayoutParams codeParams = full();
+        codeParams.topMargin = dp(this, 6);
+        c.addView(codeInput, codeParams);
+
+        TextView portLabel = text(this, getString(R.string.adb_pair_port_label), 12, MUTED);
+        portLabel.setPaddingRelative(0, dp(this, 12), 0, dp(this, 4));
+        c.addView(portLabel);
+
+        EditText portInput = new EditText(this);
+        portInput.setHint(AdbManager.detectedPairingPort > 0 ? String.valueOf(AdbManager.detectedPairingPort) : "38491");
+        if (AdbManager.detectedPairingPort > 0) {
+            portInput.setText(String.valueOf(AdbManager.detectedPairingPort));
+        }
+        portInput.setHintTextColor(MUTED);
+        portInput.setTextColor(TEXT);
+        portInput.setTextSize(15);
+        portInput.setTypeface(mono(this, 400));
+        portInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        portInput.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(5)});
+        portInput.setPaddingRelative(dp(this, 12), dp(this, 10), dp(this, 12), dp(this, 10));
+        portInput.setBackground(outlined(this, BG, 12, OUTLINE, 1));
+        c.addView(portInput, full());
+
+        LinearLayout btns = row(this);
+        Button cancel = button(this, getString(android.R.string.cancel), false);
+        Button pair = button(this, getString(R.string.adb_pair_action), true);
+        btns.addView(cancel, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
+        LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
+        pp.setMarginStart(dp(this, 10));
+        btns.addView(pair, pp);
+        LinearLayout.LayoutParams bp = full();
+        bp.topMargin = dp(this, 16);
+        c.addView(btns, bp);
+
+        Button devBtn = outlinedButton(this, getString(R.string.setup_adb_open_dev_options), ACCENT_TEXT);
+        devBtn.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)));
+        LinearLayout.LayoutParams devParams = full();
+        devParams.topMargin = dp(this, 10);
+        c.addView(devBtn, devParams);
+
+        Dialog d = bottomSheet(this, c);
+        cancel.setOnClickListener(v -> d.dismiss());
+        pair.setOnClickListener(v -> {
+            String code = codeInput.getText().toString().trim();
+            String portStr = portInput.getText().toString().trim();
+            if (code.length() != 6) {
+                Toast.makeText(this, R.string.adb_pair_invalid_code, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int port = AdbManager.detectedPairingPort;
+            if (!portStr.isEmpty()) {
+                try { port = Integer.parseInt(portStr); } catch (Exception ignored) {}
+            }
+            if (port <= 0 || port > 65535) {
+                Toast.makeText(this, R.string.adb_pair_invalid_port, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            pair.setEnabled(false);
+            pair.setText(R.string.adb_pair_pairing);
+            AdbManager.pair(port, code, (ok, why) -> runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed() || !d.isShowing()) return;
+                d.dismiss();
+                if (ok) {
+                    Toast.makeText(this, R.string.adb_pair_success, Toast.LENGTH_SHORT).show();
+                    render();
+                } else {
+                    Toast.makeText(this, getString(R.string.adb_pair_failed, why), Toast.LENGTH_LONG).show();
+                }
+            }));
+        });
+        d.show();
     }
 
     private void openAppInfo(String pkg) {

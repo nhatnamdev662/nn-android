@@ -41,10 +41,10 @@ import org.json.JSONObject;
 final class PhoneTools {
     static final java.util.Set<String> NAMES = new java.util.HashSet<>(java.util.Arrays.asList(
             "clipboard_read", "clipboard_write", "set_alarm", "set_timer", "share", "save_to_downloads", "device_status",
-            "take_photo", "location", "notifications", "media", "calendar_events", "add_calendar_event"));
+            "take_photo", "location", "notifications", "media", "calendar_events", "add_calendar_event", "adb_shell"));
     /** Not in a notification rule's run: they read the user's things or send something out. */
     private static final java.util.Set<String> NOT_IN_RULES = new java.util.HashSet<>(java.util.Arrays.asList(
-            "clipboard_read", "share", "save_to_downloads", "take_photo", "location", "notifications", "calendar_events"));
+            "clipboard_read", "share", "save_to_downloads", "take_photo", "location", "notifications", "calendar_events", "adb_shell"));
 
     private final BuddyService svc;
 
@@ -107,6 +107,11 @@ final class PhoneTools {
                 "title", "start"));
         t.put(Tools.tool("location", "The phone's current location: latitude, longitude, accuracy and the address "
                 + "when known. Buddy asks the user first, every time.", Tools.props()));
+        t.put(Tools.tool("adb_shell", "Execute an ADB shell command via on-device Wireless Debugging loopback. "
+                + "Returns exitCode, stdout, stderr, and executionTime. Requires Wireless Debugging enabled in Settings.",
+                Tools.props().put("command", Tools.strProp("Shell command to execute"))
+                        .put("timeout_ms", Tools.intProp("Optional timeout in ms (1000-60000, default 15000)")),
+                "command"));
     }
 
     JSONObject call(String name, JSONObject a, boolean ruleRun) throws Exception {
@@ -127,6 +132,7 @@ final class PhoneTools {
             case "media": return text(media(a.getString("action"), a.optInt("volume", -1)));
             case "calendar_events": return text(calendarEvents(a.optString("from"), a.optInt("days", 1)));
             case "add_calendar_event": return text(addCalendarEvent(a));
+            case "adb_shell": return adbShell(a);
             default: throw new IllegalArgumentException("Unknown tool " + name);
         }
     }
@@ -574,4 +580,34 @@ final class PhoneTools {
         b.append(String.format(Locale.ROOT, "\nMap: https://maps.google.com/?q=%.6f,%.6f", l.getLatitude(), l.getLongitude()));
         return b.toString();
     }
+
+    // ------------------------------------------------------------- adb
+    private JSONObject adbShell(JSONObject a) throws Exception {
+        String cmd = a.getString("command");
+        if (cmd == null || cmd.trim().isEmpty()) {
+            throw new IllegalArgumentException("Command cannot be empty");
+        }
+        cmd = cmd.trim();
+
+        int timeoutMs = 15000;
+        if (a.has("timeout_ms")) {
+            timeoutMs = a.getInt("timeout_ms");
+            if (timeoutMs < 1000) timeoutMs = 1000;
+            else if (timeoutMs > 60000) timeoutMs = 60000;
+        }
+
+        AdbConnection.ExecutionResult res = AdbConnection.execute(cmd, timeoutMs);
+
+        JSONObject out = new JSONObject();
+        out.put("exitCode", res.exitCode);
+        out.put("exit_code", res.exitCode);
+        out.put("stdout", res.stdout);
+        out.put("stderr", res.stderr);
+        out.put("executionTime", res.executionTimeMs);
+        out.put("execution_time_ms", res.executionTimeMs);
+        out.put("executionTimeMs", res.executionTimeMs);
+
+        return text(out.toString(2));
+    }
 }
+

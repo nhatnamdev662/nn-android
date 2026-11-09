@@ -630,4 +630,21 @@ final class Prefs {
     static void setWaiting(Context c, String json) {
         sp(c).edit().putString("waiting", json).apply();
     }
+
+    static boolean adbEnabled(Context c) {
+        return sp(c).getBoolean("adb_on", false);
+    }
+
+    static void setAdbEnabled(Context c, boolean on) {
+        sp(c).edit().putBoolean("adb_on", on).apply();
+    }
+
+    static int adbPort(Context c) {
+        return sp(c).getInt("adb_port", 0);
+    }
+
+    static void setAdbPort(Context c, int port) {
+        sp(c).edit().putInt("adb_port", port).apply();
+    }
 }
+

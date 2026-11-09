@@ -2069,4 +2069,49 @@
     <string name="chat_rename_title">Rename chat</string>
     <string name="chat_rename_hint">Empty: its first message</string>
     <string name="chat_rename_save">Save</string>
+
+    <!-- Settings screen: Wireless Debugging (ADB). -->
+    <string name="setup_adb_section">Wireless Debugging (ADB)</string>
+    <string name="setup_adb_section_info">Direct on-device ADB connection via loopback. Lets agents run ADB shell commands without a computer.</string>
+    <string name="setup_adb_switch">Enable ADB connection</string>
+    <string name="setup_adb_switch_info">Maintains a secure local ADB connection to 127.0.0.1 using Wireless Debugging.</string>
+    <string name="setup_adb_status_connected">connected · 127.0.0.1:%1$d</string>
+    <string name="setup_adb_status_disconnected">disconnected</string>
+    <string name="setup_adb_status_connecting">connecting…</string>
+    <string name="setup_adb_status_pairing">pairing in progress…</string>
+    <string name="setup_adb_status_error">connection error: %1$s</string>
+    <string name="setup_adb_pair">Pair with pairing code</string>
+    <string name="setup_adb_reconnect">Reconnect</string>
+    <string name="setup_adb_disconnect">Disconnect</string>
+    <string name="setup_adb_open_dev_options">Open Developer Options</string>
+    <string name="setup_adb_dev_options_hint">Turn on Wireless Debugging in Developer Options, then tap “Pair device with pairing code”.</string>
+
+    <!-- ADB pairing sheet (bottom sheet modal). -->
+    <string name="adb_pair_sheet_title">Pair Wireless Debugging</string>
+    <string name="adb_pair_sheet_desc">In Developer Options → Wireless Debugging, tap “Pair device with pairing code” to see the 6-digit code and port.</string>
+    <string name="adb_pair_code_label">Pairing code (6 digits)</string>
+    <string name="adb_pair_code_hint">e.g. 123456</string>
+    <string name="adb_pair_port_label">Pairing port</string>
+    <string name="adb_pair_port_hint">e.g. 38491</string>
+    <string name="adb_pair_action">Pair</string>
+    <string name="adb_pair_pairing">Pairing…</string>
+    <string name="adb_pair_success">Paired successfully. Connected to ADB.</string>
+    <string name="adb_pair_failed">Pairing failed: %1$s</string>
+    <string name="adb_pair_invalid_code">Please enter a valid 6-digit pairing code.</string>
+    <string name="adb_pair_invalid_port">Please enter a valid port number (1–65535).</string>
+
+    <!-- ADB notification quick-input. -->
+    <string name="adb_notify_channel">Wireless Debugging pairing</string>
+    <string name="adb_notify_pair_title">Wireless Debugging detected</string>
+    <string name="adb_notify_pair_text">Tap to enter pairing code, or type directly below.</string>
+    <string name="adb_notify_code_hint">Enter 6-digit code</string>
+    <string name="adb_notify_pair_success">ADB paired and connected.</string>
+    <string name="adb_notify_pair_failed">Pairing failed. Tap to try again.</string>
+
+    <!-- ADB diagnostics and tool execution. -->
+    <string name="adb_error_not_connected">ADB is not connected. Enable Wireless Debugging in Settings.</string>
+    <string name="adb_error_execution_failed">ADB command failed: %1$s</string>
+    <string name="check_adb_name">Wireless Debugging (ADB)</string>
+    <string name="check_adb_connected">Connected on 127.0.0.1:%1$d.</string>
+    <string name="check_adb_disconnected">Not connected. Pair and enable in Settings.</string>
 </resources>

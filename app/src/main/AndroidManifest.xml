@@ -236,5 +236,14 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <!-- Wireless Debugging pairing quick-input receiver -->
+        <receiver
+            android:name=".AdbPairingService$PairingReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.nn.agent.ADB_PAIR_CODE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

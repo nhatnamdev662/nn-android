@@ -2051,4 +2051,49 @@
     <string name="chat_rename_title">Đổi tên cuộc trò chuyện</string>
     <string name="chat_rename_hint">Để trống: tin nhắn đầu tiên</string>
     <string name="chat_rename_save">Lưu</string>
+
+    <!-- Settings screen: Wireless Debugging (ADB). -->
+    <string name="setup_adb_section">Gỡ lỗi không dây (ADB)</string>
+    <string name="setup_adb_section_info">Kết nối ADB trực tiếp trên thiết bị qua loopback. Cho phép agent chạy lệnh adb shell mà không cần máy tính.</string>
+    <string name="setup_adb_switch">Bật kết nối ADB</string>
+    <string name="setup_adb_switch_info">Duy trì kết nối ADB cục bộ an toàn tới 127.0.0.1 qua Gỡ lỗi không dây.</string>
+    <string name="setup_adb_status_connected">đang kết nối · 127.0.0.1:%1$d</string>
+    <string name="setup_adb_status_disconnected">đã ngắt kết nối</string>
+    <string name="setup_adb_status_connecting">đang kết nối…</string>
+    <string name="setup_adb_status_pairing">đang ghép nối…</string>
+    <string name="setup_adb_status_error">lỗi kết nối: %1$s</string>
+    <string name="setup_adb_pair">Ghép nối bằng mã</string>
+    <string name="setup_adb_reconnect">Kết nối lại</string>
+    <string name="setup_adb_disconnect">Ngắt kết nối</string>
+    <string name="setup_adb_open_dev_options">Mở Tùy chọn nhà phát triển</string>
+    <string name="setup_adb_dev_options_hint">Bật Gỡ lỗi không dây trong Tùy chọn nhà phát triển, sau đó nhấn “Ghép nối thiết bị bằng mã ghép nối”.</string>
+
+    <!-- ADB pairing sheet (bottom sheet modal). -->
+    <string name="adb_pair_sheet_title">Ghép nối Gỡ lỗi không dây</string>
+    <string name="adb_pair_sheet_desc">Trong Tùy chọn nhà phát triển → Gỡ lỗi không dây, nhấn “Ghép nối thiết bị bằng mã ghép nối” để lấy mã 6 chữ số và cổng.</string>
+    <string name="adb_pair_code_label">Mã ghép nối (6 chữ số)</string>
+    <string name="adb_pair_code_hint">ví dụ 123456</string>
+    <string name="adb_pair_port_label">Cổng ghép nối</string>
+    <string name="adb_pair_port_hint">ví dụ 38491</string>
+    <string name="adb_pair_action">Ghép nối</string>
+    <string name="adb_pair_pairing">Đang ghép nối…</string>
+    <string name="adb_pair_success">Ghép nối thành công. Đã kết nối tới ADB.</string>
+    <string name="adb_pair_failed">Ghép nối thất bại: %1$s</string>
+    <string name="adb_pair_invalid_code">Vui lòng nhập mã ghép nối gồm đúng 6 chữ số.</string>
+    <string name="adb_pair_invalid_port">Vui lòng nhập số cổng hợp lệ (1–65535).</string>
+
+    <!-- ADB notification quick-input. -->
+    <string name="adb_notify_channel">Ghép nối Gỡ lỗi không dây</string>
+    <string name="adb_notify_pair_title">Phát hiện Gỡ lỗi không dây</string>
+    <string name="adb_notify_pair_text">Nhấn để nhập mã ghép nối, hoặc nhập trực tiếp bên dưới.</string>
+    <string name="adb_notify_code_hint">Nhập mã 6 chữ số</string>
+    <string name="adb_notify_pair_success">Đã ghép nối và kết nối ADB thành công.</string>
+    <string name="adb_notify_pair_failed">Ghép nối thất bại. Nhấn để thử lại.</string>
+
+    <!-- ADB diagnostics and tool execution. -->
+    <string name="adb_error_not_connected">ADB chưa được kết nối. Bật Gỡ lỗi không dây trong Cài đặt.</string>
+    <string name="adb_error_execution_failed">Lệnh ADB thất bại: %1$s</string>
+    <string name="check_adb_name">Gỡ lỗi không dây (ADB)</string>
+    <string name="check_adb_connected">Đã kết nối tại 127.0.0.1:%1$d.</string>
+    <string name="check_adb_disconnected">Chưa kết nối. Hãy ghép nối và bật trong Cài đặt.</string>
 </resources>
