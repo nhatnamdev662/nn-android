@@ -2089,31 +2089,38 @@
     <string name="setup_adb_connect_manual">Enter Port &amp; Connect</string>
     <string name="setup_adb_change_port">Change Port</string>
     <string name="setup_adb_reconnect">Reconnect</string>
-    <string name="setup_adb_disconnect">Disconnect</string>
+    <string name="setup_adb_stop">Stop</string>
+    <string name="setup_adb_start">Start</string>
+    <string name="setup_adb_disconnect">Stop</string>
     <string name="setup_adb_open_dev_options">Open Developer Options</string>
     <string name="setup_adb_dev_options_hint">Turn on Wireless Debugging in Developer Options, then tap “Pair device with pairing code”.</string>
-    <string name="setup_adb_guide_title">Step-by-step setup guide</string>
-    <string name="setup_adb_guide_sub">How to enable Wireless Debugging and pair</string>
+    <string name="setup_adb_guide_title">Wireless Pairing Guide (Shizuku-style)</string>
+    <string name="setup_adb_guide_sub">Steps to activate Wireless Debugging via notification</string>
     <string name="setup_adb_ask_nn_title">Ask NN to connect for you</string>
     <string name="setup_adb_ask_nn_sub">NN will open settings and guide your steps</string>
 
     <!-- ADB connect sheet. -->
     <string name="adb_connect_sheet_title">Enter Wireless Debugging Port</string>
-    <string name="adb_connect_sheet_desc">In Developer Options → Wireless Debugging, look for the port in “IP address &amp; Port” (e.g. 192.168.x.x:37111).</string>
+    <string name="adb_connect_sheet_desc">In Developer Options → Wireless Debugging, look for the port in “IP address &amp; Port” (e.g. 192.168.x.x:37323).</string>
     <string name="adb_connect_sheet_port_label">Connection port (5 digits)</string>
-    <string name="adb_connect_sheet_port_hint">e.g. 37111</string>
+    <string name="adb_connect_sheet_port_hint">e.g. 37323</string>
     <string name="adb_connect_sheet_action">Connect Now</string>
 
-    <!-- ADB guide sheet. -->
-    <string name="adb_guide_sheet_title">Wireless ADB Setup Guide</string>
-    <string name="adb_guide_step1_title">1. Enable Developer Options</string>
-    <string name="adb_guide_step1_desc">Go to Phone Settings → About Phone → Tap “Build number” 7 times continuously.</string>
-    <string name="adb_guide_step2_title">2. Turn on Wireless Debugging</string>
-    <string name="adb_guide_step2_desc">Go to Developer Options → Enable “Wireless Debugging” while connected to Wi-Fi.</string>
-    <string name="adb_guide_step3_title">3. Get pairing code and port</string>
-    <string name="adb_guide_step3_desc">Tap the “Wireless Debugging” text → select “Pair device with pairing code” to see the 6-digit code and pairing port.</string>
-    <string name="adb_guide_step4_title">4. Pair and run in background</string>
-    <string name="adb_guide_step4_desc">Tap “Pair with code” in NN, enter the code + port, and tap Pair. NN will keep ADB connected in the background like Shizuku!</string>
+    <!-- ADB guide sheet (Shizuku style). -->
+    <string name="adb_guide_sheet_title">Pair via Wireless Debugging</string>
+    <string name="adb_guide_notify_title">1. Enable notifications</string>
+    <string name="adb_guide_notify_desc">Notification permission is required so NN can show the pairing code input directly in the status bar.</string>
+    <string name="adb_guide_notify_enabled">✔ Notifications allowed</string>
+    <string name="adb_guide_notify_btn">Allow notifications</string>
+    <string name="adb_guide_step1_title">2. Enable Developer Options</string>
+    <string name="adb_guide_step1_desc">Go to Phone Settings → About Phone → Tap “Build number” 7 times continuously (Skip if already on).</string>
+    <string name="adb_guide_step2_title">3. Open Developer Options</string>
+    <string name="adb_guide_step2_desc">Scroll down and turn on “Wireless Debugging” while connected to Wi-Fi.</string>
+    <string name="adb_guide_step3_title">4. Get pairing code</string>
+    <string name="adb_guide_step3_desc">Tap “Wireless Debugging” → select “Pair device with pairing code”. Enter the code via NN notification or the button below.</string>
+    <string name="adb_guide_step4_title">5. Run in background</string>
+    <string name="adb_guide_step4_desc">After pairing once, NN keeps ADB running persistently in the background like Shizuku!</string>
+    <string name="adb_guide_enter_code_btn">Enter pairing code in NN</string>
     <string name="adb_ask_nn_prompt">I want to connect Wireless ADB so you can unlock full phone automation capabilities. Please check if Wireless Debugging is on and guide or automate the connection for me!</string>
 
     <!-- ADB pairing sheet (bottom sheet modal). -->

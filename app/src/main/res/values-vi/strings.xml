@@ -2071,31 +2071,38 @@
     <string name="setup_adb_connect_manual">Nhập cổng &amp; Kết nối</string>
     <string name="setup_adb_change_port">Đổi cổng</string>
     <string name="setup_adb_reconnect">Kết nối lại</string>
-    <string name="setup_adb_disconnect">Ngắt kết nối</string>
+    <string name="setup_adb_stop">Dừng</string>
+    <string name="setup_adb_start">Khởi động</string>
+    <string name="setup_adb_disconnect">Dừng</string>
     <string name="setup_adb_open_dev_options">Mở Tùy chọn nhà phát triển</string>
     <string name="setup_adb_dev_options_hint">Bật Gỡ lỗi không dây trong Tùy chọn nhà phát triển, sau đó nhấn “Ghép nối thiết bị bằng mã ghép nối”.</string>
-    <string name="setup_adb_guide_title">Hướng dẫn kết nối từng bước</string>
-    <string name="setup_adb_guide_sub">Cách bật Gỡ lỗi không dây và lấy mã ghép nối</string>
+    <string name="setup_adb_guide_title">Hướng dẫn ghép nối (Chuẩn Shizuku)</string>
+    <string name="setup_adb_guide_sub">Các bước kích hoạt Gỡ lỗi không dây qua thông báo</string>
     <string name="setup_adb_ask_nn_title">Nhờ NN tự động kết nối hộ</string>
     <string name="setup_adb_ask_nn_sub">NN sẽ mở cài đặt và hỗ trợ bạn thao tác kết nối</string>
 
     <!-- ADB connect sheet. -->
     <string name="adb_connect_sheet_title">Nhập cổng Gỡ lỗi không dây</string>
-    <string name="adb_connect_sheet_desc">Trong Tùy chọn nhà phát triển → Gỡ lỗi không dây, xem số cổng ở dòng “Địa chỉ IP và cổng” (ví dụ: 192.168.x.x:37111).</string>
+    <string name="adb_connect_sheet_desc">Trong Tùy chọn nhà phát triển → Gỡ lỗi không dây, xem số cổng ở dòng “Địa chỉ IP và cổng” (ví dụ: 192.168.x.x:37323).</string>
     <string name="adb_connect_sheet_port_label">Số cổng kết nối (5 chữ số)</string>
-    <string name="adb_connect_sheet_port_hint">ví dụ 37111</string>
+    <string name="adb_connect_sheet_port_hint">ví dụ 37323</string>
     <string name="adb_connect_sheet_action">Kết nối ngay</string>
 
-    <!-- ADB guide sheet. -->
-    <string name="adb_guide_sheet_title">Hướng dẫn kết nối ADB không dây</string>
-    <string name="adb_guide_step1_title">1. Bật Tùy chọn nhà phát triển</string>
-    <string name="adb_guide_step1_desc">Vào Cài đặt máy → Giới thiệu điện thoại → Nhấn 7 lần liên tục vào “Số bản dựng”.</string>
-    <string name="adb_guide_step2_title">2. Bật Gỡ lỗi không dây</string>
-    <string name="adb_guide_step2_desc">Vào Tùy chọn nhà phát triển → Bật mục “Gỡ lỗi không dây” (Wireless Debugging) khi đang kết nối Wi-Fi.</string>
-    <string name="adb_guide_step3_title">3. Lấy mã ghép nối và số cổng</string>
-    <string name="adb_guide_step3_desc">Nhấn vào dòng chữ “Gỡ lỗi không dây” → chọn “Ghép nối thiết bị bằng mã ghép nối”. Bạn sẽ thấy Mã 6 số và Cổng ghép nối.</string>
-    <string name="adb_guide_step4_title">4. Ghép nối và kết nối ngầm</string>
-    <string name="adb_guide_step4_desc">Nhấn nút “Ghép nối bằng mã” trong NN và nhập mã + cổng. Sau khi ghép nối, NN sẽ tự động duy trì kết nối ngầm vĩnh viễn tương tự Shizuku!</string>
+    <!-- ADB guide sheet (Shizuku style). -->
+    <string name="adb_guide_sheet_title">Ghép nối qua Gỡ lỗi không dây</string>
+    <string name="adb_guide_notify_title">1. Cho phép thông báo</string>
+    <string name="adb_guide_notify_desc">Cần quyền thông báo để khi chọn Ghép nối trong Cài đặt máy, NN sẽ gửi thông báo nhập mã ngay trên thanh trạng thái.</string>
+    <string name="adb_guide_notify_enabled">✔ Đã cho phép thông báo</string>
+    <string name="adb_guide_notify_btn">Bật thông báo</string>
+    <string name="adb_guide_step1_title">2. Bật Tùy chọn nhà phát triển</string>
+    <string name="adb_guide_step1_desc">Vào Cài đặt máy → Giới thiệu điện thoại → Nhấn 7 lần liên tục vào “Số bản dựng” (Bỏ qua nếu đã bật).</string>
+    <string name="adb_guide_step2_title">3. Mở Tùy chọn nhà phát triển</string>
+    <string name="adb_guide_step2_desc">Cuộn xuống tìm và BẬT mục “Gỡ lỗi không dây” (Wireless Debugging) khi đang kết nối Wi-Fi.</string>
+    <string name="adb_guide_step3_title">4. Lấy mã ghép nối</string>
+    <string name="adb_guide_step3_desc">Chạm vào dòng chữ “Gỡ lỗi không dây” → chọn “Ghép nối thiết bị bằng mã ghép nối”. Bạn có thể nhập mã trực tiếp từ thông báo của NN hoặc nhấn nút bên dưới.</string>
+    <string name="adb_guide_step4_title">5. Duy trì chạy ngầm</string>
+    <string name="adb_guide_step4_desc">Sau khi ghép nối lần đầu thành công, NN sẽ tự động duy trì kết nối ngầm tương tự Shizuku mỗi khi mở app.</string>
+    <string name="adb_guide_enter_code_btn">Nhập mã ghép nối vào NN</string>
     <string name="adb_ask_nn_prompt">Tôi muốn kết nối ADB qua Gỡ lỗi không dây để bạn tận dụng tối đa tính năng tự động hoá. Bạn hãy kiểm tra xem Gỡ lỗi không dây đã bật chưa và hướng dẫn hoặc tự động thao tác kết nối hộ tôi nhé!</string>
 
     <!-- ADB pairing sheet (bottom sheet modal). -->

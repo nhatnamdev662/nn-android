@@ -746,36 +746,29 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
             if (!isConn) {
                 Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
-                pairBtn.setOnClickListener(v -> adbPairSheet());
+                pairBtn.setOnClickListener(v -> adbGuideSheet());
                 btns.addView(pairBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
 
-                Button connBtn = button(this, getString(R.string.setup_adb_connect_manual), false);
-                connBtn.setOnClickListener(v -> adbConnectSheet());
-                LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
-                cp.setMarginStart(dp(this, 8));
-                btns.addView(connBtn, cp);
-
-                ac.addView(btns, full());
-
-                Button devBtn = outlinedButton(this, getString(R.string.setup_adb_open_dev_options), ACCENT_TEXT);
-                devBtn.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)));
-                LinearLayout.LayoutParams dpParams = full();
-                dpParams.setMargins(dp(this, 16), 0, dp(this, 16), dp(this, 14));
-                ac.addView(devBtn, dpParams);
-            } else {
-                Button discBtn = button(this, getString(R.string.setup_adb_disconnect), false);
-                discBtn.setOnClickListener(v -> {
-                    AdbManager.disconnect();
+                Button startBtn = button(this, getString(R.string.setup_adb_start), false);
+                startBtn.setOnClickListener(v -> {
+                    Prefs.setAdbEnabled(this, true);
+                    AdbManager.ensure(this);
                     render();
                 });
-                btns.addView(discBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
+                LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
+                sp.setMarginStart(dp(this, 8));
+                btns.addView(startBtn, sp);
 
-                Button changePortBtn = button(this, getString(R.string.setup_adb_change_port), false);
-                changePortBtn.setOnClickListener(v -> adbConnectSheet());
-                LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
-                cbp.setMarginStart(dp(this, 8));
-                btns.addView(changePortBtn, cbp);
-
+                ac.addView(btns, full());
+            } else {
+                Button stopBtn = button(this, getString(R.string.setup_adb_stop), false);
+                stopBtn.setTextColor(ERR);
+                stopBtn.setOnClickListener(v -> {
+                    Prefs.setAdbEnabled(this, false);
+                    AdbManager.stop();
+                    render();
+                });
+                btns.addView(stopBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
                 ac.addView(btns, full());
             }
 
@@ -1610,9 +1603,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             pair.setEnabled(false);
             pair.setText(R.string.adb_pair_pairing);
             AdbManager.pair(port, code, (ok, why) -> runOnUiThread(() -> {
-                if (isFinishing() || isDestroyed() || !d.isShowing()) return;
-                d.dismiss();
+                if (isFinishing() || isDestroyed()) return;
+                if (d.isShowing()) d.dismiss();
                 if (ok) {
+                    AdbPairingService.showSuccessNotification(this, port);
                     Toast.makeText(this, R.string.adb_pair_success, Toast.LENGTH_SHORT).show();
                     render();
                 } else {
@@ -1702,36 +1696,81 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         LinearLayout steps = column(this);
         steps.setPaddingRelative(0, dp(this, 4), 0, dp(this, 8));
 
-        String[][] stepItems = new String[][]{
-            {getString(R.string.adb_guide_step1_title), getString(R.string.adb_guide_step1_desc)},
-            {getString(R.string.adb_guide_step2_title), getString(R.string.adb_guide_step2_desc)},
-            {getString(R.string.adb_guide_step3_title), getString(R.string.adb_guide_step3_desc)},
-            {getString(R.string.adb_guide_step4_title), getString(R.string.adb_guide_step4_desc)}
-        };
+        // Step 1: Notifications
+        android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
+        boolean notifyAllowed = nm != null && nm.areNotificationsEnabled();
 
-        for (String[] item : stepItems) {
-            LinearLayout sb = column(this);
-            sb.setBackground(rounded(this, CARD2, 12));
-            sb.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
-            sb.addView(title(this, item[0], 14));
-            TextView desc = text(this, item[1], 13, MUTED);
-            desc.setPaddingRelative(0, dp(this, 3), 0, 0);
-            sb.addView(desc);
-
-            LinearLayout.LayoutParams sbp = full();
-            sbp.topMargin = dp(this, 8);
-            steps.addView(sb, sbp);
+        LinearLayout s1 = column(this);
+        s1.setBackground(rounded(this, CARD2, 12));
+        s1.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
+        s1.addView(title(this, getString(R.string.adb_guide_notify_title), 15));
+        s1.addView(text(this, getString(R.string.adb_guide_notify_desc), 13, MUTED), topGap(4));
+        if (notifyAllowed) {
+            TextView okText = text(this, getString(R.string.adb_guide_notify_enabled), 13, OK);
+            okText.setTypeface(sans(this, 600));
+            s1.addView(okText, topGap(8));
+        } else {
+            Button notifyBtn = button(this, getString(R.string.adb_guide_notify_btn), false);
+            notifyBtn.setOnClickListener(v -> {
+                try {
+                    startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName()));
+                } catch (Throwable ignored) {}
+            });
+            LinearLayout.LayoutParams np = wrap();
+            np.topMargin = dp(this, 8);
+            s1.addView(notifyBtn, np);
         }
+        steps.addView(s1, full());
+
+        // Step 2: Enable Dev Options
+        LinearLayout s2 = column(this);
+        s2.setBackground(rounded(this, CARD2, 12));
+        s2.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
+        s2.addView(title(this, getString(R.string.adb_guide_step1_title), 15));
+        s2.addView(text(this, getString(R.string.adb_guide_step1_desc), 13, MUTED), topGap(4));
+        steps.addView(s2, topGap(8));
+
+        // Step 3: Open Dev Options
+        LinearLayout s3 = column(this);
+        s3.setBackground(rounded(this, CARD2, 12));
+        s3.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
+        s3.addView(title(this, getString(R.string.adb_guide_step2_title), 15));
+        s3.addView(text(this, getString(R.string.adb_guide_step2_desc), 13, MUTED), topGap(4));
+        Button devBtn = button(this, getString(R.string.setup_adb_open_dev_options), false);
+        devBtn.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)));
+        LinearLayout.LayoutParams dpParams = wrap();
+        dpParams.topMargin = dp(this, 8);
+        s3.addView(devBtn, dpParams);
+        steps.addView(s3, topGap(8));
+
+        // Step 4: Enter Pairing Code
+        LinearLayout s4 = column(this);
+        s4.setBackground(rounded(this, CARD2, 12));
+        s4.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
+        s4.addView(title(this, getString(R.string.adb_guide_step3_title), 15));
+        s4.addView(text(this, getString(R.string.adb_guide_step3_desc), 13, MUTED), topGap(4));
+        Button pairBtn = button(this, getString(R.string.adb_guide_enter_code_btn), true);
+        pairBtn.setOnClickListener(v -> adbPairSheet());
+        LinearLayout.LayoutParams ppParams = wrap();
+        ppParams.topMargin = dp(this, 8);
+        s4.addView(pairBtn, ppParams);
+        steps.addView(s4, topGap(8));
+
+        // Step 5: Persistent Background
+        LinearLayout s5 = column(this);
+        s5.setBackground(rounded(this, CARD2, 12));
+        s5.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
+        s5.addView(title(this, getString(R.string.adb_guide_step4_title), 15));
+        s5.addView(text(this, getString(R.string.adb_guide_step4_desc), 13, MUTED), topGap(4));
+        steps.addView(s5, topGap(8));
+
         sv.addView(steps);
 
         LinearLayout.LayoutParams svp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
         svp.topMargin = dp(this, 4);
         svp.bottomMargin = dp(this, 12);
         c.addView(sv, svp);
-
-        Button devBtn = button(this, getString(R.string.setup_adb_open_dev_options), true);
-        devBtn.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)));
-        c.addView(devBtn, full());
 
         Dialog d = bottomSheet(this, c);
         d.show();

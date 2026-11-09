@@ -113,6 +113,41 @@ public final class AdbPairingService {
         }
     }
 
+    public static void showSuccessNotification(Context context, int port) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null) return;
+
+        createChannel(context, nm);
+
+        Intent openIntent = new Intent(context, SetupActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent openPi = PendingIntent.getActivity(
+                context, 2, openIntent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                        : PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        Notification.Builder nb;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nb = new Notification.Builder(context, CHANNEL_ID);
+        } else {
+            nb = new Notification.Builder(context);
+        }
+
+        nb.setSmallIcon(R.drawable.ms_check)
+          .setContentTitle(context.getString(R.string.adb_notify_pair_success))
+          .setContentText(context.getString(R.string.setup_adb_status_sub_connected, port))
+          .setContentIntent(openPi)
+          .setAutoCancel(true);
+
+        nm.notify(NOTIFICATION_ID, nb.build());
+
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            cancelNotification(context);
+        }, 3500);
+    }
+
     /**
      * BroadcastReceiver to handle RemoteInput submission from notification shade.
      */
@@ -133,8 +168,13 @@ public final class AdbPairingService {
                     if (code.length() == 6 && port > 0) {
                         AdbManager.pair(port, code, (success, error) -> {
                             if (success) {
-                                cancelNotification(context);
+                                showSuccessNotification(context, port);
                                 Toast.makeText(context, R.string.adb_notify_pair_success, Toast.LENGTH_SHORT).show();
+                                try {
+                                    Intent appIntent = new Intent(context, SetupActivity.class)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    context.startActivity(appIntent);
+                                } catch (Throwable ignored) {}
                             } else {
                                 Toast.makeText(context, context.getString(R.string.adb_pair_failed, error), Toast.LENGTH_LONG).show();
                             }

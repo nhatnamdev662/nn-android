@@ -36,7 +36,7 @@ import javax.security.auth.x500.X500Principal;
  */
 public final class AdbKey {
     private static final String KEY_ALIAS = "buddy_adb_rsa_v1";
-    private static final String KEY_NAME = "buddy@android";
+    private static final String KEY_NAME = "nn-agent@android";
 
     private static volatile AdbKey sInstance;
 

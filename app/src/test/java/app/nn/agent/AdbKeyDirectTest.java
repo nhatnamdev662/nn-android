@@ -71,8 +71,8 @@ public class AdbKeyDirectTest {
         if (parts[0].length() != 700) {
             throw new AssertionError("Base64 string expected 700 chars, got: " + parts[0].length());
         }
-        if (!"buddy@android".equals(parts[1])) {
-            throw new AssertionError("Key name expected 'buddy@android', got: " + parts[1]);
+        if (!"nn-agent@android".equals(parts[1])) {
+            throw new AssertionError("Key name expected 'nn-agent@android', got: " + parts[1]);
         }
         System.out.println("PASSED (Length=" + wire.length + ", Name=" + parts[1] + ")");
 
