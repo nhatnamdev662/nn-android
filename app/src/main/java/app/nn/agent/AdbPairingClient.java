@@ -148,9 +148,10 @@ public final class AdbPairingClient implements Closeable {
         }
 
         byte[] serverPeerInfo = cipherState.decrypt(serverEncrypted);
-        if (serverPeerInfo[0] != PEER_INFO_TYPE_KEY) {
-            throw new IOException("Server returned invalid PeerInfo type: " + serverPeerInfo[0]);
+        if (serverPeerInfo == null || serverPeerInfo.length == 0) {
+            throw new IOException("Server returned empty PeerInfo");
         }
+        Log.i(TAG, "Pairing exchange succeeded with " + host + ":" + port + " (peer type: " + serverPeerInfo[0] + ")");
 
         Log.i(TAG, "Pairing exchange succeeded with " + host + ":" + port);
     }
