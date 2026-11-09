@@ -2094,7 +2094,7 @@
     <string name="setup_adb_disconnect">Stop</string>
     <string name="setup_adb_open_dev_options">Open Developer Options</string>
     <string name="setup_adb_dev_options_hint">Turn on Wireless Debugging in Developer Options, then tap “Pair device with pairing code”.</string>
-    <string name="setup_adb_guide_title">Wireless Pairing Guide (Shizuku-style)</string>
+    <string name="setup_adb_guide_title">Wireless Pairing Guide</string>
     <string name="setup_adb_guide_sub">Steps to activate Wireless Debugging via notification</string>
     <string name="setup_adb_ask_nn_title">Ask NN to connect for you</string>
     <string name="setup_adb_ask_nn_sub">NN will open settings and guide your steps</string>

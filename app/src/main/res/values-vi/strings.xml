@@ -2076,7 +2076,7 @@
     <string name="setup_adb_disconnect">Dừng</string>
     <string name="setup_adb_open_dev_options">Mở Tùy chọn nhà phát triển</string>
     <string name="setup_adb_dev_options_hint">Bật Gỡ lỗi không dây trong Tùy chọn nhà phát triển, sau đó nhấn “Ghép nối thiết bị bằng mã ghép nối”.</string>
-    <string name="setup_adb_guide_title">Hướng dẫn ghép nối (Chuẩn Shizuku)</string>
+    <string name="setup_adb_guide_title">Hướng dẫn ghép nối</string>
     <string name="setup_adb_guide_sub">Các bước kích hoạt Gỡ lỗi không dây qua thông báo</string>
     <string name="setup_adb_ask_nn_title">Nhờ NN tự động kết nối hộ</string>
     <string name="setup_adb_ask_nn_sub">NN sẽ mở cài đặt và hỗ trợ bạn thao tác kết nối</string>
