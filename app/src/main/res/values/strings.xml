@@ -525,7 +525,8 @@
     <string name="schedule_interval_min">Every %1$d min</string>
     <string name="schedule_interval_hours">Every %1$d hours</string>
     <string name="schedule_interval_hours_mins">Every %1$d hours %2$d min</string>
-    <string name="schedule_custom_interval">Custom...</string>
+    <string name="schedule_custom_interval">Custom</string>
+    <string name="schedule_interval_min_unit">min</string>
     <string name="schedule_enter_minutes">Enter interval in minutes (min 1):</string>
     <string name="schedule_days">Days</string>
     <string name="schedule_daily">Every day</string>

@@ -520,7 +520,8 @@
     <string name="schedule_interval_min">Mỗi %1$d phút</string>
     <string name="schedule_interval_hours">Mỗi %1$d giờ</string>
     <string name="schedule_interval_hours_mins">Mỗi %1$d giờ %2$d phút</string>
-    <string name="schedule_custom_interval">Tùy chỉnh...</string>
+    <string name="schedule_custom_interval">Tùy chỉnh</string>
+    <string name="schedule_interval_min_unit">phút</string>
     <string name="schedule_enter_minutes">Nhập khoảng cách theo phút (tối thiểu 1):</string>
     <string name="schedule_days">Ngày</string>
     <string name="schedule_daily">Mỗi ngày</string>

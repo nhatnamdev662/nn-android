@@ -760,110 +760,149 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         tip.topMargin = dp(this, 6);
         c.addView(timeOrIntervalHolder, tip);
 
-        final Runnable[] paintTimeOrInterval = new Runnable[1];
+        // Fixed time layout
+        LinearLayout fixedBox = column(this);
+        TextView tl = sectionLabel(this, getString(R.string.schedule_time));
+        tl.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
+        fixedBox.addView(tl);
+        TextView time = title(this, p.time(this), 28);
+        time.setTypeface(mono(this, 500));
+        time.setPaddingRelative(dp(this, 12), dp(this, 6), dp(this, 12), dp(this, 6));
+        time.setBackground(outlined(this, BG, 12, OUTLINE, 1));
+        time.setOnClickListener(v -> new android.app.TimePickerDialog(this, (tp, h, m) -> {
+            p.minute = h * 60 + m;
+            time.setText(p.time(this));
+        }, p.minute / 60, p.minute % 60, android.text.format.DateFormat.is24HourFormat(this)).show());
+        fixedBox.addView(time, wrap());
+        timeOrIntervalHolder.addView(fixedBox, full());
 
-        paintTimeOrInterval[0] = () -> {
-            timeOrIntervalHolder.removeAllViews();
-            if ("fixed".equals(schedType[0])) {
-                LinearLayout fixedBox = column(this);
-                TextView tl = sectionLabel(this, getString(R.string.schedule_time));
-                tl.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
-                fixedBox.addView(tl);
-                TextView time = title(this, p.time(this), 28);
-                time.setTypeface(mono(this, 500));
-                time.setPaddingRelative(dp(this, 12), dp(this, 6), dp(this, 12), dp(this, 6));
-                time.setBackground(outlined(this, BG, 12, OUTLINE, 1));
-                time.setOnClickListener(v -> new android.app.TimePickerDialog(this, (tp, h, m) -> {
-                    p.minute = h * 60 + m;
-                    time.setText(p.time(this));
-                }, p.minute / 60, p.minute % 60, android.text.format.DateFormat.is24HourFormat(this)).show());
-                fixedBox.addView(time, wrap());
-                timeOrIntervalHolder.addView(fixedBox, full());
-            } else {
-                LinearLayout intBox = column(this);
-                if (p.intervalMin <= 0) p.intervalMin = 60;
-                TextView il = sectionLabel(this, getString(R.string.schedule_interval_title));
-                il.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
-                intBox.addView(il);
+        // Interval layout
+        LinearLayout intBox = column(this);
+        if (p.intervalMin <= 0) p.intervalMin = 60;
+        TextView il = sectionLabel(this, getString(R.string.schedule_interval_title));
+        il.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
+        intBox.addView(il);
 
-                TextView curInt = title(this, p.intervalSummary(this), 22);
-                curInt.setTypeface(mono(this, 500));
-                curInt.setTextColor(ACCENT_TEXT);
-                curInt.setPaddingRelative(dp(this, 4), dp(this, 2), dp(this, 4), dp(this, 6));
-                intBox.addView(curInt, wrap());
+        TextView curInt = title(this, p.intervalSummary(this), 22);
+        curInt.setTypeface(mono(this, 500));
+        curInt.setTextColor(ACCENT_TEXT);
+        curInt.setPaddingRelative(dp(this, 4), dp(this, 2), dp(this, 4), dp(this, 8));
+        intBox.addView(curInt, wrap());
 
-                HorizontalScrollView hsv = new HorizontalScrollView(this);
-                hsv.setHorizontalScrollBarEnabled(false);
-                LinearLayout presets = row(this);
-                presets.setPaddingRelative(0, dp(this, 4), 0, dp(this, 4));
+        HorizontalScrollView hsv = new HorizontalScrollView(this);
+        hsv.setHorizontalScrollBarEnabled(false);
+        LinearLayout presets = row(this);
+        presets.setPaddingRelative(0, dp(this, 2), 0, dp(this, 6));
 
-                int[] mins = {15, 30, 60, 120, 240, 360, 720};
-                String[] labels = {"15m", "30m", "1h", "2h", "4h", "6h", "12h"};
-                for (int idx = 0; idx < mins.length; idx++) {
-                    final int mVal = mins[idx];
-                    boolean sel = (p.intervalMin == mVal);
-                    TextView chip = text(this, labels[idx], 13, sel ? ON_ACCENT : TEXT);
-                    chip.setTypeface(mono(this, 500));
-                    chip.setPaddingRelative(dp(this, 12), dp(this, 7), dp(this, 12), dp(this, 7));
-                    chip.setBackground(sel ? rounded(this, ACCENT, 10) : outlined(this, BG, 10, OUTLINE, 1));
-                    chip.setOnClickListener(v -> {
-                        p.intervalMin = mVal;
-                        paintTimeOrInterval[0].run();
-                    });
-                    LinearLayout.LayoutParams cp = wrap();
-                    cp.setMarginEnd(dp(this, 6));
-                    presets.addView(chip, cp);
+        final int[] mins = {15, 30, 60, 120, 240, 360, 720};
+        final String[] labels = {"15m", "30m", "1h", "2h", "4h", "6h", "12h"};
+        final TextView[] chips = new TextView[mins.length];
+
+        LinearLayout customRow = row(this);
+        customRow.setGravity(Gravity.CENTER_VERTICAL);
+        customRow.setPaddingRelative(0, dp(this, 6), 0, dp(this, 4));
+
+        TextView cLabel = text(this, getString(R.string.schedule_custom_interval) + ":", 13, MUTED);
+        cLabel.setPaddingRelative(0, 0, dp(this, 8), 0);
+        customRow.addView(cLabel);
+
+        final EditText customInput = new EditText(this);
+        customInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        customInput.setTextColor(TEXT);
+        customInput.setTextSize(14);
+        customInput.setTypeface(mono(this, 500));
+        customInput.setGravity(Gravity.CENTER);
+        customInput.setBackground(outlined(this, BG, 10, OUTLINE, 1));
+        customInput.setPaddingRelative(dp(this, 10), dp(this, 4), dp(this, 10), dp(this, 4));
+        customInput.setText(String.valueOf(p.intervalMin));
+        customInput.setSelection(customInput.getText().length());
+        LinearLayout.LayoutParams cip = new LinearLayout.LayoutParams(dp(this, 70), dp(this, 36));
+        customRow.addView(customInput, cip);
+
+        TextView minUnit = text(this, " " + getString(R.string.schedule_interval_min_unit), 13, MUTED);
+        customRow.addView(minUnit);
+
+        final boolean[] updatingFromCode = {false};
+        final Runnable updateIntervalView = () -> {
+            curInt.setText(p.intervalSummary(ChatActivity.this));
+            for (int idx = 0; idx < mins.length; idx++) {
+                boolean sel = (p.intervalMin == mins[idx]);
+                chips[idx].setTextColor(sel ? ON_ACCENT : TEXT);
+                chips[idx].setBackground(sel ? rounded(ChatActivity.this, ACCENT, 10) : outlined(ChatActivity.this, BG, 10, OUTLINE, 1));
+            }
+            if (!updatingFromCode[0]) {
+                updatingFromCode[0] = true;
+                String target = String.valueOf(p.intervalMin);
+                if (!target.equals(customInput.getText().toString().trim())) {
+                    customInput.setText(target);
+                    customInput.setSelection(target.length());
                 }
-
-                boolean isCustom = true;
-                for (int mVal : mins) if (p.intervalMin == mVal) { isCustom = false; break; }
-                TextView customChip = text(this, getString(R.string.schedule_custom_interval), 13, isCustom ? ON_ACCENT : TEXT);
-                customChip.setPaddingRelative(dp(this, 12), dp(this, 7), dp(this, 12), dp(this, 7));
-                customChip.setBackground(isCustom ? rounded(this, ACCENT, 10) : outlined(this, BG, 10, OUTLINE, 1));
-                customChip.setOnClickListener(v -> {
-                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-                    builder.setTitle(getString(R.string.schedule_custom_interval));
-                    builder.setMessage(getString(R.string.schedule_enter_minutes));
-                    EditText input = new EditText(this);
-                    input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    input.setText(String.valueOf(p.intervalMin > 0 ? p.intervalMin : 60));
-                    input.setSelection(input.getText().length());
-                    FrameLayout container = new FrameLayout(this);
-                    container.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 8));
-                    container.addView(input, full());
-                    builder.setView(container);
-                    builder.setPositiveButton(R.string.schedule_save, (di, w) -> {
-                        try {
-                            int val = Integer.parseInt(input.getText().toString().trim());
-                            if (val >= 1) {
-                                p.intervalMin = val;
-                                paintTimeOrInterval[0].run();
-                            }
-                        } catch (Exception ignored) {
-                        }
-                    });
-                    builder.setNegativeButton(android.R.string.cancel, null);
-                    builder.show();
-                });
-                presets.addView(customChip, wrap());
-
-                hsv.addView(presets);
-                intBox.addView(hsv, full());
-                timeOrIntervalHolder.addView(intBox, full());
+                updatingFromCode[0] = false;
             }
         };
 
-        typeSegmentHolder.addView(segmented(this, new String[][]{
-                {"fixed", getString(R.string.schedule_type_fixed)},
-                {"interval", getString(R.string.schedule_type_interval)}
-        }, schedType[0], false, v -> {
-            schedType[0] = v;
-            if ("fixed".equals(v)) p.intervalMin = 0;
-            else if (p.intervalMin <= 0) p.intervalMin = 60;
-            paintTimeOrInterval[0].run();
-        }));
+        for (int idx = 0; idx < mins.length; idx++) {
+            final int mVal = mins[idx];
+            boolean sel = (p.intervalMin == mVal);
+            TextView chip = text(this, labels[idx], 13, sel ? ON_ACCENT : TEXT);
+            chip.setTypeface(mono(this, 500));
+            chip.setPaddingRelative(dp(this, 12), dp(this, 7), dp(this, 12), dp(this, 7));
+            chip.setBackground(sel ? rounded(this, ACCENT, 10) : outlined(this, BG, 10, OUTLINE, 1));
+            chip.setOnClickListener(v -> {
+                p.intervalMin = mVal;
+                updateIntervalView.run();
+            });
+            chips[idx] = chip;
+            LinearLayout.LayoutParams cp = wrap();
+            cp.setMarginEnd(dp(this, 6));
+            presets.addView(chip, cp);
+        }
+        hsv.addView(presets);
+        intBox.addView(hsv, full());
+        intBox.addView(customRow, wrap());
+        timeOrIntervalHolder.addView(intBox, full());
 
-        paintTimeOrInterval[0].run();
+        customInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {
+                if (updatingFromCode[0]) return;
+                try {
+                    int val = Integer.parseInt(s.toString().trim());
+                    if (val >= 1 && val != p.intervalMin) {
+                        p.intervalMin = val;
+                        curInt.setText(p.intervalSummary(ChatActivity.this));
+                        for (int idx = 0; idx < mins.length; idx++) {
+                            boolean sel = (p.intervalMin == mins[idx]);
+                            chips[idx].setTextColor(sel ? ON_ACCENT : TEXT);
+                            chips[idx].setBackground(sel ? rounded(ChatActivity.this, ACCENT, 10) : outlined(ChatActivity.this, BG, 10, OUTLINE, 1));
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        });
+
+        final Runnable[] paintType = new Runnable[1];
+        paintType[0] = () -> {
+            boolean isInterval = "interval".equals(schedType[0]);
+            fixedBox.setVisibility(isInterval ? View.GONE : View.VISIBLE);
+            intBox.setVisibility(isInterval ? View.VISIBLE : View.GONE);
+            typeSegmentHolder.removeAllViews();
+            typeSegmentHolder.addView(segmented(this, new String[][]{
+                    {"fixed", getString(R.string.schedule_type_fixed)},
+                    {"interval", getString(R.string.schedule_type_interval)}
+            }, schedType[0], false, v -> {
+                schedType[0] = v;
+                if ("fixed".equals(v)) {
+                    p.intervalMin = 0;
+                } else if (p.intervalMin <= 0) {
+                    p.intervalMin = 60;
+                    updateIntervalView.run();
+                }
+                paintType[0].run();
+            }));
+        };
+        paintType[0].run();
 
         TextView dl = sectionLabel(this, getString(R.string.schedule_days));
         dl.setPaddingRelative(0, dp(this, 14), 0, dp(this, 4));
@@ -983,6 +1022,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 return;
             }
             if ("interval".equals(schedType[0])) {
+                try {
+                    int customVal = Integer.parseInt(customInput.getText().toString().trim());
+                    if (customVal >= 1) p.intervalMin = customVal;
+                } catch (Exception ignored) {}
                 if (p.intervalMin <= 0) p.intervalMin = 60;
             } else {
                 p.intervalMin = 0;
