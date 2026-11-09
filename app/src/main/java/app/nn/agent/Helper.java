@@ -50,6 +50,8 @@ final class Helper {
         if (!Linux.installed(app)) {
             throw new IllegalStateException(app.getString(R.string.helper_linux_missing)); // shown to the user
         }
+        final String cmdName = args.length > 0 ? args[0] : "";
+        final String sessionId = args.length > 1 ? args[1] : null;
         final String[] cmd = new String[args.length + 3];
         cmd[0] = "/bin/bash";
         cmd[1] = "/root/bin/buddy-run";
@@ -68,9 +70,15 @@ final class Helper {
                     int n;
                     while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
                 }
-                p.waitFor();
+                int code = p.waitFor();
+                if ("ask".equals(cmdName) && sessionId != null) {
+                    ChatHub.get(app).onHelperFinished(sessionId, code);
+                }
             } catch (Exception e) {
                 android.util.Log.w("Buddy", "helper failed", e);
+                if ("ask".equals(cmdName) && sessionId != null) {
+                    ChatHub.get(app).onHelperFinished(sessionId, -1);
+                }
             }
         });
     }

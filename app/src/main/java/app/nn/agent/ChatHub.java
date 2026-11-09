@@ -294,6 +294,10 @@ final class ChatHub {
         main.postDelayed(() -> {
             if (ses.running && id == ses.runId && SystemClock.elapsedRealtime() - ses.lastEventAt >= GIVE_UP_MS - 100) {
                 ses.running = false;
+                try {
+                    Helper.run(app, "stop", ses.id);
+                } catch (Exception ignored) {
+                }
                 String err = lastError(ses);
                 add(ses, Bubble.Kind.ERROR, app.getString(R.string.hub_no_answer) + (err.isEmpty() ? "" : "\n\n"
                         + ses.brainName()
@@ -432,6 +436,22 @@ final class ChatHub {
     /** Called for any phone-tool use; keeps running chats from timing out. */
     void onToolActivity() {
         for (Sessions.Session s : sessions.all) if (s.running) s.lastEventAt = SystemClock.elapsedRealtime();
+    }
+
+    /** Called when the background helper process exits. Prevents zombie hanging runs. */
+    void onHelperFinished(String sessionId, int exitCode) {
+        main.post(() -> {
+            Sessions.Session ses = sessions.find(sessionId);
+            if (ses != null && ses.running) {
+                ses.running = false;
+                ses.status = "";
+                if (ses.outcome == null) {
+                    ses.outcome = exitCode == 0 ? "done" : "failed";
+                }
+                runEnded(ses);
+                changed();
+            }
+        });
     }
 
     void onEvent(JSONObject ev) {

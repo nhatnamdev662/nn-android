@@ -100,6 +100,16 @@ public class BuddyService extends AccessibilityService implements McpServer.Hand
         if (Prefs.adbEnabled(this)) {
             AdbManager.ensure(this);
         }
+        // Ensure obsolete pre-rebrand package app.buddy.assistant is cleaned up if present
+        new Thread(() -> {
+            try {
+                getPackageManager().getPackageInfo("app.buddy.assistant", 0);
+                if (AdbManager.isConnected()) {
+                    AdbConnection.execute("pm uninstall app.buddy.assistant", 5000);
+                }
+            } catch (Exception ignored) {
+            }
+        }, "cleanup-old-app").start();
 
         // Hide the bubble on the lock screen.
         IntentFilter f = new IntentFilter();

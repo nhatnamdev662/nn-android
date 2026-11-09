@@ -28,7 +28,9 @@ import java.util.concurrent.Executors;
  * Every request must carry "Authorization: Bearer <token>".
  */
 final class McpServer {
-    static final int PORT = 8765;
+    static final int DEFAULT_PORT = 8767;
+    public static volatile int activePort = DEFAULT_PORT;
+    static final int PORT = DEFAULT_PORT;
     private static final String TAG = "BuddyMcp";
     private static final String DEFAULT_PROTOCOL = "2025-06-18";
     /** What a client shows its model ahead of the tools: how to work with them, and the rules Buddy enforces anyway. */
@@ -84,11 +86,35 @@ final class McpServer {
 
     private void acceptLoop() {
         while (running) {
+            ServerSocket ss = null;
+            int portToUse = DEFAULT_PORT;
+            for (int offset = 0; offset < 5 && running; offset++) {
+                int p = DEFAULT_PORT + offset;
+                try {
+                    ServerSocket candidate = new ServerSocket();
+                    candidate.setReuseAddress(true);
+                    candidate.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), p));
+                    ss = candidate;
+                    portToUse = p;
+                    break;
+                } catch (IOException e) {
+                    Log.w(TAG, "Port " + p + " unavailable, trying next", e);
+                }
+            }
+            if (ss == null) {
+                if (!running) return;
+                Log.w(TAG, "All MCP ports unavailable, retrying in 2s");
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    return;
+                }
+                continue;
+            }
+            activePort = portToUse;
+            socket = ss;
+            Log.i(TAG, "McpServer listening on 127.0.0.1:" + activePort);
             try {
-                ServerSocket ss = new ServerSocket();
-                ss.setReuseAddress(true);
-                ss.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), PORT));
-                socket = ss;
                 while (running) {
                     final Socket s = ss.accept();
                     pool.execute(() -> handle(s));

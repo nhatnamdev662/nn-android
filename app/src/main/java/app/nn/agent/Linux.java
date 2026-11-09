@@ -85,6 +85,7 @@ final class Linux {
         // without a big font download (Alpine's Chromium only brings a Latin one)
         if (new File("/system/fonts").isDirectory()) a.addAll(Arrays.asList("-b", "/system/fonts:/usr/share/fonts/android"));
         a.addAll(Arrays.asList("/usr/bin/env", "-i", "HOME=/root", "LANG=C.UTF-8", "TERM=xterm-256color", "COLORTERM=truecolor",
+                "BUDDY_PORT=" + McpServer.activePort,
                 "PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"));
         a.addAll(Arrays.asList(cmd));
         return a;
@@ -98,6 +99,7 @@ final class Linux {
         pb.environment().put("PROOT_LOADER", lib + "/libproot-loader.so");
         pb.environment().put("PROOT_TMP_DIR", tmp.getAbsolutePath());
         pb.environment().put("LD_LIBRARY_PATH", lib);
+        pb.environment().put("BUDDY_PORT", String.valueOf(McpServer.activePort));
         pb.redirectErrorStream(true);
         return pb;
     }
