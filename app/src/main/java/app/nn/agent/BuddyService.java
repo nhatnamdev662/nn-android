@@ -97,6 +97,9 @@ public class BuddyService extends AccessibilityService implements McpServer.Hand
         bubble.show();
         server = new McpServer(Prefs.token(this), this);
         server.start();
+        if (Prefs.adbEnabled(this)) {
+            AdbManager.ensure(this);
+        }
 
         // Hide the bubble on the lock screen.
         IntentFilter f = new IntentFilter();

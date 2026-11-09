@@ -11,6 +11,9 @@ public class BuddyApp extends Application {
     public void onCreate() {
         super.onCreate();
         ctx = this;
+        if (Prefs.adbEnabled(this)) {
+            AdbManager.ensure(this);
+        }
     }
 
     static Context context() {

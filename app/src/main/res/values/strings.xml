@@ -2074,17 +2074,47 @@
     <string name="setup_adb_section">Wireless Debugging (ADB)</string>
     <string name="setup_adb_section_info">Direct on-device ADB connection via loopback. Lets agents run ADB shell commands without a computer.</string>
     <string name="setup_adb_switch">Enable ADB connection</string>
-    <string name="setup_adb_switch_info">Maintains a secure local ADB connection to 127.0.0.1 using Wireless Debugging.</string>
+    <string name="setup_adb_switch_info">Connecting ADB lets NN automate high-speed actions, type instantly, inspect system status, and manage apps without root.</string>
     <string name="setup_adb_status_connected">connected · 127.0.0.1:%1$d</string>
     <string name="setup_adb_status_disconnected">disconnected</string>
     <string name="setup_adb_status_connecting">connecting…</string>
+    <string name="setup_adb_status_connecting_port">connecting to port %1$d…</string>
     <string name="setup_adb_status_pairing">pairing in progress…</string>
-    <string name="setup_adb_status_error">connection error: %1$s</string>
+    <string name="setup_adb_status_error">not connected: %1$s</string>
+    <string name="setup_adb_status_active">Wireless ADB Active</string>
+    <string name="setup_adb_status_inactive">Wireless ADB Disconnected</string>
+    <string name="setup_adb_status_sub_connected">127.0.0.1:%1$d · Shell UID 2000 (sh)</string>
+    <string name="setup_adb_status_sub_disconnected">Turn on Wireless Debugging or enter port to connect.</string>
     <string name="setup_adb_pair">Pair with pairing code</string>
+    <string name="setup_adb_connect_manual">Enter Port &amp; Connect</string>
+    <string name="setup_adb_change_port">Change Port</string>
     <string name="setup_adb_reconnect">Reconnect</string>
     <string name="setup_adb_disconnect">Disconnect</string>
     <string name="setup_adb_open_dev_options">Open Developer Options</string>
     <string name="setup_adb_dev_options_hint">Turn on Wireless Debugging in Developer Options, then tap “Pair device with pairing code”.</string>
+    <string name="setup_adb_guide_title">Step-by-step setup guide</string>
+    <string name="setup_adb_guide_sub">How to enable Wireless Debugging and pair</string>
+    <string name="setup_adb_ask_nn_title">Ask NN to connect for you</string>
+    <string name="setup_adb_ask_nn_sub">NN will open settings and guide your steps</string>
+
+    <!-- ADB connect sheet. -->
+    <string name="adb_connect_sheet_title">Enter Wireless Debugging Port</string>
+    <string name="adb_connect_sheet_desc">In Developer Options → Wireless Debugging, look for the port in “IP address &amp; Port” (e.g. 192.168.x.x:37111).</string>
+    <string name="adb_connect_sheet_port_label">Connection port (5 digits)</string>
+    <string name="adb_connect_sheet_port_hint">e.g. 37111</string>
+    <string name="adb_connect_sheet_action">Connect Now</string>
+
+    <!-- ADB guide sheet. -->
+    <string name="adb_guide_sheet_title">Wireless ADB Setup Guide</string>
+    <string name="adb_guide_step1_title">1. Enable Developer Options</string>
+    <string name="adb_guide_step1_desc">Go to Phone Settings → About Phone → Tap “Build number” 7 times continuously.</string>
+    <string name="adb_guide_step2_title">2. Turn on Wireless Debugging</string>
+    <string name="adb_guide_step2_desc">Go to Developer Options → Enable “Wireless Debugging” while connected to Wi-Fi.</string>
+    <string name="adb_guide_step3_title">3. Get pairing code and port</string>
+    <string name="adb_guide_step3_desc">Tap the “Wireless Debugging” text → select “Pair device with pairing code” to see the 6-digit code and pairing port.</string>
+    <string name="adb_guide_step4_title">4. Pair and run in background</string>
+    <string name="adb_guide_step4_desc">Tap “Pair with code” in NN, enter the code + port, and tap Pair. NN will keep ADB connected in the background like Shizuku!</string>
+    <string name="adb_ask_nn_prompt">I want to connect Wireless ADB so you can unlock full phone automation capabilities. Please check if Wireless Debugging is on and guide or automate the connection for me!</string>
 
     <!-- ADB pairing sheet (bottom sheet modal). -->
     <string name="adb_pair_sheet_title">Pair Wireless Debugging</string>

@@ -589,6 +589,16 @@ final class PhoneTools {
         }
         cmd = cmd.trim();
 
+        // Auto-reconnect if disconnected but ADB is enabled
+        if (!AdbConnection.isConnected() && Prefs.adbEnabled(svc)) {
+            int port = Prefs.adbPort(svc);
+            if (port > 0) {
+                try {
+                    AdbConnection.connect("127.0.0.1", port);
+                } catch (Throwable ignored) {}
+            }
+        }
+
         int timeoutMs = 15000;
         if (a.has("timeout_ms")) {
             timeoutMs = a.getInt("timeout_ms");

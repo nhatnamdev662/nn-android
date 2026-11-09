@@ -153,6 +153,10 @@ public final class AdbManager {
         }
     }
 
+    public static boolean isConnected() {
+        return state == State.CONNECTED && AdbConnection.isConnected();
+    }
+
     private synchronized void stopInternal() {
         if (mdnsActive && mdns != null) {
             mdns.stop();
@@ -164,7 +168,7 @@ public final class AdbManager {
 
     private void connectInternal(int targetPort) {
         if (targetPort <= 0 || targetPort > 65535) {
-            updateState(State.ERROR, "Invalid port: " + targetPort, 0);
+            updateState(State.DISCONNECTED, "Invalid port: " + targetPort, 0);
             return;
         }
 
@@ -174,10 +178,20 @@ public final class AdbManager {
                 AdbConnection.connect("127.0.0.1", targetPort);
                 port = targetPort;
                 Prefs.setAdbPort(context, targetPort);
+                Prefs.setAdbEnabled(context, true);
                 updateState(State.CONNECTED, "", targetPort);
             } catch (Throwable t) {
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
-                updateState(State.ERROR, t.getMessage() != null ? t.getMessage() : "Connection failed", targetPort);
+                String msg = t.getMessage();
+                String friendly;
+                if (msg != null && (msg.contains("ECONNREFUSED") || msg.contains("refused"))) {
+                    friendly = "Cổng " + targetPort + " không phản hồi. Hãy kiểm tra Gỡ lỗi không dây đã bật chưa hoặc cập nhật số cổng.";
+                } else if (msg != null && msg.contains("timeout")) {
+                    friendly = "Hết thời gian chờ kết nối tới cổng " + targetPort + ".";
+                } else {
+                    friendly = "Chưa kết nối tới cổng " + targetPort + ".";
+                }
+                updateState(State.DISCONNECTED, friendly, targetPort);
             }
         });
     }
