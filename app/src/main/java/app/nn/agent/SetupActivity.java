@@ -33,6 +33,19 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private LinearLayout list;
     /** Setup card open state; null = automatic (open until all steps are done). */
     private Boolean setupOpen;
+    private Dialog activeAdbGuideDialog;
+    private Dialog activeAdbPairDialog;
+
+    private void dismissAdbDialogs() {
+        if (activeAdbGuideDialog != null && activeAdbGuideDialog.isShowing()) {
+            try { activeAdbGuideDialog.dismiss(); } catch (Throwable ignored) {}
+            activeAdbGuideDialog = null;
+        }
+        if (activeAdbPairDialog != null && activeAdbPairDialog.isShowing()) {
+            try { activeAdbPairDialog.dismiss(); } catch (Throwable ignored) {}
+            activeAdbPairDialog = null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle state) {
@@ -71,6 +84,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         AdbManager.get(this);
         AdbManager.addListener(this);
         AdbManager.ensure(this);
+        if (AdbManager.isConnected()) dismissAdbDialogs();
         Account.CLAUDE.refresh(this);
         Account.CODEX.refresh(this);
         Account.OPENCODE.refresh(this);
@@ -92,7 +106,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
     @Override
     public void onAdbStateChanged(AdbManager.State state, String host, int port, String error) {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) {
+            if (AdbManager.isConnected()) dismissAdbDialogs();
+            render();
+        }
     }
 
     @Override
@@ -1547,6 +1564,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         c.addView(devBtn, devParams);
 
         Dialog d = bottomSheet(this, c);
+        activeAdbPairDialog = d;
+        d.setOnDismissListener(di -> { if (activeAdbPairDialog == di) activeAdbPairDialog = null; });
         cancel.setOnClickListener(v -> d.dismiss());
         pair.setOnClickListener(v -> {
             String code = codeInput.getText().toString().trim();
@@ -1569,7 +1588,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             pair.setText(R.string.adb_pair_pairing);
             AdbManager.pair(finalPort, code, (ok, why) -> runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
-                if (d.isShowing()) d.dismiss();
+                dismissAdbDialogs();
                 if (ok) {
                     Prefs.setAdbEnabled(this, true);
                     AdbManager.ensure(this);
@@ -1656,6 +1675,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        if (AdbManager.isConnected()) dismissAdbDialogs();
         render();
     }
 
@@ -1793,7 +1813,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         TextView enterInApp = text(this, getString(R.string.adb_guide_step2_enter_here), 13, ACCENT_TEXT);
         enterInApp.setTypeface(sans(this, 600));
         enterInApp.setPaddingRelative(0, dp(this, 6), 0, 0);
-        enterInApp.setOnClickListener(v -> adbPairSheet());
+        enterInApp.setOnClickListener(v -> {
+            dismissAdbDialogs();
+            adbPairSheet();
+        });
         col2.addView(enterInApp);
 
         step2Row.addView(col2, weight1());
@@ -1821,6 +1844,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         c.addView(sv, svp);
 
         Dialog d = bottomSheet(this, c);
+        activeAdbGuideDialog = d;
+        d.setOnDismissListener(di -> { if (activeAdbGuideDialog == di) activeAdbGuideDialog = null; });
         d.show();
     }
 
