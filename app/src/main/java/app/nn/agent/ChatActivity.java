@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -22,6 +23,9 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static app.nn.agent.Ui.*;
 
@@ -246,7 +250,15 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         send.setImageResource(R.drawable.ms_arrow_upward);
         send.setContentDescription(getString(R.string.chat_send));
         send.setScaleType(ImageView.ScaleType.CENTER);
-        send.setOnClickListener(v -> send());
+        send.setOnClickListener(v -> {
+            if (ses != null && ses.running && input.getText().toString().trim().isEmpty() && pending.isEmpty()) {
+                hub.stop(ses);
+                refresh();
+                paintSend();
+            } else {
+                send();
+            }
+        });
         LinearLayout.LayoutParams snp = new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40));
         snp.setMarginStart(dp(this, 4));
         pill.addView(send, snp);
@@ -426,9 +438,18 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void paintSend() {
-        boolean has = input.getText().toString().trim().length() > 0 || !pending.isEmpty();
-        send.setBackground(oval(has ? ACCENT : CARD2));
-        send.setImageTintList(ColorStateList.valueOf(has ? ON_ACCENT : MUTED));
+        if (ses != null && ses.running && input.getText().toString().trim().isEmpty() && pending.isEmpty()) {
+            send.setImageResource(R.drawable.ic_stop);
+            send.setContentDescription(getString(R.string.chat_stop));
+            send.setBackground(oval(ERR));
+            send.setImageTintList(ColorStateList.valueOf(0xFFFFFFFF));
+        } else {
+            send.setImageResource(R.drawable.ms_arrow_upward);
+            send.setContentDescription(getString(R.string.chat_send));
+            boolean has = input.getText().toString().trim().length() > 0 || !pending.isEmpty();
+            send.setBackground(oval(has ? ACCENT : CARD2));
+            send.setImageTintList(ColorStateList.valueOf(has ? ON_ACCENT : MUTED));
+        }
     }
 
     /** While the message is "/" and a name's start: the skills that match, and /compact for Claude Code. */
@@ -1398,12 +1419,15 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         if (linux != null) paintLinuxChip(this, linux, ses.dev);
         options.setImageTintList(ColorStateList.valueOf(ses.awake || ses.schedule != null || !ses.allowed.isEmpty() ? ACCENT : MUTED));
         if (hint != null) hint.setText(hintText());
-        strip.setVisibility(ses.running ? View.VISIBLE : View.GONE);
-        String targetHint = ses.running ? getString(R.string.chat_input_hint_running) : getString(R.string.chat_input_hint, ses.brainName());
+        strip.setVisibility(View.GONE);
+        String st = ses.status.isEmpty() ? getString(R.string.chat_working) : ses.status;
+        String suffix = (st.endsWith("…") || st.endsWith("...")) ? "" : "…";
+        String targetHint = ses.running ? (st + suffix) : getString(R.string.chat_input_hint, ses.brainName());
         if (input != null && !targetHint.equals(input.getHint())) {
             input.setHint(targetHint);
         }
-        stripText.setText(ses.status.isEmpty() ? getString(R.string.chat_working) : ses.status);
+        stripText.setText(st);
+        paintSend();
         if (log != null) {
             if (ses.running) log.setLive(true);
             else log.finish();
@@ -1681,17 +1705,21 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 tv.setMaxWidth(maxBubble);
                 tv.setBackground(corners(this, USER, 20, 20, 6, 20));
                 tv.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
-                copyOnLongPress(tv, m.text);
+                tv.setOnLongClickListener(v -> {
+                    showMessageActions(m, true);
+                    return true;
+                });
                 LinearLayout.LayoutParams tp = wrap();
                 tp.gravity = Gravity.END;
                 col.addView(tv, tp);
             }
+            col.addView(userActionRow(m), wrap());
             LinearLayout.LayoutParams p = full();
             p.topMargin = dp(this, 12);
             messages.addView(col, p);
             return;
         }
-        if (!m.text.isEmpty() || m.files.isEmpty()) show(m.kind, m.text);
+        if (!m.text.isEmpty() || m.files.isEmpty()) show(m, m.kind, m.text);
         if (m.kind == Bubble.Kind.NN || m.kind == Bubble.Kind.BUDDY) { // pictures the reply names (see ChatHub.pictures), under it
             for (String id : m.files) {
                 LinearLayout.LayoutParams fp = wrap();
@@ -1940,7 +1968,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
     }
 
-    private void show(Bubble.Kind kind, final String text) {
+    private void show(final Sessions.Msg m, Bubble.Kind kind, final String text) {
         if (kind == Bubble.Kind.STEP) {
             if (log == null) {
                 log = new ToolLog();
@@ -1962,19 +1990,27 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         View v;
         switch (kind) {
             case USER: {
+                LinearLayout container = column(this);
+                container.setGravity(Gravity.END);
                 TextView tv = text(this, text, 15, TEXT);
                 links(tv);
                 tv.setMaxWidth(maxBubble);
                 tv.setBackground(corners(this, USER, 18, 18, 4, 18));
                 tv.setLineSpacing(dp(this, 2), 1.22f);
                 tv.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
-                copyOnLongPress(tv, text);
+                tv.setOnLongClickListener(x -> {
+                    showMessageActions(m, true);
+                    return true;
+                });
+                container.addView(tv, wrap());
+                container.addView(userActionRow(m), wrap());
                 p.gravity = Gravity.END;
-                v = tv;
+                v = container;
                 break;
             }
             case NN:
             case BUDDY: {
+                LinearLayout container = column(this);
                 LinearLayout r = row(this);
                 r.setGravity(Gravity.BOTTOM);
                 FrameLayout av = new FrameLayout(this);
@@ -1995,8 +2031,17 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 tv.setMaxWidth(maxBubble - dp(this, 32));
                 tv.setBackground(corners(this, CARD, 18, 18, 18, 6));
                 tv.setPaddingRelative(dp(this, 15), dp(this, 12), dp(this, 15), dp(this, 12));
+                tv.setOnLongClickListener(x -> {
+                    showMessageActions(m, false);
+                    return true;
+                });
                 r.addView(tv);
-                v = r;
+                container.addView(r, wrap());
+                LinearLayout.LayoutParams ap = wrap();
+                ap.setMarginStart(dp(this, 32));
+                ap.topMargin = dp(this, 4);
+                container.addView(agentActionRow(m), ap);
+                v = container;
                 break;
             }
             default: { // ERROR
@@ -2028,6 +2073,200 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             Toast.makeText(this, R.string.chat_copied, Toast.LENGTH_SHORT).show();
             return true;
         });
+    }
+
+    private LinearLayout userActionRow(final Sessions.Msg m) {
+        LinearLayout row = row(this);
+        row.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        row.setPaddingRelative(0, dp(this, 3), dp(this, 2), 0);
+        row.addView(miniActionIcon(R.drawable.ms_content_copy, getString(R.string.chat_action_copy), v -> copyText(m != null ? m.text : "")));
+        if (m != null) {
+            row.addView(miniActionIcon(R.drawable.ms_edit, getString(R.string.chat_action_edit), v -> editMessage(m)));
+        }
+        return row;
+    }
+
+    private LinearLayout agentActionRow(final Sessions.Msg m) {
+        LinearLayout row = row(this);
+        row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        row.setPaddingRelative(0, dp(this, 3), 0, 0);
+        row.addView(miniActionIcon(R.drawable.ms_content_copy, getString(R.string.chat_action_copy), v -> copyText(m != null ? m.text : "")));
+        if (m != null) {
+            row.addView(miniActionIcon(R.drawable.ms_refresh, getString(R.string.chat_action_retry), v -> retryMessage(m)));
+            row.addView(miniActionIcon(R.drawable.ms_volume_up, getString(R.string.chat_action_speak), v -> {
+                if (Voice.isSpeaking()) {
+                    Voice.stopSpeaking();
+                    Toast.makeText(this, R.string.chat_action_stop_speak, Toast.LENGTH_SHORT).show();
+                } else {
+                    Voice.stopSpeaking();
+                    Voice.speak(this, m.text);
+                }
+            }));
+            final String code = Ui.extractCode(m.text);
+            if (!code.isEmpty()) {
+                row.addView(miniActionIcon(R.drawable.ms_code, getString(R.string.chat_action_copy_code), v -> {
+                    copyText(code);
+                    Toast.makeText(this, R.string.chat_code_copied, Toast.LENGTH_SHORT).show();
+                }));
+            }
+        }
+        return row;
+    }
+
+    private View miniActionIcon(int iconRes, String desc, View.OnClickListener onClick) {
+        ImageView iv = new ImageView(this);
+        iv.setImageResource(iconRes);
+        iv.setImageTintList(ColorStateList.valueOf(MUTED));
+        iv.setContentDescription(desc);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int p = dp(this, 5);
+        iv.setPadding(p, p, p, p);
+        iv.setBackgroundResource(ripple(this, true));
+        iv.setOnClickListener(onClick);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(this, 26), dp(this, 26));
+        lp.setMarginEnd(dp(this, 6));
+        iv.setLayoutParams(lp);
+        return iv;
+    }
+
+    private void showMessageActions(final Sessions.Msg m, final boolean isUser) {
+        if (m == null) return;
+        LinearLayout c = column(this);
+        c.setPaddingRelative(dp(this, 16), dp(this, 16), dp(this, 16), dp(this, 20));
+        TextView header = title(this, isUser ? getString(R.string.bubble_chat_row_you, ChatHub.clip(m.text, 30))
+                : ses.brainName(), 16);
+        header.setPaddingRelative(0, 0, 0, dp(this, 12));
+        c.addView(header);
+
+        final Dialog[] d = new Dialog[1];
+        c.addView(actionRow(R.drawable.ms_content_copy, getString(R.string.chat_action_copy), v -> {
+            copyText(m.text);
+            d[0].dismiss();
+        }));
+        if (isUser) {
+            c.addView(actionRow(R.drawable.ms_edit, getString(R.string.chat_action_edit), v -> {
+                d[0].dismiss();
+                editMessage(m);
+            }));
+        } else {
+            c.addView(actionRow(R.drawable.ms_refresh, getString(R.string.chat_action_retry), v -> {
+                d[0].dismiss();
+                retryMessage(m);
+            }));
+            c.addView(actionRow(R.drawable.ms_volume_up, getString(R.string.chat_action_speak), v -> {
+                d[0].dismiss();
+                if (Voice.isSpeaking()) {
+                    Voice.stopSpeaking();
+                    Toast.makeText(this, R.string.chat_action_stop_speak, Toast.LENGTH_SHORT).show();
+                } else {
+                    Voice.stopSpeaking();
+                    Voice.speak(this, m.text);
+                }
+            }));
+            final String code = Ui.extractCode(m.text);
+            if (!code.isEmpty()) {
+                c.addView(actionRow(R.drawable.ms_code, getString(R.string.chat_action_copy_code), v -> {
+                    copyText(code);
+                    Toast.makeText(this, R.string.chat_code_copied, Toast.LENGTH_SHORT).show();
+                    d[0].dismiss();
+                }));
+            }
+        }
+        c.addView(actionRow(R.drawable.ms_delete, getString(R.string.chat_action_delete), ERR, v -> {
+            d[0].dismiss();
+            deleteMessage(m);
+        }));
+
+        d[0] = bottomSheet(this, c);
+        d[0].show();
+    }
+
+    private View actionRow(int iconRes, String title, View.OnClickListener onClick) {
+        return actionRow(iconRes, title, TEXT, onClick);
+    }
+
+    private View actionRow(int iconRes, String title, int textColor, View.OnClickListener onClick) {
+        LinearLayout r = row(this);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setPaddingRelative(dp(this, 8), dp(this, 12), dp(this, 8), dp(this, 12));
+        r.setBackgroundResource(ripple(this, false));
+        ImageView ic = icon(this, iconRes, textColor == ERR ? ERR : MUTED, 20);
+        r.addView(ic);
+        TextView tv = text(this, title, 15, textColor);
+        tv.setPaddingRelative(dp(this, 14), 0, 0, 0);
+        r.addView(tv, weight1());
+        r.setOnClickListener(onClick);
+        return r;
+    }
+
+    private void copyText(String text) {
+        if (text == null) return;
+        getSystemService(ClipboardManager.class).setPrimaryClip(ClipData.newPlainText("NN", text));
+        Toast.makeText(this, R.string.chat_copied, Toast.LENGTH_SHORT).show();
+    }
+
+    private void editMessage(Sessions.Msg m) {
+        if (ses == null || m == null) return;
+        if (ses.running) {
+            hub.stop(ses);
+            Toast.makeText(this, R.string.bubble_stopping, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int idx = ses.messages.indexOf(m);
+        if (idx < 0) return;
+        String oldText = m.text;
+        List<String> oldFiles = m.files != null ? new ArrayList<>(m.files) : null;
+        while (ses.messages.size() > idx) {
+            ses.messages.remove(ses.messages.size() - 1);
+        }
+        hub.sessions.save(ses);
+        showAll();
+
+        input.setText(oldText);
+        input.setSelection(input.getText().length());
+        pending.clear();
+        if (oldFiles != null) pending.addAll(oldFiles);
+        renderTray();
+        paintSend();
+
+        input.requestFocus();
+        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
+    }
+
+    private void retryMessage(Sessions.Msg m) {
+        if (ses == null || m == null) return;
+        if (ses.running) {
+            hub.stop(ses);
+            Toast.makeText(this, R.string.bubble_stopping, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int idx = ses.messages.indexOf(m);
+        if (idx < 0) return;
+        int userIdx = -1;
+        for (int i = idx - 1; i >= 0; i--) {
+            if (ses.messages.get(i).kind == Bubble.Kind.USER) {
+                userIdx = i;
+                break;
+            }
+        }
+        if (userIdx < 0) return;
+        Sessions.Msg u = ses.messages.get(userIdx);
+        String uText = u.text;
+        List<String> uFiles = u.files != null ? new ArrayList<>(u.files) : null;
+        while (ses.messages.size() > userIdx) {
+            ses.messages.remove(ses.messages.size() - 1);
+        }
+        hub.sessions.save(ses);
+        showAll();
+        hub.send(ses, uText, uFiles);
+    }
+
+    private void deleteMessage(Sessions.Msg m) {
+        if (ses == null || m == null) return;
+        ses.messages.remove(m);
+        hub.sessions.save(ses);
+        showAll();
+        Toast.makeText(this, R.string.chat_deleted, Toast.LENGTH_SHORT).show();
     }
 
     private void scrollToEnd() {

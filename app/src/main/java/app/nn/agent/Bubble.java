@@ -96,6 +96,7 @@ final class Bubble implements ChatHub.Listener {
     private boolean asking;
     private java.util.List<String> askOptions;
     private EditText input;
+    private ImageButton send;
 
     private boolean expanded, running, passThrough, showingList;
     private int imeTop;
@@ -566,20 +567,23 @@ final class Bubble implements ChatHub.Listener {
         inputRow.addView(mic, new LinearLayout.LayoutParams(dp(40), dp(40)));
         mic.setBackground(null); // idle look; micIdle() needs the current chat, which isn't loaded yet
         mic.setImageTintList(android.content.res.ColorStateList.valueOf(Ui.MUTED));
-        final ImageButton send = new ImageButton(svc);
+        send = new ImageButton(svc);
         send.setImageResource(R.drawable.ms_arrow_upward);
         send.setContentDescription(svc.getString(R.string.bubble_send));
         send.setScaleType(ImageView.ScaleType.CENTER);
-        send.setOnClickListener(v -> send());
+        send.setOnClickListener(v -> {
+            if (sessions.current != null && sessions.current.running && input.getText().toString().trim().isEmpty()) {
+                stop();
+                refreshStatus();
+                paintSend();
+            } else {
+                send();
+            }
+        });
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(dp(40), dp(40));
         slp.setMarginStart(dp(4));
         inputRow.addView(send, slp);
-        Runnable paintSend = () -> {
-            boolean has = input.getText().toString().trim().length() > 0;
-            send.setBackground(circle(has ? Ui.ACCENT : Ui.CARD2, 0, 0));
-            send.setImageTintList(android.content.res.ColorStateList.valueOf(has ? Ui.ON_ACCENT : Ui.MUTED));
-        };
-        paintSend.run();
+        paintSend();
         input.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence x, int a, int b, int c) {
@@ -591,7 +595,7 @@ final class Bubble implements ChatHub.Listener {
 
             @Override
             public void afterTextChanged(android.text.Editable e) {
-                paintSend.run();
+                paintSend();
             }
         });
         panel.addView(inputRow, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
@@ -692,6 +696,24 @@ final class Bubble implements ChatHub.Listener {
         if (on) voiceBar.begin(null);
         voiceBar.setVisibility(on ? View.VISIBLE : View.GONE);
         composer.setVisibility(on ? View.GONE : View.VISIBLE);
+    }
+
+    private void paintSend() {
+        if (send == null || input == null) return;
+        boolean isRunning = sessions != null && sessions.current != null && sessions.current.running;
+        boolean empty = input.getText().toString().trim().isEmpty();
+        if (isRunning && empty) {
+            send.setImageResource(R.drawable.ic_stop);
+            send.setContentDescription(svc.getString(R.string.chat_stop));
+            send.setBackground(circle(Ui.ERR, 0, 0));
+            send.setImageTintList(android.content.res.ColorStateList.valueOf(0xFFFFFFFF));
+        } else {
+            send.setImageResource(R.drawable.ms_arrow_upward);
+            send.setContentDescription(svc.getString(R.string.bubble_send));
+            boolean has = !empty;
+            send.setBackground(circle(has ? Ui.ACCENT : Ui.CARD2, 0, 0));
+            send.setImageTintList(android.content.res.ColorStateList.valueOf(has ? Ui.ON_ACCENT : Ui.MUTED));
+        }
     }
 
     private void applyCollapsedParams() {
@@ -2046,9 +2068,17 @@ final class Bubble implements ChatHub.Listener {
         modelChip.setVisibility(showingList ? View.GONE : View.VISIBLE);
         linuxTag.setVisibility(!showingList && ses.dev ? View.VISIBLE : View.GONE);
         boolean working = !showingList && (ses.running || controlling);
-        strip.setVisibility(working ? View.VISIBLE : View.GONE);
-        stripText.setText(!ses.status.isEmpty() ? ses.status
-                : svc.getString(ses.running ? R.string.bubble_working : R.string.bubble_using_phone));
+        strip.setVisibility(View.GONE);
+        if (input != null && ses != null) {
+            if (working) {
+                String st = ses.status.isEmpty() ? svc.getString(R.string.bubble_working) : ses.status;
+                String suffix = (st.endsWith("…") || st.endsWith("...")) ? "" : "…";
+                input.setHint(st + suffix);
+            } else {
+                input.setHint(svc.getString(R.string.bubble_input_hint, ses.brainName()));
+            }
+            paintSend();
+        }
         if (log != null) log.setLive(ses.running);
     }
 
@@ -2746,13 +2776,13 @@ final class Bubble implements ChatHub.Listener {
             else otherFiles = true;
         }
         if (pictures.isEmpty() || otherFiles) {
-            showMessage(m.kind, m.label());
+            showMessage(m, m.kind, m.label());
             return;
         }
         boolean user = m.kind == Kind.USER;
-        if (!user && !m.text.isEmpty()) showMessage(m.kind, m.text);
+        if (!user && !m.text.isEmpty()) showMessage(m, m.kind, m.text);
         for (String id : pictures) showPicture(id, user);
-        if (user && !m.text.isEmpty()) showMessage(m.kind, m.text);
+        if (user && !m.text.isEmpty()) showMessage(m, m.kind, m.text);
         scrollToEnd();
     }
 
@@ -2828,7 +2858,7 @@ final class Bubble implements ChatHub.Listener {
         svc.startActivity(i);
     }
 
-    private void showMessage(Kind kind, String text) {
+    private void showMessage(final Sessions.Msg m, Kind kind, String text) {
         if (text == null) return;
         View hint = messages.findViewWithTag("hint");
         if (hint != null) messages.removeView(hint);
@@ -2855,18 +2885,25 @@ final class Bubble implements ChatHub.Listener {
         View v;
         switch (kind) {
             case USER: {
+                LinearLayout container = new LinearLayout(svc);
+                container.setOrientation(LinearLayout.VERTICAL);
+                container.setGravity(Gravity.END);
                 TextView tv = Ui.text(svc, text, 15, Ui.TEXT);
                 tv.setBackground(Ui.corners(svc, Ui.USER, 18, 18, 4, 18));
                 tv.setLineSpacing(dp(2), 1.22f);
                 tv.setPaddingRelative(dp(14), dp(10), dp(14), dp(10));
                 Ui.linkifyForService(tv, this::collapse);
+                container.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                if (m != null) container.addView(bubbleUserActionRow(m), new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 p.gravity = Gravity.END;
                 p.setMarginStart(dp(40));
-                v = tv;
+                v = container;
                 break;
             }
             case NN:
             case BUDDY: {
+                LinearLayout container = new LinearLayout(svc);
+                container.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout r = new LinearLayout(svc);
                 r.setGravity(Gravity.BOTTOM);
                 FrameLayout av = new FrameLayout(svc);
@@ -2887,8 +2924,15 @@ final class Bubble implements ChatHub.Listener {
                 Ui.linkifyForService(tv, this::collapse);
                 copyOnLongPress(tv, Ui.linkCopy(md, 0, md.length())); // as shown, links as "text (address)"
                 r.addView(tv);
+                container.addView(r, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                if (m != null) {
+                    LinearLayout.LayoutParams ap = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    ap.setMarginStart(dp(32));
+                    ap.topMargin = dp(4);
+                    container.addView(bubbleAgentActionRow(m), ap);
+                }
                 p.setMarginEnd(dp(24));
-                v = r;
+                v = container;
                 break;
             }
             default: { // ERROR
@@ -2972,6 +3016,143 @@ final class Bubble implements ChatHub.Listener {
             toast(svc.getString(R.string.bubble_copied));
             return true;
         });
+    }
+
+    private View bubbleUserActionRow(final Sessions.Msg m) {
+        LinearLayout row = new LinearLayout(svc);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPaddingRelative(0, dp(2), 0, 0);
+
+        row.addView(bubbleMiniActionIcon(R.drawable.ms_content_copy, svc.getString(R.string.chat_action_copy), v -> copyToClipboard(m.text)));
+        row.addView(bubbleMiniActionIcon(R.drawable.ms_edit, svc.getString(R.string.chat_action_edit), v -> bubbleEditMessage(m)));
+        row.addView(bubbleMiniActionIcon(R.drawable.ms_delete, svc.getString(R.string.chat_action_delete), v -> bubbleDeleteMessage(m)));
+
+        return row;
+    }
+
+    private View bubbleAgentActionRow(final Sessions.Msg m) {
+        LinearLayout row = new LinearLayout(svc);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        row.addView(bubbleMiniActionIcon(R.drawable.ms_content_copy, svc.getString(R.string.chat_action_copy), v -> copyToClipboard(m.text)));
+        row.addView(bubbleMiniActionIcon(R.drawable.ms_refresh, svc.getString(R.string.chat_action_retry), v -> bubbleRetryMessage(m)));
+        row.addView(bubbleMiniActionIcon(Voice.isSpeaking() ? R.drawable.ms_volume_off : R.drawable.ms_volume_up,
+                svc.getString(R.string.chat_action_speak), v -> bubbleSpeakMessage(m, v)));
+        final String code = Ui.extractCode(m.text);
+        if (code != null && !code.isEmpty()) {
+            row.addView(bubbleMiniActionIcon(R.drawable.ms_code, svc.getString(R.string.chat_action_copy_code), v -> {
+                copyToClipboard(code);
+                toast(svc.getString(R.string.chat_code_copied));
+            }));
+        }
+        row.addView(bubbleMiniActionIcon(R.drawable.ms_delete, svc.getString(R.string.chat_action_delete), v -> bubbleDeleteMessage(m)));
+
+        return row;
+    }
+
+    private View bubbleMiniActionIcon(int iconRes, String tooltip, View.OnClickListener l) {
+        ImageButton b = new ImageButton(svc);
+        b.setImageResource(iconRes);
+        b.setContentDescription(tooltip);
+        b.setTooltipText(tooltip);
+        b.setScaleType(ImageView.ScaleType.CENTER);
+        b.setBackground(null);
+        b.setImageTintList(android.content.res.ColorStateList.valueOf(Ui.MUTED));
+        b.setPaddingRelative(dp(4), dp(4), dp(4), dp(4));
+        b.setOnClickListener(l);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(26), dp(26));
+        lp.setMarginEnd(dp(4));
+        b.setLayoutParams(lp);
+        return b;
+    }
+
+    private void copyToClipboard(String text) {
+        if (text == null) return;
+        ClipboardManager cm = svc.getSystemService(ClipboardManager.class);
+        cm.setPrimaryClip(ClipData.newPlainText("NN", text));
+        toast(svc.getString(R.string.bubble_copied));
+    }
+
+    private void bubbleSpeakMessage(Sessions.Msg m, View v) {
+        if (Voice.isSpeaking()) {
+            Voice.stopSpeaking();
+            if (v instanceof ImageButton) {
+                ((ImageButton) v).setImageResource(R.drawable.ms_volume_up);
+            }
+            toast(svc.getString(R.string.chat_action_stop_speak));
+        } else {
+            Voice.stopSpeaking();
+            Voice.speak(svc, m.text);
+            if (v instanceof ImageButton) {
+                ((ImageButton) v).setImageResource(R.drawable.ms_volume_off);
+            }
+        }
+    }
+
+    private void bubbleEditMessage(Sessions.Msg m) {
+        if (sessions.current == null || m == null) return;
+        if (sessions.current.running) {
+            stop();
+            refreshStatus();
+            paintSend();
+        }
+        int idx = sessions.current.messages.indexOf(m);
+        if (idx < 0) return;
+        input.setText(m.text);
+        input.setSelection(input.getText().length());
+        while (sessions.current.messages.size() > idx) {
+            sessions.current.messages.remove(sessions.current.messages.size() - 1);
+        }
+        sessions.save();
+        renderCurrent();
+        input.requestFocus();
+        try {
+            android.view.inputmethod.InputMethodManager imm = svc.getSystemService(android.view.inputmethod.InputMethodManager.class);
+            if (imm != null) imm.showSoftInput(input, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+        } catch (Exception ignored) {}
+    }
+
+    private void bubbleRetryMessage(Sessions.Msg m) {
+        if (sessions.current == null || m == null) return;
+        if (sessions.current.running) {
+            stop();
+            refreshStatus();
+            paintSend();
+        }
+        int idx = sessions.current.messages.indexOf(m);
+        if (idx < 0) return;
+        int userIdx = -1;
+        for (int i = idx - 1; i >= 0; i--) {
+            if (sessions.current.messages.get(i).kind == Kind.USER) {
+                userIdx = i;
+                break;
+            }
+        }
+        if (userIdx < 0) return;
+        Sessions.Msg userMsg = sessions.current.messages.get(userIdx);
+        String retryText = userMsg.text;
+        java.util.List<String> retryFiles = new java.util.ArrayList<>(userMsg.files);
+        while (sessions.current.messages.size() > userIdx) {
+            sessions.current.messages.remove(sessions.current.messages.size() - 1);
+        }
+        sessions.save();
+        renderCurrent();
+        String err = hub.send(sessions.current, retryText, retryFiles);
+        if (err != null) {
+            toast(err);
+        } else {
+            collapse();
+        }
+    }
+
+    private void bubbleDeleteMessage(Sessions.Msg m) {
+        if (sessions.current == null || m == null) return;
+        sessions.current.messages.remove(m);
+        sessions.save();
+        renderCurrent();
+        toast(svc.getString(R.string.chat_deleted));
     }
 
     /** Consecutive tool steps in one collapsible card ("3 tool calls"), as in the chat screen. */

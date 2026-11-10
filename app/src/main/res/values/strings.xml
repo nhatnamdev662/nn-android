@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in English. Translations: res/values-<language>/strings.xml (see CONTRIBUTING.md). -->
 <resources>
     <string name="app_name" translatable="false">NN AGENT</string>
@@ -2154,6 +2154,17 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="check_adb_name">Wireless Debugging (ADB)</string>
     <string name="check_adb_connected">Connected on 127.0.0.1:%1$d.</string>
     <string name="check_adb_disconnected">Not connected. Pair and enable in Settings.</string>
+
+    <!-- Chat Message Actions -->
+    <string name="chat_action_copy">Copy</string>
+    <string name="chat_action_edit">Edit</string>
+    <string name="chat_action_retry">Retry</string>
+    <string name="chat_action_speak">Read aloud</string>
+    <string name="chat_action_stop_speak">Stop reading</string>
+    <string name="chat_action_copy_code">Copy code</string>
+    <string name="chat_action_delete">Delete</string>
+    <string name="chat_code_copied">Code copied</string>
+    <string name="chat_deleted">Message deleted</string>
 
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>

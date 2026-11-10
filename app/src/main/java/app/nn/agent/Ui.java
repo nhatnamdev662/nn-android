@@ -734,6 +734,18 @@ final class Ui {
         return b.append(s, at, end).toString();
     }
 
+    /** Extracts the body of all ``` code blocks in markdown text, or "" if none. */
+    static String extractCode(String text) {
+        if (text == null || !text.contains("```")) return "";
+        StringBuilder sb = new StringBuilder();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("```[a-zA-Z0-9_-]*\\n([\\s\\S]*?)```").matcher(text);
+        while (m.find()) {
+            if (sb.length() > 0) sb.append("\n\n");
+            sb.append(m.group(1).trim());
+        }
+        return sb.toString();
+    }
+
     /** Copy in a selectable reply keeps the addresses of its links (see linkCopy). */
     static void copyWithLinks(TextView t) {
         t.setCustomSelectionActionModeCallback(new android.view.ActionMode.Callback() {
