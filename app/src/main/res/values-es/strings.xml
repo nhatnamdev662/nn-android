@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="service_label">Asistente NN</string>
     <string name="service_description">Muestra la burbuja de chat de NN y permite que el agente que elijas (Claude Code, Codex, OpenCode, Antigravity o Grok), que se ejecuta dentro de NN en este teléfono, lea la pantalla, toque, escriba y se desplace por ti. Nada sale del teléfono, excepto lo que el propio agente envía a su servicio de IA (Anthropic, OpenAI, Google, xAI o el proveedor de tu modelo de OpenCode).</string>
@@ -1901,15 +1901,4 @@
     <string name="chat_rename_save">Guardar</string>
 
     <!-- ADB Prerequisites for Auto-Connect -->
-    <string name="adb_prereq_title">Requirements for Auto-Connect</string>
-    <string name="adb_prereq_desc">To let NN open Settings and automatically pair ADB for you, please complete the following requirements first:</string>
-    <string name="adb_prereq_a11y_title">Accessibility Service</string>
-    <string name="adb_prereq_a11y_ready">Enabled and ready to interact</string>
-    <string name="adb_prereq_a11y_need">Not enabled. Needed for NN to read screen and tap.</string>
-    <string name="adb_prereq_a11y_action">Enable Now</string>
-    <string name="adb_prereq_model_title">AI Brain (%1$s)</string>
-    <string name="adb_prereq_model_ready">Signed in and ready to chat</string>
-    <string name="adb_prereq_model_need">Not set up. Needed for the Agent to process commands.</string>
-    <string name="adb_prereq_model_action">Set Up</string>
-    <string name="adb_prereq_start_action">Start Auto-Connect</string>
 </resources>

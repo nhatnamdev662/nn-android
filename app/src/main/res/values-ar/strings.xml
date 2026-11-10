@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- NN's UI text in Arabic (Modern Standard Arabic). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">مساعد NN</string>
@@ -1514,15 +1514,4 @@
     <string name="chat_rename_save">حفظ</string>
 
     <!-- ADB Prerequisites for Auto-Connect -->
-    <string name="adb_prereq_title">Requirements for Auto-Connect</string>
-    <string name="adb_prereq_desc">To let NN open Settings and automatically pair ADB for you, please complete the following requirements first:</string>
-    <string name="adb_prereq_a11y_title">Accessibility Service</string>
-    <string name="adb_prereq_a11y_ready">Enabled and ready to interact</string>
-    <string name="adb_prereq_a11y_need">Not enabled. Needed for NN to read screen and tap.</string>
-    <string name="adb_prereq_a11y_action">Enable Now</string>
-    <string name="adb_prereq_model_title">AI Brain (%1$s)</string>
-    <string name="adb_prereq_model_ready">Signed in and ready to chat</string>
-    <string name="adb_prereq_model_need">Not set up. Needed for the Agent to process commands.</string>
-    <string name="adb_prereq_model_action">Set Up</string>
-    <string name="adb_prereq_start_action">Start Auto-Connect</string>
 </resources>

@@ -162,9 +162,11 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
     public void onMonitor(JSONObject ev) {
         switch (ev.optString("type")) {
             case "buddy_procs":
+            case "nn_procs":
                 showProcs(ev.optJSONArray("procs"));
                 break;
             case "buddy_recent":
+            case "nn_recent":
                 showRecent(ev.optJSONArray("sessions"));
                 break;
             default:

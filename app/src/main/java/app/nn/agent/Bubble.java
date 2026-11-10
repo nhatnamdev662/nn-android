@@ -1401,10 +1401,13 @@ final class Bubble implements ChatHub.Listener {
 
     /** 1. The first few times a task starts: the hold menu peeks out ("Hold me") and slides back. */
     private void maybePeek() {
-        if (expanded || Prefs.menuHinted(svc) || Prefs.peekCount(svc) >= 3 || radial.isOpen() || root.getVisibility() != View.VISIBLE) return;
+        if (svc == null || face == null || root == null || !root.isAttachedToWindow()
+                || expanded || Prefs.menuHinted(svc) || Prefs.peekCount(svc) >= 3
+                || radial.isOpen() || root.getVisibility() != View.VISIBLE) return;
         Prefs.addPeek(svc);
         face.postDelayed(() -> {
-            if (expanded || radial.isOpen()) return;
+            if (svc == null || face == null || root == null || !root.isAttachedToWindow()
+                    || expanded || radial.isOpen()) return;
             int[] loc = new int[2];
             face.getLocationOnScreen(loc);
             int cx = loc[0] + face.getWidth() / 2, cy = loc[1] + face.getHeight() / 2;

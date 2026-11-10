@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Vietnamese (bạn). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">Trợ lý NN</string>
@@ -2078,8 +2078,6 @@
     <string name="setup_adb_dev_options_hint">Bật Gỡ lỗi không dây trong Tùy chọn nhà phát triển, sau đó nhấn “Ghép nối thiết bị bằng mã ghép nối”.</string>
     <string name="setup_adb_guide_title">Hướng dẫn ghép nối</string>
     <string name="setup_adb_guide_sub">Các bước kích hoạt Gỡ lỗi không dây qua thông báo</string>
-    <string name="setup_adb_ask_nn_title">Nhờ NN tự động kết nối hộ</string>
-    <string name="setup_adb_ask_nn_sub">NN sẽ mở cài đặt và hỗ trợ bạn thao tác kết nối</string>
 
     <!-- ADB connect sheet. -->
     <string name="adb_connect_sheet_title">Nhập cổng Gỡ lỗi không dây</string>
@@ -2106,7 +2104,6 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="adb_guide_step2_enter_here">Nhập mã trong ứng dụng</string>
     <string name="adb_guide_step3">Quay lại với NN Agent. ADB sẽ tự động kết nối ngay khi ghép nối thành công.</string>
     <string name="adb_guide_start_adb">Khởi động ADB</string>
-    <string name="adb_ask_nn_prompt">Tôi muốn kết nối ADB qua Gỡ lỗi không dây để bạn tận dụng tối đa tính năng tự động hoá. Bạn hãy kiểm tra xem Gỡ lỗi không dây đã bật chưa và hướng dẫn hoặc tự động thao tác kết nối hộ tôi nhé!</string>
 
     <!-- ADB pairing sheet (bottom sheet modal). -->
     <string name="adb_pair_sheet_title">Ghép nối Gỡ lỗi không dây</string>
@@ -2141,15 +2138,4 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="check_adb_disconnected">Chưa kết nối. Hãy ghép nối và bật trong Cài đặt.</string>
 
     <!-- ADB Prerequisites for Auto-Connect -->
-    <string name="adb_prereq_title">Yêu cầu trước khi tự động kết nối</string>
-    <string name="adb_prereq_desc">Để NN có thể tự mở cài đặt và thao tác kết nối ADB giúp bạn, vui lòng chuẩn bị trước các điều kiện sau:</string>
-    <string name="adb_prereq_a11y_title">Dịch vụ Trợ lý NN</string>
-    <string name="adb_prereq_a11y_ready">Đã bật và sẵn sàng thao tác</string>
-    <string name="adb_prereq_a11y_need">Chưa bật. Cần bật để NN có thể chạm và đọc màn hình.</string>
-    <string name="adb_prereq_a11y_action">Bật ngay</string>
-    <string name="adb_prereq_model_title">Mô hình AI (%1$s)</string>
-    <string name="adb_prereq_model_ready">Đã đăng nhập và sẵn sàng trả lời</string>
-    <string name="adb_prereq_model_need">Chưa thiết lập. Cần cài đặt hoặc đăng nhập mô hình để Agent hoạt động.</string>
-    <string name="adb_prereq_model_action">Thiết lập ngay</string>
-    <string name="adb_prereq_start_action">Bắt đầu nhờ NN kết nối</string>
 </resources>

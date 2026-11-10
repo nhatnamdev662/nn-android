@@ -14,7 +14,7 @@
 #   nn-run <token> transcript <claude|codex> <file>   last messages of a session (nn_transcript)
 #   nn-run <token> adopt <session> <claude|codex> <agent-session-id>  continue that session as a NN chat
 # Every event sent to the bubble carries "nn_session" so the app can route it.
-HELPER_VERSION=25
+HELPER_VERSION=26
 set -u
 export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The claude launcher sets BUN_OPTIONS with a path relative to its folder; never inherit a stale one.
@@ -250,8 +250,8 @@ svc_window() {
 }
 S=$D/sessions/$SID
 mkdir -p "$S"
-event() { jq -cn --arg type "$1" --arg text "${2:-}" --arg s "$SID" '{type:$type,text:$text,nn_session:$s}' | post; }
-tag() { jq -c --arg s "$SID" '. + {nn_session:$s}' 2>/dev/null; }
+event() { jq -cn --arg type "$1" --arg text "${2:-}" --arg s "$SID" '{type:$type,text:$text,nn_session:$s,buddy_session:$s}' | post; }
+tag() { jq -c --arg s "$SID" '. + {nn_session:$s,buddy_session:$s}' 2>/dev/null; }
 
 if [ -f "$S/pid" ] && kill -0 "$(cat "$S/pid")" 2>/dev/null; then
   event nn_error "This session is still working. Tap Stop first, or start another session."

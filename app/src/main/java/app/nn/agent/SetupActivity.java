@@ -35,7 +35,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private Boolean setupOpen;
     private Dialog activeAdbGuideDialog;
     private Dialog activeAdbPairDialog;
-    private Dialog activePrereqDialog;
 
     private void dismissAdbDialogs() {
         if (activeAdbGuideDialog != null && activeAdbGuideDialog.isShowing()) {
@@ -45,10 +44,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         if (activeAdbPairDialog != null && activeAdbPairDialog.isShowing()) {
             try { activeAdbPairDialog.dismiss(); } catch (Throwable ignored) {}
             activeAdbPairDialog = null;
-        }
-        if (activePrereqDialog != null && activePrereqDialog.isShowing()) {
-            try { activePrereqDialog.dismiss(); } catch (Throwable ignored) {}
-            activePrereqDialog = null;
         }
     }
 
@@ -96,17 +91,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         Account.AGY.refresh(this);
         Account.GROK.refresh(this);
         render();
-        if (activePrereqDialog != null && activePrereqDialog.isShowing()) {
-            boolean a11y = SetupState.accessibilityEnabled(this);
-            boolean modelReady = SetupState.signedIn(this, Prefs.backend(this));
-            if (a11y && modelReady) {
-                activePrereqDialog.dismiss();
-                activePrereqDialog = null;
-                list.postDelayed(this::askNnToConnect, 300);
-            } else {
-                showPrereqSheet();
-            }
-        }
     }
 
     @Override
@@ -789,27 +773,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             guideRow.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 20));
             guideRow.setOnClickListener(v -> adbGuideSheet());
             ac.addView(guideRow, full());
-
-            ac.addView(divider(), lineParams());
-
-            // Ask NN row
-            LinearLayout askRow = listRow(this);
-            askRow.setGravity(Gravity.CENTER_VERTICAL);
-            askRow.setPaddingRelative(dp(this, 16), dp(this, 12), dp(this, 16), dp(this, 12));
-            askRow.setBackgroundResource(ripple(this, false));
-            FrameLayout aic = new FrameLayout(this);
-            aic.setBackground(rounded(this, CARD2, 10));
-            aic.addView(icon(this, R.drawable.ms_auto_awesome, ACCENT_TEXT, 20),
-                    new FrameLayout.LayoutParams(dp(this, 20), dp(this, 20), Gravity.CENTER));
-            askRow.addView(aic, new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
-            LinearLayout at = column(this);
-            at.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
-            at.addView(title(this, getString(R.string.setup_adb_ask_nn_title), 14));
-            at.addView(text(this, getString(R.string.setup_adb_ask_nn_sub), 12, MUTED));
-            askRow.addView(at, weight1());
-            askRow.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 20));
-            askRow.setOnClickListener(v -> askNnToConnect());
-            ac.addView(askRow, full());
         }
         addCard(ac);
 
@@ -1862,128 +1825,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         Dialog d = bottomSheet(this, c);
         activeAdbGuideDialog = d;
         d.setOnDismissListener(di -> { if (activeAdbGuideDialog == di) activeAdbGuideDialog = null; });
-        d.show();
-    }
-
-    private void askNnToConnect() {
-        boolean a11y = SetupState.accessibilityEnabled(this);
-        String backend = Prefs.backend(this);
-        boolean modelReady = SetupState.signedIn(this, backend);
-
-        if (!a11y || !modelReady) {
-            showPrereqSheet();
-            return;
-        }
-
-        if (activePrereqDialog != null && activePrereqDialog.isShowing()) {
-            try { activePrereqDialog.dismiss(); } catch (Throwable ignored) {}
-            activePrereqDialog = null;
-        }
-
-        ChatHub hub = ChatHub.get(this);
-        Sessions.Session s = hub.create(backend);
-        hub.select(s);
-        String prompt = getString(R.string.adb_ask_nn_prompt);
-        startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        startActivity(new Intent(this, ChatActivity.class)
-                .putExtra("id", s.id)
-                .putExtra("draft", prompt)
-                .putExtra("auto_send", true));
-    }
-
-    private void showPrereqSheet() {
-        if (activePrereqDialog != null && activePrereqDialog.isShowing()) {
-            try { activePrereqDialog.dismiss(); } catch (Throwable ignored) {}
-        }
-
-        boolean a11y = SetupState.accessibilityEnabled(this);
-        String backend = Prefs.backend(this);
-        boolean modelReady = SetupState.signedIn(this, backend);
-
-        LinearLayout c = column(this);
-
-        LinearLayout hr = row(this);
-        hr.setGravity(Gravity.CENTER_VERTICAL);
-        hr.addView(icon(this, R.drawable.ms_auto_awesome, ACCENT_TEXT, 22));
-        TextView h = title(this, getString(R.string.adb_prereq_title), 18);
-        h.setPaddingRelative(dp(this, 10), 0, 0, 0);
-        hr.addView(h, weight1());
-        c.addView(hr, full());
-
-        TextView desc = text(this, getString(R.string.adb_prereq_desc), 13, MUTED);
-        desc.setPaddingRelative(0, dp(this, 8), 0, dp(this, 14));
-        c.addView(desc);
-
-        // Step 1: Accessibility
-        LinearLayout a11yCard = row(this);
-        a11yCard.setBackground(rounded(this, CARD2, 14));
-        a11yCard.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
-        a11yCard.setGravity(Gravity.CENTER_VERTICAL);
-
-        FrameLayout aic = new FrameLayout(this);
-        aic.setBackground(rounded(this, Theme.withAlpha(a11y ? OK : ERR, 0x1A), 10));
-        aic.addView(icon(this, a11y ? R.drawable.ms_check : R.drawable.ms_warning, a11y ? OK : ERR, 20),
-                new FrameLayout.LayoutParams(dp(this, 20), dp(this, 20), Gravity.CENTER));
-        a11yCard.addView(aic, new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
-
-        LinearLayout a11yCol = column(this);
-        a11yCol.setPaddingRelative(dp(this, 12), 0, dp(this, 10), 0);
-        a11yCol.addView(title(this, getString(R.string.adb_prereq_a11y_title), 14));
-        a11yCol.addView(text(this, getString(a11y ? R.string.adb_prereq_a11y_ready : R.string.adb_prereq_a11y_need), 12, a11y ? OK : MUTED));
-        a11yCard.addView(a11yCol, weight1());
-
-        if (!a11y) {
-            Button a11yBtn = button(this, getString(R.string.adb_prereq_a11y_action), true);
-            a11yBtn.setOnClickListener(v -> openAccessibilitySettings(this));
-            a11yCard.addView(a11yBtn, wrap());
-        }
-        c.addView(a11yCard, full());
-
-        // Step 2: AI Brain
-        LinearLayout modelCard = row(this);
-        modelCard.setBackground(rounded(this, CARD2, 14));
-        modelCard.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
-        modelCard.setGravity(Gravity.CENTER_VERTICAL);
-
-        FrameLayout mic = new FrameLayout(this);
-        mic.setBackground(rounded(this, Theme.withAlpha(modelReady ? OK : ACCENT_TEXT, 0x1A), 10));
-        mic.addView(icon(this, modelReady ? R.drawable.ms_check : R.drawable.ms_key, modelReady ? OK : ACCENT_TEXT, 20),
-                new FrameLayout.LayoutParams(dp(this, 20), dp(this, 20), Gravity.CENTER));
-        modelCard.addView(mic, new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
-
-        LinearLayout modelCol = column(this);
-        modelCol.setPaddingRelative(dp(this, 12), 0, dp(this, 10), 0);
-        modelCol.addView(title(this, getString(R.string.adb_prereq_model_title, Account.nameOf(backend)), 14));
-        modelCol.addView(text(this, getString(modelReady ? R.string.adb_prereq_model_ready : R.string.adb_prereq_model_need), 12, modelReady ? OK : MUTED));
-        modelCard.addView(modelCol, weight1());
-
-        if (!modelReady) {
-            Button modelBtn = button(this, getString(R.string.adb_prereq_model_action), true);
-            modelBtn.setOnClickListener(v -> openAgent(backend));
-            modelCard.addView(modelBtn, wrap());
-        }
-        c.addView(modelCard, topGap(10));
-
-        LinearLayout btns = row(this);
-        Button cancel = button(this, getString(android.R.string.cancel), false);
-        btns.addView(cancel, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
-
-        if (a11y && modelReady) {
-            Button startBtn = button(this, getString(R.string.adb_prereq_start_action), true);
-            startBtn.setOnClickListener(v -> askNnToConnect());
-            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
-            sp.setMarginStart(dp(this, 10));
-            btns.addView(startBtn, sp);
-        }
-
-        LinearLayout.LayoutParams bp = full();
-        bp.topMargin = dp(this, 16);
-        c.addView(btns, bp);
-
-        Dialog d = bottomSheet(this, c);
-        activePrereqDialog = d;
-        d.setOnDismissListener(di -> { if (activePrereqDialog == di) activePrereqDialog = null; });
-        cancel.setOnClickListener(v -> d.dismiss());
         d.show();
     }
 

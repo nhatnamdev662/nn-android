@@ -455,7 +455,10 @@ final class ChatHub {
     }
 
     void onEvent(JSONObject ev) {
-        Sessions.Session ses = sessions.find(ev.optString("buddy_session", null));
+        String sid = ev.optString("nn_session", "");
+        if (sid.isEmpty()) sid = ev.optString("buddy_session", "");
+        if (sid.isEmpty()) return;
+        Sessions.Session ses = sessions.find(sid);
         if (ses == null) return; // unknown chat (deleted, or started outside NN Agent)
         ses.lastEventAt = SystemClock.elapsedRealtime();
         String type = ev.optString("type");
@@ -561,7 +564,8 @@ final class ChatHub {
                 }
                 break;
             }
-            case "buddy_pictures": { // Codex: pictures its image tool made, which the reply may not name
+            case "buddy_pictures":
+            case "nn_pictures": { // Codex: pictures its image tool made, which the reply may not name
                 // a reply this turn already showed a picture, often a copy saved in the project: not the same one twice
                 boolean shown = false;
                 for (int i = ses.messages.size() - 1; i >= 0 && !shown; i--) {
@@ -579,7 +583,8 @@ final class ChatHub {
                 if (!files.isEmpty()) add(ses, Bubble.Kind.BUDDY, "", files);
                 break;
             }
-            case "buddy_error": {
+            case "buddy_error":
+            case "nn_error": {
                 if (ses.outcome == null) ses.outcome = "failed";
                 String text = ev.optString("text", app.getString(R.string.hub_something_wrong));
                 add(ses, Bubble.Kind.ERROR, text);
@@ -587,6 +592,7 @@ final class ChatHub {
                 break;
             }
             case "buddy_stopped":
+            case "nn_stopped":
                 ses.outcome = "stopped";
                 add(ses, Bubble.Kind.STEP, app.getString(R.string.hub_stopped));
                 break;
@@ -595,15 +601,18 @@ final class ChatHub {
                 if (warning != null) add(ses, Bubble.Kind.STEP, warning);
                 break;
             }
-            case "buddy_context": // Codex, after its turn (see nn-run): how full the context is, and its size
+            case "buddy_context":
+            case "nn_context": // Codex, after its turn (see nn-run): how full the context is, and its size
                 if (ev.optLong("used") > 0) ses.ctxUsed = ev.optLong("used");
                 if (ev.optLong("window") > 0) ses.ctxWindow = ev.optLong("window");
                 sessions.save(ses);
                 break;
-            case "buddy_step": // a line from the helper under the steps (Antigravity: a refused step)
+            case "buddy_step":
+            case "nn_step": // a line from the helper under the steps (Antigravity: a refused step)
                 add(ses, Bubble.Kind.STEP, ev.optString("text"));
                 break;
             case "buddy_done":
+            case "nn_done":
                 if (ses.running) {
                     ses.running = false;
                     ses.status = "";

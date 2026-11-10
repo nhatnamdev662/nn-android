@@ -444,7 +444,8 @@ public class NnService extends AccessibilityService implements McpServer.Handler
 
     @Override
     public void onEvent(final JSONObject event) {
-        if ("buddy_pong".equals(event.optString("type"))) {
+        String t = event.optString("type");
+        if ("buddy_pong".equals(t) || "nn_pong".equals(t)) {
             Prefs.setHelperStatus(this, event.optString("text"));
             Prefs.setHelperVersion(this, event.optInt("helper", 1));
             if (event.has("signed")) Prefs.setSignedAgents(this, event.optString("signed"));
@@ -470,8 +471,9 @@ public class NnService extends AccessibilityService implements McpServer.Handler
             }
             return;
         }
-        String t = event.optString("type");
-        if ("buddy_procs".equals(t) || "buddy_recent".equals(t) || "buddy_transcript".equals(t)) {
+        if ("buddy_procs".equals(t) || "nn_procs".equals(t)
+                || "buddy_recent".equals(t) || "nn_recent".equals(t)
+                || "buddy_transcript".equals(t) || "nn_transcript".equals(t)) {
             main.post(() -> ChatHub.get(this).onMonitorEvent(event));
             return;
         }

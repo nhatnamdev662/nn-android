@@ -119,8 +119,15 @@ final class RadialMenu {
         p.gravity = Gravity.TOP | Gravity.START;
         p.x = originX;
         p.y = originY;
-        wm.addView(win, p);
-        glow.start();
+        try {
+            wm.addView(win, p);
+            glow.start();
+        } catch (Throwable t) {
+            android.util.Log.w("RadialMenu", "Failed to add radial menu window", t);
+            win = null;
+            hovered = -1;
+            if (glow != null) glow.stop();
+        }
     }
 
     private View item(Action a) {
@@ -162,10 +169,19 @@ final class RadialMenu {
     void peek(int cx, int cy, boolean onRight, List<Action> list) {
         if (win != null) return;
         open(cx, cy, onRight, list, null);
+        if (win == null) return;
         final FrameLayout w = win;
-        WindowManager.LayoutParams p = (WindowManager.LayoutParams) w.getLayoutParams();
-        p.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-        wm.updateViewLayout(w, p);
+        try {
+            WindowManager.LayoutParams p = (WindowManager.LayoutParams) w.getLayoutParams();
+            if (p != null) {
+                p.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+                wm.updateViewLayout(w, p);
+            }
+        } catch (Throwable t) {
+            android.util.Log.w("RadialMenu", "Failed to update radial menu layout", t);
+            close(false);
+            return;
+        }
         // only half way out, smaller
         for (int i = 0; i < items.size(); i++) {
             View it = items.get(i);
