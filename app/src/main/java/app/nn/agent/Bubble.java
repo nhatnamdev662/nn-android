@@ -983,6 +983,7 @@ final class Bubble implements ChatHub.Listener {
         panel.setAlpha(0f);
         panel.animate().scaleX(1f).scaleY(1f).alpha(1f)
                 .setInterpolator(new OvershootInterpolator(0.9f)).setDuration(260).start();
+        updateTypingIndicator();
         scrollToEnd();
         root.post(this::registerBack);
         updateViewing();
@@ -1382,6 +1383,7 @@ final class Bubble implements ChatHub.Listener {
             return;
         }
         input.setText("");
+        updateTypingIndicator();
         collapse();
     }
 
@@ -2045,6 +2047,7 @@ final class Bubble implements ChatHub.Listener {
         input.setHint(svc.getString(R.string.bubble_input_hint, ses.brainName()));
         updateViewing();
         refreshStatus();
+        updateTypingIndicator();
         scrollToEnd();
     }
 
@@ -2080,6 +2083,7 @@ final class Bubble implements ChatHub.Listener {
             paintSend();
         }
         if (log != null) log.setLive(ses.running);
+        updateTypingIndicator();
     }
 
     /** Open this chat in the app (with what's typed so far); attach: straight to the attachment sheet. */
@@ -2097,6 +2101,7 @@ final class Bubble implements ChatHub.Listener {
         if (attach) i.putExtra("attach", true);
         if (files != null) i.putStringArrayListExtra("files", files);
         input.setText("");
+        updateTypingIndicator();
         collapse();
         svc.startActivity(i);
     }
@@ -2766,9 +2771,13 @@ final class Bubble implements ChatHub.Listener {
 
     /** The open run of tool steps (grouped like the chat screen's log), or null. */
     private StepLog log;
+    private Ui.TypingIndicator typing;
 
     /** A message with its pictures, as in the chat screen: under a reply, above what the user wrote. Other files by name. */
     private void showMessage(Sessions.Msg m) {
+        if (typing != null && typing.getParent() != null) {
+            messages.removeView(typing);
+        }
         java.util.List<String> pictures = new java.util.ArrayList<>();
         boolean otherFiles = false;
         for (String id : m.files) {
@@ -2777,12 +2786,14 @@ final class Bubble implements ChatHub.Listener {
         }
         if (pictures.isEmpty() || otherFiles) {
             showMessage(m, m.kind, m.label());
+            updateTypingIndicator();
             return;
         }
         boolean user = m.kind == Kind.USER;
         if (!user && !m.text.isEmpty()) showMessage(m, m.kind, m.text);
         for (String id : pictures) showPicture(id, user);
         if (user && !m.text.isEmpty()) showMessage(m, m.kind, m.text);
+        updateTypingIndicator();
         scrollToEnd();
     }
 
@@ -2872,6 +2883,7 @@ final class Bubble implements ChatHub.Listener {
             }
             log.add(text);
             log.setLive(sessions.current.running);
+            updateTypingIndicator();
             scrollToEnd();
             return;
         }
@@ -3244,6 +3256,36 @@ final class Bubble implements ChatHub.Listener {
             open = o;
             rows.setVisibility(o ? View.VISIBLE : View.GONE);
             chevron.setImageResource(o ? R.drawable.ms_expand_less : R.drawable.ms_expand_more);
+        }
+    }
+
+    private void updateTypingIndicator() {
+        boolean show = expanded && !showingList && sessions != null && sessions.current != null
+                && sessions.current.running && (log == null || !log.live);
+        if (show) {
+            if (typing == null) {
+                typing = new Ui.TypingIndicator(svc);
+            }
+            if (typing.getParent() == null) {
+                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                p.topMargin = dp(10);
+                messages.addView(typing, p);
+                scrollToEnd();
+            } else if (messages.indexOfChild(typing) != messages.getChildCount() - 1) {
+                messages.removeView(typing);
+                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                p.topMargin = dp(10);
+                messages.addView(typing, p);
+                scrollToEnd();
+            }
+            typing.startAnimation();
+        } else {
+            if (typing != null && typing.getParent() != null) {
+                typing.stopAnimation();
+                messages.removeView(typing);
+            }
         }
     }
 

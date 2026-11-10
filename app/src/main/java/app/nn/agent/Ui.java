@@ -986,4 +986,91 @@ final class Ui {
         wrap.addView(bar, full());
         return wrap;
     }
+
+    /** An animated 3-bouncing-dots bubble with the NN avatar for chat lists while an agent thinks. */
+    static class TypingIndicator extends LinearLayout {
+        private final View[] dots = new View[3];
+        private final android.animation.ValueAnimator[] anims = new android.animation.ValueAnimator[3];
+
+        TypingIndicator(Context c) {
+            super(c);
+            setOrientation(HORIZONTAL);
+            setGravity(Gravity.BOTTOM);
+
+            int d8 = dp(c, 8);
+            int d24 = dp(c, 24);
+
+            FrameLayout av = new FrameLayout(c);
+            av.setBackground(oval(ACCENT_SOFT));
+            ImageView face = new ImageView(c);
+            Face.set(face, R.drawable.bubble_face);
+            int fs = dp(c, Face.size(c, 20, 24));
+            av.addView(face, new FrameLayout.LayoutParams(fs, fs, Gravity.CENTER));
+            LayoutParams avp = new LayoutParams(d24, d24);
+            avp.setMarginEnd(d8);
+            addView(av, avp);
+
+            LinearLayout bubble = new LinearLayout(c);
+            bubble.setOrientation(HORIZONTAL);
+            bubble.setGravity(Gravity.CENTER_VERTICAL);
+            bubble.setBackground(corners(c, CARD, 18, 18, 18, 6));
+            int padH = dp(c, 16);
+            int padV = dp(c, 12);
+            bubble.setPaddingRelative(padH, padV, padH, padV);
+
+            int dotSize = dp(c, 6);
+            int dotMargin = dp(c, 4);
+            for (int i = 0; i < 3; i++) {
+                View dot = new View(c);
+                dot.setBackground(oval(MUTED));
+                LayoutParams lp = new LayoutParams(dotSize, dotSize);
+                if (i > 0) lp.setMarginStart(dotMargin);
+                bubble.addView(dot, lp);
+                dots[i] = dot;
+            }
+            addView(bubble, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        }
+
+        @Override
+        protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            startAnimation();
+        }
+
+        @Override
+        protected void onDetachedFromWindow() {
+            super.onDetachedFromWindow();
+            stopAnimation();
+        }
+
+        void startAnimation() {
+            stopAnimation();
+            final float up = -dp(getContext(), 4);
+            final float down = dp(getContext(), 2);
+            for (int i = 0; i < 3; i++) {
+                final View d = dots[i];
+                android.animation.ValueAnimator a = android.animation.ValueAnimator.ofFloat(down, up);
+                a.setDuration(320);
+                a.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+                a.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+                a.setStartDelay(i * 150L);
+                a.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+                a.addUpdateListener(anim -> d.setTranslationY((float) anim.getAnimatedValue()));
+                anims[i] = a;
+                a.start();
+            }
+        }
+
+        void stopAnimation() {
+            for (int i = 0; i < 3; i++) {
+                if (anims[i] != null) {
+                    anims[i].cancel();
+                    anims[i] = null;
+                }
+                if (dots[i] != null) {
+                    dots[i].setTranslationY(0);
+                }
+            }
+        }
+    }
 }

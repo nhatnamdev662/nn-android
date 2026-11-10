@@ -61,6 +61,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private EditText input;
     private int maxBubble;
     private ToolLog log; // the tool-call group being appended to, if the last message was a step
+    private Ui.TypingIndicator typing;
     private final java.util.List<String> pending = new java.util.ArrayList<>(); // attachments for the next message
     private android.widget.HorizontalScrollView trayScroll;
     private LinearLayout tray;
@@ -377,6 +378,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         for (Sessions.Msg m : ses.messages) show(m);
         if (log != null && !ses.running) log.finish();
         lastShown = lastMsg();
+        updateTypingIndicator();
     }
 
     /** The empty-chat hint mentions Linux tools when the chat has them. */
@@ -499,6 +501,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         input.setText("");
         pending.clear();
         renderTray();
+        updateTypingIndicator();
     }
 
     @Override
@@ -517,8 +520,12 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 messages.removeAllViews();
                 hint = null;
             }
+            if (typing != null && typing.getParent() != null) {
+                messages.removeView(typing);
+            }
             show(msg);
             lastShown = msg;
+            updateTypingIndicator();
             scrollToEnd();
         }
     }
@@ -1432,6 +1439,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             if (ses.running) log.setLive(true);
             else log.finish();
         }
+        updateTypingIndicator();
         renderApproval();
         renderLater();
         renderInterrupted();
@@ -1978,6 +1986,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             }
             log.add(text);
             log.setLive(ses.running);
+            updateTypingIndicator();
             return;
         }
         if (log != null) {
@@ -2267,6 +2276,33 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         hub.sessions.save(ses);
         showAll();
         Toast.makeText(this, R.string.chat_deleted, Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateTypingIndicator() {
+        boolean show = ses != null && ses.running && (log == null || !log.live);
+        if (show) {
+            if (typing == null) {
+                typing = new Ui.TypingIndicator(this);
+            }
+            if (typing.getParent() == null) {
+                LinearLayout.LayoutParams p = wrap();
+                p.topMargin = dp(this, 12);
+                messages.addView(typing, p);
+                scrollToEnd();
+            } else if (messages.indexOfChild(typing) != messages.getChildCount() - 1) {
+                messages.removeView(typing);
+                LinearLayout.LayoutParams p = wrap();
+                p.topMargin = dp(this, 12);
+                messages.addView(typing, p);
+                scrollToEnd();
+            }
+            typing.startAnimation();
+        } else {
+            if (typing != null && typing.getParent() != null) {
+                typing.stopAnimation();
+                messages.removeView(typing);
+            }
+        }
     }
 
     private void scrollToEnd() {
