@@ -2865,6 +2865,7 @@ final class Bubble implements ChatHub.Listener {
                 v = tv;
                 break;
             }
+            case NN:
             case BUDDY: {
                 LinearLayout r = new LinearLayout(svc);
                 r.setGravity(Gravity.BOTTOM);

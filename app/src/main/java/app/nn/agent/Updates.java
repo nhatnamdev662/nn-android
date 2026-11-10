@@ -64,7 +64,9 @@ public final class Updates extends BroadcastReceiver {
 
     /** Asks GitHub (network: call off the main thread). */
     static Release latest() throws Exception {
-        JSONObject rel = new JSONObject(get(API));
+        String res = get(API);
+        if (res == null) return new Release(BuildInfo.VERSION, "", null);
+        JSONObject rel = new JSONObject(res);
         String apk = null;
         JSONArray assets = rel.optJSONArray("assets");
         for (int i = 0; assets != null && i < assets.length(); i++) {
@@ -270,10 +272,15 @@ public final class Updates extends BroadcastReceiver {
         h.setConnectTimeout(10000);
         h.setReadTimeout(20000);
         h.setRequestProperty("Accept", "application/vnd.github+json");
-        try (InputStream in = h.getInputStream()) {
-            ByteArrayOutputStream b = new ByteArrayOutputStream();
-            copy(in, b);
-            return b.toString("UTF-8");
+        try {
+            int code = h.getResponseCode();
+            if (code == HttpURLConnection.HTTP_NOT_FOUND) return null;
+            if (code < 200 || code >= 300) throw new IOException("HTTP " + code);
+            try (InputStream in = h.getInputStream()) {
+                ByteArrayOutputStream b = new ByteArrayOutputStream();
+                copy(in, b);
+                return b.toString("UTF-8");
+            }
         } finally {
             h.disconnect();
         }
