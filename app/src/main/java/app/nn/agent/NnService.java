@@ -100,16 +100,6 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         if (Prefs.adbEnabled(this)) {
             AdbManager.ensure(this);
         }
-        // Ensure obsolete pre-rebrand package app.nn.agent is cleaned up if present
-        new Thread(() -> {
-            try {
-                getPackageManager().getPackageInfo("app.nn.agent", 0);
-                if (AdbManager.isConnected()) {
-                    AdbConnection.execute("pm uninstall app.nn.agent", 5000);
-                }
-            } catch (Exception ignored) {
-            }
-        }, "cleanup-old-app").start();
 
         // Hide the bubble on the lock screen.
         IntentFilter f = new IntentFilter();
