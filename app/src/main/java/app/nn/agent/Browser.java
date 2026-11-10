@@ -182,8 +182,9 @@ final class Browser {
             try {
                 Helper.sync(a);
                 String out = Linux.exec(a, "/bin/sh /root/bin/nn-browser install 2>&1", 1800);
-                set(out.contains("BUDDY_INSTALLED") ? State.OFF : State.ERROR,
-                        out.contains("BUDDY_INSTALLED") ? "" : lastLines(out));
+                boolean installed = out.contains("NN_INSTALLED") || out.contains("BUDDY_INSTALLED");
+                set(installed ? State.OFF : State.ERROR,
+                        installed ? "" : lastLines(out));
             } catch (Exception e) {
                 set(State.ERROR, e.getMessage());
             }
@@ -195,7 +196,7 @@ final class Browser {
         try {
             Helper.sync(app);
             String lang = java.util.Locale.getDefault().toLanguageTag();
-            ProcessBuilder pb = Linux.builder(app, "/usr/bin/env", "BUDDY_LANG=" + lang, "/bin/sh", "/root/bin/nn-browser", "run");
+            ProcessBuilder pb = Linux.builder(app, "/usr/bin/env", "NN_LANG=" + lang, "BUDDY_LANG=" + lang, "/bin/sh", "/root/bin/nn-browser", "run");
             pb.redirectErrorStream(false); // stdout carries the protocol; proot's and the script's notes come on stderr
             p = pb.start();
         } catch (Exception e) {
@@ -213,8 +214,8 @@ final class Browser {
                 String line;
                 while ((line = in.readLine()) != null) {
                     line = line.trim();
-                    if (line.equals("BUDDY_STATUS installing")) set(State.INSTALLING, "");
-                    else if (line.equals("BUDDY_STATUS starting")) {
+                    if (line.equals("NN_STATUS installing") || line.equals("BUDDY_STATUS installing")) set(State.INSTALLING, "");
+                    else if (line.equals("NN_STATUS starting") || line.equals("BUDDY_STATUS starting")) {
                         set(State.STARTING, "");
                         launching.countDown();
                     } else if (!line.isEmpty() && !line.startsWith("proot warning")) {
@@ -252,7 +253,7 @@ final class Browser {
             main.postDelayed(idleCheck, 60_000);
         } catch (Exception e) {
             stopProcess(p);
-            String why = notes.toString().contains("BUDDY_FAILED")
+            String why = (notes.toString().contains("NN_FAILED") || notes.toString().contains("BUDDY_FAILED"))
                     ? app.getString(R.string.browser_install_failed) : e.getMessage();
             set(State.ERROR, why);
         }
@@ -363,7 +364,7 @@ final class Browser {
         String[] l = out.trim().split("\n");
         StringBuilder sb = new StringBuilder();
         for (int i = Math.max(0, l.length - 3); i < l.length; i++) {
-            if (l[i].startsWith("[exit") || l[i].startsWith("BUDDY_")) continue;
+            if (l[i].startsWith("[exit") || l[i].startsWith("NN_") || l[i].startsWith("BUDDY_")) continue;
             sb.append(l[i].trim()).append(' ');
         }
         return sb.toString().trim();
@@ -545,7 +546,7 @@ final class Browser {
         if (m == null) return null;
         JSONArray refs = new JSONArray();
         for (int i = 0; i < m.length(); i++) refs.put(m.getJSONObject(i).getInt("ref"));
-        Object r = eval(key, "__buddy.boxes(" + refs + ", " + reveal + ")");
+        Object r = eval(key, "__nn.boxes(" + refs + ", " + reveal + ")");
         return r instanceof JSONArray ? (JSONArray) r : null;
     }
 
@@ -691,14 +692,14 @@ final class Browser {
 
     /**
      * The tab's page helpers run in a world of their own: the page's scripts share its document but can't see or
-     * replace them (a page defining its own __buddy would otherwise decide what a click looks like to the guard).
+     * replace them (a page defining its own __nn would otherwise decide what a click looks like to the guard).
      * Made, with the helpers in it, once per page.
      */
     private static int world(String session) throws Exception {
         Integer w = worlds.get(session);
         if (w != null) return w;
         String frame = call("Page.getFrameTree", null, session, 10_000).getJSONObject("frameTree").getJSONObject("frame").getString("id");
-        int id = call("Page.createIsolatedWorld", new JSONObject().put("frameId", frame).put("worldName", "buddy"), session, 10_000)
+        int id = call("Page.createIsolatedWorld", new JSONObject().put("frameId", frame).put("worldName", "nn"), session, 10_000)
                 .getInt("executionContextId");
         JSONObject r = call("Runtime.evaluate", new JSONObject().put("expression", js).put("contextId", id), session, 20_000);
         if (r.has("exceptionDetails")) throw new IllegalStateException("Page helpers failed to load.");

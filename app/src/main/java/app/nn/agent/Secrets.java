@@ -17,7 +17,8 @@ import javax.crypto.spec.GCMParameterSpec;
  * NN's storage alone doesn't reveal them. They stay out of NN's Linux, where any agent could read a file.
  */
 final class Secrets {
-    private static final String ALIAS = "buddy_secrets";
+    private static final String ALIAS = "nn_secrets";
+    private static final String LEGACY_ALIAS = "buddy_secrets";
 
     private Secrets() {
     }
@@ -60,6 +61,9 @@ final class Secrets {
     private static SecretKey key() throws Exception {
         KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
         ks.load(null);
+        if (!ks.containsAlias(ALIAS) && ks.containsAlias(LEGACY_ALIAS)) {
+            return (SecretKey) ks.getKey(LEGACY_ALIAS, null);
+        }
         if (!ks.containsAlias(ALIAS)) {
             KeyGenerator g = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
             g.init(new KeyGenParameterSpec.Builder(ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)

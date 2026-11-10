@@ -301,10 +301,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 });
 
         PowerManager pm = getSystemService(PowerManager.class);
-        boolean buddyBg = pm.isIgnoringBatteryOptimizations(getPackageName());
-        steps[3] = step(getString(R.string.setup_step_background_title), getString(buddyBg
+        boolean nnBg = pm.isIgnoringBatteryOptimizations(getPackageName());
+        steps[3] = step(getString(R.string.setup_step_background_title), getString(nnBg
                         ? R.string.setup_step_background_done : R.string.setup_step_background_body),
-                buddyBg, buddyBg ? null : getString(R.string.setup_allow), v -> startActivity(new Intent(
+                nnBg, nnBg ? null : getString(R.string.setup_allow), v -> startActivity(new Intent(
                         Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))),
                 null, null);
 
@@ -346,11 +346,11 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         fr.addView(ft, new LinearLayout.LayoutParams(dp(this, 38), dp(this, 38)));
         LinearLayout.LayoutParams fp = weight1();
         fp.setMarginStart(dp(this, 12));
-        fr.addView(segmented(this, new String[][]{{"buddy", getString(R.string.setup_face_buddy)},
-                {"picture", getString(R.string.setup_face_picture)}}, own ? "picture" : "buddy", false, v -> {
+        fr.addView(segmented(this, new String[][]{{"nn", getString(R.string.setup_face_buddy)},
+                {"picture", getString(R.string.setup_face_picture)}}, own ? "picture" : "nn", false, v -> {
             Prefs.setFace(this, v);
             if ("picture".equals(v) && Face.picture(this) == null) { // none saved yet, or it can't be read
-                Prefs.setFace(this, "buddy");
+                Prefs.setFace(this, "nn");
                 pickFace();
             } else {
                 faceChanged();
@@ -410,9 +410,9 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         final String cmd = "codex".equals(mcpAgent)
                 // Codex reads the bearer token from an environment variable, so save it in ~/.bashrc too; `codex mcp
                 // add` has no timeout option, so that line goes under the table it just wrote
-                ? "codex mcp add phone --url " + url + " --bearer-token-env-var BUDDY_TOKEN"
+                ? "codex mcp add phone --url " + url + " --bearer-token-env-var NN_TOKEN"
                 + " && sed -i '/^\\[mcp_servers\\.phone\\]$/a tool_timeout_sec = 600' ~/.codex/config.toml"
-                + " && echo 'export BUDDY_TOKEN=" + token + "' >> ~/.bashrc && export BUDDY_TOKEN=" + token
+                + " && echo 'export NN_TOKEN=" + token + "' >> ~/.bashrc && export NN_TOKEN=" + token
                 : "opencode".equals(mcpAgent)
                 // OpenCode reads extra config from OPENCODE_CONFIG_CONTENT; keep it for every shell
                 ? "echo 'export OPENCODE_CONFIG_CONTENT='\\''{\"mcp\":{\"phone\":{\"type\":\"remote\",\"url\":\"" + url

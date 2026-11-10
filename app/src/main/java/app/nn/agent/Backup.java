@@ -24,7 +24,7 @@ import java.util.zip.ZipOutputStream;
  */
 final class Backup {
     /** NN's settings and chats (the API key services' list and choices stay out, as their keys do). */
-    private static final String[] PREFS = {"buddy", "buddy_sessions", "browser"};
+    private static final String[] PREFS = {"nn", "nn_sessions", "browser", "buddy", "buddy_sessions"};
     /** In NN's Linux, what to keep (no sign-ins): projects without their builds, skills, the agents' conversations. */
     private static final String LINUX_PARTS = "root/.nn/sessions root/.nn/work root/.agents/skills root/.claude/projects "
             + "root/.codex/sessions root/.local/share/opencode/opencode.db";
@@ -58,7 +58,7 @@ final class Backup {
                 if (!f.isFile()) continue;
                 String xml = new String(java.nio.file.Files.readAllBytes(f.toPath()), "UTF-8");
                 // services and their choices only make sense with their keys, which stay on this phone
-                if (p.equals("buddy")) xml = xml.replaceAll("\\s*<string name=\"(providers|agent_default_[a-z]+)\">[^<]*</string>", "");
+                if (p.equals("nn") || p.equals("buddy")) xml = xml.replaceAll("\\s*<string name=\"(providers|agent_default_[a-z]+)\">[^<]*</string>", "");
                 z.putNextEntry(new ZipEntry("prefs/" + p + ".xml"));
                 z.write(xml.getBytes("UTF-8"));
             }
@@ -110,9 +110,9 @@ final class Backup {
         if (!ok) throw new IllegalArgumentException(c.getString(R.string.backup_not_one));
         File linux = new File(staging, "linux.tar.gz");
         if (linux.isFile() && Linux.installed(c)) {
-            File in = new File(Linux.root(c), "tmp/buddy-restore.tar.gz");
+            File in = new File(Linux.root(c), "tmp/nn-restore.tar.gz");
             copyFile(linux, in);
-            Linux.exec(c, "cd / && tar xzf /tmp/buddy-restore.tar.gz; rm -f /tmp/buddy-restore.tar.gz", 1800);
+            Linux.exec(c, "cd / && tar xzf /tmp/nn-restore.tar.gz; rm -f /tmp/nn-restore.tar.gz", 1800);
             linuxDone = true;
         }
         File att = new File(staging, "files/attachments");
@@ -141,7 +141,7 @@ final class Backup {
             File f = new File(staging, "prefs/" + p + ".xml");
             if (!f.isFile()) continue;
             String xml = new String(java.nio.file.Files.readAllBytes(f.toPath()), "UTF-8");
-            if (p.equals("buddy")) {
+            if (p.equals("nn") || p.equals("buddy")) {
                 StringBuilder keep = new StringBuilder("<string name=\"token\">" + esc(token) + "</string>\n")
                         .append("<string name=\"providers\">").append(esc(providers)).append("</string>\n");
                 for (java.util.Map.Entry<String, String> d : defaults.entrySet()) {

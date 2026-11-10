@@ -35,7 +35,7 @@ public final class AdbProtocol {
     public static final int MAX_PAYLOAD = 1024 * 1024; // 1048576 bytes
 
     /**
-     * Default maximum payload buffer size advertised by BUddy in A_CNXN packets.
+     * Default maximum payload buffer size advertised by NN in A_CNXN packets.
      */
     public static final int DEFAULT_MAX_PAYLOAD = MAX_PAYLOAD;
 

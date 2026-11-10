@@ -1,9 +1,13 @@
 package app.nn.agent;
 
-/** The terminal's pseudo-terminal, implemented in native/pty.c (libbuddypty.so). */
+/** The terminal's pseudo-terminal, implemented in native/pty.c. */
 final class Pty {
     static {
-        System.loadLibrary("buddypty");
+        try {
+            System.loadLibrary("nnpty");
+        } catch (UnsatisfiedLinkError e) {
+            System.loadLibrary("buddypty");
+        }
     }
 
     private Pty() {

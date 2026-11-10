@@ -213,7 +213,7 @@ final class CodexDictation {
                 });
             }
         }, "NN Agent");
-        web.loadDataWithBaseURL("https://buddy.local/", PAGE, "text/html", "utf-8", null);
+        web.loadDataWithBaseURL("https://nn.local/", PAGE, "text/html", "utf-8", null);
     }
 
     /** Hand the page's offer to Codex, which places the call with ChatGPT; the answer comes back as a notification. */
@@ -259,7 +259,7 @@ final class CodexDictation {
         reader.setDaemon(true);
         reader.start();
         JSONObject init = request("initialize", new JSONObject()
-                .put("clientInfo", new JSONObject().put("name", "buddy").put("version", BuildInfo.VERSION))
+                .put("clientInfo", new JSONObject().put("name", "nn").put("version", BuildInfo.VERSION))
                 .put("capabilities", new JSONObject().put("experimentalApi", true)), 60_000);
         if (init.has("error")) throw new Exception(init.getJSONObject("error").optString("message"));
         send(new JSONObject().put("method", "initialized"));

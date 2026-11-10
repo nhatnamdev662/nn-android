@@ -1,11 +1,11 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Builds a signed release APK on-device with aapt2 + javac + d8 + apksigner.
-# Output: build/buddy-release.apk
+# Output: build/NN_AGENT.apk
 set -euo pipefail
 cd "$(dirname "$0")"
 
 SDK_JAR=${SDK_JAR:-$HOME/android-sdk/android-36/android.jar}
-KEYSTORE=${KEYSTORE:-$HOME/.buddy-keys/release.jks}
+KEYSTORE=${KEYSTORE:-$HOME/.nn-keys/release.jks}
 PACKAGE=app.nn.agent
 INFO=app/src/main/java/app/nn/agent/BuildInfo.java
 VERSION_NAME=$(sed -n 's/.*VERSION = "\(.*\)";/\1/p' "$INFO")
@@ -61,13 +61,13 @@ if [ ! -f "$KEYSTORE" ]; then
   PASS=$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 24)
   printf '%s' "$PASS" > "$(dirname "$KEYSTORE")/password"
   chmod 600 "$(dirname "$KEYSTORE")/password"
-  keytool -genkeypair -keystore "$KEYSTORE" -alias buddy -keyalg RSA -keysize 4096 -validity 10000 \
-    -storepass "$PASS" -keypass "$PASS" -dname "CN=Buddy, O=Personal" >/dev/null 2>&1
+  keytool -genkeypair -keystore "$KEYSTORE" -alias nn -keyalg RSA -keysize 4096 -validity 10000 \
+    -storepass "$PASS" -keypass "$PASS" -dname "CN=NN, O=Personal" >/dev/null 2>&1
 fi
-apksigner sign --ks "$KEYSTORE" --ks-key-alias buddy \
+apksigner sign --ks "$KEYSTORE" --ks-key-alias nn \
   --ks-pass "file:$(dirname "$KEYSTORE")/password" \
-  --out "$OUT/buddy-release.apk" "$OUT/aligned.apk"
-apksigner verify "$OUT/buddy-release.apk"
+  --out "$OUT/NN_AGENT.apk" "$OUT/aligned.apk"
+apksigner verify "$OUT/NN_AGENT.apk"
 
-ls -l "$OUT/buddy-release.apk"
-echo "Built $OUT/buddy-release.apk (version $VERSION_NAME, code $VERSION_CODE)"
+ls -l "$OUT/NN_AGENT.apk"
+echo "Built $OUT/NN_AGENT.apk (version $VERSION_NAME, code $VERSION_CODE)"

@@ -176,7 +176,7 @@ final class BrowserTools {
     /** The page's text from character from, with what it asks for (a sign-in, a bot check) on top. */
     private String read(String key, int from) throws Exception {
         Browser.settle(key, 5000);
-        String all = String.valueOf(Browser.eval(key, "__buddy.read()"));
+        String all = String.valueOf(Browser.eval(key, "__nn.read()"));
         String[] page = Browser.page(key);
         // the tab's title in Chromium's list can lag behind the page (it shows the address until it catches up)
         Object title = Browser.eval(key, "document.title");
@@ -205,7 +205,7 @@ final class BrowserTools {
     /** What the page asks of the agent: a sign-in or a bot check (both are the user's to do), or null. */
     private String signals(String key) {
         try {
-            JSONObject s = (JSONObject) Browser.eval(key, "__buddy.signals()");
+            JSONObject s = (JSONObject) Browser.eval(key, "__nn.signals()");
             String site = host(key);
             if (s.optBoolean("bot")) {
                 return "BOT CHECK: " + site + " shows a captcha or a robot check. Don't try to solve it. Ask the user (ask) to "
@@ -232,7 +232,7 @@ final class BrowserTools {
         if (svc.bubble() != null && svc.bubble().confirming()) {
             return "BLOCKED: a card is waiting for the user's answer. Wait for it; don't tap anything.";
         }
-        Object o = Browser.eval(key, "__buddy.target(" + ref + ")");
+        Object o = Browser.eval(key, "__nn.target(" + ref + ")");
         if (!(o instanceof JSONObject) || ((JSONObject) o).optBoolean("missing")) return stale(ref);
         JSONObject t = (JSONObject) o;
         String label = t.optString("label", "").trim();
@@ -254,7 +254,7 @@ final class BrowserTools {
         }
         step(key, label.isEmpty() ? svc.getString(R.string.activity_tapping_plain)
                 : svc.getString(R.string.activity_tapping, label));
-        Browser.eval(key, "__buddy.armClick(" + ref + ")");
+        Browser.eval(key, "__nn.armClick(" + ref + ")");
         Browser.click(key, t.getDouble("x"), t.getDouble("y"));
         Thread.sleep(500);
         String dialog = pendingDialog(key, approved), again = "";
@@ -262,12 +262,12 @@ final class BrowserTools {
             // the page re-drew under the pointer (a text box losing its focus re-renders the form), so the item never
             // got the click: once more where it is now (drawn again as a new element, it's the one with the same role
             // and label), unless it changed (disabled, busy, gone or covered)
-            Browser.eval(key, "__buddy.adopt(" + ref + ", " + JSONObject.quote(t.optString("role")) + ", " + JSONObject.quote(label) + ")");
-            Object o2 = Browser.eval(key, "__buddy.target(" + ref + ")");
+            Browser.eval(key, "__nn.adopt(" + ref + ", " + JSONObject.quote(t.optString("role")) + ", " + JSONObject.quote(label) + ")");
+            Object o2 = Browser.eval(key, "__nn.target(" + ref + ")");
             JSONObject t2 = o2 instanceof JSONObject ? (JSONObject) o2 : null;
             if (t2 != null && !t2.optBoolean("missing") && !t2.optBoolean("disabled")
                     && (t2.isNull("covered") || t2.optString("covered").isEmpty())) {
-                Browser.eval(key, "__buddy.armClick(" + ref + ")");
+                Browser.eval(key, "__nn.armClick(" + ref + ")");
                 Browser.click(key, t2.getDouble("x"), t2.getDouble("y"));
                 Thread.sleep(500);
                 dialog = pendingDialog(key, approved);
@@ -288,7 +288,7 @@ final class BrowserTools {
         try {
             String[] now = Browser.page(key);
             if (before == null || now == null || !now[0].equals(before[0])) return false;
-            return Boolean.FALSE.equals(Browser.eval(key, "__buddy.clickReached()"));
+            return Boolean.FALSE.equals(Browser.eval(key, "__nn.clickReached()"));
         } catch (Exception e) {
             return false;
         }
@@ -313,10 +313,10 @@ final class BrowserTools {
     }
 
     private String type(String key, int ref, String text, boolean append, boolean submit) throws Exception {
-        JSONObject f = (JSONObject) Browser.eval(key, "__buddy.focus(" + ref + ", " + append + ")");
+        JSONObject f = (JSONObject) Browser.eval(key, "__nn.focus(" + ref + ", " + append + ")");
         if (f.optBoolean("missing")) return stale(ref);
         if (f.optBoolean("select")) {
-            JSONObject c = (JSONObject) Browser.eval(key, "__buddy.choose(" + ref + ", " + JSONObject.quote(text) + ")");
+            JSONObject c = (JSONObject) Browser.eval(key, "__nn.choose(" + ref + ", " + JSONObject.quote(text) + ")");
             if (c.optBoolean("none")) return "No option of [" + ref + "] matches “" + text + "”. Call browser_read to see its options.";
             return "Picked “" + c.optString("chosen") + "” in [" + ref + "].";
         }

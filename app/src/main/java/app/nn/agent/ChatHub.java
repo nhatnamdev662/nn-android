@@ -512,7 +512,7 @@ final class ChatHub {
                             t = t.replace(QUIET, "").trim();
                         }
                         if (!t.isEmpty()) {
-                            add(ses, Bubble.Kind.BUDDY, t, pictures(t));
+                            add(ses, Bubble.Kind.NN, t, pictures(t));
                             ses.lastReply = t;
                             ses.gotText = true;
                             CodexLive.agentSaid(ses, t); // a live voice call in this chat tells the user
@@ -554,11 +554,11 @@ final class ChatHub {
                     ses.quietSaid = true;
                     r = r.replace(QUIET, "").trim();
                     if (!ses.gotText && !r.isEmpty()) {
-                        add(ses, Bubble.Kind.BUDDY, r, pictures(r));
+                        add(ses, Bubble.Kind.NN, r, pictures(r));
                         ses.lastReply = r;
                     }
                 } else if (!ses.gotText && !r.isEmpty()) {
-                    add(ses, Bubble.Kind.BUDDY, r, pictures(r));
+                    add(ses, Bubble.Kind.NN, r, pictures(r));
                     ses.lastReply = r;
                     CodexLive.agentSaid(ses, r);
                 }
@@ -571,7 +571,7 @@ final class ChatHub {
                 for (int i = ses.messages.size() - 1; i >= 0 && !shown; i--) {
                     Sessions.Msg m = ses.messages.get(i);
                     if (m.kind == Bubble.Kind.USER) break;
-                    shown = m.kind == Bubble.Kind.BUDDY && !m.files.isEmpty();
+                    shown = (m.kind == Bubble.Kind.NN || m.kind == Bubble.Kind.BUDDY) && !m.files.isEmpty();
                 }
                 if (shown) break;
                 JSONArray paths = ev.optJSONArray("paths");
@@ -580,7 +580,7 @@ final class ChatHub {
                     String file = picture(paths.optString(i));
                     if (file != null) files.add(file);
                 }
-                if (!files.isEmpty()) add(ses, Bubble.Kind.BUDDY, "", files);
+                if (!files.isEmpty()) add(ses, Bubble.Kind.NN, "", files);
                 break;
             }
             case "buddy_error":
@@ -663,7 +663,7 @@ final class ChatHub {
         String request = "", note = "";
         for (int i = latest.messages.size() - 1; i >= 0; i--) {
             Sessions.Msg m = latest.messages.get(i);
-            if (note.isEmpty() && (m.kind == Bubble.Kind.BUDDY || m.kind == Bubble.Kind.STEP)) note = m.text;
+            if (note.isEmpty() && (m.kind == Bubble.Kind.NN || m.kind == Bubble.Kind.BUDDY || m.kind == Bubble.Kind.STEP)) note = m.text;
             if (m.kind == Bubble.Kind.USER) {
                 request = m.text;
                 break;
@@ -832,9 +832,9 @@ final class ChatHub {
     private void add(Sessions.Session ses, Bubble.Kind kind, String text, List<String> files) {
         if (text == null) return;
         sessions.add(ses, kind, text, files);
-        if (kind == Bubble.Kind.BUDDY && !viewing.contains(ses)) ses.unread = true;
+        if ((kind == Bubble.Kind.NN || kind == Bubble.Kind.BUDDY) && !viewing.contains(ses)) ses.unread = true;
         // not during a live voice call: the voice tells the user itself
-        if (kind == Bubble.Kind.BUDDY && !text.isEmpty() && Prefs.speakReplies(app) && !CodexLive.on()) Voice.speak(app, text);
+        if ((kind == Bubble.Kind.NN || kind == Bubble.Kind.BUDDY) && !text.isEmpty() && Prefs.speakReplies(app) && !CodexLive.on()) Voice.speak(app, text);
         Sessions.Msg m = ses.messages.get(ses.messages.size() - 1);
         for (Listener l : new ArrayList<>(listeners)) l.onMessage(ses, m);
     }

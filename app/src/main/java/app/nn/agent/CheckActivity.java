@@ -274,7 +274,7 @@ public class CheckActivity extends Screen {
         return Build.MANUFACTURER + " " + Build.MODEL + ", Android " + Build.VERSION.RELEASE;
     }
 
-    private static String buddy() {
+    private static String nnVersion() {
         return BuildInfo.VERSION + " (" + (Flavor.FDROID ? "F-Droid" : "GitHub") + ")";
     }
 
@@ -302,7 +302,7 @@ public class CheckActivity extends Screen {
 
     /** Plain text, no personal content: versions, the phone, the default agent and the results. */
     private String report() {
-        StringBuilder b = new StringBuilder("NN AGENT " + buddy() + "\n" + phone() + "\nDefault agent: "
+        StringBuilder b = new StringBuilder("NN AGENT " + nnVersion() + "\n" + phone() + "\nDefault agent: "
                 + Account.nameOf(Prefs.backend(this)) + "\nAgents: " + agents() + "\n\n");
         for (Result r : results) {
             b.append(r.ok ? "OK    " : "FAIL  ").append(r.name).append(r.detail == null ? "" : ": " + r.detail).append('\n');
@@ -314,11 +314,11 @@ public class CheckActivity extends Screen {
     private void reportBug() {
         String extra = "Default agent: " + Account.nameOf(Prefs.backend(this)) + "\nAgents: " + agents()
                 + "\n\nCheck NN Agent:\n" + failures();
-        String shown = getString(R.string.check_report_text) + "\n\n" + phone() + "\nNN Agent " + buddy() + "\n" + extra;
+        String shown = getString(R.string.check_report_text) + "\n\n" + phone() + "\nNN Agent " + nnVersion() + "\n" + extra;
         confirmSheet(this, getString(R.string.check_report_title), shown, getString(R.string.check_report_open), false, () -> {
             Uri u = Uri.parse(ISSUES).buildUpon()
                     .appendQueryParameter("phone", phone())
-                    .appendQueryParameter("buddy", buddy())
+                    .appendQueryParameter("nn", nnVersion())
                     .appendQueryParameter("agent", Account.nameOf(Prefs.backend(this))) // a dropdown may not take it: in extra too
                     .appendQueryParameter("extra", extra)
                     .build();

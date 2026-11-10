@@ -98,7 +98,7 @@ final class RemoteSession {
             String cmd = "stty cols 100 rows 40; exec claude --remote-control \"" + Prefs.remoteName(app) + "\""
                     + (resume ? " --continue" : "");
             Process p = Linux.builder(app, "/bin/sh", "-c",
-                    "cd " + DIR + " && exec script -qfc '" + cmd.replace("'", "'\\''") + "' /root/.buddy/remote.log").start();
+                    "cd " + DIR + " && exec script -qfc '" + cmd.replace("'", "'\\''") + "' /root/.nn/remote.log").start();
             synchronized (RemoteSession.class) {
                 starting = false;
                 if (!Prefs.remoteSession(app)) {

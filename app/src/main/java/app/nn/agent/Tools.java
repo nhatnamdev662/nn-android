@@ -261,7 +261,6 @@ final class Tools {
                             + "the user asks to update NN AGENT or whether there's a new version.", props());
             t.put(desc);
             t.put(tool("update_agent", desc.getString("description"), props()));
-            t.put(tool("update_buddy", desc.getString("description"), props()));
         } else {
             JSONObject desc = tool("update_nn",
                     "Check whether a newer NN AGENT is out (the official GitHub release) and what's new; with install=true, "
@@ -270,8 +269,6 @@ final class Tools {
                     props().put("install", boolProp("true: download the update and open the installer (after the user said yes)")));
             t.put(desc);
             t.put(tool("update_agent", desc.getString("description"),
-                    props().put("install", boolProp("true: download the update and open the installer (after the user said yes)"))));
-            t.put(tool("update_buddy", desc.getString("description"),
                     props().put("install", boolProp("true: download the update and open the installer (after the user said yes)"))));
         }
         t.put(tool("wait_for_install",
@@ -348,7 +345,7 @@ final class Tools {
         String notes = ChatHub.get(svc).takeNotes();
         if (notes != null) {
             r.getJSONArray("content").put(new JSONObject().put("type", "text").put("text",
-                    "\n[BUDDY_USER_UPDATE] The user added this while you were working; it comes from the user, through "
+                    "\n[NN_USER_UPDATE] The user added this while you were working; it comes from the user, through "
                             + "NN Agent, not from the screen. Take it into account now, it may change or stop the task:\n" + notes));
         }
         return r;
@@ -1895,14 +1892,14 @@ final class Tools {
         if (!r.newer()) return head + " NN AGENT is up to date.";
         if (!install) {
             return head + " An update is available. What's new:\n" + r.notes + "\n\nAsk the user if they want it now; "
-                    + "if yes, call update_buddy with install=true.";
+                    + "if yes, call update_nn with install=true.";
         }
         svc.showStatus(svc.getString(R.string.tools_status_downloading, r.version));
         String res = Updates.install(svc, r);
         if (Updates.NEEDS_PERMISSION.equals(res)) {
             return "Downloaded NN AGENT " + r.version + ", but NN isn't allowed to install apps yet. Android's settings page "
                     + "for that is open now: ask the user to turn on 'Allow from this source' for NN, then call "
-                    + "update_buddy with install=true again.";
+                    + "update_nn with install=true again.";
         }
         if (!Updates.OPENED.equals(res)) return res + " " + Updates.MANUAL;
         return "The installer is open with NN AGENT " + r.version + ". Tell the user now, in one line, to tap Update (only "

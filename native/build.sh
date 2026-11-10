@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds Buddy's native libraries for arm64 Android, all from source, into app/src/main/jniLibs/arm64-v8a:
+# Builds NN's native libraries for arm64 Android, all from source, into app/src/main/jniLibs/arm64-v8a:
 #   libproot.so + libproot-loader.so  PRoot (Termux's fork), runs the built-in Linux
 #   libtalloc.so                      talloc, PRoot's memory allocator
 #   libandroid-shmem.so               System V shared memory for PRoot's guests
@@ -88,3 +88,4 @@ if command -v javac >/dev/null; then
 fi
 $CC -shared -fPIC -O2 -Wall $LDPAGE "${JNI[@]}" -o pty.so "$HERE/pty.c"
 finish pty.so libbuddypty.so
+cp "$OUT/libbuddypty.so" "$OUT/libnnpty.so" && echo "Built libnnpty.so"

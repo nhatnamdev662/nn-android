@@ -76,11 +76,13 @@ final class Linux {
         List<String> a = new ArrayList<>(Arrays.asList(lib + "/libproot.so",
                 "--kill-on-exit", "--link2symlink", "-0",
                 "-r", root(c).getAbsolutePath(),
-                "-b", "/dev", "-b", "/proc", "-b", "/sys",
-                // one sound card, "NN Agent microphone" (Android hides its own): programs then try to record, and
-                // recording goes through NN's stand-in arecord/rec (MicServer)
-                "-b", root(c).getAbsolutePath() + "/etc/buddy/asound-cards:/proc/asound/cards",
-                "-w", "/root"));
+                "-b", "/dev", "-b", "/proc", "-b", "/sys"));
+        // one sound card, "NN Agent microphone" (Android hides its own): programs then try to record, and
+        // recording goes through NN's stand-in arecord/rec (MicServer)
+        File asound = new File(root(c), "etc/nn/asound-cards");
+        if (!asound.exists()) asound = new File(root(c), "etc/buddy/asound-cards");
+        if (asound.exists()) a.addAll(Arrays.asList("-b", asound.getAbsolutePath() + ":/proc/asound/cards"));
+        a.addAll(Arrays.asList("-w", "/root"));
         // the phone's own fonts, for every script and emoji: the background browser shows pages in any language
         // without a big font download (Alpine's Chromium only brings a Latin one)
         if (new File("/system/fonts").isDirectory()) a.addAll(Arrays.asList("-b", "/system/fonts:/usr/share/fonts/android"));

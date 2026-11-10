@@ -273,7 +273,7 @@ final class Voice {
                     }
                     if (best != null) tts.setVoice(best);
                 }
-                tts.speak(text, TextToSpeech.QUEUE_ADD, new Bundle(), "buddy-" + System.nanoTime());
+                tts.speak(text, TextToSpeech.QUEUE_ADD, new Bundle(), "nn-" + System.nanoTime());
             });
         }, "tts-language").start();
     }

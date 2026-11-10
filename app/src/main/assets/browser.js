@@ -1,13 +1,13 @@
-// Buddy's background browser: run in the page by Browser.java (Runtime.evaluate, in an isolated world the page's own
+// NN's background browser: run in the page by Browser.java (Runtime.evaluate, in an isolated world the page's own
 // scripts can't reach) for the agents' browser tools.
 // It reads the whole page as text with numbered items ([12]), and finds an item again by its number. The numbers
-// are kept on the elements (data-buddy-ref), so they stay valid until the page changes.
+// are kept on the elements (data-nn-ref), so they stay valid until the page changes.
 (function () {
-  if (window.__buddy) return;
-  var B = window.__buddy = {seq: 0};
-  // a new world on a page Buddy already numbered: go on from its numbers, so none is given twice
-  document.querySelectorAll('[data-buddy-ref]').forEach(function (el) {
-    B.seq = Math.max(B.seq, +el.getAttribute('data-buddy-ref') || 0);
+  if (window.__nn) return;
+  var B = window.__nn = {seq: 0};
+  // a new world on a page NN already numbered: go on from its numbers, so none is given twice
+  document.querySelectorAll('[data-nn-ref]').forEach(function (el) {
+    B.seq = Math.max(B.seq, +el.getAttribute('data-nn-ref') || 0);
   });
   var SKIP = {SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, TEMPLATE: 1, HEAD: 1, META: 1, LINK: 1, SVG: 1, CANVAS: 1};
   var BLOCK = /^(block|flex|grid|list-item|table|table-row|table-caption|flow-root)$/;
@@ -111,17 +111,17 @@
   }
 
   function refOf(el) {
-    var r = el.getAttribute('data-buddy-ref');
+    var r = el.getAttribute('data-nn-ref');
     if (!r) {
       r = String(++B.seq);
-      el.setAttribute('data-buddy-ref', r);
+      el.setAttribute('data-nn-ref', r);
     }
     return r;
   }
 
   // read() numbers items inside shadow roots too (web components, e.g. Reddit's forms): look there as well
   B.find = function (ref) {
-    var sel = '[data-buddy-ref="' + String(ref).replace(/[^0-9]/g, '') + '"]';
+    var sel = '[data-nn-ref="' + String(ref).replace(/[^0-9]/g, '') + '"]';
     return (function deep(root) {
       var el = root.querySelector(sel);
       if (el) return el;
@@ -144,7 +144,7 @@
     });
   };
 
-  // Fields Buddy never types into: passwords, one-time codes, payment details (the user does those)
+  // Fields NN never types into: passwords, one-time codes, payment details (the user does those)
   var SENSITIVE = /passw|passcode|kennwort|contrase|senha|пароль|mot de passe|one.?time|\botp\b|2fa|two.?factor|verification code|security code|confirmation code|sms code|login code|cvv|cvc|csc|card.?number|cardnum|cc.?num|credit.?card|expir|iban|routing number|sort code|kartennummer|numéro de carte|número de tarjeta|\bpin\b/i;
   B.sensitive = function (el) {
     if (el.tagName === 'INPUT' && (el.type || '').toLowerCase() === 'password') return 'password';
@@ -216,7 +216,7 @@
         try { host = src ? new URL(src, location.href).host : ''; } catch (e) {}
         if (host && host !== location.host) {
           flush();
-          lines.push('(embedded frame from ' + host + ': Buddy can\'t read or use it; the user can, in the live view)');
+          lines.push('(embedded frame from ' + host + ': NN can\'t read or use it; the user can, in the live view)');
         }
         return;
       }
@@ -344,12 +344,12 @@
       var all = root.querySelectorAll('*');
       for (var i = 0; i < all.length && found.length < 2; i++) {
         var e = all[i];
-        if (!e.hasAttribute('data-buddy-ref') && role(e) === r && label(e) === l && shown(e) && e.getClientRects().length) found.push(e);
+        if (!e.hasAttribute('data-nn-ref') && role(e) === r && label(e) === l && shown(e) && e.getClientRects().length) found.push(e);
         if (e.shadowRoot) deep(e.shadowRoot);
       }
     })(document);
     if (found.length !== 1) return false;
-    found[0].setAttribute('data-buddy-ref', String(ref));
+    found[0].setAttribute('data-nn-ref', String(ref));
     return true;
   };
 

@@ -106,7 +106,7 @@ final class CodexSpeech {
                 });
             }
         }, "NN Agent");
-        web.loadDataWithBaseURL("https://buddy.local/", PAGE, "text/html", "utf-8", null);
+        web.loadDataWithBaseURL("https://nn.local/", PAGE, "text/html", "utf-8", null);
         main.postDelayed(watchdog, 1000);
     }
 

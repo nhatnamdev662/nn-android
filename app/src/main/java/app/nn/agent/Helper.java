@@ -19,14 +19,11 @@ final class Helper {
     private static final String[][] FILES = {
             // asset, path inside Linux, mode
             {"linux/nn-run", "/root/bin/nn-run", "700"},
-            {"linux/nn-run", "/root/bin/buddy-run", "700"}, // compat
             {"linux/codex-remote", "/root/bin/codex-remote", "700"}, // the Codex session (CodexRemote)
             {"linux/nn-browser", "/root/bin/nn-browser", "700"}, // the background browser (Browser)
-            {"linux/nn-browser", "/root/bin/buddy-browser", "700"}, // compat
             {"linux/profile.sh", "/etc/profile.d/nn.sh", "644"},
             {"linux/arecord", "/usr/local/bin/arecord", "755"},
             {"linux/asound-cards", "/etc/nn/asound-cards", "644"},
-            {"linux/asound-cards", "/etc/buddy/asound-cards", "644"},
             {"linux/arecord", "/usr/local/bin/rec", "755"}, // SoX's recorder, same arguments that matter (-r, -c)
             {"linux/system-prompt.md", "/root/.nn/system-prompt.md", "600"},
             {"linux/GUIDE.md", "/root/.nn/GUIDE.md", "644"},
@@ -57,7 +54,7 @@ final class Helper {
         final String sessionId = args.length > 1 ? args[1] : null;
         final String[] cmd = new String[args.length + 3];
         cmd[0] = "/bin/bash";
-        cmd[1] = new File(Linux.root(app), "root/bin/nn-run").exists() ? "/root/bin/nn-run" : "/root/bin/buddy-run";
+        cmd[1] = "/root/bin/nn-run";
         cmd[2] = Prefs.token(app);
         System.arraycopy(args, 0, cmd, 3, args.length);
         pool.execute(() -> {
@@ -100,17 +97,17 @@ final class Helper {
             if ("trust".equals(e.getValue())) trusted.append("- ").append(appName(c, e.getKey())).append(" (").append(e.getKey()).append(")\n");
         }
         String text = "";
-        if (trusted.length() > 0) text += "Apps the user set to Trust:\n" + trusted;
+        if (trusted.length() > 0) text += "Các ứng dụng người dùng đặt mức Tin cậy (Trust):\n" + trusted;
         if (Prefs.autonomousDefault(c)) {
-            text += (text.isEmpty() ? "" : "\n") + "The user also trusts every app they haven't set, except messaging, "
-                    + "social, calls, email, shopping, payment and banking apps.\n";
+            text += (text.isEmpty() ? "" : "\n") + "Người dùng cũng tin cậy mọi ứng dụng chưa thiết lập riêng, ngoại trừ các ứng dụng nhắn tin, "
+                    + "mạng xã hội, cuộc gọi, email, mua sắm, thanh toán và ngân hàng.\n";
         }
         StringBuilder never = new StringBuilder();
-        for (Guard.Rule r : Guard.rules(c, "allow")) never.append("- “").append(r.label).append("” in ")
-                .append(r.pkg == null ? "all apps" : appName(c, r.pkg)).append("\n");
+        for (Guard.Rule r : Guard.rules(c, "allow")) never.append("- “").append(r.label).append("” trong ")
+                .append(r.pkg == null ? "mọi ứng dụng" : appName(c, r.pkg)).append("\n");
         if (never.length() > 0) {
-            text += (text.isEmpty() ? "" : "\n") + "Buttons the user marked \"Never ask\" (tap them without confirming "
-                    + "when the task calls for it):\n" + never;
+            text += (text.isEmpty() ? "" : "\n") + "Các nút người dùng đánh dấu \"Không bao giờ hỏi\" (bấm trực tiếp không cần confirm "
+                    + "khi tác vụ yêu cầu):\n" + never;
         }
         File f = new File(Linux.root(c), "root/.nn/permissions.md");
         try {

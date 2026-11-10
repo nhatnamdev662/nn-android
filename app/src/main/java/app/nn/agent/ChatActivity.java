@@ -1692,7 +1692,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             return;
         }
         if (!m.text.isEmpty() || m.files.isEmpty()) show(m.kind, m.text);
-        if (m.kind == Bubble.Kind.BUDDY) { // pictures the reply names (see ChatHub.pictures), under it
+        if (m.kind == Bubble.Kind.NN || m.kind == Bubble.Kind.BUDDY) { // pictures the reply names (see ChatHub.pictures), under it
             for (String id : m.files) {
                 LinearLayout.LayoutParams fp = wrap();
                 fp.setMarginStart(dp(this, 32));
@@ -1973,6 +1973,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 v = tv;
                 break;
             }
+            case NN:
             case BUDDY: {
                 LinearLayout r = row(this);
                 r.setGravity(Gravity.BOTTOM);

@@ -39,7 +39,7 @@ final class Sessions {
 
         /** For a chat list row: a reply's words only, without the names of its pictures; empty if it has none. */
         String preview() {
-            return kind == Bubble.Kind.BUDDY ? text : label();
+            return (kind == Bubble.Kind.NN || kind == Bubble.Kind.BUDDY) ? text : label();
         }
 
         /** Text for places that can't show attachments (bubble panel). */
@@ -47,7 +47,7 @@ final class Sessions {
             if (files.isEmpty()) return text;
             String n = files.size() == 1 ? "📎 " + Attachments.name(files.get(0))
                     : NnApp.plural(R.plurals.attach_count, files.size(), files.size());
-            return text.isEmpty() ? n : kind == Bubble.Kind.BUDDY ? text + "\n" + n : n + "\n" + text;
+            return text.isEmpty() ? n : (kind == Bubble.Kind.NN || kind == Bubble.Kind.BUDDY) ? text + "\n" + n : n + "\n" + text;
         }
     }
 
@@ -69,7 +69,7 @@ final class Sessions {
         boolean incognito;
         /** This run may end quietly (a scheduled task's "only tell me when there's news"); quietSaid: it did. Runtime. */
         boolean quietRun, quietSaid;
-        /** Linux tools: the agent may run commands and edit files in ~/.buddy/work (nn-run's dev). Never on Play. */
+        /** Linux tools: the agent may run commands and edit files in ~/.nn/work (nn-run's dev). Never on Play. */
         boolean dev;
         /** Long-task mode: the screen stays on while this chat works, and its end is a notification (see KeepAwake). */
         boolean awake;
@@ -136,7 +136,23 @@ final class Sessions {
 
     Sessions(Context c) {
         app = c;
-        sp = c.getSharedPreferences("buddy_sessions", Context.MODE_PRIVATE);
+        sp = c.getSharedPreferences("nn_sessions", Context.MODE_PRIVATE);
+        if (sp.getAll().isEmpty()) {
+            SharedPreferences old = c.getSharedPreferences("buddy_sessions", Context.MODE_PRIVATE);
+            if (!old.getAll().isEmpty()) {
+                SharedPreferences.Editor ed = sp.edit();
+                for (java.util.Map.Entry<String, ?> e : old.getAll().entrySet()) {
+                    Object v = e.getValue();
+                    if (v instanceof String) ed.putString(e.getKey(), (String) v);
+                    else if (v instanceof java.util.Set) {
+                        @SuppressWarnings("unchecked")
+                        java.util.Set<String> s = (java.util.Set<String>) v;
+                        ed.putStringSet(e.getKey(), s);
+                    }
+                }
+                ed.apply();
+            }
+        }
         dir = new java.io.File(c.getFilesDir(), "chats");
         dir.mkdirs();
         boolean older = load(); // chats from before Linux tools were per chat
@@ -370,11 +386,20 @@ final class Sessions {
             List<String> files = new ArrayList<>();
             JSONArray f = m.optJSONArray("f");
             if (f != null) for (int k = 0; k < f.length(); k++) files.add(f.getString(k));
-            Msg msg = new Msg(Bubble.Kind.valueOf(m.getString("k")), m.getString("t"), files);
+            Msg msg = new Msg(parseKind(m.getString("k")), m.getString("t"), files);
             msg.scheduled = m.optBoolean("s");
             s.messages.add(msg);
         }
         return s;
+    }
+
+    private static Bubble.Kind parseKind(String k) {
+        if ("BUDDY".equals(k)) return Bubble.Kind.NN;
+        try {
+            return Bubble.Kind.valueOf(k);
+        } catch (Exception e) {
+            return Bubble.Kind.NN;
+        }
     }
 
     /**

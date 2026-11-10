@@ -54,11 +54,11 @@ final class Face {
     }
 
     /**
-     * The size, in dp, for NN's face in an avatar or tile: {@code buddy} for the drawing (it has margins of its
+     * The size, in dp, for NN's face in an avatar or tile: {@code nn} for the drawing (it has margins of its
      * own), {@code picture} for a picture, which is trimmed to its edges and often detailed.
      */
-    static int size(Context c, int buddy, int picture) {
-        return picture(c) != null ? picture : buddy;
+    static int size(Context c, int nn, int picture) {
+        return picture(c) != null ? picture : nn;
     }
 
     /** Shows NN's face in an avatar or tile: the picked picture, else the drawing {@code res}. */

@@ -1905,7 +1905,7 @@ final class Bubble implements ChatHub.Listener {
             String last = "";
             for (int i = ses.messages.size() - 1; i >= 0; i--) {
                 Sessions.Msg m = ses.messages.get(i);
-                if ((m.kind == Kind.BUDDY || m.kind == Kind.USER) && !m.preview().isEmpty()) {
+                if ((m.kind == Kind.NN || m.kind == Kind.BUDDY || m.kind == Kind.USER) && !m.preview().isEmpty()) {
                     String t = Ui.linkText(m.preview()).replace('\n', ' ');
                     last = m.kind == Kind.USER ? svc.getString(R.string.bubble_chat_row_you, t) : t;
                     break;
@@ -2098,7 +2098,7 @@ final class Bubble implements ChatHub.Listener {
     @Override
     public void onMessage(Sessions.Session ses, Sessions.Msg msg) {
         if (ses == sessions.current && renderedFor == ses) showMessage(msg);
-        if (msg.kind == Kind.BUDDY && !(expanded && ses == sessions.current && !showingList)) vibrate(30);
+        if ((msg.kind == Kind.NN || msg.kind == Kind.BUDDY) && !(expanded && ses == sessions.current && !showingList)) vibrate(30);
     }
 
     /** The approval being asked right now (shown inline in the chat screen too), or null. */
@@ -2474,7 +2474,7 @@ final class Bubble implements ChatHub.Listener {
 
     // --------------------------------------------------------------- views
 
-    enum Kind { USER, BUDDY, STEP, ERROR }
+    enum Kind { USER, NN, BUDDY, STEP, ERROR }
 
     /** What a tool is doing right now (see setActivity), shown in the pill for a few seconds. */
     private String activity;

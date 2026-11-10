@@ -70,7 +70,7 @@ final class McpServer {
 
     void start() {
         running = true;
-        Thread t = new Thread(this::acceptLoop, "buddy-mcp");
+        Thread t = new Thread(this::acceptLoop, "nn-mcp");
         t.setDaemon(true);
         t.start();
     }
@@ -272,7 +272,7 @@ final class McpServer {
                     JSONObject result = new JSONObject()
                             .put("protocolVersion", params.optString("protocolVersion", DEFAULT_PROTOCOL))
                             .put("capabilities", new JSONObject().put("tools", new JSONObject()))
-                            .put("serverInfo", new JSONObject().put("name", "buddy-phone").put("version", BuildInfo.VERSION))
+                            .put("serverInfo", new JSONObject().put("name", "nn-phone").put("version", BuildInfo.VERSION))
                             .put("instructions", INSTRUCTIONS);
                     return res.put("result", result);
                 }

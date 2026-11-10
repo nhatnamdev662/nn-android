@@ -10,7 +10,28 @@ final class Prefs {
     }
 
     private static SharedPreferences sp(Context c) {
-        return c.getSharedPreferences("buddy", Context.MODE_PRIVATE);
+        SharedPreferences sp = c.getSharedPreferences("nn", Context.MODE_PRIVATE);
+        if (sp.getAll().isEmpty()) {
+            SharedPreferences old = c.getSharedPreferences("buddy", Context.MODE_PRIVATE);
+            if (!old.getAll().isEmpty()) {
+                SharedPreferences.Editor ed = sp.edit();
+                for (java.util.Map.Entry<String, ?> e : old.getAll().entrySet()) {
+                    Object v = e.getValue();
+                    if (v instanceof Boolean) ed.putBoolean(e.getKey(), (Boolean) v);
+                    else if (v instanceof Integer) ed.putInt(e.getKey(), (Integer) v);
+                    else if (v instanceof Long) ed.putLong(e.getKey(), (Long) v);
+                    else if (v instanceof Float) ed.putFloat(e.getKey(), (Float) v);
+                    else if (v instanceof String) ed.putString(e.getKey(), (String) v);
+                    else if (v instanceof java.util.Set) {
+                        @SuppressWarnings("unchecked")
+                        java.util.Set<String> s = (java.util.Set<String>) v;
+                        ed.putStringSet(e.getKey(), s);
+                    }
+                }
+                ed.apply();
+            }
+        }
+        return sp;
     }
 
     /** Shared secret for the local MCP server; generated once per install. */
@@ -58,11 +79,11 @@ final class Prefs {
      * bubble, approval cards, App permissions and the developer switches. Off by default.
      */
     static boolean agentsTapNn(Context c) {
-        return sp(c).getBoolean("agents_tap_buddy", false);
+        return sp(c).getBoolean("agents_tap_nn", sp(c).getBoolean("agents_tap_buddy", false));
     }
 
     static void setAgentsTapNn(Context c, boolean on) {
-        sp(c).edit().putBoolean("agents_tap_buddy", on).apply();
+        sp(c).edit().putBoolean("agents_tap_nn", on).apply();
     }
 
     /** Notify when a new NN Agent release is out (checked about once a day). */
@@ -180,9 +201,10 @@ final class Prefs {
         sp(c).edit().putString("panel_size", size).apply();
     }
 
-    /** NN's face on the bubble and in the chats: "buddy" (the drawn one) or "picture" (one the user picked). */
+    /** NN's face on the bubble and in the chats: "nn" (the drawn one) or "picture" (one the user picked). */
     static String face(Context c) {
-        return sp(c).getString("face", "buddy");
+        String f = sp(c).getString("face", "nn");
+        return "buddy".equals(f) ? "nn" : f;
     }
 
     static void setFace(Context c, String face) {

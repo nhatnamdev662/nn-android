@@ -14,14 +14,14 @@
 #   nn-run <token> transcript <claude|codex> <file>   last messages of a session (nn_transcript)
 #   nn-run <token> adopt <session> <claude|codex> <agent-session-id>  continue that session as a NN chat
 # Every event sent to the bubble carries "nn_session" so the app can route it.
-HELPER_VERSION=26
+HELPER_VERSION=27
 set -u
 export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The claude launcher sets BUN_OPTIONS with a path relative to its folder; never inherit a stale one.
 unset BUN_OPTIONS
 D=$HOME/.nn
-[ -d "$HOME/.nn" ] && [ ! -d "$HOME/.nn" ] && mv "$HOME/.nn" "$HOME/.nn" 2>/dev/null
-[ -d "$HOME/.nn" ] && [ ! -e "$HOME/.nn" ] && ln -s "$HOME/.nn" "$HOME/.nn" 2>/dev/null
+[ -d "$HOME/.buddy" ] && [ ! -e "$D" ] && mv "$HOME/.buddy" "$D" 2>/dev/null
+# migrated from legacy
 W=$D/work
 mkdir -p "$W" "$D/sessions"
 TOKEN=${1:-}
@@ -160,7 +160,7 @@ case "$CMD" in
           | ([.[] | select(.type=="response_item" and .payload.type=="message" and .payload.role=="user")
                 | .payload.content[]? | .text // empty
                 | select(startswith("<")|not)
-                | (if contains("User message from the NN bubble:\n") then split("User message from the NN bubble:\n")|last else . end)]
+                | (if contains("Tin nháº¯n cá»§a ngÆ°á»i dÃ¹ng tá»« bong bÃ³ng NN:\n") then split("Tin nháº¯n cá»§a ngÆ°á»i dÃ¹ng tá»« bong bÃ³ng NN:\n")|last elif contains("User message from the NN bubble:\n") then split("User message from the NN bubble:\n")|last else . end)]
              | last // "") as $t
           | {agent:"codex", file:$f, id:($meta.id//""), cwd:($meta.cwd//""), title:($t|.[0:120]),
              mtime:($m|tonumber)}' 2>/dev/null
@@ -250,8 +250,8 @@ svc_window() {
 }
 S=$D/sessions/$SID
 mkdir -p "$S"
-event() { jq -cn --arg type "$1" --arg text "${2:-}" --arg s "$SID" '{type:$type,text:$text,nn_session:$s,buddy_session:$s}' | post; }
-tag() { jq -c --arg s "$SID" '. + {nn_session:$s,buddy_session:$s}' 2>/dev/null; }
+event() { jq -cn --arg type "$1" --arg text "${2:-}" --arg s "$SID" '{type:$type,text:$text,nn_session:$s}' | post; }
+tag() { jq -c --arg s "$SID" '. + {nn_session:$s}' 2>/dev/null; }
 
 if [ -f "$S/pid" ] && kill -0 "$(cat "$S/pid")" 2>/dev/null; then
   event nn_error "This session is still working. Tap Stop first, or start another session."
@@ -283,7 +283,7 @@ if [ -n "${FILES:-}" ]; then
   if [ ${#ATT[@]} -gt 0 ]; then
     MSG="$MSG
 
-[The user attached $( [ ${#ATT[@]} -eq 1 ] && echo "a file" || echo "${#ATT[@]} files" ), saved on this phone. Open them with your Read tool (images show as pictures):
+[NgÆ°á»i dÃ¹ng Ä‘Ã£ Ä‘Ã­nh kÃ¨m $( [ ${#ATT[@]} -eq 1 ] && echo "1 tá»‡p tin" || echo "${#ATT[@]} tá»‡p tin" ), Ä‘Æ°á»£c lÆ°u trÃªn Ä‘iá»‡n thoáº¡i nÃ y. Má»Ÿ chÃºng báº±ng cÃ´ng cá»¥ Read cá»§a báº¡n (áº£nh sáº½ hiá»ƒn thá»‹ trá»±c quan):
 $(printf -- '- %s\n' "${ATT[@]}")]"
   fi
 fi
@@ -302,17 +302,16 @@ $(cat "$D/browser-prompt.md" 2>/dev/null)"
 if [ "$DEV" = 1 ]; then
   SYSTEM="$SYSTEM
 
-Linux tools are ON in this chat: you may run shell commands and create or edit files. Work inside $W (one folder per project).
-Before building an Android app, read the android-app skill (Claude Code) or AGENTS.md (Codex, OpenCode, Antigravity, Grok) in $W and follow it."
+CÃ´ng cá»¥ Linux Ä‘ang Báº¬T trong phiÃªn chat nÃ y: báº¡n cÃ³ thá»ƒ cháº¡y cÃ¡c lá»‡nh shell vÃ  táº¡o hoáº·c chá»‰nh sá»­a tá»‡p tin. LÃ m viá»‡c bÃªn trong $W (má»—i dá»± Ã¡n má»™t thÆ° má»¥c riÃªng).
+TrÆ°á»›c khi xÃ¢y dá»±ng á»©ng dá»¥ng Android, hÃ£y Ä‘á»c ká»¹ ká»¹ nÄƒng android-app (Ä‘á»‘i vá»›i Claude Code) hoáº·c AGENTS.md (Ä‘á»‘i vá»›i Codex, OpenCode, Antigravity, Grok) trong $W vÃ  tuÃ¢n thá»§ theo."
   # Settings, GitHub: git and gh are signed in to the user account
   [ -s "$HOME/.config/gh/hosts.yml" ] && SYSTEM="$SYSTEM
-git and the GitHub CLI (gh) are signed in to the user's GitHub account: you can clone, commit, push and open pull requests.
-Pushing, creating a repository, and opening an issue or pull request are outward-facing: call confirm first with what you will do."
+git vÃ  GitHub CLI (gh) Ä‘Ã£ Ä‘Äƒng nháº­p vÃ o tÃ i khoáº£n GitHub cá»§a ngÆ°á»i dÃ¹ng: báº¡n cÃ³ thá»ƒ clone, commit, push vÃ  má»Ÿ pull request.
+CÃ¡c thao tÃ¡c push mÃ£ nguá»“n, táº¡o repository, má»Ÿ issue hoáº·c pull request lÃ  hÃ nh Ä‘á»™ng hÆ°á»›ng ra ngoÃ i: Báº®T BUá»˜C pháº£i gá»i confirm trÆ°á»›c vá»›i ná»™i dung báº¡n dá»± Ä‘á»‹nh thá»±c hiá»‡n."
 elif [ "$DEV" = 0 ]; then
   SYSTEM="$SYSTEM
 
-Linux tools are off in this chat: no shell commands or file edits. If the user asks for something that needs them
-(building an app, running commands), tell them to turn on Linux tools with the chip under this chat's title, then ask again."
+CÃ´ng cá»¥ Linux Ä‘ang Táº®T trong phiÃªn chat nÃ y: khÃ´ng Ä‘Æ°á»£c cháº¡y lá»‡nh shell hoáº·c chá»‰nh sá»­a tá»‡p tin. Náº¿u ngÆ°á»i dÃ¹ng yÃªu cáº§u Ä‘iá»u gÃ¬ Ä‘Ã³ cáº§n Ä‘áº¿n cÃ´ng cá»¥ Linux (nhÆ° xÃ¢y dá»±ng á»©ng dá»¥ng, cháº¡y lá»‡nh há»‡ thá»‘ng), hÃ£y hÆ°á»›ng dáº«n há» báº­t CÃ´ng cá»¥ Linux báº±ng nÃºt chip ngay dÆ°á»›i tiÃªu Ä‘á» phiÃªn chat nÃ y, rá»“i yÃªu cáº§u láº¡i."
 fi
 
 # NN's shared skills (Settings, Skills) live in ~/.agents/skills, where Codex and OpenCode look: Claude Code gets a
@@ -407,7 +406,7 @@ run_codex() {
       resume "${img[@]}" -- "$(cat "$S/codex-thread")" "$prompt" </dev/null 2>"$S/last-error.log"
   else
     # codex exec has no system-prompt flag, so NN's instructions lead the first message.
-    prompt="$SYSTEM"$'\n\n---\n\nUser message from the NN bubble:\n'"$MSG"
+    prompt="$SYSTEM"$'\n\n---\n\nTin nhắn của người dùng từ bong bóng NN:\n'"$MSG"
     NN_TOKEN=$TOKEN codex exec "${cfg[@]}" "${sandbox[@]}" "${img[@]}" --json --skip-git-repo-check \
       -- "$prompt" </dev/null 2>"$S/last-error.log"
   fi
@@ -473,12 +472,12 @@ stream_codex() {
 # auto-rejects ("deny" would drop those tools, and OpenCode's free models refuse a changed tool set).
 run_opencode() {
   # OpenCode names MCP tools <server>_<tool>; small models otherwise call "read_screen" and give up
-  printf '%s\n\n%s\n' "$SYSTEM" "In this app the phone tools are named with a phone_ prefix: phone_read_screen, phone_tap, \
+  printf '%s\n\n%s\n' "$SYSTEM" "Trong ứng dụng này, các công cụ điện thoại được đặt tiền tố phone_: phone_read_screen, phone_tap, \
 phone_long_press, phone_type_text, phone_scroll, phone_swipe, phone_press, phone_open_app, phone_list_apps, phone_open_url, \
-phone_screenshot, phone_wait, phone_confirm, phone_ask, phone_notify, phone_reply_notification, phone_schedule_message, phone_list_scheduled, phone_cancel_scheduled, phone_update_nn, phone_install_apk and phone_wait_for_install\
-$([ "$BROWSER" = 1 ] && printf '%s' ", and for the background browser phone_browser_open, phone_browser_read, phone_browser_click, \
-phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browser_back and phone_browser_tabs"). Always call them by \
-these exact names; they are available in every message of this chat." > "$S/system.md"
+phone_screenshot, phone_wait, phone_confirm, phone_ask, phone_notify, phone_reply_notification, phone_schedule_message, phone_list_scheduled, phone_cancel_scheduled, phone_update_nn, phone_install_apk và phone_wait_for_install\
+$([ "$BROWSER" = 1 ] && printf '%s' ", và đối với trình duyệt nền: phone_browser_open, phone_browser_read, phone_browser_click, \
+phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browser_back và phone_browser_tabs"). Hãy luôn gọi đúng các \
+tên chính xác này; chúng khả dụng trong mọi tin nhắn của phiên trò chuyện này." > "$S/system.md"
   local cfg v2=0
   oc2 && v2=1
   # OpenCode 2 ignores instructions given through OPENCODE_CONFIG_CONTENT (the model never saw this prompt),
@@ -586,7 +585,7 @@ run_agy() {
     case "${f##*/}" in settings.json|brain) continue ;; esac
     ln -sfn "$f" "$h/.gemini/antigravity-cli/${f##*/}"
   done
-  # agy saves a long tool result (list_apps, …) under brain/<conversation>/ and has the model read it back, but it
+  # agy saves a long tool result (list_apps, â€¦) under brain/<conversation>/ and has the model read it back, but it
   # only lets the model read inside its own folder, and a link out of it doesn't count: each chat keeps its own brain/
   [ -L "$h/.gemini/antigravity-cli/brain" ] && rm -f "$h/.gemini/antigravity-cli/brain"
   mkdir -p "$h/.gemini/antigravity-cli/brain"
@@ -614,12 +613,12 @@ run_agy() {
   # It also lists MCP tools only by file: say how to call the phone's, or it goes looking (e.g. with ls, which a
   # normal chat refuses, and then it stops).
   [ -n "$sigs" ] || sigs=$(jq -r 'join(", ")' <<<"$AGY_PHONE_TOOLS" 2>/dev/null)
-  note="In this app the phone tools are on the MCP server named \"phone\". Call them right away with call_mcp_tool \
-(ServerName \"phone\", the ToolName and its Arguments as listed here; ? marks an optional one): $sigs. You don't need \
-to read their descriptions first; only if an argument is unclear, read_file \
+  note="Trong ứng dụng này, các công cụ điện thoại nằm trên MCP server mang tên \"phone\". Hãy gọi ngay bằng call_mcp_tool \
+(ServerName \"phone\", ToolName và Arguments như được liệt kê sau đây; dấu ? đánh dấu tham số tùy chọn): $sigs. Bạn không cần \
+phải đọc các tệp mô tả trước; chỉ khi tham số chưa rõ ràng mới cần read_file \
 $h/.gemini/antigravity-cli/mcp/phone/<tool>.json."
-  [ "$DEV" = 1 ] || note="$note Shell commands are not available in this chat; don't try them."
-  [ -s "$S/agy-conversation" ] || prompt="$SYSTEM"$'\n\n'"$note"$'\n\n---\n\nUser message from the NN bubble:\n'"$MSG"
+  [ "$DEV" = 1 ] || note="$note Các lệnh Shell hiện không khả dụng trong phiên trò chuyện này; không thử gọi chúng."
+  [ -s "$S/agy-conversation" ] || prompt="$SYSTEM"$'\n\n'"$note"$'\n\n---\n\nTin nhắn của người dùng từ bong bóng NN:\n'"$MSG"
   args=(-p "$prompt" --output-format stream-json)
   [ -s "$S/agy-conversation" ] && args+=(--conversation "$(cat "$S/agy-conversation")")
   [ -n "${MODEL:-}" ] && args+=(--model "$MODEL")
@@ -667,10 +666,10 @@ stream_agy() {
           *)
             # a tool step (step_type "tool"): its tool_info has the name and parameters; a phone tool comes as
             # call_mcp_tool with {ServerName, ToolName, Arguments}. Before agy first uses an MCP tool it reads the
-            # tool's description file from its own folder (…/antigravity-cli/mcp/<server>/<tool>.json), and it reads a
-            # long result back from …/antigravity-cli/brain/…/output.txt: neither is shown.
+            # tool's description file from its own folder (â€¦/antigravity-cli/mcp/<server>/<tool>.json), and it reads a
+            # long result back from â€¦/antigravity-cli/brain/â€¦/output.txt: neither is shown.
             if [ "$state" = ERROR ]; then
-              # refused by its permissions (a shell command in a normal chat, …): say so under the step
+              # refused by its permissions (a shell command in a normal chat, â€¦): say so under the step
               t=$(printf '%s' "$line" | jq -r '.step_update as $u | ($u.tool_info // {}) as $i
                 | select(($i.error.message // "") | test("denied permission|permission check failed"; "i"))
                 | ($i.parameters.CommandLine // $u.tool_name // $i.name // "?")' 2>/dev/null)
@@ -758,7 +757,7 @@ stream_agy() {
 # linked to the real ~/.grok. A headless run refuses what isn't pre-approved: the phone tools are; normal mode offers
 # only the web and (once the chat has attachments) file reads, a rule's run only the phone; developer mode approves
 # everything, like Codex's full access.
-# grok's bundled skills (docx, pptx, code-review, …), found once per grok version: a phone chat turns them off
+# grok's bundled skills (docx, pptx, code-review, â€¦), found once per grok version: a phone chat turns them off
 grok_bundled_skills() {
   local v f
   v=$(grok --version 2>/dev/null | awk '{print $2}')
@@ -766,7 +765,7 @@ grok_bundled_skills() {
   if [ ! -s "$f" ]; then
     rm -f "$D"/grok-bundled-skills-*
     (cd /tmp && GROK_CLAUDE_SKILLS_ENABLED=0 GROK_CURSOR_SKILLS_ENABLED=0 timeout 60 grok inspect 2>/dev/null) \
-      | sed -n 's/^ *└ \([A-Za-z0-9._-]*\) .* bundled.*$/\1/p' > "$f.new"
+      | sed -n 's/^ *â”” \([A-Za-z0-9._-]*\) .* bundled.*$/\1/p' > "$f.new"
     [ -s "$f.new" ] && mv -f "$f.new" "$f" || rm -f "$f.new"
   fi
   cat "$f" 2>/dev/null
@@ -796,10 +795,10 @@ run_grok() {
     "$URL/mcp?chat=$SID" | jq -r '[.result.tools[] | (.inputSchema.required // []) as $req | "\(.name)(" + ((.inputSchema.properties // {})
     | keys_unsorted | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
     | join(", ")' 2>/dev/null)
-  note="In this app the phone tools are on the MCP server named \"phone\". Call them right away with use_tool \
-(tool_name \"phone__<tool>\", e.g. phone__read_screen, and tool_input with its arguments${sigs:+ as listed here; ? marks an \
-optional one: $sigs}). You don't need search_tool for them."
-  [ "$DEV" = 1 ] || note="$note Shell commands are not available in this chat; don't try them."
+  note="Trong ứng dụng này, các công cụ điện thoại nằm trên MCP server mang tên \"phone\". Hãy gọi ngay bằng use_tool \
+(tool_name \"phone__<tool>\", ví dụ phone__read_screen, và tool_input kèm các đối số${sigs:+ như được liệt kê tại đây; dấu ? đánh dấu \
+tùy chọn: $sigs}). Bạn không cần dùng search_tool để tìm chúng."
+  [ "$DEV" = 1 ] || note="$note Các lệnh Shell hiện không khả dụng trong phiên trò chuyện này; không thử gọi chúng."
   # --rules adds NN's instructions to grok's own, on every run (as --append-system-prompt does for Claude Code)
   local args=(-p "$MSG" --output-format streaming-messages-json --rules "$SYSTEM"$'\n\n'"$note" --allow 'MCPTool(phone__*)')
   case "$DEV" in
@@ -827,7 +826,7 @@ optional one: $sigs}). You don't need search_tool for them."
 
 # grok's streaming-messages-json is Claude Code's stream format; only the tool names differ. A phone tool comes as
 # use_tool {tool_name:"phone__tap", tool_input}; its lookups (search_tool) and its thinking aren't shown. A step the
-# run refused (headless grok can't ask) is only on stderr ("permission required: … was not run"): said under the steps.
+# run refused (headless grok can't ask) is only on stderr ("permission required: â€¦ was not run"): said under the steps.
 stream_grok() {
   local line typ sid t=""
   rm -f "$S/grok-error"
@@ -900,8 +899,8 @@ fi
     status=${PIPESTATUS[0]}
     # a refusal ended its turn without a word: nudge it on once, in the same conversation
     if [ -s "$S/agy-denied" ] && [ -s "$S/agy-conversation" ]; then
-      MSG="(From NN, not the user) This chat doesn't allow that: $(cat "$S/agy-denied"). Carry on with the phone \
-tools (call_mcp_tool, ServerName \"phone\") and finish the user's request."
+      MSG="(Từ hệ thống NN, không phải người dùng) Phiên trò chuyện này không cho phép hành động đó: $(cat "$S/agy-denied"). Hãy tiếp tục với các \
+công cụ điện thoại (call_mcp_tool, ServerName \"phone\") và hoàn tất yêu cầu của người dùng."
       run_agy | tee -a "$S/agy-last.jsonl" | stream_agy last
       status=${PIPESTATUS[0]}
     fi
@@ -910,7 +909,7 @@ tools (call_mcp_tool, ServerName \"phone\") and finish the user's request."
       run_agy | stream_agy
       status=${PIPESTATUS[0]}
     fi
-    # a failed turn (quota reached, …) is already in the chat from its result; agy also exits non-zero and prints
+    # a failed turn (quota reached, â€¦) is already in the chat from its result; agy also exits non-zero and prints
     # the same error with raw JSON, which would show it twice
     [ -s "$S/agy-error" ] && status=0
     name=Antigravity
@@ -923,7 +922,7 @@ tools (call_mcp_tool, ServerName \"phone\") and finish the user's request."
       run_grok | stream_grok
       status=${PIPESTATUS[0]}
     fi
-    # a failed turn (not signed in, …) is already in the chat from its result; grok also exits non-zero and prints
+    # a failed turn (not signed in, â€¦) is already in the chat from its result; grok also exits non-zero and prints
     # the same error, which would show it twice
     [ -s "$S/grok-error" ] && status=0
     name=Grok

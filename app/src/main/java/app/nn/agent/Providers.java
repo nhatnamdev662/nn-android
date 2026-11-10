@@ -184,7 +184,7 @@ final class Providers {
         JSONArray a = new JSONArray();
         for (P p : all()) a.put(json(p).put("models", p.models));
         Prefs.setProviders(c, a.toString());
-        File dir = new File(Linux.root(c), "root/.buddy/providers");
+        File dir = new File(Linux.root(c), "root/.nn/providers");
         File[] old = dir.listFiles();
         if (old != null) for (File f : old) f.delete();
         if (!Linux.installed(c)) return;
@@ -391,7 +391,8 @@ final class Providers {
                     if (p.anthropic.isEmpty()) p.anthropic = pr[1];
                     if (p.openai.isEmpty()) p.openai = pr[2];
                 }
-                File f = new File(Linux.root(c), "root/.buddy/" + agent + "-key");
+                File f = new File(Linux.root(c), "root/.nn/" + agent + "-key");
+                if (!f.exists()) f = new File(Linux.root(c), "root/.buddy/" + agent + "-key");
                 String model = "";
                 try {
                     model = new String(java.nio.file.Files.readAllBytes(f.toPath())).trim();
@@ -407,6 +408,7 @@ final class Providers {
                 Secrets.remove(c, old);
                 Prefs.setApiBase(c, agent, "");
                 f.delete();
+                new File(Linux.root(c), "root/.nn/" + agent + "-models").delete();
                 new File(Linux.root(c), "root/.buddy/" + agent + "-models").delete();
                 Prefs.setKeyModels(c, agent, "");
             } catch (Exception ignored) {

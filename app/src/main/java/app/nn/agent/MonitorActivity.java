@@ -196,12 +196,13 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
         for (final JSONObject p : sessions) {
             final String backend = p.optString("agent");
             final String agent = Account.nameOf(backend);
-            final Sessions.Session chat = hub.sessions.find(p.optString("buddy"));
+            final String owner = p.optString("nn", p.optString("buddy"));
+            final Sessions.Session chat = hub.sessions.find(owner);
             final String kind = p.optString("kind", "terminal");
             final boolean background = "background".equals(kind);
             String title = p.optString("title").trim();
             final String where = chat != null ? chat.label()
-                    : !p.optString("buddy").isEmpty() ? getString(R.string.monitor_deleted_chat)
+                    : !owner.isEmpty() ? getString(R.string.monitor_deleted_chat)
                     : !title.isEmpty() ? title
                     : getString(background ? R.string.monitor_background_session : R.string.monitor_terminal_session);
 
@@ -301,7 +302,7 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
             final JSONObject s = list.optJSONObject(i);
             if (s == null) continue;
             final String backend = s.optString("agent");
-            final Sessions.Session chat = hub.sessions.find(s.optString("buddy"));
+            final Sessions.Session chat = hub.sessions.find(s.optString("nn", s.optString("buddy")));
             String title = s.optString("title");
             final String t = title.isEmpty() ? getString(R.string.monitor_no_messages) : title;
 

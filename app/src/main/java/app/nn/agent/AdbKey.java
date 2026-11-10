@@ -35,7 +35,7 @@ import javax.security.auth.x500.X500Principal;
  * and TLSv1.3 SSLContext for ADB Wireless Debugging pairing and loopback connections.
  */
 public final class AdbKey {
-    private static final String KEY_ALIAS = "buddy_adb_rsa_v1";
+    private static final String KEY_ALIAS = "nn_adb_rsa_v1";
     private static final String KEY_NAME = "nn-agent@android";
 
     private static volatile AdbKey sInstance;
@@ -211,13 +211,13 @@ public final class AdbKey {
             0x05, 0x00
         };
 
-        // Issuer & Subject: CN=buddy
+        // Issuer & Subject: CN=nn-agent
         byte[] name = new byte[]{
             0x30, 0x13,
             0x31, 0x11,
             0x30, 0x0F,
             0x06, 0x03, 0x55, 0x04, 0x03,
-            0x0C, 0x08, 'b', 'u', 'd', 'd', 'y', 'a', 'd', 'b'
+            0x0C, 0x08, 'n', 'n', '-', 'a', 'g', 'e', 'n', 't'
         };
 
         // Validity: 2026-01-01 to 2049-12-31 23:59:59 UTC (UTCTime per RFC 5280, YY < 50 is 20YY)

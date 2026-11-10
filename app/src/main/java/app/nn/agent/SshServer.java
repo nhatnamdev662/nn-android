@@ -34,7 +34,7 @@ final class SshServer {
     }
 
     static final int PORT = 8767;
-    private static final String CONFIG = "/etc/buddy/sshd_config";
+    private static final String CONFIG = "/etc/nn/sshd_config";
     /** How long a copied command's code works. */
     private static final long CODE_MS = 10 * 60_000;
     private static final Pattern KEY = Pattern.compile("((?:ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)"
@@ -150,7 +150,7 @@ final class SshServer {
     /** OpenSSH, host keys, the key file and NN's own server settings (rewritten each start). */
     private static void prepare(Context app) throws Exception {
         String out = Linux.exec(app, "set -e; [ -x /usr/sbin/sshd ] || apk add -q openssh-server; ssh-keygen -A >/dev/null;"
-                + " mkdir -p /etc/buddy /root/.ssh; chmod 700 /root/.ssh; touch /root/.ssh/authorized_keys;"
+                + " mkdir -p /etc/nn /etc/buddy /root/.ssh; chmod 700 /root/.ssh; touch /root/.ssh/authorized_keys;"
                 + " chmod 600 /root/.ssh/authorized_keys; echo PREP_OK", 300);
         if (!out.contains("PREP_OK")) throw new Exception(out.trim());
         Linux.write(new File(Linux.root(app), CONFIG.substring(1)), "# NN's SSH server (Settings > Remote Control)."

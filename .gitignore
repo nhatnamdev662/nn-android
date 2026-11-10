@@ -15,6 +15,7 @@ local.properties
 # signing keys — never commit
 *.jks
 *.keystore
+.nn-keys/
 .buddy-keys/
 
 # design exports (kept locally)

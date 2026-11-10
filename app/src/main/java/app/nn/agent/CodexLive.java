@@ -494,7 +494,7 @@ final class CodexLive {
                         return;
                     }
                     saying.setLength(0);
-                    if (!text.isEmpty()) ChatHub.get(app).note(ses, Bubble.Kind.BUDDY, VOICE_MARK + text);
+                    if (!text.isEmpty()) ChatHub.get(app).note(ses, Bubble.Kind.NN, VOICE_MARK + text);
                     status();
                 });
                 break;
@@ -700,7 +700,7 @@ final class CodexLive {
                 });
             }
         }, "NN Agent");
-        web.loadDataWithBaseURL("https://buddy.local/", PAGE, "text/html", "utf-8", null);
+        web.loadDataWithBaseURL("https://nn.local/", PAGE, "text/html", "utf-8", null);
     }
 
     /** Codex places the call with ChatGPT on a conversation of its own; the answer comes back as a notification. */

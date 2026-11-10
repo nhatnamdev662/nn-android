@@ -5,7 +5,7 @@ description: Create, build, install and update a small Android app (APK) directl
 
 # Building Android apps on this phone
 
-Everything runs in Buddy's built-in Linux (Alpine) on the phone. There is no Gradle and no Android Studio. Use plain Java and the Android framework only (no AndroidX, no Kotlin, no external libraries).
+Everything runs in NN's built-in Linux (Alpine) on the phone. There is no Gradle and no Android Studio. Use plain Java and the Android framework only (no AndroidX, no Kotlin, no external libraries).
 
 The scripts live next to this file. `SKILL_DIR` below means this skill's folder:
 `$HOME/.nn/work/.claude/skills/android-app`.
@@ -20,7 +20,7 @@ Create one folder per app in `~/.nn/work/<appname>/`:
 
 ```
 AndroidManifest.xml      <manifest package="com.nnapps.<name>"> … one launcher <activity>
-java/com/buddyapps/<name>/MainActivity.java
+java/com/nnapps/<name>/MainActivity.java
 res/values/strings.xml   (optional; you can also build the UI in code)
 app.properties           versionCode=1  versionName=1.0  minSdk=26
 ```
@@ -44,9 +44,9 @@ Android's installer and Play Protect dialogs ignore taps from accessibility apps
 the installer but **the user has to tap Install/Update and confirm (often with a fingerprint)**.
 
 1. Call the phone tool `install_apk` with the APK's full path, e.g. `/root/.nn/work/<appname>/build/app.apk`.
-   Buddy opens Android's installer for it.
-2. If it says Buddy isn't allowed to install apps yet, Android's settings page is open: ask the user to turn on
-   **Allow from this source** for Buddy, wait for them to say so, then call `install_apk` again. Don't change that
+   NN opens Android's installer for it.
+2. If it says NN isn't allowed to install apps yet, Android's settings page is open: ask the user to turn on
+   **Allow from this source** for NN, wait for them to say so, then call `install_apk` again. Don't change that
    setting yourself.
 3. Call `wait_for_install` with the package name (and `min_version_code` for an update). It tells the user
    "Tap Install/Update, then confirm", vibrates, and returns as soon as the app is installed. Do not tap

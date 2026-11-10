@@ -5,13 +5,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Android 16 Live Updates: the "Buddy is using your phone" chip in the status bar -->
+    <!-- Android 16 Live Updates: the "NN Agent is using your phone" chip in the status bar -->
     <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- Developer mode: open the installer for apps the agent builds (install_apk) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <!-- Lets the setup screen ask Android to stop battery optimization for Buddy -->
+    <!-- Lets the setup screen ask Android to stop battery optimization for NN Agent -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <!-- Notification rules: the agent keeps working (and an approval countdown keeps running) with the screen off -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -73,7 +73,7 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- "Share to Buddy": photos, files, links and text from any app, into a new or recent chat -->
+        <!-- "Share to NN Agent": photos, files, links and text from any app, into a new or recent chat -->
         <activity
             android:name=".ShareActivity"
             android:exported="true"
@@ -185,12 +185,12 @@
             android:name=".Updates"
             android:exported="false" />
 
-        <!-- Scheduled tasks: their alarms (only Buddy's own) -->
+        <!-- Scheduled tasks: their alarms (only NN Agent's own) -->
         <receiver
             android:name=".Schedules"
             android:exported="false" />
 
-        <!-- Sets the scheduled tasks' alarms again; from the system, so exported (it only re-reads Buddy's own schedules) -->
+        <!-- Sets the scheduled tasks' alarms again; from the system, so exported (it only re-reads NN Agent's own schedules) -->
         <receiver
             android:name=".Schedules$Boot"
             android:exported="true">
