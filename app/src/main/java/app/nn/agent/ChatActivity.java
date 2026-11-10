@@ -322,6 +322,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         if (draft != null && state == null) {
             input.setText(draft);
             input.setSelection(draft.length());
+            if (getIntent().getBooleanExtra("auto_send", false)) {
+                input.post(this::send);
+            }
         }
         // from the bubble's attach button, or images pasted there (already copied into NN's storage)
         if (state == null && getIntent().getBooleanExtra("attach", false)) input.post(this::attachSheet);

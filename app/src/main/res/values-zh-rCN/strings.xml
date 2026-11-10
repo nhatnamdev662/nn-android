@@ -1900,4 +1900,17 @@
     <string name="chat_rename_title">重命名聊天</string>
     <string name="chat_rename_hint">留空：使用第一条消息</string>
     <string name="chat_rename_save">保存</string>
+
+    <!-- ADB Prerequisites for Auto-Connect -->
+    <string name="adb_prereq_title">Requirements for Auto-Connect</string>
+    <string name="adb_prereq_desc">To let NN open Settings and automatically pair ADB for you, please complete the following requirements first:</string>
+    <string name="adb_prereq_a11y_title">Accessibility Service</string>
+    <string name="adb_prereq_a11y_ready">Enabled and ready to interact</string>
+    <string name="adb_prereq_a11y_need">Not enabled. Needed for NN to read screen and tap.</string>
+    <string name="adb_prereq_a11y_action">Enable Now</string>
+    <string name="adb_prereq_model_title">AI Brain (%1$s)</string>
+    <string name="adb_prereq_model_ready">Signed in and ready to chat</string>
+    <string name="adb_prereq_model_need">Not set up. Needed for the Agent to process commands.</string>
+    <string name="adb_prereq_model_action">Set Up</string>
+    <string name="adb_prereq_start_action">Start Auto-Connect</string>
 </resources>

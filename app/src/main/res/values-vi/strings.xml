@@ -2139,4 +2139,17 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="check_adb_name">Gỡ lỗi không dây (ADB)</string>
     <string name="check_adb_connected">Đã kết nối tại 127.0.0.1:%1$d.</string>
     <string name="check_adb_disconnected">Chưa kết nối. Hãy ghép nối và bật trong Cài đặt.</string>
+
+    <!-- ADB Prerequisites for Auto-Connect -->
+    <string name="adb_prereq_title">Yêu cầu trước khi tự động kết nối</string>
+    <string name="adb_prereq_desc">Để NN có thể tự mở cài đặt và thao tác kết nối ADB giúp bạn, vui lòng chuẩn bị trước các điều kiện sau:</string>
+    <string name="adb_prereq_a11y_title">Dịch vụ Trợ lý NN</string>
+    <string name="adb_prereq_a11y_ready">Đã bật và sẵn sàng thao tác</string>
+    <string name="adb_prereq_a11y_need">Chưa bật. Cần bật để NN có thể chạm và đọc màn hình.</string>
+    <string name="adb_prereq_a11y_action">Bật ngay</string>
+    <string name="adb_prereq_model_title">Mô hình AI (%1$s)</string>
+    <string name="adb_prereq_model_ready">Đã đăng nhập và sẵn sàng trả lời</string>
+    <string name="adb_prereq_model_need">Chưa thiết lập. Cần cài đặt hoặc đăng nhập mô hình để Agent hoạt động.</string>
+    <string name="adb_prereq_model_action">Thiết lập ngay</string>
+    <string name="adb_prereq_start_action">Bắt đầu nhờ NN kết nối</string>
 </resources>
