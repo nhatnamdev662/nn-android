@@ -3,12 +3,17 @@ package app.nn.agent;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import java.net.InetAddress;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 /**
  * Discovers Wireless Debugging pairing (_adb-tls-pairing._tcp) and connect
  * (_adb-tls-connect._tcp) services via Android's Network Service Discovery (mDNS / NSD).
+ * Uses a sequential queue for resolve requests to prevent FAILURE_ALREADY_ACTIVE (3).
  */
 public final class AdbMdns {
     private static final String TAG = "AdbMdns";
@@ -21,13 +26,27 @@ public final class AdbMdns {
         void onConnectServiceDiscovered(String host, int port);
     }
 
+    private static class ResolveRequest {
+        final NsdServiceInfo info;
+        final boolean isPairing;
+        int retries = 0;
+
+        ResolveRequest(NsdServiceInfo info, boolean isPairing) {
+            this.info = info;
+            this.isPairing = isPairing;
+        }
+    }
+
     private final Context context;
     private final Listener listener;
     private final NsdManager nsdManager;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Queue<ResolveRequest> resolveQueue = new ArrayDeque<>();
 
     private NsdManager.DiscoveryListener pairingListener;
     private NsdManager.DiscoveryListener connectListener;
     private boolean running = false;
+    private boolean isResolving = false;
 
     public AdbMdns(Context context, Listener listener) {
         this.context = context.getApplicationContext();
@@ -62,7 +81,7 @@ public final class AdbMdns {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                resolveService(serviceInfo, true);
+                enqueueResolve(serviceInfo, true);
             }
 
             @Override
@@ -94,7 +113,7 @@ public final class AdbMdns {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                resolveService(serviceInfo, false);
+                enqueueResolve(serviceInfo, false);
             }
 
             @Override
@@ -119,6 +138,8 @@ public final class AdbMdns {
     public synchronized void stop() {
         if (!running || nsdManager == null) return;
         running = false;
+        resolveQueue.clear();
+        isResolving = false;
 
         if (pairingListener != null) {
             try {
@@ -135,13 +156,41 @@ public final class AdbMdns {
         }
     }
 
-    private void resolveService(NsdServiceInfo serviceInfo, boolean isPairing) {
-        if (nsdManager == null) return;
+    public synchronized void restart() {
+        stop();
+        handler.postDelayed(this::start, 350);
+    }
+
+    private synchronized void enqueueResolve(NsdServiceInfo serviceInfo, boolean isPairing) {
+        resolveQueue.add(new ResolveRequest(serviceInfo, isPairing));
+        processNextResolve();
+    }
+
+    private synchronized void processNextResolve() {
+        if (isResolving || resolveQueue.isEmpty() || !running || nsdManager == null) return;
+        final ResolveRequest req = resolveQueue.poll();
+        if (req == null) return;
+        isResolving = true;
+
         try {
-            nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
+            nsdManager.resolveService(req.info, new NsdManager.ResolveListener() {
                 @Override
                 public void onResolveFailed(NsdServiceInfo info, int errorCode) {
                     Log.w(TAG, "Resolve failed for " + info.getServiceName() + ": " + errorCode);
+                    synchronized (AdbMdns.this) {
+                        isResolving = false;
+                        if (errorCode == 3 && req.retries < 3 && running) { // FAILURE_ALREADY_ACTIVE
+                            req.retries++;
+                            handler.postDelayed(() -> {
+                                synchronized (AdbMdns.this) {
+                                    resolveQueue.add(req);
+                                    processNextResolve();
+                                }
+                            }, 300);
+                            return;
+                        }
+                        processNextResolve();
+                    }
                 }
 
                 @Override
@@ -152,16 +201,24 @@ public final class AdbMdns {
                     Log.d(TAG, "Service resolved: " + info.getServiceName() + " -> " + hostAddr + ":" + port);
 
                     if (listener != null) {
-                        if (isPairing) {
+                        if (req.isPairing) {
                             listener.onPairingServiceDiscovered(hostAddr, port);
                         } else {
                             listener.onConnectServiceDiscovered(hostAddr, port);
                         }
                     }
+                    synchronized (AdbMdns.this) {
+                        isResolving = false;
+                        processNextResolve();
+                    }
                 }
             });
         } catch (Throwable t) {
             Log.w(TAG, "Error invoking resolveService", t);
+            synchronized (AdbMdns.this) {
+                isResolving = false;
+                processNextResolve();
+            }
         }
     }
 }

@@ -79,6 +79,12 @@ public final class AdbManager {
         mgr.startInternal();
     }
 
+    public static void restartDiscovery() {
+        if (sInstance != null) {
+            sInstance.restartDiscoveryInternal();
+        }
+    }
+
     public static void stop() {
         if (sInstance != null) {
             sInstance.stopInternal();
@@ -152,6 +158,19 @@ public final class AdbManager {
         }
     }
 
+    private synchronized void restartDiscoveryInternal() {
+        if (mdns != null) {
+            mdns.restart();
+        } else {
+            startInternal();
+        }
+        int savedPort = Prefs.adbPort(context);
+        int targetPort = detectedConnectPort > 0 ? detectedConnectPort : savedPort;
+        if (targetPort > 0 && state != State.CONNECTED && state != State.CONNECTING) {
+            connectInternal(targetPort);
+        }
+    }
+
     public static boolean isConnected() {
         return state == State.CONNECTED && AdbConnection.isConnected();
     }
@@ -184,16 +203,19 @@ public final class AdbManager {
                 try {
                     AdbConnection.execute("nohup sh -c 'while true; do sleep 3600; done' >/dev/null 2>&1 &", 3000);
                 } catch (Throwable ignored) {}
+
+                // Display success notification with confirmed connect port
+                AdbPairingService.showSuccessNotification(context, targetPort);
             } catch (Throwable t) {
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
                 String msg = t.getMessage();
                 String friendly;
                 if (msg != null && (msg.contains("ECONNREFUSED") || msg.contains("refused"))) {
-                    friendly = "Cổng " + targetPort + " không phản hồi. Hãy kiểm tra Gỡ lỗi không dây đã bật chưa hoặc cập nhật số cổng.";
+                    friendly = "Port " + targetPort + " refused connection";
                 } else if (msg != null && msg.contains("timeout")) {
-                    friendly = "Hết thời gian chờ kết nối tới cổng " + targetPort + ".";
+                    friendly = "Port " + targetPort + " connection timed out";
                 } else {
-                    friendly = "Chưa kết nối tới cổng " + targetPort + ".";
+                    friendly = msg != null ? msg : ("Connection failed: " + targetPort);
                 }
                 updateState(State.DISCONNECTED, friendly, targetPort);
                 if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
@@ -225,11 +247,16 @@ public final class AdbManager {
                     if (callback != null) callback.onResult(true, null);
                 });
 
-                // Auto-connect after successful pairing if connection port is known
-                int connectPort = detectedConnectPort > 0 ? detectedConnectPort : Prefs.adbPort(context);
-                if (connectPort > 0) {
-                    connectInternal(connectPort);
+                // Clear searching notification now that pairing succeeded
+                AdbPairingService.cancelNotification(context);
+
+                // Restart mDNS to pick up the connect service announcement fresh
+                if (mdns != null) {
+                    mdns.restart();
                 }
+
+                // Poll for connect port
+                pollForConnectPort(0);
 
             } catch (Throwable t) {
                 Log.e(TAG, "Pairing failed", t);
@@ -245,6 +272,23 @@ public final class AdbManager {
                 }
             }
         });
+    }
+
+    private void pollForConnectPort(int attempt) {
+        int connectPort = detectedConnectPort > 0 ? detectedConnectPort : Prefs.adbPort(context);
+        if (connectPort > 0) {
+            connectInternal(connectPort);
+            return;
+        }
+        if (attempt >= 12) {
+            Log.d(TAG, "No connect port detected via mDNS after pairing");
+            return;
+        }
+        mainHandler.postDelayed(() -> {
+            if (state == State.PAIRED || state == State.CONNECTING) {
+                pollForConnectPort(attempt + 1);
+            }
+        }, 500);
     }
 
     private void updateState(State newState, String newDetail, int newPort) {

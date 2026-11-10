@@ -591,10 +591,11 @@ final class PhoneTools {
 
         // Auto-reconnect if disconnected but ADB is enabled
         if (!AdbConnection.isConnected() && Prefs.adbEnabled(svc)) {
-            int port = Prefs.adbPort(svc);
+            int port = AdbManager.detectedConnectPort > 0 ? AdbManager.detectedConnectPort : Prefs.adbPort(svc);
             if (port > 0) {
                 try {
                     AdbConnection.connect("127.0.0.1", port);
+                    AdbManager.ensure(svc);
                 } catch (Throwable ignored) {}
             }
         }

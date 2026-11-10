@@ -215,7 +215,6 @@ public final class AdbPairingService {
                             if (success) {
                                 Prefs.setAdbEnabled(context, true);
                                 AdbManager.ensure(context);
-                                showSuccessNotification(context, port);
                                 Toast.makeText(context, R.string.adb_notify_pair_success, Toast.LENGTH_SHORT).show();
                                 try {
                                     Intent appIntent = new Intent(context, SetupActivity.class)

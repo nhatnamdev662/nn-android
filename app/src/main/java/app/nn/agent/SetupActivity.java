@@ -35,6 +35,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private Boolean setupOpen;
     private Dialog activeAdbGuideDialog;
     private Dialog activeAdbPairDialog;
+    private Dialog activeAdbConnectDialog;
 
     private void dismissAdbDialogs() {
         if (activeAdbGuideDialog != null && activeAdbGuideDialog.isShowing()) {
@@ -44,6 +45,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         if (activeAdbPairDialog != null && activeAdbPairDialog.isShowing()) {
             try { activeAdbPairDialog.dismiss(); } catch (Throwable ignored) {}
             activeAdbPairDialog = null;
+        }
+        if (activeAdbConnectDialog != null && activeAdbConnectDialog.isShowing()) {
+            try { activeAdbConnectDialog.dismiss(); } catch (Throwable ignored) {}
+            activeAdbConnectDialog = null;
         }
     }
 
@@ -84,6 +89,9 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         AdbManager.get(this);
         AdbManager.addListener(this);
         AdbManager.ensure(this);
+        if (!AdbManager.isConnected()) {
+            AdbManager.restartDiscovery();
+        }
         if (AdbManager.isConnected()) dismissAdbDialogs();
         Account.CLAUDE.refresh(this);
         Account.CODEX.refresh(this);
@@ -696,7 +704,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         AdbManager.State as = AdbManager.state;
         boolean isConn = AdbManager.isConnected();
         int dotColor = isConn ? OK
-                : (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRING) ? ACCENT
+                : (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRING || as == AdbManager.State.PAIRED) ? ACCENT
                 : ERR;
         sr.addView(dot(this, dotColor, 10));
 
@@ -708,7 +716,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         if (isConn) {
             statusTitle = getString(R.string.setup_adb_status_active);
             titleColor = OK;
-        } else if (as == AdbManager.State.CONNECTING) {
+        } else if (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRED) {
             statusTitle = getString(R.string.setup_adb_status_connecting);
             titleColor = TEXT;
         } else if (as == AdbManager.State.PAIRING) {
@@ -726,7 +734,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         String statusSub;
         if (isConn) {
             statusSub = getString(R.string.setup_adb_status_sub_connected, AdbManager.port);
-        } else if (as == AdbManager.State.CONNECTING) {
+        } else if (as == AdbManager.State.CONNECTING || as == AdbManager.State.PAIRED) {
             statusSub = AdbManager.port > 0
                     ? getString(R.string.setup_adb_status_connecting_port, AdbManager.port)
                     : getString(R.string.setup_adb_status_connecting);
@@ -744,15 +752,42 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         sc.addView(sr, full());
         ac.addView(sc, scp);
 
-        if (!isConn) {
-            // Action button: Pair
+        if (isConn) {
+            // Connected action buttons: Change Port, Disconnect
+            LinearLayout connBtns = row(this);
+            connBtns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
+
+            Button changeBtn = outlinedButton(this, getString(R.string.setup_adb_change_port), TEXT);
+            changeBtn.setOnClickListener(v -> adbConnectSheet());
+            connBtns.addView(changeBtn, new LinearLayout.LayoutParams(0, dp(this, 40), 1));
+
+            Button stopBtn = outlinedButton(this, getString(R.string.setup_adb_stop), ERR);
+            stopBtn.setOnClickListener(v -> {
+                Prefs.setAdbEnabled(this, false);
+                AdbManager.stop();
+                render();
+            });
+            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(0, dp(this, 40), 1);
+            sp.setMarginStart(dp(this, 10));
+            connBtns.addView(stopBtn, sp);
+
+            ac.addView(connBtns, full());
+        } else {
+            // Action buttons: Pair with Code & Manual Port Connect
             LinearLayout btns = row(this);
             btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
-            Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
-            pairBtn.setOnClickListener(v -> adbGuideSheet());
-            btns.addView(pairBtn, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(this, 44)));
-            ac.addView(btns, full());
 
+            Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
+            pairBtn.setOnClickListener(v -> adbPairSheet());
+            btns.addView(pairBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
+
+            Button connectBtn = button(this, getString(R.string.setup_adb_connect_manual), false);
+            connectBtn.setOnClickListener(v -> adbConnectSheet());
+            LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
+            cp.setMarginStart(dp(this, 10));
+            btns.addView(connectBtn, cp);
+
+            ac.addView(btns, full());
             ac.addView(divider(), lineParams());
 
             // Guide row
@@ -1571,7 +1606,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 if (ok) {
                     Prefs.setAdbEnabled(this, true);
                     AdbManager.ensure(this);
-                    AdbPairingService.showSuccessNotification(this, finalPort);
                     Toast.makeText(this, R.string.adb_pair_success, Toast.LENGTH_SHORT).show();
                     render();
                 } else {
@@ -1632,6 +1666,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         c.addView(devBtn, devParams);
 
         Dialog d = bottomSheet(this, c);
+        activeAdbConnectDialog = d;
+        d.setOnDismissListener(di -> { if (activeAdbConnectDialog == di) activeAdbConnectDialog = null; });
         cancel.setOnClickListener(v -> d.dismiss());
         connect.setOnClickListener(v -> {
             String portStr = portInput.getText().toString().trim();
@@ -1642,6 +1678,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 return;
             }
             d.dismiss();
+            activeAdbConnectDialog = null;
             Prefs.setAdbEnabled(this, true);
             Prefs.setAdbPort(this, p);
             AdbManager.connect(p);

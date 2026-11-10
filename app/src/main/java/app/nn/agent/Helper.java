@@ -19,10 +19,10 @@ final class Helper {
     private static final String[][] FILES = {
             // asset, path inside Linux, mode
             {"linux/nn-run", "/root/bin/nn-run", "700"},
-            {"linux/nn-run", "/root/bin/nn-run", "700"}, // compat
+            {"linux/nn-run", "/root/bin/buddy-run", "700"}, // compat
             {"linux/codex-remote", "/root/bin/codex-remote", "700"}, // the Codex session (CodexRemote)
             {"linux/nn-browser", "/root/bin/nn-browser", "700"}, // the background browser (Browser)
-            {"linux/nn-browser", "/root/bin/nn-browser", "700"}, // compat
+            {"linux/nn-browser", "/root/bin/buddy-browser", "700"}, // compat
             {"linux/profile.sh", "/etc/profile.d/nn.sh", "644"},
             {"linux/arecord", "/usr/local/bin/arecord", "755"},
             {"linux/asound-cards", "/etc/nn/asound-cards", "644"},
@@ -57,7 +57,7 @@ final class Helper {
         final String sessionId = args.length > 1 ? args[1] : null;
         final String[] cmd = new String[args.length + 3];
         cmd[0] = "/bin/bash";
-        cmd[1] = new File(Linux.root(app), "root/bin/nn-run").exists() ? "/root/bin/nn-run" : "/root/bin/nn-run";
+        cmd[1] = new File(Linux.root(app), "root/bin/nn-run").exists() ? "/root/bin/nn-run" : "/root/bin/buddy-run";
         cmd[2] = Prefs.token(app);
         System.arraycopy(args, 0, cmd, 3, args.length);
         pool.execute(() -> {
