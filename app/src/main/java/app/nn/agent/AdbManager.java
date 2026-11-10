@@ -42,6 +42,7 @@ public final class AdbManager {
     public static volatile int detectedPairingPort = 0;
     public static volatile int detectedConnectPort = 0;
     public static volatile String detail = "";
+    private static volatile boolean justPaired = false;
 
     private final Context context;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -204,8 +205,11 @@ public final class AdbManager {
                     AdbConnection.execute("nohup sh -c 'while true; do sleep 3600; done' >/dev/null 2>&1 &", 3000);
                 } catch (Throwable ignored) {}
 
-                // Display success notification with confirmed connect port
-                AdbPairingService.showSuccessNotification(context, targetPort);
+                // Display success notification only after an active user pairing
+                if (justPaired) {
+                    justPaired = false;
+                    AdbPairingService.showSuccessNotification(context, targetPort);
+                }
             } catch (Throwable t) {
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
                 String msg = t.getMessage();
@@ -241,6 +245,7 @@ public final class AdbManager {
             try {
                 client = new AdbPairingClient("127.0.0.1", pairingPort, pairingCode);
                 client.pair();
+                justPaired = true;
                 updateState(State.PAIRED, "Pairing successful", pairingPort);
 
                 mainHandler.post(() -> {

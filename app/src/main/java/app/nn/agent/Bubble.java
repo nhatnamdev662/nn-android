@@ -167,7 +167,11 @@ final class Bubble implements ChatHub.Listener {
         applyCollapsedParams();
         createArcs();
         createDismissTarget();
-        wm.addView(root, lp);
+        try {
+            wm.addView(root, lp);
+        } catch (Throwable t) {
+            android.util.Log.w("Bubble", "Failed to add bubble root window", t);
+        }
         createThumb();
         hub = ChatHub.get(svc);
         radial = new RadialMenu(svc, wm);
@@ -1075,7 +1079,11 @@ final class Bubble implements ChatHub.Listener {
                 PixelFormat.TRANSLUCENT);
         p.gravity = Gravity.TOP | Gravity.START;
         arcs.setVisibility(View.GONE);
-        wm.addView(arcs, p);
+        try {
+            wm.addView(arcs, p);
+        } catch (Throwable t) {
+            android.util.Log.w("Bubble", "Failed to add arcs window", t);
+        }
     }
 
     private void feedArcs() {
@@ -1126,7 +1134,11 @@ final class Bubble implements ChatHub.Listener {
         p.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
         p.y = dp(40);
         dismissWindow.setVisibility(View.GONE);
-        wm.addView(dismissWindow, p);
+        try {
+            wm.addView(dismissWindow, p);
+        } catch (Throwable t) {
+            android.util.Log.w("Bubble", "Failed to add dismiss window", t);
+        }
     }
 
     private void showDismissTarget(boolean show) {
@@ -1597,7 +1609,11 @@ final class Bubble implements ChatHub.Listener {
         p.gravity = Gravity.TOP | Gravity.START;
         p.x = Math.max(0, Math.min(screen().width() - w, loc[0] + face.getWidth() / 2 - w / 2));
         p.y = loc[1] + face.getHeight() + dp(8);
-        wm.addView(waves, p);
+        try {
+            wm.addView(waves, p);
+        } catch (Throwable t) {
+            android.util.Log.w("Bubble", "Failed to add waves window", t);
+        }
     }
 
     /** Moves the waves along when the bubble is dragged or snaps to an edge while listening. */
@@ -2596,7 +2612,11 @@ final class Bubble implements ChatHub.Listener {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
         thumbLp.gravity = Gravity.TOP | Gravity.START;
-        wm.addView(thumbWindow, thumbLp);
+        try {
+            wm.addView(thumbWindow, thumbLp);
+        } catch (Throwable t) {
+            android.util.Log.w("Bubble", "Failed to add thumb window", t);
+        }
     }
 
     /**

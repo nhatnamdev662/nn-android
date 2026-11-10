@@ -482,7 +482,8 @@ public class NnService extends AccessibilityService implements McpServer.Handler
                     && !"point_out".equals(tool) && !"wait".equals(tool) && !"list_apps".equals(tool)
                     && !Tools.SCHEDULING.contains(tool)
                     // installing: Android's installer asks the user, the agent doesn't touch the screen
-                    && !"update_buddy".equals(tool) && !"install_apk".equals(tool) && !"wait_for_install".equals(tool)
+                    && !"update_nn".equals(tool) && !"update_agent".equals(tool) && !"update_buddy".equals(tool)
+                    && !"install_apk".equals(tool) && !"wait_for_install".equals(tool)
                     && !tool.startsWith("browser_")) { // the background browser isn't the phone
                 control.onActivity();
             }

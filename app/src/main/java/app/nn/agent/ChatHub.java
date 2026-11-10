@@ -1060,6 +1060,8 @@ final class ChatHub {
                 return labels.length() > 0 ? NnApp.str(R.string.hub_tool_point_out, clip(labels.toString(), 60))
                         : NnApp.str(R.string.hub_tool_point_out_any);
             }
+            case "update_nn":
+            case "update_agent":
             case "update_buddy": return NnApp.str(in.optBoolean("install") ? R.string.hub_tool_update_download : R.string.hub_tool_update_check);
             case "notify": return in.optString("text");
             case "schedule_message": return NnApp.str(R.string.hub_tool_schedule_message, clip(in.optString("message"), 40));

@@ -654,8 +654,8 @@ stream_agy() {
         state=$(printf '%s' "$line" | jq -r '.step_update.state // empty' 2>/dev/null)
         case "$(printf '%s' "$line" | jq -r '.step_update.step_type // empty' 2>/dev/null)" in
           user_input) ;;
-          agent_response)
-            text[$idx]+=$(printf '%s' "$line" | jq -j '.step_update.text_delta // ""' 2>/dev/null; printf x)
+          agent_response|planner_response|model_response|assistant_response)
+            text[$idx]+=$(printf '%s' "$line" | jq -j '(.step_update.text_delta // .step_update.text // .step_update.content // "")' 2>/dev/null; printf x)
             text[$idx]=${text[$idx]%x}
             if [ "$state" = DONE ] && [ -z "${shown[$idx]:-}" ]; then
               shown[$idx]=1
@@ -720,6 +720,13 @@ stream_agy() {
               printf '%s' "$denied" > "$S/agy-denied"
             fi
           else
+            local resp
+            resp=$(printf '%s' "$line" | jq -r '(.result.response // .result.content // "")' 2>/dev/null | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            if [ -z "$said" ] && [ -n "$resp" ]; then
+              jq -cn --arg t "$resp" --arg s "$SID" \
+                '{type:"assistant", message:{content:[{type:"text", text:$t}]}, nn_session:$s}' | post
+              said=1
+            fi
             jq -cn --arg s "$SID" '{type:"result", subtype:"success", result:"", nn_session:$s}' | post
           fi
         else
@@ -729,6 +736,19 @@ stream_agy() {
         fi ;;
     esac
   done
+  if [ -z "$said" ]; then
+    for k in "${!text[@]}"; do
+      if [ -z "${shown[$k]:-}" ]; then
+        t=$(printf '%s' "${text[$k]}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        if [ -n "$t" ]; then
+          shown[$k]=1
+          said=1
+          jq -cn --arg t "$t" --arg s "$SID" \
+            '{type:"assistant", message:{content:[{type:"text", text:$t}]}, nn_session:$s}' | post
+        fi
+      fi
+    done
+  fi
 }
 
 # ----------------------------------------------------------------------- Grok
@@ -928,8 +948,12 @@ tools (call_mcp_tool, ServerName \"phone\") and finish the user's request."
     fi
     name="Claude Code"
   fi
-  if [ "$status" -ne 0 ] && [ "$status" -ne 143 ] && [ -s "$S/last-error.log" ]; then
-    event nn_error "$name failed: $(tail -c 400 "$S/last-error.log")"
+  if [ "$status" -ne 0 ] && [ "$status" -ne 143 ]; then
+    local err_msg=""
+    [ -s "$S/last-error.log" ] && err_msg=$(tail -c 400 "$S/last-error.log")
+    [ -z "$err_msg" ] && [ -s "$S/agy-last.jsonl" ] && [ "$BACKEND" = agy ] && err_msg=$(tail -c 400 "$S/agy-last.jsonl")
+    [ -z "$err_msg" ] && err_msg="exited with status $status"
+    event nn_error "$name failed: $err_msg"
   fi
 ) &
 echo $! > "$S/pid"

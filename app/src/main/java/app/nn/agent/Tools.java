@@ -256,14 +256,22 @@ final class Tools {
                         + "call wait_for_install next.",
                 props().put("path", strProp("Full path of the .apk inside NN's Linux, or its http://127.0.0.1 URL")), "path"));
         if (Flavor.FDROID) { // F-Droid updates this build; the tool says where updates come from
-            t.put(tool("update_buddy",
+            JSONObject desc = tool("update_nn",
                     "Say how this NN Agent gets its updates (it's the F-Droid build, which doesn't update itself). Use it when "
-                            + "the user asks to update NN AGENT or whether there's a new version.", props()));
+                            + "the user asks to update NN AGENT or whether there's a new version.", props());
+            t.put(desc);
+            t.put(tool("update_agent", desc.getString("description"), props()));
+            t.put(tool("update_buddy", desc.getString("description"), props()));
         } else {
-            t.put(tool("update_buddy",
+            JSONObject desc = tool("update_nn",
                     "Check whether a newer NN AGENT is out (the official GitHub release) and what's new; with install=true, "
                             + "download it and open Android's installer. Use it when the user asks to update NN AGENT or whether "
                             + "there's a new version. Only the user can tap Update.",
+                    props().put("install", boolProp("true: download the update and open the installer (after the user said yes)")));
+            t.put(desc);
+            t.put(tool("update_agent", desc.getString("description"),
+                    props().put("install", boolProp("true: download the update and open the installer (after the user said yes)"))));
+            t.put(tool("update_buddy", desc.getString("description"),
                     props().put("install", boolProp("true: download the update and open the installer (after the user said yes)"))));
         }
         t.put(tool("wait_for_install",
@@ -456,6 +464,8 @@ final class Tools {
             }
             case "point_out":
                 return text(pointOut(a));
+            case "update_nn":
+            case "update_agent":
             case "update_buddy":
             case "install_apk":
             case "wait_for_install":
@@ -529,9 +539,11 @@ final class Tools {
                 + "updates itself), or get NN AGENT from F-Droid.";
     }
 
-    /** update_buddy, install_apk and wait_for_install. */
+    /** update_nn, update_agent, update_buddy, install_apk and wait_for_install. */
     private String installs(String name, JSONObject a) throws Exception {
         switch (name) {
+            case "update_nn":
+            case "update_agent":
             case "update_buddy":
                 if (Flavor.FDROID) return fdroidUpdates();
                 return updateNn(a.optBoolean("install", false));
