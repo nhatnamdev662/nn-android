@@ -1934,13 +1934,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
         if (!a11y) {
             Button a11yBtn = button(this, getString(R.string.adb_prereq_a11y_action), true);
-            a11yBtn.setOnClickListener(v -> {
-                try {
-                    startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
-                } catch (Throwable t) {
-                    Toast.makeText(this, R.string.setup_open_accessibility, Toast.LENGTH_SHORT).show();
-                }
-            });
+            a11yBtn.setOnClickListener(v -> openAccessibilitySettings(this));
             a11yCard.addView(a11yBtn, wrap());
         }
         c.addView(a11yCard, full());
