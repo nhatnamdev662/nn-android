@@ -22,6 +22,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
+import javax.crypto.Cipher;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -91,6 +92,22 @@ public final class AdbKey {
 
     public X509Certificate getCertificate() {
         return certificate;
+    }
+
+    /** Standard ASN.1 DigestInfo header for SHA-1 prepended to ADB's 20-byte AUTH challenge token. */
+    private static final byte[] SHA1_DIGEST_INFO_PREFIX = {
+            0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2B, 0x0E,
+            0x03, 0x02, 0x1A, 0x05, 0x00, 0x04, 0x14
+    };
+
+    /** Signs a 20-byte ADB AUTH_TOKEN challenge with PKCS#1 v1.5 padding for legacy TCP ADB (port 5555). */
+    public byte[] signToken(byte[] token) throws Exception {
+        byte[] input = new byte[SHA1_DIGEST_INFO_PREFIX.length + token.length];
+        System.arraycopy(SHA1_DIGEST_INFO_PREFIX, 0, input, 0, SHA1_DIGEST_INFO_PREFIX.length);
+        System.arraycopy(token, 0, input, SHA1_DIGEST_INFO_PREFIX.length, token.length);
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+        return cipher.doFinal(input);
     }
 
     private static final String PREF_PRIV_KEY = "adb_priv_key_pk8_b64";

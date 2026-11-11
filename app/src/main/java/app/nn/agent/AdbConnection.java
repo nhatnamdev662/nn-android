@@ -213,8 +213,46 @@ public final class AdbConnection {
                 cnxn.write(rawOut);
                 rawOut.flush();
 
-                // 3. Read initial reply from adbd
+                // 3. Read initial reply from adbd (handle legacy RSA A_AUTH challenge if present)
                 AdbMessage reply = AdbMessage.read(rawIn);
+                boolean sentSignature = false;
+                boolean sentPubKey = false;
+                while (reply.command == AdbProtocol.A_AUTH) {
+                    if (reply.arg0 != AdbProtocol.AUTH_TYPE_TOKEN) {
+                        rawSocket.close();
+                        throw new IOException("Unsupported A_AUTH type: " + reply.arg0);
+                    }
+                    AdbKey key;
+                    try {
+                        key = AdbKey.get();
+                    } catch (Exception e) {
+                        rawSocket.close();
+                        throw new IOException("Failed to load AdbKey for AUTH: " + e.getMessage(), e);
+                    }
+                    if (!sentSignature) {
+                        byte[] sig;
+                        try {
+                            sig = key.signToken(reply.payload);
+                        } catch (Exception e) {
+                            rawSocket.close();
+                            throw new IOException("Failed to sign ADB AUTH token: " + e.getMessage(), e);
+                        }
+                        new AdbMessage(AdbProtocol.A_AUTH, AdbProtocol.AUTH_TYPE_SIGNATURE, 0, sig).write(rawOut);
+                        rawOut.flush();
+                        sentSignature = true;
+                        reply = AdbMessage.read(rawIn);
+                    } else if (!sentPubKey) {
+                        // Device didn't recognize our signature yet: send public key and allow brief user confirmation
+                        rawSocket.setSoTimeout(3000);
+                        new AdbMessage(AdbProtocol.A_AUTH, AdbProtocol.AUTH_TYPE_RSAPUBLICKEY, 0, key.getAdbPublicKey()).write(rawOut);
+                        rawOut.flush();
+                        sentPubKey = true;
+                        reply = AdbMessage.read(rawIn);
+                    } else {
+                        rawSocket.close();
+                        throw new IOException("ADB RSA authentication rejected");
+                    }
+                }
 
                 SSLSocket tlsSocket = null;
                 InputStream inStream;

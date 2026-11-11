@@ -41,7 +41,11 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private final Handler renderHandler = new Handler(Looper.getMainLooper());
     private final Runnable renderRunnable = this::render;
     private boolean isUserScrolling = false;
+    private boolean suppressScrollDetect = false;
     private boolean pendingRenderDuringScroll = false;
+    private LinearLayout adbCard;
+    private boolean lastRenderedAdbConnected = false;
+    private boolean lastRenderedAdbWarn = false;
     private final Runnable scrollSettledRunnable = () -> {
         isUserScrolling = false;
         if (pendingRenderDuringScroll) {
@@ -92,6 +96,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             return false;
         });
         scroll.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (suppressScrollDetect) return;
             if (Math.abs(scrollY - oldScrollY) > 2) {
                 isUserScrolling = true;
                 renderHandler.removeCallbacks(scrollSettledRunnable);
@@ -150,7 +155,14 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     public void onAdbStateChanged(AdbManager.State state, String host, int port, String error) {
         if (!isFinishing() && !isDestroyed()) {
             if (AdbManager.isConnected()) dismissAdbDialogs();
-            scheduleRender();
+            if (adbCard != null) {
+                populateAdbCard(adbCard);
+            }
+            boolean nowConn = AdbManager.isConnected();
+            boolean nowWarn = AdbUi.isOptionalYellow(this);
+            if (adbCard == null || nowConn != lastRenderedAdbConnected || nowWarn != lastRenderedAdbWarn) {
+                scheduleRender();
+            }
         }
     }
 
@@ -752,67 +764,11 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
         // --------------------------------------------------- adb
         list.addView(sectionLabel(this, getString(R.string.setup_adb_section)));
-        LinearLayout ac = card();
-
-        // Status banner card
-        LinearLayout sc = AdbUi.statusBanner(this);
-        LinearLayout.LayoutParams scp = full();
-        scp.setMargins(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
-        ac.addView(sc, scp);
-
-        boolean isConn = AdbManager.isConnected();
-        if (isConn) {
-            LinearLayout btns = row(this);
-            btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
-            Button recBtn = button(this, getString(R.string.setup_adb_reconnect), false);
-            recBtn.setOnClickListener(v -> AdbManager.reconnect(this));
-            btns.addView(recBtn, new LinearLayout.LayoutParams(0, dp(this, 42), 1));
-            Button discBtn = button(this, getString(R.string.setup_adb_disconnect), false);
-            discBtn.setTextColor(ERR);
-            discBtn.setOnClickListener(v -> {
-                AdbManager.disconnect();
-                Toast.makeText(this, R.string.setup_adb_disconnected_toast, Toast.LENGTH_SHORT).show();
-            });
-            LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(0, dp(this, 42), 1);
-            dlp.setMarginStart(dp(this, 8));
-            btns.addView(discBtn, dlp);
-            ac.addView(btns, full());
-        } else {
-            // Action buttons: Pair & Reconnect
-            LinearLayout btns = row(this);
-            btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
-            Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
-            pairBtn.setOnClickListener(v -> adbGuideSheet());
-            btns.addView(pairBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
-            Button recBtn = button(this, getString(R.string.setup_adb_reconnect), false);
-            recBtn.setOnClickListener(v -> AdbManager.reconnect(this));
-            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
-            rlp.setMarginStart(dp(this, 8));
-            btns.addView(recBtn, rlp);
-            ac.addView(btns, full());
-
-            ac.addView(divider(), lineParams());
-
-            // Guide row
-            LinearLayout guideRow = listRow(this);
-            guideRow.setGravity(Gravity.CENTER_VERTICAL);
-            guideRow.setPaddingRelative(dp(this, 16), dp(this, 12), dp(this, 16), dp(this, 12));
-            guideRow.setBackgroundResource(ripple(this, false));
-            FrameLayout gic = new FrameLayout(this);
-            gic.setBackground(rounded(this, CARD2, 10));
-            gic.addView(icon(this, R.drawable.ms_description, MUTED, 20),
-                    new FrameLayout.LayoutParams(dp(this, 20), dp(this, 20), Gravity.CENTER));
-            guideRow.addView(gic, new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
-            LinearLayout gt = column(this);
-            gt.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
-            gt.addView(title(this, getString(R.string.setup_adb_guide_title), 14));
-            gt.addView(text(this, getString(R.string.setup_adb_guide_sub), 12, MUTED));
-            guideRow.addView(gt, weight1());
-            guideRow.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 20));
-            guideRow.setOnClickListener(v -> adbGuideSheet());
-            ac.addView(guideRow, full());
-        }
-        addCard(ac);
+        adbCard = card();
+        populateAdbCard(adbCard);
+        addCard(adbCard);
+        lastRenderedAdbConnected = AdbManager.isConnected();
+        lastRenderedAdbWarn = AdbUi.isOptionalYellow(this);
 
         // ----------------------------------------------------------- experience
         list.addView(sectionLabel(this, getString(R.string.setup_experience)));
@@ -966,11 +922,76 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         list.addView(priv, full());
 
         if (scroll != null) {
+            suppressScrollDetect = true;
             scroll.scrollTo(0, y);
+            suppressScrollDetect = false;
             list.post(() -> {
                 list.setMinimumHeight(0);
-                scroll.scrollTo(0, y);
+                if (scroll != null) {
+                    suppressScrollDetect = true;
+                    scroll.scrollTo(0, y);
+                    suppressScrollDetect = false;
+                }
             });
+        }
+    }
+
+    private void populateAdbCard(LinearLayout ac) {
+        ac.removeAllViews();
+
+        LinearLayout sc = AdbUi.statusBanner(this);
+        LinearLayout.LayoutParams scp = full();
+        scp.setMargins(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
+        ac.addView(sc, scp);
+
+        if (AdbManager.isConnected()) {
+            LinearLayout btns = row(this);
+            btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
+            Button recBtn = button(this, getString(R.string.setup_adb_reconnect), false);
+            recBtn.setOnClickListener(v -> AdbManager.reconnect(this));
+            btns.addView(recBtn, new LinearLayout.LayoutParams(0, dp(this, 42), 1));
+            Button discBtn = button(this, getString(R.string.setup_adb_disconnect), false);
+            discBtn.setTextColor(ERR);
+            discBtn.setOnClickListener(v -> {
+                AdbManager.disconnect();
+                Toast.makeText(this, R.string.setup_adb_disconnected_toast, Toast.LENGTH_SHORT).show();
+            });
+            LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(0, dp(this, 42), 1);
+            dlp.setMarginStart(dp(this, 8));
+            btns.addView(discBtn, dlp);
+            ac.addView(btns, full());
+        } else {
+            LinearLayout btns = row(this);
+            btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
+            Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
+            pairBtn.setOnClickListener(v -> adbGuideSheet());
+            btns.addView(pairBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
+            Button recBtn = button(this, getString(R.string.setup_adb_reconnect), false);
+            recBtn.setOnClickListener(v -> AdbManager.reconnect(this));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
+            rlp.setMarginStart(dp(this, 8));
+            btns.addView(recBtn, rlp);
+            ac.addView(btns, full());
+
+            ac.addView(divider(), lineParams());
+
+            LinearLayout guideRow = listRow(this);
+            guideRow.setGravity(Gravity.CENTER_VERTICAL);
+            guideRow.setPaddingRelative(dp(this, 16), dp(this, 12), dp(this, 16), dp(this, 12));
+            guideRow.setBackgroundResource(ripple(this, false));
+            FrameLayout gic = new FrameLayout(this);
+            gic.setBackground(rounded(this, CARD2, 10));
+            gic.addView(icon(this, R.drawable.ms_description, MUTED, 20),
+                    new FrameLayout.LayoutParams(dp(this, 20), dp(this, 20), Gravity.CENTER));
+            guideRow.addView(gic, new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
+            LinearLayout gt = column(this);
+            gt.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
+            gt.addView(title(this, getString(R.string.setup_adb_guide_title), 14));
+            gt.addView(text(this, getString(R.string.setup_adb_guide_sub), 12, MUTED));
+            guideRow.addView(gt, weight1());
+            guideRow.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 20));
+            guideRow.setOnClickListener(v -> adbGuideSheet());
+            ac.addView(guideRow, full());
         }
     }
 

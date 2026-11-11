@@ -1,20 +1,26 @@
 package app.nn.agent;
 
 import android.content.Context;
+import android.database.ContentObserver;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Central state coordinator and service manager for on-device Wireless Debugging (ADB).
@@ -50,6 +56,12 @@ public final class AdbManager {
     public static volatile int detectedConnectPort = 0;
     public static volatile String detail = "";
     private static volatile boolean justPaired = false;
+    private static final long PORT_FAILURE_COOLDOWN_MS = 6000L;
+
+    private final AtomicLong connectGeneration = new AtomicLong(0);
+    private final ConcurrentHashMap<Integer, Long> failedPorts = new ConcurrentHashMap<>();
+    private Runnable pendingFallbackRunnable;
+    private boolean wifiDebugObserverRegistered = false;
 
     private final Context context;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -195,6 +207,10 @@ public final class AdbManager {
     private synchronized void onWifiLost() {
         Log.i(TAG, "Wi-Fi disconnected. Disconnecting ADB and pausing mDNS.");
         stopHeartbeat();
+        cancelPendingFallbacks();
+        connectGeneration.incrementAndGet();
+        connectingTargetPort = 0;
+        pendingConnectPort = 0;
         if (mdnsActive && mdns != null) {
             mdns.stop();
             mdnsActive = false;
@@ -210,8 +226,95 @@ public final class AdbManager {
 
     private synchronized void onWifiAvailable() {
         Log.i(TAG, "Wi-Fi restored. Auto-reconnecting ADB if enabled.");
+        failedPorts.clear();
         if (Prefs.adbEnabled(context)) {
             startInternal();
+        }
+    }
+
+    private boolean isPortInCooldown(int p) {
+        Long until = failedPorts.get(p);
+        if (until == null) return false;
+        if (SystemClock.elapsedRealtime() < until) return true;
+        failedPorts.remove(p, until);
+        return false;
+    }
+
+    private void markPortFailed(int p) {
+        if (p > 0) {
+            failedPorts.put(p, SystemClock.elapsedRealtime() + PORT_FAILURE_COOLDOWN_MS);
+        }
+    }
+
+    private void cancelPendingFallbacks() {
+        Runnable prev = pendingFallbackRunnable;
+        if (prev != null) {
+            mainHandler.removeCallbacks(prev);
+            pendingFallbackRunnable = null;
+        }
+    }
+
+    private boolean probeLoopbackTcp(int targetPort, int timeoutMs) {
+        java.net.Socket s = null;
+        try {
+            s = new java.net.Socket();
+            s.connect(new java.net.InetSocketAddress("127.0.0.1", targetPort), timeoutMs);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        } finally {
+            if (s != null) {
+                try { s.close(); } catch (Throwable ignored) {}
+            }
+        }
+    }
+
+    private synchronized void registerWifiDebugObserver() {
+        if (wifiDebugObserverRegistered) return;
+        try {
+            Uri uri = Settings.Global.getUriFor("adb_wifi_enabled");
+            if (uri == null) return;
+            ContentObserver observer = new ContentObserver(mainHandler) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    int enabled = 0;
+                    try {
+                        enabled = Settings.Global.getInt(context.getContentResolver(), "adb_wifi_enabled", 0);
+                    } catch (Throwable ignored) {}
+                    Log.d(TAG, "Settings.Global adb_wifi_enabled changed -> " + enabled);
+                    if (enabled == 0) {
+                        detectedConnectPort = 0;
+                        cancelPendingFallbacks();
+                        if (state == State.CONNECTED && port > 0 && port != 5555) {
+                            connectGeneration.incrementAndGet();
+                            stopHeartbeat();
+                            executor.execute(() -> {
+                                try { AdbConnection.disconnect(); } catch (Throwable ignored) {}
+                            });
+                            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_disconnected), port);
+                        } else if (state == State.CONNECTED) {
+                            probeNowInternal();
+                        } else if (state == State.CONNECTING && connectingTargetPort != 5555) {
+                            connectGeneration.incrementAndGet();
+                            connectingTargetPort = 0;
+                            executor.execute(() -> {
+                                try { AdbConnection.disconnect(); } catch (Throwable ignored) {}
+                            });
+                            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_disconnected), port);
+                        }
+                    } else {
+                        failedPorts.clear();
+                        if (isWifiConnected && (Prefs.adbEnabled(context) || mdnsActive)
+                                && state != State.CONNECTED && state != State.CONNECTING) {
+                            restartDiscoveryInternal();
+                        }
+                    }
+                }
+            };
+            context.getContentResolver().registerContentObserver(uri, false, observer);
+            wifiDebugObserverRegistered = true;
+        } catch (Throwable t) {
+            Log.w(TAG, "Failed to register adb_wifi_enabled observer", t);
         }
     }
 
@@ -220,6 +323,7 @@ public final class AdbManager {
         port = Prefs.adbPort(this.context);
         isWifiConnected = isWifiAvailable(this.context);
         registerNetworkCallback();
+        registerWifiDebugObserver();
         AdbConnection.setDisconnectListener(reason -> {
             Log.w(TAG, "AdbConnection dropped: " + reason);
             if (state == State.CONNECTED) {
@@ -273,7 +377,8 @@ public final class AdbManager {
 
     public static void connect(int portToConnect) {
         if (sInstance != null) {
-            sInstance.connectInternal(portToConnect);
+            sInstance.failedPorts.clear();
+            sInstance.connectInternal(portToConnect, true);
         }
     }
 
@@ -291,11 +396,15 @@ public final class AdbManager {
 
     private synchronized void reconnectInternal() {
         stopHeartbeat();
+        cancelPendingFallbacks();
+        connectGeneration.incrementAndGet();
+        failedPorts.clear();
         isWifiConnected = isWifiAvailable(context);
         if (!isWifiConnected) {
             updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
             return;
         }
+        updateState(State.DISCONNECTED, "", port);
         executor.execute(() -> {
             try {
                 AdbConnection.disconnect();
@@ -400,14 +509,33 @@ public final class AdbManager {
             public void onConnectServiceDiscovered(String host, int p) {
                 detectedConnectPort = p;
                 if (!isWifiConnected) return;
+                if (isPortInCooldown(p)) {
+                    Log.d(TAG, "Ignoring mDNS connect port in cooldown: " + p);
+                    return;
+                }
+                if (state == State.CONNECTED && AdbConnection.isConnected()) {
+                    if (p == port) return;
+                    Log.i(TAG, "mDNS reported alternate port " + p + " while connected to " + port + "; probing...");
+                    executor.execute(() -> {
+                        if (probeLoopbackTcp(p, 250)) {
+                            mainHandler.post(() -> {
+                                if (isWifiConnected && state != State.CONNECTING && p != port && !isPortInCooldown(p)) {
+                                    Log.i(TAG, "Switching ADB connection to live port " + p);
+                                    connectInternal(p);
+                                }
+                            });
+                        } else {
+                            markPortFailed(p);
+                            Log.d(TAG, "Ignoring dead stale mDNS port " + p + " while connected to " + port);
+                        }
+                    });
+                    return;
+                }
                 if (state == State.CONNECTING) {
                     if (p != connectingTargetPort) {
                         pendingConnectPort = p;
                     }
-                } else if (state != State.CONNECTED) {
-                    connectInternal(p);
-                } else if (p != port) {
-                    Log.i(TAG, "Wireless Debugging port changed from " + port + " to " + p + ". Reconnecting...");
+                } else {
                     connectInternal(p);
                 }
             }
@@ -504,6 +632,10 @@ public final class AdbManager {
 
     private synchronized void stopInternal() {
         stopHeartbeat();
+        cancelPendingFallbacks();
+        connectGeneration.incrementAndGet();
+        connectingTargetPort = 0;
+        pendingConnectPort = 0;
         if (mdnsActive && mdns != null) {
             mdns.stop();
             mdnsActive = false;
@@ -513,6 +645,10 @@ public final class AdbManager {
     }
 
     private void connectInternal(int targetPort) {
+        connectInternal(targetPort, false);
+    }
+
+    private void connectInternal(int targetPort, boolean forceManual) {
         if (!isWifiConnected) {
             updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
             return;
@@ -521,19 +657,49 @@ public final class AdbManager {
             updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_err_invalid_port, targetPort), 0);
             return;
         }
+        if (!forceManual) {
+            if (isPortInCooldown(targetPort)) {
+                Log.d(TAG, "Skipping port in cooldown: " + targetPort);
+                return;
+            }
+            if ((state == State.CONNECTED && AdbConnection.isConnected())
+                    && (port == targetPort || (targetPort == 5555 && detectedConnectPort > 0))) {
+                Log.d(TAG, "Already connected on port " + port + "; ignoring redundant connect(" + targetPort + ")");
+                return;
+            }
+            if (state == State.CONNECTING && connectingTargetPort == targetPort) {
+                return;
+            }
+        } else {
+            failedPorts.remove(targetPort);
+        }
 
+        cancelPendingFallbacks();
+        final long gen = connectGeneration.incrementAndGet();
         connectingTargetPort = targetPort;
         updateState(State.CONNECTING, "", targetPort);
         executor.execute(() -> {
+            if (gen != connectGeneration.get()) {
+                Log.d(TAG, "Skipping superseded connect attempt gen=" + gen + " port=" + targetPort);
+                return;
+            }
             if (!isWifiConnected) {
-                connectingTargetPort = 0;
-                updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+                if (gen == connectGeneration.get()) {
+                    connectingTargetPort = 0;
+                    updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+                }
                 return;
             }
             try {
                 AdbConnection.connect("127.0.0.1", targetPort);
+                if (gen != connectGeneration.get()) {
+                    Log.w(TAG, "Connect succeeded on stale gen=" + gen + " port=" + targetPort + "; closing");
+                    return;
+                }
                 connectingTargetPort = 0;
                 pendingConnectPort = 0;
+                failedPorts.remove(targetPort);
+                cancelPendingFallbacks();
                 port = targetPort;
                 Prefs.setAdbPort(context, targetPort);
                 Prefs.setAdbEnabled(context, true);
@@ -547,8 +713,13 @@ public final class AdbManager {
                     AdbPairingService.showSuccessNotification(context, targetPort);
                 }
             } catch (Throwable t) {
+                if (gen != connectGeneration.get()) {
+                    Log.d(TAG, "Ignoring stale connect failure on gen=" + gen + " port=" + targetPort);
+                    return;
+                }
                 connectingTargetPort = 0;
                 stopHeartbeat();
+                markPortFailed(targetPort);
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
                 String msg = t.getMessage();
                 String friendly;
@@ -570,13 +741,33 @@ public final class AdbManager {
                 if (isWifiConnected) {
                     int queued = pendingConnectPort;
                     pendingConnectPort = 0;
-                    if (queued > 0 && queued != targetPort) {
-                        mainHandler.post(() -> connectInternal(queued));
-                    } else if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
-                        mainHandler.post(() -> connectInternal(detectedConnectPort));
-                    } else if (targetPort != 5555 && state != State.CONNECTED && state != State.CONNECTING) {
-                        // Fallback: try standard loopback ADB port 5555
-                        mainHandler.postDelayed(() -> connectInternal(5555), 200);
+                    if (queued > 0 && queued != targetPort && !isPortInCooldown(queued)) {
+                        mainHandler.post(() -> {
+                            if (gen == connectGeneration.get() && state != State.CONNECTED) {
+                                connectInternal(queued);
+                            }
+                        });
+                    } else if (detectedConnectPort > 0 && detectedConnectPort != targetPort && !isPortInCooldown(detectedConnectPort)) {
+                        mainHandler.post(() -> {
+                            if (gen == connectGeneration.get() && state != State.CONNECTED) {
+                                connectInternal(detectedConnectPort);
+                            }
+                        });
+                    } else if (targetPort != 5555 && !justPaired && state != State.CONNECTED && state != State.CONNECTING && !isPortInCooldown(5555)) {
+                        Runnable fallback = new Runnable() {
+                            @Override
+                            public void run() {
+                                if (pendingFallbackRunnable == this) {
+                                    pendingFallbackRunnable = null;
+                                }
+                                if (gen != connectGeneration.get() || !isWifiConnected) return;
+                                if (state == State.CONNECTED || state == State.CONNECTING || AdbConnection.isConnected()) return;
+                                if (pendingConnectPort > 0 || detectedConnectPort > 0) return;
+                                connectInternal(5555);
+                            }
+                        };
+                        pendingFallbackRunnable = fallback;
+                        mainHandler.postDelayed(fallback, 250);
                     }
                 }
             }
@@ -641,7 +832,8 @@ public final class AdbManager {
     private void pollForConnectPort(int attempt) {
         int connectPort = detectedConnectPort > 0 ? detectedConnectPort : Prefs.adbPort(context);
         if (connectPort > 0) {
-            connectInternal(connectPort);
+            failedPorts.clear();
+            connectInternal(connectPort, true);
             return;
         }
         if (attempt >= 12) {
