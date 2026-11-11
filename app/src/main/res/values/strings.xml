@@ -2214,5 +2214,19 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="setup_adb_paired">Pairing successful</string>
     <string name="setup_adb_pair_failed_generic">Pairing failed</string>
 
+    <!-- Onboarding ADB & Optional Skip State -->
+    <string name="onboarding_adb_title">Wireless Debugging (ADB)</string>
+    <string name="onboarding_adb_text">Optional — lets NN run fast shell diagnostics and reliably tap or type on stubborn apps (games, custom web views).</string>
+    <string name="onboarding_adb_done">Wireless Debugging is active. ADB hybrid automation is ready.</string>
+    <string name="onboarding_adb_pair">Pair Wireless Debugging</string>
+    <string name="onboarding_adb_connect_port">Already enabled? Enter Port &amp; Connect</string>
+    <string name="onboarding_adb_dev_q">Don\'t see Developer Options?</string>
+    <string name="onboarding_adb_dev_a">Open Phone Settings → About phone (or Software info) and tap Build number 7 times until Developer Options unlocks, then come back and tap Pair.</string>
+    <string name="onboarding_adb_open_about">Open About phone</string>
+    <string name="setup_adb_status_optional">ADB Optional (Skipped)</string>
+    <string name="setup_adb_status_sub_optional">Skipped during setup · tap Pair anytime for hybrid boost</string>
+    <string name="setup_all_set_adb_optional">All set · ADB optional (not paired)</string>
+    <string name="check_adb_optional">Optional · skipped during setup (tap Settings to pair anytime).</string>
+
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>

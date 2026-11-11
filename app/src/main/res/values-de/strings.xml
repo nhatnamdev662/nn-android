@@ -1598,4 +1598,16 @@
     <string name="setup_adb_pairing_in_progress">Kopplung mit 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Kopplung erfolgreich</string>
     <string name="setup_adb_pair_failed_generic">Kopplung fehlgeschlagen</string>
+    <string name="onboarding_adb_title">Kabelloses Debugging (ADB)</string>
+    <string name="onboarding_adb_text">Optional — ermöglicht schnelle Systemdiagnosen sowie zuverlässiges Tippen und Eingeben in schwierigen Apps (Spiele, WebViews).</string>
+    <string name="onboarding_adb_done">Kabelloses Debugging ist aktiv. Die hybride ADB-Steuerung ist bereit.</string>
+    <string name="onboarding_adb_pair">Kabelloses Debugging koppeln</string>
+    <string name="onboarding_adb_connect_port">Bereits aktiviert? Port eingeben &amp; verbinden</string>
+    <string name="onboarding_adb_dev_q">Entwickleroptionen nicht sichtbar?</string>
+    <string name="onboarding_adb_dev_a">Öffne Einstellungen → Über das Telefon (oder Software-Infos) und tippe 7× auf die Build-Nummer, bis die Entwickleroptionen freigeschaltet sind, und tippe dann auf Koppeln.</string>
+    <string name="onboarding_adb_open_about">Über das Telefon öffnen</string>
+    <string name="setup_adb_status_optional">ADB Optional (Übersprungen)</string>
+    <string name="setup_adb_status_sub_optional">Beim Einrichten übersprungen · jederzeit koppeln für Hybrid-Boost</string>
+    <string name="setup_all_set_adb_optional">Bereit · ADB optional (nicht gekoppelt)</string>
+    <string name="check_adb_optional">Optional · beim Einrichten übersprungen (jederzeit in den Einstellungen koppeln).</string>
 </resources>

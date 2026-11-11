@@ -2043,4 +2043,16 @@
     <string name="setup_adb_pairing_in_progress">Pareando com 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Pareamento concluído</string>
     <string name="setup_adb_pair_failed_generic">Falha no pareamento</string>
+    <string name="onboarding_adb_title">Depuração sem fio (ADB)</string>
+    <string name="onboarding_adb_text">Opcional — permite ao NN diagnósticos rápidos e toques ou digitação confiáveis em apps difíceis (jogos, WebViews).</string>
+    <string name="onboarding_adb_done">A depuração sem fio está ativa. A automação híbrida ADB está pronta.</string>
+    <string name="onboarding_adb_pair">Parear Depuração sem fio</string>
+    <string name="onboarding_adb_connect_port">Já ativada? Inserir porta e conectar</string>
+    <string name="onboarding_adb_dev_q">Não encontra Opções do desenvolvedor?</string>
+    <string name="onboarding_adb_dev_a">Abra Configurações → Sobre o telefone e toque 7 vezes em Número da versão para desbloquear, depois volte e toque em Parear.</string>
+    <string name="onboarding_adb_open_about">Abrir Sobre o telefone</string>
+    <string name="setup_adb_status_optional">ADB Opcional (Ignorado)</string>
+    <string name="setup_adb_status_sub_optional">Ignorado na configuração · toque em Parear quando quiser</string>
+    <string name="setup_all_set_adb_optional">Tudo pronto · ADB opcional (não pareado)</string>
+    <string name="check_adb_optional">Opcional · ignorado na configuração (abra Configurações para parear a qualquer momento).</string>
 </resources>

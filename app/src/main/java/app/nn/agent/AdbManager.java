@@ -64,37 +64,61 @@ public final class AdbManager {
     private volatile boolean isWifiConnected = false;
     private volatile boolean networkCallbackRegistered = false;
 
-    private static final long HEARTBEAT_INTERVAL_MS = 10000;
+    private static final long HEARTBEAT_FG_MS = 2000;
+    private static final long HEARTBEAT_BG_MS = 10000;
+    private volatile int connectingTargetPort = 0;
+    private volatile int pendingConnectPort = 0;
+    private volatile boolean probeRunning = false;
+
     private final Runnable heartbeatRunnable = new Runnable() {
         @Override
         public void run() {
             if (state == State.CONNECTED && isWifiConnected) {
-                executor.execute(() -> {
-                    try {
-                        AdbConnection.ExecutionResult res = AdbConnection.execute("echo 1", 2000);
-                        if (res.exitCode != 0) {
-                            throw new java.io.IOException("Heartbeat failed (exitCode=" + res.exitCode + ")");
-                        }
-                    } catch (Throwable t) {
-                        Log.w(TAG, "ADB Heartbeat probe failed: " + t.getMessage() + ". Disconnecting and re-discovering...");
-                        AdbConnection.disconnect();
-                        String errText = t.getMessage() != null ? t.getMessage() : t.getClass().getSimpleName();
-                        updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_err_lost, errText), port);
-                        if (isWifiConnected && Prefs.adbEnabled(context)) {
-                            restartDiscoveryInternal();
-                        }
-                    }
-                });
+                probeConnectedAsync();
             }
             if (state == State.CONNECTED && isWifiConnected) {
-                mainHandler.postDelayed(this, HEARTBEAT_INTERVAL_MS);
+                mainHandler.postDelayed(this, heartbeatDelayMs());
             }
         }
     };
 
+    private boolean hasActiveListeners() {
+        synchronized (listeners) {
+            return !listeners.isEmpty();
+        }
+    }
+
+    private long heartbeatDelayMs() {
+        return hasActiveListeners() ? HEARTBEAT_FG_MS : HEARTBEAT_BG_MS;
+    }
+
+    private void probeConnectedAsync() {
+        if (probeRunning) return;
+        probeRunning = true;
+        executor.execute(() -> {
+            try {
+                AdbConnection.ExecutionResult res = AdbConnection.execute("echo 1", 900);
+                if (res.exitCode != 0) {
+                    throw new java.io.IOException("Heartbeat failed (exitCode=" + res.exitCode + ")");
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "ADB probe failed: " + t.getMessage() + ". Disconnecting and re-discovering...");
+                AdbConnection.disconnect();
+                detectedConnectPort = 0;
+                String errText = t.getMessage() != null ? t.getMessage() : t.getClass().getSimpleName();
+                updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_err_lost, errText), port);
+                if (isWifiConnected && Prefs.adbEnabled(context)) {
+                    restartDiscoveryInternal();
+                }
+            } finally {
+                probeRunning = false;
+            }
+        });
+    }
+
     private void startHeartbeat() {
         stopHeartbeat();
-        mainHandler.postDelayed(heartbeatRunnable, HEARTBEAT_INTERVAL_MS);
+        mainHandler.postDelayed(heartbeatRunnable, heartbeatDelayMs());
     }
 
     private void stopHeartbeat() {
@@ -303,6 +327,9 @@ public final class AdbManager {
                     sInstance.listeners.add(l);
                 }
             }
+            if (state == State.CONNECTED && sInstance.isWifiConnected) {
+                sInstance.startHeartbeat();
+            }
         }
     }
 
@@ -311,7 +338,90 @@ public final class AdbManager {
             synchronized (sInstance.listeners) {
                 sInstance.listeners.remove(l);
             }
+            if (state == State.CONNECTED && sInstance.isWifiConnected) {
+                sInstance.startHeartbeat();
+            }
         }
+    }
+
+    /** Starts mDNS discovery without altering saved enabled state (used by optional onboarding). */
+    public static void startDiscovery(Context c) {
+        AdbManager mgr = get(c);
+        mgr.startMdnsOnly();
+    }
+
+    /** Runs an immediate health/reconnect check when returning from Developer Options or on mDNS lost. */
+    public static void probeNow(Context c) {
+        AdbManager mgr = get(c);
+        mgr.probeNowInternal();
+    }
+
+    private synchronized void startMdnsOnly() {
+        registerNetworkCallback();
+        isWifiConnected = isWifiAvailable(context);
+        if (!isWifiConnected) {
+            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+            return;
+        }
+        ensureMdnsStarted();
+    }
+
+    private synchronized void probeNowInternal() {
+        isWifiConnected = isWifiAvailable(context);
+        if (!isWifiConnected) {
+            if (state != State.DISCONNECTED) onWifiLost();
+            return;
+        }
+        if (state == State.CONNECTED || AdbConnection.isConnected()) {
+            probeConnectedAsync();
+            return;
+        }
+        if (Prefs.adbEnabled(context)) {
+            ensureMdnsStarted();
+            int targetPort = detectedConnectPort > 0 ? detectedConnectPort : Prefs.adbPort(context);
+            if (targetPort > 0 && state != State.CONNECTING && state != State.PAIRING) {
+                connectInternal(targetPort);
+            }
+        }
+    }
+
+    private synchronized void ensureMdnsStarted() {
+        if (mdnsActive) return;
+        mdns = new AdbMdns(context, new AdbMdns.Listener() {
+            @Override
+            public void onPairingServiceDiscovered(String host, int p) {
+                detectedPairingPort = p;
+                if (!isWifiConnected) return;
+                notifyPairingDiscovered(host, p);
+                AdbPairingService.showNotification(context, p);
+            }
+
+            @Override
+            public void onConnectServiceDiscovered(String host, int p) {
+                detectedConnectPort = p;
+                if (!isWifiConnected) return;
+                if (state == State.CONNECTING) {
+                    if (p != connectingTargetPort) {
+                        pendingConnectPort = p;
+                    }
+                } else if (state != State.CONNECTED) {
+                    connectInternal(p);
+                } else if (p != port) {
+                    Log.i(TAG, "Wireless Debugging port changed from " + port + " to " + p + ". Reconnecting...");
+                    connectInternal(p);
+                }
+            }
+
+            @Override
+            public void onConnectServiceLost(String serviceName) {
+                Log.d(TAG, "Connect service lost via mDNS: " + serviceName);
+                if (state == State.CONNECTED || AdbConnection.isConnected()) {
+                    probeConnectedAsync();
+                }
+            }
+        });
+        mdns.start();
+        mdnsActive = true;
     }
 
     private synchronized void startInternal() {
@@ -322,31 +432,7 @@ public final class AdbManager {
             return;
         }
 
-        if (!mdnsActive) {
-            mdns = new AdbMdns(context, new AdbMdns.Listener() {
-                @Override
-                public void onPairingServiceDiscovered(String host, int p) {
-                    detectedPairingPort = p;
-                    if (!isWifiConnected) return;
-                    notifyPairingDiscovered(host, p);
-                    AdbPairingService.showNotification(context, p);
-                }
-
-                @Override
-                public void onConnectServiceDiscovered(String host, int p) {
-                    detectedConnectPort = p;
-                    if (!isWifiConnected) return;
-                    if (state != State.CONNECTED && state != State.CONNECTING) {
-                        connectInternal(p);
-                    } else if (state == State.CONNECTED && p != port) {
-                        Log.i(TAG, "Wireless Debugging port changed from " + port + " to " + p + ". Reconnecting...");
-                        connectInternal(p);
-                    }
-                }
-            });
-            mdns.start();
-            mdnsActive = true;
-        }
+        ensureMdnsStarted();
 
         int savedPort = Prefs.adbPort(context);
         int targetPort = detectedConnectPort > 0 ? detectedConnectPort : savedPort;
@@ -436,17 +522,22 @@ public final class AdbManager {
             return;
         }
 
+        connectingTargetPort = targetPort;
         updateState(State.CONNECTING, "", targetPort);
         executor.execute(() -> {
             if (!isWifiConnected) {
+                connectingTargetPort = 0;
                 updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
                 return;
             }
             try {
                 AdbConnection.connect("127.0.0.1", targetPort);
+                connectingTargetPort = 0;
+                pendingConnectPort = 0;
                 port = targetPort;
                 Prefs.setAdbPort(context, targetPort);
                 Prefs.setAdbEnabled(context, true);
+                Prefs.setAdbSkipped(context, false);
                 updateState(State.CONNECTED, "", targetPort);
                 startHeartbeat();
 
@@ -456,6 +547,7 @@ public final class AdbManager {
                     AdbPairingService.showSuccessNotification(context, targetPort);
                 }
             } catch (Throwable t) {
+                connectingTargetPort = 0;
                 stopHeartbeat();
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
                 String msg = t.getMessage();
@@ -476,11 +568,15 @@ public final class AdbManager {
                 }
 
                 if (isWifiConnected) {
-                    if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
-                        mainHandler.postDelayed(() -> connectInternal(detectedConnectPort), 500);
+                    int queued = pendingConnectPort;
+                    pendingConnectPort = 0;
+                    if (queued > 0 && queued != targetPort) {
+                        mainHandler.post(() -> connectInternal(queued));
+                    } else if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
+                        mainHandler.post(() -> connectInternal(detectedConnectPort));
                     } else if (targetPort != 5555 && state != State.CONNECTED && state != State.CONNECTING) {
                         // Fallback: try standard loopback ADB port 5555
-                        mainHandler.postDelayed(() -> connectInternal(5555), 300);
+                        mainHandler.postDelayed(() -> connectInternal(5555), 200);
                     }
                 }
             }
@@ -505,6 +601,8 @@ public final class AdbManager {
                 client = new AdbPairingClient("127.0.0.1", pairingPort, pairingCode);
                 client.pair();
                 justPaired = true;
+                Prefs.setAdbSkipped(context, false);
+                Prefs.setAdbEnabled(context, true);
                 updateState(State.PAIRED, context.getString(R.string.setup_adb_paired), pairingPort);
 
                 mainHandler.post(() -> {
@@ -517,6 +615,8 @@ public final class AdbManager {
                 // Restart mDNS to pick up the connect service announcement fresh
                 if (mdns != null) {
                     mdns.restart();
+                } else {
+                    ensureMdnsStarted();
                 }
 
                 // Poll for connect port

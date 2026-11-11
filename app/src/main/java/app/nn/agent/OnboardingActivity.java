@@ -25,8 +25,8 @@ import static app.nn.agent.Ui.*;
  * First-run guide: one step per screen. Steps that happen elsewhere (Android settings, the browser for
  * sign-in) are detected when the user comes back.
  */
-public class OnboardingActivity extends Screen implements Account.Listener {
-    static final int WELCOME = 0, BRAIN = 1, ACCESS = 2, AGENTS = 3, BACKGROUND = 4, SAFETY = 5, TRY = 6;
+public class OnboardingActivity extends Screen implements Account.Listener, AdbManager.Listener {
+    static final int WELCOME = 0, BRAIN = 1, ACCESS = 2, AGENTS = 3, BACKGROUND = 4, ADB = 5, SAFETY = 6, TRY = 7;
     private static final int LAST = TRY;
 
     private ScrollView scroll;
@@ -37,14 +37,21 @@ public class OnboardingActivity extends Screen implements Account.Listener {
     private boolean stuckOpen;
     /** After Back, stay on the (possibly done) step until the user moves on themselves. */
     private boolean noAutoAdvance;
+    private final AdbUi.DialogSession adbUi = new AdbUi.DialogSession();
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        if (Prefs.onboardVersion(this) < 2) {
-            // 1.x saved its step with the old numbering (it had Termux steps): resume at Accessibility instead
-            if (Prefs.onboardStep(this) > BRAIN) Prefs.setOnboardStep(this, ACCESS);
-            Prefs.setOnboardVersion(this, 2);
+        if (Prefs.onboardVersion(this) < 3) {
+            int saved = Prefs.onboardStep(this);
+            if (Prefs.onboardVersion(this) < 2) {
+                // 1.x saved its step with the old numbering (it had Termux steps): resume at Accessibility instead
+                if (saved > BRAIN) Prefs.setOnboardStep(this, ACCESS);
+            } else if (saved >= ADB) {
+                // v2 did not have the ADB step between BACKGROUND and SAFETY
+                Prefs.setOnboardStep(this, saved + 1);
+            }
+            Prefs.setOnboardVersion(this, 3);
         }
         step = Math.min(Prefs.onboardStep(this), LAST);
 
@@ -81,6 +88,13 @@ public class OnboardingActivity extends Screen implements Account.Listener {
         super.onResume();
         if (isFinishing()) return;
         Account.addListener(this);
+        AdbManager.get(this);
+        AdbManager.addListener(this);
+        if (step == ADB) {
+            AdbManager.startDiscovery(this);
+            AdbManager.probeNow(this);
+        }
+        if (AdbManager.isConnected()) adbUi.dismissAll();
         for (String a : wanted(this)) Account.of(a).refresh(this);
         render();
         checkAdvance();
@@ -89,6 +103,7 @@ public class OnboardingActivity extends Screen implements Account.Listener {
     @Override
     protected void onPause() {
         Account.removeListener(this);
+        AdbManager.removeListener(this);
         super.onPause();
     }
 
@@ -97,6 +112,24 @@ public class OnboardingActivity extends Screen implements Account.Listener {
         if (isFinishing() || isDestroyed()) return;
         render();
         checkAdvance();
+    }
+
+    @Override
+    public void onAdbStateChanged(AdbManager.State state, String host, int port, String error) {
+        if (isFinishing() || isDestroyed()) return;
+        if (AdbManager.isConnected()) {
+            adbUi.dismissAll();
+        }
+        if (step == ADB) {
+            render();
+            checkAdvance();
+        }
+    }
+
+    @Override
+    public void onAdbPairingDiscovered(String host, int port) {
+        if (isFinishing() || isDestroyed()) return;
+        if (step == ADB) render();
     }
 
     @Override
@@ -120,6 +153,8 @@ public class OnboardingActivity extends Screen implements Account.Listener {
                 return true;
             case BACKGROUND:
                 return c.getSystemService(PowerManager.class).isIgnoringBatteryOptimizations(c.getPackageName());
+            case ADB:
+                return AdbManager.isConnected();
             default:
                 return false;
         }
@@ -136,6 +171,10 @@ public class OnboardingActivity extends Screen implements Account.Listener {
         step = Math.max(WELCOME, Math.min(LAST, s));
         Prefs.setOnboardStep(this, step);
         stuckOpen = false;
+        if (step == ADB) {
+            AdbManager.startDiscovery(this);
+            AdbManager.probeNow(this);
+        }
         render();
         scroll.scrollTo(0, 0);
         checkAdvance();
@@ -198,6 +237,9 @@ public class OnboardingActivity extends Screen implements Account.Listener {
                 break;
             case BACKGROUND:
                 background(ok);
+                break;
+            case ADB:
+                adbStep(ok);
                 break;
             case SAFETY:
                 safety();
@@ -393,7 +435,50 @@ public class OnboardingActivity extends Screen implements Account.Listener {
         if (!ok) {
             primary(getString(R.string.onboarding_allow), v -> startActivity(new Intent(
                     Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))));
-            secondary(getString(R.string.onboarding_skip_for_now), v -> go(SAFETY));
+            secondary(getString(R.string.onboarding_skip_for_now), v -> go(ADB));
+        }
+    }
+
+    private void adbStep(boolean ok) {
+        header(R.drawable.ms_terminal, getString(R.string.onboarding_adb_title),
+                getString(ok ? R.string.onboarding_adb_done : R.string.onboarding_adb_text), ok);
+        LinearLayout statusBox = AdbUi.statusBanner(this);
+        LinearLayout.LayoutParams sp = full();
+        sp.topMargin = dp(this, 18);
+        body.addView(statusBox, sp);
+        if (!ok) {
+            Button portBtn = outlinedButton(this, getString(R.string.onboarding_adb_connect_port), ACCENT_TEXT);
+            portBtn.setOnClickListener(v -> AdbUi.showConnectDialog(this, () -> {
+                render();
+                checkAdvance();
+            }));
+            LinearLayout.LayoutParams pp = full();
+            pp.topMargin = dp(this, 14);
+            body.addView(portBtn, pp);
+
+            stuck(getString(R.string.onboarding_adb_dev_q), getString(R.string.onboarding_adb_dev_a), null, null);
+            if (stuckOpen) {
+                Button aboutBtn = outlinedButton(this, getString(R.string.onboarding_adb_open_about), TEXT);
+                aboutBtn.setOnClickListener(v -> {
+                    try {
+                        startActivity(new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS));
+                    } catch (Throwable ignored) {
+                    }
+                });
+                LinearLayout.LayoutParams ap = full();
+                ap.topMargin = dp(this, 8);
+                body.addView(aboutBtn, ap);
+            }
+
+            primary(getString(R.string.onboarding_adb_pair), v -> AdbUi.showGuideDialog(this, adbUi, () -> {
+                render();
+                checkAdvance();
+            }));
+            secondary(getString(R.string.onboarding_skip_for_now), v -> {
+                Prefs.setAdbSkipped(this, true);
+                noAutoAdvance = false;
+                go(SAFETY);
+            });
         }
     }
 

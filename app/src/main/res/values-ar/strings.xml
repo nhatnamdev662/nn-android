@@ -1643,4 +1643,16 @@
     <string name="setup_adb_pairing_in_progress">جارٍ الإقران مع 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">تم الإقران بنجاح</string>
     <string name="setup_adb_pair_failed_generic">فشل الإقران</string>
+    <string name="onboarding_adb_title">تصحيح الأخطاء اللاسلكي (ADB)</string>
+    <string name="onboarding_adb_text">اختياري — يتيح لـ NN تشغيل أوامر تشخيص سريعة والنقر أو الكتابة بثبات على التطبيقات العنيدة (الألعاب وعروض الويب المخصصة).</string>
+    <string name="onboarding_adb_done">تصحيح الأخطاء اللاسلكي نشط. الأتمتة الهجينة عبر ADB جاهزة.</string>
+    <string name="onboarding_adb_pair">إقران تصحيح الأخطاء اللاسلكي</string>
+    <string name="onboarding_adb_connect_port">تم التفعيل مسبقًا؟ أدخل المنفذ واتصل</string>
+    <string name="onboarding_adb_dev_q">ألا ترى خيارات المطور؟</string>
+    <string name="onboarding_adb_dev_a">افتح إعدادات الهاتف ← حول الهاتف (أو معلومات البرنامج) واضغط على رقم الإصدار 7 مرات حتى تظهر خيارات المطور، ثم ارجع واضغط إقران.</string>
+    <string name="onboarding_adb_open_about">فتح حول الهاتف</string>
+    <string name="setup_adb_status_optional">ADB غير مفعّل (اختياري)</string>
+    <string name="setup_adb_status_sub_optional">تم التخطي أثناء الإعداد · اضغط إقران في أي وقت للتسريع</string>
+    <string name="setup_all_set_adb_optional">جاهز · ADB اختياري (غير مقترن)</string>
+    <string name="check_adb_optional">اختياري · تم تخطيه أثناء الإعداد (اضغط الإعدادات للإقران في أي وقت).</string>
 </resources>

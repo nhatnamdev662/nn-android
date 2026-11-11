@@ -668,5 +668,14 @@ final class Prefs {
     static void setAdbPort(Context c, int port) {
         sp(c).edit().putInt("adb_port", port).apply();
     }
+
+    /** True when the user chose "Skip for now" on the optional ADB onboarding step. */
+    static boolean adbSkipped(Context c) {
+        return sp(c).getBoolean("adb_skipped", false);
+    }
+
+    static void setAdbSkipped(Context c, boolean skipped) {
+        sp(c).edit().putBoolean("adb_skipped", skipped).apply();
+    }
 }
 

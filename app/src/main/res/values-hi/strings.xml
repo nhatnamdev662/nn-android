@@ -1591,4 +1591,16 @@
     <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d से पेयर हो रहा है</string>
     <string name="setup_adb_paired">पेयरिंग सफल रही</string>
     <string name="setup_adb_pair_failed_generic">पेयरिंग विफल रही</string>
+    <string name="onboarding_adb_title">वायरलेस डीबगिंग (ADB)</string>
+    <string name="onboarding_adb_text">वैकल्पिक — NN को तेज़ सिस्टम जांच करने और कठिन ऐप्स (गेम्स, कस्टम WebView) में भरोसेमंद टैप/टाइप करने की सुविधा देता है।</string>
+    <string name="onboarding_adb_done">वायरलेस डीबगिंग सक्रिय है। ADB हाइब्रिड ऑटोमेशन तैयार है।</string>
+    <string name="onboarding_adb_pair">वायरलेस डीबगिंग पेयर करें</string>
+    <string name="onboarding_adb_connect_port">पहले से चालू है? पोर्ट दर्ज कर कनेक्ट करें</string>
+    <string name="onboarding_adb_dev_q">डेवलपर विकल्प नहीं दिख रहे?</string>
+    <string name="onboarding_adb_dev_a">फ़ोन सेटिंग्स → फ़ोन के बारे में खोलें और Build number पर 7 बार टैप करें जब तक डेवलपर विकल्प अनलॉक न हों, फिर वापस आकर पेयर करें।</string>
+    <string name="onboarding_adb_open_about">फ़ोन के बारे में खोलें</string>
+    <string name="setup_adb_status_optional">ADB वैकल्पिक (छोड़ा गया)</string>
+    <string name="setup_adb_status_sub_optional">सेटअप में छोड़ा गया · कभी भी पेयर करने के लिए टैप करें</string>
+    <string name="setup_all_set_adb_optional">तैयार · ADB वैकल्पिक (पेयर नहीं)</string>
+    <string name="check_adb_optional">वैकल्पिक · सेटअप के दौरान छोड़ा गया (किसी भी समय सेटिंग्स से पेयर करें)।</string>
 </resources>

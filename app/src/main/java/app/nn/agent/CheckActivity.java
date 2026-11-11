@@ -40,16 +40,21 @@ public class CheckActivity extends Screen {
     /** About what an agent, node and Alpine's packages need to install or update. */
     private static final long SPACE_NEEDED = 1024L * 1024 * 1024;
 
-    /** One check's result: ok, a sentence, and the fix (null: none). */
+    /** One check's result: ok, optional warn (doesn't fail overall health), a sentence, and the fix (null: none). */
     private static final class Result {
         final String name, detail;
-        final boolean ok;
+        final boolean ok, warn;
         final String fixLabel;
         final Runnable fix;
 
         Result(String name, boolean ok, String detail, String fixLabel, Runnable fix) {
+            this(name, ok, false, detail, fixLabel, fix);
+        }
+
+        Result(String name, boolean ok, boolean warn, String detail, String fixLabel, Runnable fix) {
             this.name = name;
             this.ok = ok;
+            this.warn = warn;
             this.detail = detail;
             this.fixLabel = fixLabel;
             this.fix = fix;
@@ -127,6 +132,19 @@ public class CheckActivity extends Screen {
         r.add(new Result(getString(R.string.check_battery), battery, battery ? null : getString(R.string.check_battery_bad),
                 getString(R.string.check_fix), () -> startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                 Uri.parse("package:" + getPackageName())))));
+
+        if (AdbManager.isConnected()) {
+            r.add(new Result(getString(R.string.check_adb_name), true,
+                    getString(R.string.check_adb_connected, AdbManager.port), null, null));
+        } else if (AdbUi.isOptionalYellow(this)) {
+            r.add(new Result(getString(R.string.check_adb_name), true, true,
+                    getString(R.string.check_adb_optional), getString(R.string.setup_adb_pair),
+                    () -> AdbUi.showGuideDialog(this, null, this::run)));
+        } else {
+            r.add(new Result(getString(R.string.check_adb_name), false,
+                    getString(R.string.check_adb_disconnected), getString(R.string.check_fix),
+                    () -> startActivity(new Intent(this, SetupActivity.class))));
+        }
 
         if (XiaomiHelper.isXiaomi()) {
             r.add(new Result(getString(R.string.xiaomi_guide_title), true,
@@ -262,14 +280,18 @@ public class CheckActivity extends Screen {
     private LinearLayout resultRow(Result r) {
         LinearLayout l = row(this);
         l.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 12), dp(this, 12));
-        l.addView(icon(this, r.ok ? R.drawable.ms_check : R.drawable.ms_error, r.ok ? OK : ERR, 20));
+        int icRes = !r.ok ? R.drawable.ms_error : r.warn ? R.drawable.ms_build_circle : R.drawable.ms_check;
+        int icColor = !r.ok ? ERR : r.warn ? WARN : OK;
+        l.addView(icon(this, icRes, icColor, 20));
         LinearLayout t = column(this);
         t.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
         t.addView(title(this, r.name, 15));
-        if (r.detail != null) t.addView(text(this, r.detail, 13, r.ok ? MUTED : ERR), topGap(2));
+        if (r.detail != null) {
+            t.addView(text(this, r.detail, 13, !r.ok ? ERR : r.warn ? WARN : MUTED), topGap(2));
+        }
         l.addView(t, weight1());
-        if (!r.ok && r.fix != null) {
-            Button b = outlinedButton(this, r.fixLabel, ACCENT_TEXT);
+        if ((!r.ok || r.warn) && r.fix != null) {
+            Button b = outlinedButton(this, r.fixLabel, r.warn ? WARN : ACCENT_TEXT);
             b.setOnClickListener(v -> r.fix.run());
             l.addView(b);
         }

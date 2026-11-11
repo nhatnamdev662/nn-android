@@ -1625,4 +1625,16 @@
     <string name="setup_adb_pairing_in_progress">Parowanie z 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Sparowano pomyślnie</string>
     <string name="setup_adb_pair_failed_generic">Parowanie nie powiodło się</string>
+    <string name="onboarding_adb_title">Debugowanie bezprzewodowe (ADB)</string>
+    <string name="onboarding_adb_text">Opcjonalne — pozwala NN na szybką diagnostykę oraz pewne klikanie i pisanie w trudnych aplikacjach (gry, WebView).</string>
+    <string name="onboarding_adb_done">Debugowanie bezprzewodowe jest aktywne. Hybrydowa automatyzacja ADB jest gotowa.</string>
+    <string name="onboarding_adb_pair">Sparuj debugowanie bezprzewodowe</string>
+    <string name="onboarding_adb_connect_port">Już włączone? Wpisz port i połącz</string>
+    <string name="onboarding_adb_dev_q">Nie widzisz Opcji programisty?</string>
+    <string name="onboarding_adb_dev_a">Otwórz Ustawienia → O telefonie i kliknij 7 razy Numer kompilacji, aby odblokować Opcje programisty, po czym wróć i kliknij Sparuj.</string>
+    <string name="onboarding_adb_open_about">Otwórz O telefonie</string>
+    <string name="setup_adb_status_optional">ADB Opcjonalne (Pominięto)</string>
+    <string name="setup_adb_status_sub_optional">Pominięto w konfiguracji · sparuj w dowolnym momencie</string>
+    <string name="setup_all_set_adb_optional">Gotowe · ADB opcjonalne (niesparowane)</string>
+    <string name="check_adb_optional">Opcjonalne · pominięto przy konfiguracji (sparuj w dowolnej chwili w Ustawieniach).</string>
 </resources>

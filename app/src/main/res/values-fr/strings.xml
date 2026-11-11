@@ -2031,4 +2031,16 @@
     <string name="setup_adb_pairing_in_progress">Appairage avec 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Appairage réussi</string>
     <string name="setup_adb_pair_failed_generic">Échec de l\'appairage</string>
+    <string name="onboarding_adb_title">Débogage sans fil (ADB)</string>
+    <string name="onboarding_adb_text">Facultatif — permet à NN d\'exécuter des diagnostics rapides et d\'appuyer ou saisir de manière fiable sur des apps complexes (jeux, WebViews).</string>
+    <string name="onboarding_adb_done">Le débogage sans fil est actif. L\'automatisation hybride ADB est prête.</string>
+    <string name="onboarding_adb_pair">Appairer le débogage sans fil</string>
+    <string name="onboarding_adb_connect_port">Déjà activé ? Saisir le port et connecter</string>
+    <string name="onboarding_adb_dev_q">Options pour les développeurs introuvables ?</string>
+    <string name="onboarding_adb_dev_a">Ouvrez Paramètres → À propos du téléphone (ou Infos logiciel) et appuyez 7 fois sur Numéro de build, puis revenez appuyer sur Appairer.</string>
+    <string name="onboarding_adb_open_about">Ouvrir À propos du téléphone</string>
+    <string name="setup_adb_status_optional">ADB Facultatif (Ignoré)</string>
+    <string name="setup_adb_status_sub_optional">Ignoré à l\'installation · appuyez sur Appairer à tout moment</string>
+    <string name="setup_all_set_adb_optional">Prêt · ADB facultatif (non appairé)</string>
+    <string name="check_adb_optional">Facultatif · ignoré lors de la configuration (appairable à tout moment dans Paramètres).</string>
 </resources>

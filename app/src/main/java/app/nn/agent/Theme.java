@@ -78,6 +78,7 @@ final class Theme {
             Ui.TEXT = 0xFFF4EFE6;
             Ui.MUTED = 0xFFA39E95;
             Ui.OK = 0xFF5CC08A;
+            Ui.WARN = 0xFFE5B84B;
             Ui.ERR = 0xFFE58A7A;
             Ui.USER = blend(accent, Ui.BG, 0.24f);
         } else {
@@ -86,6 +87,7 @@ final class Theme {
             Ui.TEXT = 0xFF221E1A;
             Ui.MUTED = 0xFF6F675F;
             Ui.OK = 0xFF2F9E66;
+            Ui.WARN = 0xFFC5850A;
             Ui.ERR = 0xFFC5483A;
             Ui.USER = blend(accent, Ui.CARD, 0.2f);
         }

@@ -1583,4 +1583,16 @@
     <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d とペアリング中</string>
     <string name="setup_adb_paired">ペアリング成功</string>
     <string name="setup_adb_pair_failed_generic">ペアリングに失敗しました</string>
+    <string name="onboarding_adb_title">ワイヤレスデバッグ (ADB)</string>
+    <string name="onboarding_adb_text">任意 — 高速なシステム診断や、操作しづらいアプリ（ゲーム・WebViewなど）での確実なタップ・入力が可能になります。</string>
+    <string name="onboarding_adb_done">ワイヤレスデバッグが有効です。ADBハイブリッド操作の準備が整いました。</string>
+    <string name="onboarding_adb_pair">ワイヤレスデバッグをペアリング</string>
+    <string name="onboarding_adb_connect_port">有効済みの場合：ポートを入力して接続</string>
+    <string name="onboarding_adb_dev_q">開発者向けオプションが見つかりませんか？</string>
+    <string name="onboarding_adb_dev_a">端末の設定 → デバイス情報（またはソフトウェア情報）で「ビルド番号」を7回タップして有効化し、戻ってペアリングをタップしてください。</string>
+    <string name="onboarding_adb_open_about">デバイス情報を開く</string>
+    <string name="setup_adb_status_optional">ADB 任意（スキップ済み）</string>
+    <string name="setup_adb_status_sub_optional">初期設定でスキップ · いつでもペアリングして高速化できます</string>
+    <string name="setup_all_set_adb_optional">準備完了 · ADB 任意（未ペアリング）</string>
+    <string name="check_adb_optional">任意 · セットアップでスキップ（設定からいつでもペアリング可能）。</string>
 </resources>

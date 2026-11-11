@@ -33,7 +33,7 @@ import java.util.Map;
 final class Ui {
     // Palette: filled by Theme.load() from the appearance settings (dark/light, accent, surface).
     static int BG = 0xFF171513, CARD = 0xFF24211E, CARD2 = 0xFF3A3632, TEXT = 0xFFF4EFE6, MUTED = 0xFFA39E95,
-            ACCENT = 0xFFD97757, OK = 0xFF5CC08A, USER = 0xFF4A3A2E, ERR = 0xFFE58A7A,
+            ACCENT = 0xFFD97757, OK = 0xFF5CC08A, WARN = 0xFFE5B84B, USER = 0xFF4A3A2E, ERR = 0xFFE58A7A,
             ON_ACCENT = 0xFF1A1714,   // text on ACCENT
             ACCENT_TEXT = 0xFFD97757, // accent used as text on BG/CARD (darker in light mode)
             NAV = 0xFF1E1B19,         // bottom nav background

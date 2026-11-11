@@ -2070,4 +2070,16 @@
     <string name="setup_adb_pairing_in_progress">Сопряжение с 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Сопряжение выполнено</string>
     <string name="setup_adb_pair_failed_generic">Ошибка сопряжения</string>
+    <string name="onboarding_adb_title">Отладка по Wi-Fi (ADB)</string>
+    <string name="onboarding_adb_text">Необязательно — даёт NN быструю диагностику системы и надёжные нажатия/ввод текста в сложных приложениях (игры, WebView).</string>
+    <string name="onboarding_adb_done">Отладка по Wi-Fi активна. Гибридная автоматизация ADB готова.</string>
+    <string name="onboarding_adb_pair">Сопряжение отладки по Wi-Fi</string>
+    <string name="onboarding_adb_connect_port">Уже включена? Ввести порт и подключить</string>
+    <string name="onboarding_adb_dev_q">Не видите раздел «Для разработчиков»?</string>
+    <string name="onboarding_adb_dev_a">Откройте Настройки → О телефоне и нажмите 7 раз на «Номер сборки», затем вернитесь и нажмите «Сопряжение».</string>
+    <string name="onboarding_adb_open_about">Открыть «О телефоне»</string>
+    <string name="setup_adb_status_optional">ADB не настроен (необязательно)</string>
+    <string name="setup_adb_status_sub_optional">Пропущено при настройке · можно подключить в любой момент</string>
+    <string name="setup_all_set_adb_optional">Готово · ADB не обязателен (не сопряжён)</string>
+    <string name="check_adb_optional">Необязательно · пропущено при настройке (можно сопрячь в Настройках в любое время).</string>
 </resources>

@@ -2030,4 +2030,16 @@
     <string name="setup_adb_pairing_in_progress">Emparejando con 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Emparejamiento correcto</string>
     <string name="setup_adb_pair_failed_generic">Error al emparejar</string>
+    <string name="onboarding_adb_title">Depuración inalámbrica (ADB)</string>
+    <string name="onboarding_adb_text">Opcional — permite a NN ejecutar diagnósticos rápidos y tocar o escribir con fiabilidad en apps difíciles (juegos, WebViews).</string>
+    <string name="onboarding_adb_done">La depuración inalámbrica está activa. La automatización híbrida ADB está lista.</string>
+    <string name="onboarding_adb_pair">Emparejar depuración inalámbrica</string>
+    <string name="onboarding_adb_connect_port">¿Ya activada? Ingresar puerto y conectar</string>
+    <string name="onboarding_adb_dev_q">¿No ves Opciones de desarrollador?</string>
+    <string name="onboarding_adb_dev_a">Ve a Ajustes → Acerca del teléfono (o Info de software) y toca 7 veces en Número de compilación para desbloquearlas; luego vuelve y toca Emparejar.</string>
+    <string name="onboarding_adb_open_about">Abrir Acerca del teléfono</string>
+    <string name="setup_adb_status_optional">ADB Opcional (Omitido)</string>
+    <string name="setup_adb_status_sub_optional">Omitido en el ajuste inicial · toca Emparejar cuando quieras</string>
+    <string name="setup_all_set_adb_optional">Todo listo · ADB opcional (sin emparejar)</string>
+    <string name="check_adb_optional">Opcional · omitido en la configuración (abre Ajustes para emparejar cuando quieras).</string>
 </resources>

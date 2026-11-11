@@ -2031,4 +2031,16 @@
     <string name="setup_adb_pairing_in_progress">正在与 127.0.0.1:%1$d 配对</string>
     <string name="setup_adb_paired">配对成功</string>
     <string name="setup_adb_pair_failed_generic">配对失败</string>
+    <string name="onboarding_adb_title">无线调试 (ADB)</string>
+    <string name="onboarding_adb_text">可选 — 让 NN 支持极速系统诊断，并在复杂应用（游戏、自定义 WebView 等）中稳定点击与输入。</string>
+    <string name="onboarding_adb_done">无线调试已激活，ADB 混合自动化已就绪。</string>
+    <string name="onboarding_adb_pair">配对无线调试</string>
+    <string name="onboarding_adb_connect_port">已开启？输入端口并连接</string>
+    <string name="onboarding_adb_dev_q">找不到开发者选项？</string>
+    <string name="onboarding_adb_dev_a">前往系统设置 → 关于手机（或版本信息），连续点击“版本号”7 次即可解锁开发者选项，然后返回点击配对。</string>
+    <string name="onboarding_adb_open_about">打开关于手机</string>
+    <string name="setup_adb_status_optional">ADB 未启用（可选）</string>
+    <string name="setup_adb_status_sub_optional">初始化时已跳过 · 随时点击配对即可加速</string>
+    <string name="setup_all_set_adb_optional">已就绪 · ADB 可选（未配对）</string>
+    <string name="check_adb_optional">可选 · 初始化时已跳过（可随时在设置中配对）。</string>
 </resources>

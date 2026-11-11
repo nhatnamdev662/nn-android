@@ -1599,4 +1599,16 @@
     <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d ile eşleştiriliyor</string>
     <string name="setup_adb_paired">Eşleştirme başarılı</string>
     <string name="setup_adb_pair_failed_generic">Eşleştirme başarısız</string>
+    <string name="onboarding_adb_title">Kablosuz Hata Ayıklama (ADB)</string>
+    <string name="onboarding_adb_text">İsteğe bağlı — NN\'nin hızlı sistem taraması yapmasını ve zor uygulamalarda (oyunlar, WebView) güvenilir dokunma/yazma gerçekleştirmesini sağlar.</string>
+    <string name="onboarding_adb_done">Kablosuz Hata Ayıklama etkin. ADB hibrit otomasyon hazır.</string>
+    <string name="onboarding_adb_pair">Kablosuz Hata Ayıklamayı Eşle</string>
+    <string name="onboarding_adb_connect_port">Zaten açık mı? Port Gir ve Bağlan</string>
+    <string name="onboarding_adb_dev_q">Geliştirici Seçeneklerini göremiyor musunuz?</string>
+    <string name="onboarding_adb_dev_a">Ayarlar → Telefon Hakkında bölümünü açıp Geliştirici Seçenekleri açılana kadar Derleme numarasına 7 kez dokunun, sonra geri dönüp Eşle\'ye basın.</string>
+    <string name="onboarding_adb_open_about">Telefon Hakkında\'yı Aç</string>
+    <string name="setup_adb_status_optional">ADB İsteğe Bağlı (Atlandı)</string>
+    <string name="setup_adb_status_sub_optional">Kurulumda atlandı · dilediğiniz zaman Eşle\'ye dokunun</string>
+    <string name="setup_all_set_adb_optional">Hazır · ADB isteğe bağlı (eşlenmedi)</string>
+    <string name="check_adb_optional">İsteğe bağlı · kurulumda atlandı (Ayarlar\'dan istediğiniz zaman eşleyebilirsiniz).</string>
 </resources>

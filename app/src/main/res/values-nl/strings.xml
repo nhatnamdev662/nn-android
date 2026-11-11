@@ -1597,4 +1597,16 @@
     <string name="setup_adb_pairing_in_progress">Koppelen met 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Koppeling geslaagd</string>
     <string name="setup_adb_pair_failed_generic">Koppelen mislukt</string>
+    <string name="onboarding_adb_title">Draadloze foutopsporing (ADB)</string>
+    <string name="onboarding_adb_text">Optioneel — laat NN snelle diagnoses uitvoeren en betrouwbaar tikken of typen in lastige apps (games, WebViews).</string>
+    <string name="onboarding_adb_done">Draadloze foutopsporing is actief. Hybride ADB-automatisering is klaar.</string>
+    <string name="onboarding_adb_pair">Draadloze foutopsporing koppelen</string>
+    <string name="onboarding_adb_connect_port">Al ingeschakeld? Poort invoeren en verbinden</string>
+    <string name="onboarding_adb_dev_q">Zie je Opties voor ontwikkelaars niet?</string>
+    <string name="onboarding_adb_dev_a">Open Instellingen → Over de telefoon en tik 7 keer op Buildnummer om Opties voor ontwikkelaars te ontgrendelen; kom terug en tik op Koppelen.</string>
+    <string name="onboarding_adb_open_about">Over de telefoon openen</string>
+    <string name="setup_adb_status_optional">ADB Optioneel (Overgeslagen)</string>
+    <string name="setup_adb_status_sub_optional">Overgeslagen bij instellen · tik altijd op Koppelen voor boost</string>
+    <string name="setup_all_set_adb_optional">Klaar · ADB optioneel (niet gekoppeld)</string>
+    <string name="check_adb_optional">Optioneel · overgeslagen bij instellen (koppel op elk moment via Instellingen).</string>
 </resources>

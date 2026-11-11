@@ -2196,5 +2196,19 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="setup_adb_paired">Ghép nối thành công</string>
     <string name="setup_adb_pair_failed_generic">Ghép nối thất bại</string>
 
+    <!-- Onboarding ADB & Optional Skip State -->
+    <string name="onboarding_adb_title">Gỡ lỗi không dây (ADB)</string>
+    <string name="onboarding_adb_text">Tùy chọn — giúp NN kiểm tra hệ thống tức thì và bấm/gõ ổn định trên các ứng dụng khó tương tác (game, WebView).</string>
+    <string name="onboarding_adb_done">Gỡ lỗi không dây đã hoạt động. Chế độ tự động hóa kép ADB đã sẵn sàng.</string>
+    <string name="onboarding_adb_pair">Ghép nối Gỡ lỗi không dây</string>
+    <string name="onboarding_adb_connect_port">Đã bật Gỡ lỗi không dây? Nhập cổng</string>
+    <string name="onboarding_adb_dev_q">Chưa thấy Tùy chọn nhà phát triển?</string>
+    <string name="onboarding_adb_dev_a">Vào Cài đặt máy → Giới thiệu điện thoại (hoặc Thông tin phần mềm), chạm 7 lần vào Số bản dựng / Phiên bản để mở khóa Tùy chọn nhà phát triển, sau đó quay lại bấm Ghép nối.</string>
+    <string name="onboarding_adb_open_about">Mở Giới thiệu điện thoại</string>
+    <string name="setup_adb_status_optional">ADB chưa bật (Tùy chọn)</string>
+    <string name="setup_adb_status_sub_optional">Đã bỏ qua lúc thiết lập · bấm Ghép nối bất cứ lúc nào để tăng tốc</string>
+    <string name="setup_all_set_adb_optional">Đã sẵn sàng · ADB tùy chọn (chưa ghép nối)</string>
+    <string name="check_adb_optional">Tùy chọn · đã bỏ qua khi thiết lập (có thể bật trong Cài đặt bất cứ lúc nào).</string>
+
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>

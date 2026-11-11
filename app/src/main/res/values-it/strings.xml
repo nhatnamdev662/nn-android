@@ -2031,4 +2031,16 @@
     <string name="setup_adb_pairing_in_progress">Associazione con 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Associazione riuscita</string>
     <string name="setup_adb_pair_failed_generic">Associazione non riuscita</string>
+    <string name="onboarding_adb_title">Debug wireless (ADB)</string>
+    <string name="onboarding_adb_text">Facoltativo — consente a NN diagnostiche rapide e tocchi o digitazione affidabili su app complesse (giochi, WebView).</string>
+    <string name="onboarding_adb_done">Debug wireless attivo. Automazione ibrida ADB pronta.</string>
+    <string name="onboarding_adb_pair">Associa Debug wireless</string>
+    <string name="onboarding_adb_connect_port">Già attivo? Inserisci porta e connetti</string>
+    <string name="onboarding_adb_dev_q">Non vedi Opzioni sviluppatore?</string>
+    <string name="onboarding_adb_dev_a">Apri Impostazioni → Informazioni sul telefono e tocca 7 volte Numero build per sbloccarle, poi torna e tocca Associa.</string>
+    <string name="onboarding_adb_open_about">Apri Info sul telefono</string>
+    <string name="setup_adb_status_optional">ADB Facoltativo (Saltato)</string>
+    <string name="setup_adb_status_sub_optional">Saltato nella configurazione · tocca Associa in qualsiasi momento</string>
+    <string name="setup_all_set_adb_optional">Pronto · ADB facoltativo (non associato)</string>
+    <string name="check_adb_optional">Facoltativo · saltato in configurazione (associa quando vuoi dalle Impostazioni).</string>
 </resources>

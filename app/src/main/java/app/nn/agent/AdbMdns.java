@@ -24,6 +24,7 @@ public final class AdbMdns {
     public interface Listener {
         void onPairingServiceDiscovered(String host, int port);
         void onConnectServiceDiscovered(String host, int port);
+        void onConnectServiceLost(String serviceName);
     }
 
     private static class ResolveRequest {
@@ -122,6 +123,9 @@ public final class AdbMdns {
             @Override
             public void onServiceLost(NsdServiceInfo serviceInfo) {
                 Log.d(TAG, "Connect service lost: " + serviceInfo.getServiceName());
+                if (listener != null) {
+                    listener.onConnectServiceLost(serviceInfo.getServiceName());
+                }
             }
         };
 
@@ -161,7 +165,7 @@ public final class AdbMdns {
 
     public synchronized void restart() {
         stop();
-        handler.postDelayed(this::start, 350);
+        handler.postDelayed(this::start, 100);
     }
 
     private synchronized void enqueueResolve(NsdServiceInfo serviceInfo, boolean isPairing) {

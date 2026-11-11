@@ -2032,4 +2032,16 @@
     <string name="setup_adb_pairing_in_progress">Memasangkan dengan 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Berhasil dipasangkan</string>
     <string name="setup_adb_pair_failed_generic">Pemasangan gagal</string>
+    <string name="onboarding_adb_title">Debugging Nirkabel (ADB)</string>
+    <string name="onboarding_adb_text">Opsional — memungkinkan NN menjalankan diagnostik cepat serta mengetuk/mengetik dengan andal di aplikasi sulit (game, WebView).</string>
+    <string name="onboarding_adb_done">Debugging Nirkabel aktif. Otomasi hibrid ADB siap.</string>
+    <string name="onboarding_adb_pair">Pasangkan Debugging Nirkabel</string>
+    <string name="onboarding_adb_connect_port">Sudah aktif? Masukkan Port &amp; Hubungkan</string>
+    <string name="onboarding_adb_dev_q">Opsi Pengembang tidak terlihat?</string>
+    <string name="onboarding_adb_dev_a">Buka Setelan → Tentang ponsel (atau Info perangkat lunak) dan ketuk Nomor build 7 kali hingga Opsi Pengembang terbuka, lalu kembali dan ketuk Pasangkan.</string>
+    <string name="onboarding_adb_open_about">Buka Tentang ponsel</string>
+    <string name="setup_adb_status_optional">ADB Opsional (Dilewati)</string>
+    <string name="setup_adb_status_sub_optional">Dilewati saat penyiapan · ketuk Pasangkan kapan saja</string>
+    <string name="setup_all_set_adb_optional">Siap · ADB opsional (belum dipasangkan)</string>
+    <string name="check_adb_optional">Opsional · dilewati saat penyiapan (buka Setelan untuk memasangkan kapan saja).</string>
 </resources>

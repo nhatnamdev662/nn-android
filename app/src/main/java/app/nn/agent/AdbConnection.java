@@ -77,8 +77,8 @@ public final class AdbConnection {
         sDisconnectListener = listener;
     }
 
-    private static final int CONNECT_TIMEOUT_MS = 5000;
-    private static final int HANDSHAKE_TIMEOUT_MS = 10000;
+    private static final int CONNECT_TIMEOUT_MS = 1000;
+    private static final int HANDSHAKE_TIMEOUT_MS = 8000;
     private static final int DEFAULT_EXEC_TIMEOUT_MS = 15000;
     private static final int MAX_TEXT_OUTPUT_BYTES = 1024 * 1024;
     private static final int MAX_RAW_OUTPUT_BYTES = 8 * 1024 * 1024;

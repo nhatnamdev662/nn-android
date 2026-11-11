@@ -2070,4 +2070,16 @@
     <string name="setup_adb_pairing_in_progress">Сполучення з 127.0.0.1:%1$d</string>
     <string name="setup_adb_paired">Сполучення успішне</string>
     <string name="setup_adb_pair_failed_generic">Помилка сполучення</string>
+    <string name="onboarding_adb_title">Бездротове налагодження (ADB)</string>
+    <string name="onboarding_adb_text">Необов\'язково — дає NN швидку діагностику та надійні натискання/введення у складних програмах (ігри, WebView).</string>
+    <string name="onboarding_adb_done">Бездротове налагодження активне. Гібридна автоматизація ADB готова.</string>
+    <string name="onboarding_adb_pair">Створити пару для бездротового налагодження</string>
+    <string name="onboarding_adb_connect_port">Уже ввімкнено? Ввести порт і підключити</string>
+    <string name="onboarding_adb_dev_q">Не бачите меню «Для розробників»?</string>
+    <string name="onboarding_adb_dev_a">Відкрийте Налаштування → Про телефон і торкніться 7 разів «Номер збірки», доки не з\'явиться меню розробника, потім поверніться й натисніть «Створити пару».</string>
+    <string name="onboarding_adb_open_about">Відкрити «Про телефон»</string>
+    <string name="setup_adb_status_optional">ADB не налаштовано (необов\'язково)</string>
+    <string name="setup_adb_status_sub_optional">Пропущено під час налаштування · можна підключити будь-коли</string>
+    <string name="setup_all_set_adb_optional">Готово · ADB необов\'язковий (не сполучено)</string>
+    <string name="check_adb_optional">Необов\'язково · пропущено під час налаштування (можна сполучити в Налаштуваннях будь-коли).</string>
 </resources>

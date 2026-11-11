@@ -1582,4 +1582,16 @@
     <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d와 페어링 중</string>
     <string name="setup_adb_paired">페어링 성공</string>
     <string name="setup_adb_pair_failed_generic">페어링 실패</string>
+    <string name="onboarding_adb_title">무선 디버깅 (ADB)</string>
+    <string name="onboarding_adb_text">선택 사항 — 빠른 시스템 진단 및 인식이 까다로운 앱(게임, 웹뷰 등)에서의 안정적인 탭·입력을 지원합니다.</string>
+    <string name="onboarding_adb_done">무선 디버깅이 활성화되었습니다. ADB 하이브리드 자동화가 준비되었습니다.</string>
+    <string name="onboarding_adb_pair">무선 디버깅 페어링</string>
+    <string name="onboarding_adb_connect_port">이미 켰나요? 포트 입력 후 연결</string>
+    <string name="onboarding_adb_dev_q">개발자 옵션이 보이지 않나요?</string>
+    <string name="onboarding_adb_dev_a">휴대전화 설정 → 휴대전화 정보(또는 소프트웨어 정보)에서 빌드 번호를 7번 연속 탭해 개발자 옵션을 켠 뒤 돌아와 페어링을 누르세요.</string>
+    <string name="onboarding_adb_open_about">휴대전화 정보 열기</string>
+    <string name="setup_adb_status_optional">ADB 선택 사항 (건너뜀)</string>
+    <string name="setup_adb_status_sub_optional">설정 중 건너뜀 · 언제든 페어링하여 하이브리드 가속 사용</string>
+    <string name="setup_all_set_adb_optional">준비 완료 · ADB 선택 사항 (미연결)</string>
+    <string name="check_adb_optional">선택 사항 · 초기 설정에서 건너뜀 (설정에서 언제든 페어링 가능).</string>
 </resources>
