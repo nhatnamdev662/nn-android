@@ -128,6 +128,12 @@ public class CheckActivity extends Screen {
                 getString(R.string.check_fix), () -> startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                 Uri.parse("package:" + getPackageName())))));
 
+        if (XiaomiHelper.isXiaomi()) {
+            r.add(new Result(getString(R.string.xiaomi_guide_title), true,
+                    getString(R.string.xiaomi_guide_desc), getString(R.string.check_fix),
+                    () -> XiaomiHelper.openPopupPermission(this)));
+        }
+
         Runnable openSettings = () -> startActivity(new Intent(this, SetupActivity.class));
         if (!Linux.installed(this)) {
             r.add(new Result(getString(R.string.check_linux), false, getString(R.string.check_linux_missing),

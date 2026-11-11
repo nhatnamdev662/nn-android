@@ -1947,12 +1947,12 @@ final class Tools {
     }
 
     private JSONObject screenshotOnce() throws Exception {
-        svc.setBubblePassThrough(true);
-        Thread.sleep(150);
         final CountDownLatch done = new CountDownLatch(1);
         final AtomicReference<Bitmap> shot = new AtomicReference<>();
         final AtomicReference<String> error = new AtomicReference<>();
+        svc.setBubblePassThrough(true);
         try {
+            Thread.sleep(150);
             svc.takeScreenshot(Display.DEFAULT_DISPLAY, svc.getMainExecutor(), new AccessibilityService.TakeScreenshotCallback() {
                 @Override
                 public void onSuccess(AccessibilityService.ScreenshotResult r) {

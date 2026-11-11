@@ -314,6 +314,31 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 replied ? Boolean.TRUE : null, null, null, null, null);
         setupCard(steps);
 
+        if (XiaomiHelper.isXiaomi()) {
+            list.addView(sectionLabel(this, getString(R.string.xiaomi_guide_title)));
+            LinearLayout xc = card();
+            xc.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 16));
+            xc.addView(text(this, getString(R.string.xiaomi_guide_desc), 13, MUTED));
+
+            Button btnPopup = outlinedButton(this, getString(R.string.xiaomi_btn_popup), ACCENT_TEXT);
+            btnPopup.setOnClickListener(v -> XiaomiHelper.openPopupPermission(this));
+            xc.addView(btnPopup, topGap(10));
+
+            Button btnAuto = outlinedButton(this, getString(R.string.xiaomi_btn_autostart), ACCENT_TEXT);
+            btnAuto.setOnClickListener(v -> XiaomiHelper.openAutostart(this));
+            xc.addView(btnAuto, topGap(8));
+
+            Button btnBattery = outlinedButton(this, getString(R.string.xiaomi_btn_battery), ACCENT_TEXT);
+            btnBattery.setOnClickListener(v -> XiaomiHelper.openBatterySaver(this));
+            xc.addView(btnBattery, topGap(8));
+
+            TextView tip = text(this, getString(R.string.xiaomi_recents_note), 12, MUTED);
+            tip.setPaddingRelative(0, dp(this, 6), 0, 0);
+            xc.addView(tip, topGap(6));
+
+            list.addView(xc);
+        }
+
         // ----------------------------------------------------------- appearance
         list.addView(sectionLabel(this, getString(R.string.setup_appearance)));
         LinearLayout ap = card();

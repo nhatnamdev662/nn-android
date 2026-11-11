@@ -1044,10 +1044,19 @@ final class Bubble implements ChatHub.Listener {
         if (expanded && pendingConfirm == null) collapse();
     }
 
+    boolean isExpanded() {
+        return expanded;
+    }
+
+    boolean isInputFocused() {
+        return input != null && input.hasFocus();
+    }
+
     /** The bubble can be turned off in the app; it then only appears for approval cards. */
     void applyEnabled() {
         if (locked && expanded && pendingConfirm == null) collapse();
         boolean show = !locked && (Prefs.bubbleEnabled(svc) || expanded || pendingConfirm != null || controlling || svc.paused());
+        if (hub != null && hub.runningCount() == 0 && passThrough) setPassThrough(false);
         boolean wasHidden = root.getVisibility() != View.VISIBLE;
         root.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show && wasHidden && !expanded) popIn();
@@ -1061,6 +1070,7 @@ final class Bubble implements ChatHub.Listener {
     void setControlling(boolean on) {
         if (controlling == on) return;
         controlling = on;
+        if (on && expanded && pendingConfirm == null) collapse();
         applyEnabled();
         refreshStatus();
     }
@@ -1384,7 +1394,6 @@ final class Bubble implements ChatHub.Listener {
         }
         input.setText("");
         updateTypingIndicator();
-        collapse();
     }
 
     private ImageButton mic;

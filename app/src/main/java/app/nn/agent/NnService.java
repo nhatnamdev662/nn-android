@@ -95,6 +95,7 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         bubble = new Bubble(this);
         control = new ControlIndicator(this);
         bubble.show();
+        KeepAliveService.start(this);
         server = new McpServer(Prefs.token(this), this);
         server.start();
         if (Prefs.adbEnabled(this)) {
@@ -161,7 +162,12 @@ public class NnService extends AccessibilityService implements McpServer.Handler
                 app = w;
             }
         }
-        if (type == AccessibilityEvent.TYPE_WINDOWS_CHANGED) bubble.onKeyboardTop(top);
+        if (type == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            bubble.onKeyboardTop(top);
+            if (!getSystemService(KeyguardManager.class).isKeyguardLocked()) {
+                bubble.setLocked(false);
+            }
+        }
         // Opening Home or Recents folds the panel. Decided by the app actually in front changing: the home
         // screen also reports changes while it's already there (e.g. the keyboard opening or closing over it).
         android.view.accessibility.AccessibilityNodeInfo root = app == null ? null : app.getRoot();
@@ -169,8 +175,14 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         // NN's own windows don't count (the text cursor's handle over the bubble is one)
         if (pkg == null || pkg.toString().equals(getPackageName())) return;
         String front = pkg.toString();
-        // Recents may belong to another launcher than Home (e.g. the phone's own while Nova handles Home)
-        if (!front.equals(frontApp) && isLauncher(front)) bubble.onLauncherShown();
+        // Recents may belong to another launcher than Home (e.g. the phone's own while Nova handles Home).
+        // On Xiaomi/HyperOS, keyboard open/close and gesture changes can briefly report com.miui.home;
+        // never collapse while the user is actively typing in the bubble panel!
+        if (!front.equals(frontApp) && isLauncher(front)) {
+            if (!(bubble.isExpanded() && (top > 0 || bubble.isInputFocused()))) {
+                bubble.onLauncherShown();
+            }
+        }
         if (!front.equals(frontApp)) { // what they pointed at was in the app that's gone
             marks.clear("LEFT: the user switched to another app before doing it.");
         }
@@ -245,6 +257,7 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         if (marks != null) marks.clear();
         if (bubble != null) bubble.remove();
         if (control != null) control.end();
+        KeepAliveService.stop(this);
         instance = null;
         super.onDestroy();
     }

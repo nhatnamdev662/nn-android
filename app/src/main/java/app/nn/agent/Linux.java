@@ -70,9 +70,24 @@ final class Linux {
         if (!staging.renameTo(root)) throw new IOException(c.getString(R.string.linux_move_failed));
     }
 
+    static String nativeLibraryDir(Context c) {
+        String lib = c.getApplicationInfo().nativeLibraryDir;
+        if (lib == null || !new File(lib, "libproot.so").exists()) {
+            try {
+                android.content.pm.ApplicationInfo ai = c.getPackageManager()
+                        .getApplicationInfo(c.getPackageName(), 0);
+                if (ai != null && ai.nativeLibraryDir != null && new File(ai.nativeLibraryDir, "libproot.so").exists()) {
+                    lib = ai.nativeLibraryDir;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return lib != null ? lib : c.getApplicationInfo().nativeLibraryDir;
+    }
+
     /** The proot command line for running {@code cmd} inside Alpine. */
     static List<String> command(Context c, String... cmd) {
-        String lib = c.getApplicationInfo().nativeLibraryDir;
+        String lib = nativeLibraryDir(c);
         List<String> a = new ArrayList<>(Arrays.asList(lib + "/libproot.so",
                 "--kill-on-exit", "--link2symlink", "-0",
                 "-r", root(c).getAbsolutePath(),
@@ -95,7 +110,7 @@ final class Linux {
     }
 
     static ProcessBuilder builder(Context c, String... cmd) {
-        String lib = c.getApplicationInfo().nativeLibraryDir;
+        String lib = nativeLibraryDir(c);
         File tmp = new File(c.getCacheDir(), "proot");
         tmp.mkdirs();
         ProcessBuilder pb = new ProcessBuilder(command(c, cmd));

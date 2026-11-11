@@ -25,6 +25,8 @@
     <!-- the location tool, asked for the first time it's used (not in the Play build) -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- Needed on Android 11+ to see launchable apps for open_app / list_apps -->
     <queries>
@@ -224,6 +226,15 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_config" />
+        </service>
+
+        <service
+            android:name=".KeepAliveService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keep NN Agent accessibility bubble alive and prevent background kill on MIUI/HyperOS" />
         </service>
 
         <!-- Notification rules: sees notifications from the apps the user's rules watch (Settings → Notification rules) -->

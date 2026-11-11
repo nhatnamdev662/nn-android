@@ -2148,5 +2148,17 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="chat_code_copied">Đã sao chép mã</string>
     <string name="chat_deleted">Đã xóa tin nhắn</string>
 
+    <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
+    <string name="keepalive_channel_name">Dịch vụ chạy ngầm (Duy trì hoạt động)</string>
+    <string name="keepalive_channel_desc">Duy trì bong bóng và dịch vụ NN Agent ổn định dưới nền</string>
+    <string name="keepalive_title">NN Agent đang hoạt động</string>
+    <string name="keepalive_text">Chạm để mở NN Agent</string>
+    <string name="xiaomi_guide_title">Tối ưu cho máy Xiaomi / HyperOS</string>
+    <string name="xiaomi_guide_desc">MIUI/HyperOS có cơ chế chặn cửa sổ và tiến trình ngầm rất gắt. Hãy bật 3 mục sau để bong bóng không bị mất phản hồi hoặc tự đóng:</string>
+    <string name="xiaomi_btn_popup">1. Cửa sổ pop-up dưới nền</string>
+    <string name="xiaomi_btn_autostart">2. Tự khởi chạy (Autostart)</string>
+    <string name="xiaomi_btn_battery">3. Tiết kiệm pin: Không hạn chế</string>
+    <string name="xiaomi_recents_note">Mẹo: Vào Đa nhiệm (Recent apps), nhấn giữ NN Agent và bấm biểu tượng Ổ khóa để không bị dọn RAM.</string>
+
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>

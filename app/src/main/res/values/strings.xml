@@ -2166,5 +2166,17 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="chat_code_copied">Code copied</string>
     <string name="chat_deleted">Message deleted</string>
 
+    <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
+    <string name="keepalive_channel_name">Background Service (Keep-Alive)</string>
+    <string name="keepalive_channel_desc">Keeps NN Agent and floating bubble active in the background</string>
+    <string name="keepalive_title">NN Agent is running</string>
+    <string name="keepalive_text">Tap to open NN Agent</string>
+    <string name="xiaomi_guide_title">Xiaomi / HyperOS Optimization</string>
+    <string name="xiaomi_guide_desc">MIUI/HyperOS restricts background overlays and services. Enable these 3 settings to prevent the chat bubble from disappearing or freezing:</string>
+    <string name="xiaomi_btn_popup">1. Background pop-up window</string>
+    <string name="xiaomi_btn_autostart">2. Autostart</string>
+    <string name="xiaomi_btn_battery">3. Battery: No restrictions</string>
+    <string name="xiaomi_recents_note">Tip: In Recent Apps (multitasking), long-press NN Agent and tap the Lock icon so it won\'t be cleared from RAM.</string>
+
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>
