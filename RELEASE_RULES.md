@@ -32,3 +32,9 @@
 - **Cache kiểm tra tài khoản AI:** Tránh gọi lệnh `Linux.exec()` liên tục khi đổi tab; giữ cache 60s (`REFRESH_TTL_MS = 60_000`) trừ khi người dùng chủ động thao tác.
 - **Debounce Render:** Luôn gom các sự kiện giao diện trong 100ms thành 1 lần render duy nhất (`scheduleRender()`).
 - **Khóa View khi cuộn:** Trong `SetupActivity`, khi ngón tay đang chạm hoặc màn hình đang cuộn quán tính (`isUserScrolling == true`), tuyệt đối hoãn việc xóa/vẽ lại View (`list.removeAllViews()`) cho đến khi màn hình dừng cuộn hẳn để tránh đơ/giật lag.
+
+---
+
+### 5. SỔ TAY LƯU Ý KỸ THUẬT (`AGENT_NOTES.md`)
+- **Đọc trước khi làm:** Mọi agent tham gia task mới phải đọc [AGENT_NOTES.md](./AGENT_NOTES.md) để nắm các bẫy môi trường (`JAVA_HOME`, ADB), bẫy ROM Vivo/OEM (`NsdManager`, chạy nền), các nguyên tắc UI/UX đã chốt và danh sách các điểm dễ sai.
+- **Cập nhật sau mỗi task:** Kết thúc mỗi task, bắt buộc bổ sung các lưu ý/kinh nghiệm mới phát sinh vào `AGENT_NOTES.md` trước khi bàn giao.
