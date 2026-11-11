@@ -61,6 +61,9 @@ final class Helper {
             try {
                 sync(app);
                 writePermissions(app);
+                if ("ask".equals(cmdName) && sessionId != null) {
+                    writeRuntimeContext(app, sessionId, args.length > 3 ? args[3] : "0");
+                }
                 Process p = Linux.builder(app, cmd).start();
                 p.getOutputStream().close();
                 // the helper reports through the local server; its own output is only kept for debugging
@@ -83,8 +86,8 @@ final class Helper {
         });
     }
 
-    /** The user's App permissions choices, which nn-run appends to the agent's instructions. */
-    static void writePermissions(Context c) {
+    /** The user's App permissions choices and live state, which nn-run appends to the agent's instructions. */
+    static synchronized void writePermissions(Context c) {
         // the background browser's instructions go along only while it's on (nn-run looks for this file)
         File on = new File(Linux.root(c), "root/.nn/browser-on");
         try {
@@ -97,17 +100,17 @@ final class Helper {
             if ("trust".equals(e.getValue())) trusted.append("- ").append(appName(c, e.getKey())).append(" (").append(e.getKey()).append(")\n");
         }
         String text = "";
-        if (trusted.length() > 0) text += "Các ứng dụng người dùng đặt mức Tin cậy (Trust):\n" + trusted;
+        if (trusted.length() > 0) text += "Apps set to Trusted by the user (Trust mode):\n" + trusted;
         if (Prefs.autonomousDefault(c)) {
-            text += (text.isEmpty() ? "" : "\n") + "Người dùng cũng tin cậy mọi ứng dụng chưa thiết lập riêng, ngoại trừ các ứng dụng nhắn tin, "
-                    + "mạng xã hội, cuộc gọi, email, mua sắm, thanh toán và ngân hàng.\n";
+            text += (text.isEmpty() ? "" : "\n") + "Other unconfigured apps default to Trusted, except messaging, social, "
+                    + "calls, email, shopping, payment, and banking apps.\n";
         }
         StringBuilder never = new StringBuilder();
-        for (Guard.Rule r : Guard.rules(c, "allow")) never.append("- “").append(r.label).append("” trong ")
-                .append(r.pkg == null ? "mọi ứng dụng" : appName(c, r.pkg)).append("\n");
+        for (Guard.Rule r : Guard.rules(c, "allow")) never.append("- \"").append(r.label).append("\" in ")
+                .append(r.pkg == null ? "all apps" : appName(c, r.pkg)).append("\n");
         if (never.length() > 0) {
-            text += (text.isEmpty() ? "" : "\n") + "Các nút người dùng đánh dấu \"Không bao giờ hỏi\" (bấm trực tiếp không cần confirm "
-                    + "khi tác vụ yêu cầu):\n" + never;
+            text += (text.isEmpty() ? "" : "\n") + "Buttons marked \"Never ask\" (tap directly without confirm when "
+                    + "the task requires it):\n" + never;
         }
         File f = new File(Linux.root(c), "root/.nn/permissions.md");
         try {
@@ -120,6 +123,35 @@ final class Helper {
             }
         } catch (IOException e) {
             android.util.Log.w("NN Agent", "permissions not written", e);
+        }
+    }
+
+    /** Writes compact live phone state (language, ADB, Wi-Fi, Linux mode, browser, foreground) scoped to this chat session. */
+    private static void writeRuntimeContext(Context c, String sid, String devMode) {
+        if (sid == null || !sid.matches("[A-Za-z0-9_-]{1,64}")) return;
+        try {
+            String lang = Ui.locale(c).getLanguage();
+            if (lang == null || lang.isEmpty()) lang = "en";
+            boolean wifi = AdbManager.isWifiAvailable(c);
+            String adbState = !Prefs.adbEnabled(c) ? "off"
+                    : AdbManager.isConnected() ? "connected:" + AdbManager.port
+                    : !wifi ? "disconnected_no_wifi"
+                    : "disconnected";
+            boolean browserOn = !"rule".equals(devMode) && Browser.available(c);
+            android.app.KeyguardManager km = c.getSystemService(android.app.KeyguardManager.class);
+            boolean locked = km != null && km.isKeyguardLocked();
+            NnService svc = NnService.get();
+            String screen = locked ? "locked"
+                    : (svc != null && svc.foregroundPkg() != null ? svc.foregroundPkg() : "unlocked");
+            String line = String.format(java.util.Locale.ROOT,
+                    "[NN Context | ui_lang=%s | adb=%s | wifi=%s | linux=%s | browser=%s | screen=%s]",
+                    lang, adbState, wifi ? "on" : "off", devMode, browserOn ? "on" : "off", screen);
+            File dir = new File(Linux.root(c), "root/.nn/sessions/" + sid);
+            dir.mkdirs();
+            try (OutputStream o = new FileOutputStream(new File(dir, "runtime-ctx"))) {
+                o.write(line.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+        } catch (Throwable ignored) {
         }
     }
 

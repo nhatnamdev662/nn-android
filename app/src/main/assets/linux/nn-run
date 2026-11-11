@@ -14,7 +14,7 @@
 #   nn-run <token> transcript <claude|codex> <file>   last messages of a session (nn_transcript)
 #   nn-run <token> adopt <session> <claude|codex> <agent-session-id>  continue that session as a NN chat
 # Every event sent to the bubble carries "nn_session" so the app can route it.
-HELPER_VERSION=27
+HELPER_VERSION=28
 set -u
 export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The claude launcher sets BUN_OPTIONS with a path relative to its folder; never inherit a stale one.
@@ -283,8 +283,20 @@ if [ -n "${FILES:-}" ]; then
   if [ ${#ATT[@]} -gt 0 ]; then
     MSG="$MSG
 
-[NgÆ°á»i dÃ¹ng Ä‘Ã£ Ä‘Ã­nh kÃ¨m $( [ ${#ATT[@]} -eq 1 ] && echo "1 tá»‡p tin" || echo "${#ATT[@]} tá»‡p tin" ), Ä‘Æ°á»£c lÆ°u trÃªn Ä‘iá»‡n thoáº¡i nÃ y. Má»Ÿ chÃºng báº±ng cÃ´ng cá»¥ Read cá»§a báº¡n (áº£nh sáº½ hiá»ƒn thá»‹ trá»±c quan):
+[User attached $( [ ${#ATT[@]} -eq 1 ] && echo "1 file" || echo "${#ATT[@]} files" ) saved on this phone. Inspect them with your Read tool (images render visually):
 $(printf -- '- %s\n' "${ATT[@]}")]"
+  fi
+fi
+
+RUNTIME_CTX=$(cat "$S/runtime-ctx" 2>/dev/null || true)
+PREV_DEV=$(cat "$S/last-dev" 2>/dev/null || true)
+printf '%s' "$DEV" > "$S/last-dev"
+MODE_DELTA=""
+if [ -n "$PREV_DEV" ] && [ "$PREV_DEV" != "$DEV" ] && [ "$DEV" != rule ]; then
+  if [ "$DEV" = 1 ]; then
+    MODE_DELTA="[System update: Linux tools are now ENABLED for this chat; work inside $W.]"
+  else
+    MODE_DELTA="[System update: Linux tools are now DISABLED for this chat; do not call shell or file tools.]"
   fi
 fi
 
@@ -302,18 +314,47 @@ $(cat "$D/browser-prompt.md" 2>/dev/null)"
 if [ "$DEV" = 1 ]; then
   SYSTEM="$SYSTEM
 
-CÃ´ng cá»¥ Linux Ä‘ang Báº¬T trong phiÃªn chat nÃ y: báº¡n cÃ³ thá»ƒ cháº¡y cÃ¡c lá»‡nh shell vÃ  táº¡o hoáº·c chá»‰nh sá»­a tá»‡p tin. LÃ m viá»‡c bÃªn trong $W (má»—i dá»± Ã¡n má»™t thÆ° má»¥c riÃªng).
-TrÆ°á»›c khi xÃ¢y dá»±ng á»©ng dá»¥ng Android, hÃ£y Ä‘á»c ká»¹ ká»¹ nÄƒng android-app (Ä‘á»‘i vá»›i Claude Code) hoáº·c AGENTS.md (Ä‘á»‘i vá»›i Codex, OpenCode, Antigravity, Grok) trong $W vÃ  tuÃ¢n thá»§ theo."
+Linux tools are ENABLED in this chat: you may run shell commands and create or edit files inside $W (one subfolder per project).
+Before building an Android app, read and follow the android-app skill (Claude Code) or AGENTS.md (Codex, OpenCode, Antigravity, Grok) inside $W."
   # Settings, GitHub: git and gh are signed in to the user account
   [ -s "$HOME/.config/gh/hosts.yml" ] && SYSTEM="$SYSTEM
-git vÃ  GitHub CLI (gh) Ä‘Ã£ Ä‘Äƒng nháº­p vÃ o tÃ i khoáº£n GitHub cá»§a ngÆ°á»i dÃ¹ng: báº¡n cÃ³ thá»ƒ clone, commit, push vÃ  má»Ÿ pull request.
-CÃ¡c thao tÃ¡c push mÃ£ nguá»“n, táº¡o repository, má»Ÿ issue hoáº·c pull request lÃ  hÃ nh Ä‘á»™ng hÆ°á»›ng ra ngoÃ i: Báº®T BUá»˜C pháº£i gá»i confirm trÆ°á»›c vá»›i ná»™i dung báº¡n dá»± Ä‘á»‹nh thá»±c hiá»‡n."
+git and GitHub CLI (gh) are signed in to the user's GitHub account: you may clone, commit, push, and open pull requests.
+Pushing code, creating repositories, or opening issues/PRs are outward actions: call confirm first with the intended details."
 elif [ "$DEV" = 0 ]; then
   SYSTEM="$SYSTEM
 
-CÃ´ng cá»¥ Linux Ä‘ang Táº®T trong phiÃªn chat nÃ y: khÃ´ng Ä‘Æ°á»£c cháº¡y lá»‡nh shell hoáº·c chá»‰nh sá»­a tá»‡p tin. Náº¿u ngÆ°á»i dÃ¹ng yÃªu cáº§u Ä‘iá»u gÃ¬ Ä‘Ã³ cáº§n Ä‘áº¿n cÃ´ng cá»¥ Linux (nhÆ° xÃ¢y dá»±ng á»©ng dá»¥ng, cháº¡y lá»‡nh há»‡ thá»‘ng), hÃ£y hÆ°á»›ng dáº«n há» báº­t CÃ´ng cá»¥ Linux báº±ng nÃºt chip ngay dÆ°á»›i tiÃªu Ä‘á» phiÃªn chat nÃ y, rá»“i yÃªu cáº§u láº¡i."
+Linux tools are DISABLED in this chat: do not run shell commands or modify files. If a request requires Linux tools (building apps, running shell scripts), instruct the user to tap the Linux tools chip below this chat's title bar and resend."
 fi
+[ -n "$RUNTIME_CTX" ] && SYSTEM="$SYSTEM
 
+$RUNTIME_CTX"
+
+fetch_mcp_list() {
+  curl -s -m 10 -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
+    "$URL/mcp?chat=$SID" 2>/dev/null
+}
+
+format_mcp_sigs() {
+  local prefix=${1:-}
+  jq -r --arg pfx "$prefix" '[.result.tools[] | (.inputSchema.required // []) as $req
+    | "\($pfx)\(.name)(" + ((.inputSchema.properties // {}) | keys_unsorted
+      | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
+    | join(", ")' 2>/dev/null
+}
+
+with_runtime_prefix() {
+  local base=$1 prefix=""
+  [ -n "$RUNTIME_CTX" ] && prefix="$RUNTIME_CTX"
+  if [ -n "$MODE_DELTA" ]; then
+    [ -n "$prefix" ] && prefix="$prefix"$'\n'"$MODE_DELTA" || prefix="$MODE_DELTA"
+  fi
+  if [ -n "$prefix" ]; then
+    printf '%s\n\n%s' "$prefix" "$base"
+  else
+    printf '%s' "$base"
+  fi
+}
 # NN's shared skills (Settings, Skills) live in ~/.agents/skills, where Codex and OpenCode look: Claude Code gets a
 # link to each in its own folder (a skill of the same name already there wins), and links to removed ones go.
 link_skills() {
@@ -402,16 +443,16 @@ run_codex() {
   for f in "${IMGS[@]}"; do img+=("--image=$f"); done
   cd "$W" || return 1
   if [ -s "$S/codex-thread" ]; then
+    prompt=$(with_runtime_prefix "$MSG")
     NN_TOKEN=$TOKEN codex exec "${cfg[@]}" "${sandbox[@]}" --json --skip-git-repo-check \
       resume "${img[@]}" -- "$(cat "$S/codex-thread")" "$prompt" </dev/null 2>"$S/last-error.log"
   else
     # codex exec has no system-prompt flag, so NN's instructions lead the first message.
-    prompt="$SYSTEM"$'\n\n---\n\nTin nhắn của người dùng từ bong bóng NN:\n'"$MSG"
+    prompt="$SYSTEM"$'\n\n---\n\nUser message from the NN bubble:\n'"$MSG"
     NN_TOKEN=$TOKEN codex exec "${cfg[@]}" "${sandbox[@]}" "${img[@]}" --json --skip-git-repo-check \
       -- "$prompt" </dev/null 2>"$S/last-error.log"
   fi
 }
-
 # Translate Codex's JSONL events into the Claude Code stream format the bubble understands.
 stream_codex() {
   local pics_since="$S/codex-pictures-since"
@@ -471,13 +512,20 @@ stream_codex() {
 # auto-update or sharing. Normal mode sets shell and edits to "ask", which a non-interactive run
 # auto-rejects ("deny" would drop those tools, and OpenCode's free models refuse a changed tool set).
 run_opencode() {
-  # OpenCode names MCP tools <server>_<tool>; small models otherwise call "read_screen" and give up
-  printf '%s\n\n%s\n' "$SYSTEM" "Trong ứng dụng này, các công cụ điện thoại được đặt tiền tố phone_: phone_read_screen, phone_tap, \
-phone_long_press, phone_type_text, phone_scroll, phone_swipe, phone_press, phone_open_app, phone_list_apps, phone_open_url, \
-phone_screenshot, phone_wait, phone_confirm, phone_ask, phone_notify, phone_reply_notification, phone_schedule_message, phone_list_scheduled, phone_cancel_scheduled, phone_update_nn, phone_install_apk và phone_wait_for_install\
-$([ "$BROWSER" = 1 ] && printf '%s' ", và đối với trình duyệt nền: phone_browser_open, phone_browser_read, phone_browser_click, \
-phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browser_back và phone_browser_tabs"). Hãy luôn gọi đúng các \
-tên chính xác này; chúng khả dụng trong mọi tin nhắn của phiên trò chuyện này." > "$S/system.md"
+  # OpenCode names MCP tools <server>_<tool>; fetch live list with complete fallback so small models see every tool
+  local oc_list oc_sigs oc_fallback
+  oc_fallback="phone_read_screen, phone_tap, phone_long_press, phone_type_text, phone_scroll, phone_swipe, phone_press, \
+phone_open_app, phone_list_apps, phone_open_url, phone_screenshot, phone_wait, phone_wait_for, phone_do_steps, \
+phone_collect, phone_find, phone_point_out, phone_confirm, phone_ask, phone_notify, phone_reply_notification, \
+phone_schedule_message, phone_list_scheduled, phone_cancel_scheduled, phone_update_nn, phone_install_apk, \
+phone_wait_for_install, phone_clipboard_read, phone_clipboard_write, phone_set_alarm, phone_set_timer, phone_share, \
+phone_save_to_downloads, phone_device_status, phone_take_photo, phone_location, phone_notifications, phone_media, \
+phone_calendar_events, phone_add_calendar_event, phone_adb_shell"
+  [ "$BROWSER" = 1 ] && oc_fallback="$oc_fallback, phone_browser_open, phone_browser_read, phone_browser_click, \
+phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browser_back, phone_browser_tabs"
+  oc_list=$(fetch_mcp_list)
+  oc_sigs=$(format_mcp_sigs "phone_" <<<"$oc_list")
+  printf '%s\n\n%s\n' "$SYSTEM" "In this chat, Android phone MCP tools are prefixed phone_: ${oc_sigs:-$oc_fallback}. Call these exact tool names directly; they remain available throughout this session." > "$S/system.md"
   local cfg v2=0
   oc2 && v2=1
   # OpenCode 2 ignores instructions given through OPENCODE_CONFIG_CONTENT (the model never saw this prompt),
@@ -506,16 +554,18 @@ tên chính xác này; chúng khả dụng trong mọi tin nhắn của phiên t
           + (if .value.window > 0 then {limit:{context:.value.window, output:([.value.window / 4, 32000] | min | floor)}}
              else {} end))))})}}' "$D/providers/$SVC.json") || return 1
   fi
-  local args=(run --format json)
+  local args=(run --format json) oc_msg="$MSG"
   [ "$v2" = 1 ] && args+=(--standalone)
-  [ -s "$S/opencode-session" ] && args+=(-s "$(cat "$S/opencode-session")")
+  if [ -s "$S/opencode-session" ]; then
+    args+=(-s "$(cat "$S/opencode-session")")
+    oc_msg=$(with_runtime_prefix "$MSG")
+  fi
   [ -n "$SVC" ] && MODEL="nn-$SVC/$SVCM"
   [ -n "${MODEL:-}" ] && args+=(-m "$MODEL")
   local f
   for f in "${ATT[@]}"; do args+=(-f "$f"); done
-  cd "$W" && OPENCODE_CONFIG_CONTENT=$cfg opencode "${args[@]}" -- "$MSG" </dev/null 2>"$S/last-error.log"
+  cd "$W" && OPENCODE_CONFIG_CONTENT=$cfg opencode "${args[@]}" -- "$oc_msg" </dev/null 2>"$S/last-error.log"
 }
-
 # Translate OpenCode's JSON events into the Claude Code stream format the bubble understands.
 # Only the text of the step that ends the turn (its answer) is shown: text written before tool calls is
 # the model thinking out loud (free models even leak their reasoning, ending in </think>), and NN
@@ -574,9 +624,8 @@ stream_opencode() {
 # with everything else (the sign-in, conversations) linked to the real ~/.gemini/antigravity-cli.
 # Only the phone tools (and the chat's attachments) are pre-approved; developer mode skips agy's permission checks,
 # like Codex's full access. timeoutSeconds: an approval card may wait for the user (10 minutes, as for the others).
-AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url",
-"screenshot","wait","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled",
-"update_nn","install_apk","wait_for_install","point_out","adb_shell"]'
+AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url","screenshot","wait","wait_for","do_steps","collect","find","point_out","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled","update_nn","install_apk","wait_for_install","clipboard_read","clipboard_write","set_alarm","set_timer","share","save_to_downloads","device_status","take_photo","location","notifications","media","calendar_events","add_calendar_event","adb_shell"]'
+[ "$BROWSER" = 1 ] && AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url","screenshot","wait","wait_for","do_steps","collect","find","point_out","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled","update_nn","install_apk","wait_for_install","clipboard_read","clipboard_write","set_alarm","set_timer","share","save_to_downloads","device_status","take_photo","location","notifications","media","calendar_events","add_calendar_event","adb_shell","browser_open","browser_read","browser_click","browser_type","browser_scroll","browser_screenshot","browser_back","browser_tabs"]'
 run_agy() {
   local h=$S/agy-home g=$HOME/.gemini/antigravity-cli f list tools sigs
   mkdir -p "$h/.gemini/config" "$h/.gemini/antigravity-cli" "$g" "$HOME/.gemini/config"
@@ -585,7 +634,7 @@ run_agy() {
     case "${f##*/}" in settings.json|brain) continue ;; esac
     ln -sfn "$f" "$h/.gemini/antigravity-cli/${f##*/}"
   done
-  # agy saves a long tool result (list_apps, â€¦) under brain/<conversation>/ and has the model read it back, but it
+  # agy saves a long tool result (list_apps, ...) under brain/<conversation>/ and has the model read it back, but it
   # only lets the model read inside its own folder, and a link out of it doesn't count: each chat keeps its own brain/
   [ -L "$h/.gemini/antigravity-cli/brain" ] && rm -f "$h/.gemini/antigravity-cli/brain"
   mkdir -p "$h/.gemini/antigravity-cli/brain"
@@ -595,30 +644,23 @@ run_agy() {
   ( umask 077
     jq -n --arg url "$URL/mcp?chat=$SID" --arg auth "Bearer $TOKEN" \
       '{mcpServers:{phone:{url:$url, headers:{Authorization:$auth}, timeoutSeconds:600}}}' > "$h/.gemini/config/mcp_config.json" )
-  # the phone's tools as the server lists them (a newer NN may have more); the known list if that fails
-  list=$(curl -s -m 10 -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-    -H 'Accept: application/json, text/event-stream' --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
-    "$URL/mcp?chat=$SID")
+  # the phone's tools as the server lists them (a newer NN may have more); complete fallback if that fails
+  list=$(fetch_mcp_list)
   tools=$(jq -c '[.result.tools[].name] | select(length > 0)' <<<"$list" 2>/dev/null)
-  # and their arguments, "tap(element?, x?, y?)": agy itself only lists tool names, and reads a tool's description
-  # file before using it (a model round trip each), or guesses the arguments
-  sigs=$(jq -r '[.result.tools[] | (.inputSchema.required // []) as $req | "\(.name)(" + ((.inputSchema.properties // {})
-    | keys_unsorted | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
-    | join(", ")' <<<"$list" 2>/dev/null)
+  sigs=$(format_mcp_sigs <<<"$list")
   jq -n --argjson t "${tools:-$AGY_PHONE_TOOLS}" --arg files "$S/files" --arg brain "$h/.gemini/antigravity-cli/brain" \
     '{permissions:{allow:([$t[] | "mcp(phone/\(.))"] + ["read_file(\($files))", "read_file(\($brain))"])}}' \
     > "$h/.gemini/antigravity-cli/settings.json"
-  local prompt=$MSG args names note
-  # agy has no system-prompt flag, so NN's instructions lead a new conversation's first message (as for Codex).
-  # It also lists MCP tools only by file: say how to call the phone's, or it goes looking (e.g. with ls, which a
-  # normal chat refuses, and then it stops).
+  local prompt args note
+  # agy has no system-prompt flag, so NN's instructions lead turn 1; resumed turns carry a compact runtime context delta.
   [ -n "$sigs" ] || sigs=$(jq -r 'join(", ")' <<<"$AGY_PHONE_TOOLS" 2>/dev/null)
-  note="Trong ứng dụng này, các công cụ điện thoại nằm trên MCP server mang tên \"phone\". Hãy gọi ngay bằng call_mcp_tool \
-(ServerName \"phone\", ToolName và Arguments như được liệt kê sau đây; dấu ? đánh dấu tham số tùy chọn): $sigs. Bạn không cần \
-phải đọc các tệp mô tả trước; chỉ khi tham số chưa rõ ràng mới cần read_file \
-$h/.gemini/antigravity-cli/mcp/phone/<tool>.json."
-  [ "$DEV" = 1 ] || note="$note Các lệnh Shell hiện không khả dụng trong phiên trò chuyện này; không thử gọi chúng."
-  [ -s "$S/agy-conversation" ] || prompt="$SYSTEM"$'\n\n'"$note"$'\n\n---\n\nTin nhắn của người dùng từ bong bóng NN:\n'"$MSG"
+  note="In this chat, Android phone tools are on the MCP server named \"phone\". Call them directly via call_mcp_tool (ServerName \"phone\", ToolName and Arguments as listed; ? = optional): $sigs. Only read_file $h/.gemini/antigravity-cli/mcp/phone/<tool>.json if a parameter is unclear."
+  [ "$DEV" = 1 ] || note="$note Shell commands are disabled in this chat; do not call them."
+  if [ -s "$S/agy-conversation" ]; then
+    prompt=$(with_runtime_prefix "$MSG")
+  else
+    prompt="$SYSTEM"$'\n\n'"$note"$'\n\n---\n\nUser message from the NN bubble:\n'"$MSG"
+  fi
   args=(-p "$prompt" --output-format stream-json)
   [ -s "$S/agy-conversation" ] && args+=(--conversation "$(cat "$S/agy-conversation")")
   [ -n "${MODEL:-}" ] && args+=(--model "$MODEL")
@@ -790,15 +832,9 @@ run_grok() {
       fi
     } > "$h/config.toml" )
   # the phone's tools with their arguments, "tap(element?, x?, y?)": grok otherwise looks each one up first (search_tool)
-  sigs=$(curl -s -m 10 -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-    -H 'Accept: application/json, text/event-stream' --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
-    "$URL/mcp?chat=$SID" | jq -r '[.result.tools[] | (.inputSchema.required // []) as $req | "\(.name)(" + ((.inputSchema.properties // {})
-    | keys_unsorted | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
-    | join(", ")' 2>/dev/null)
-  note="Trong ứng dụng này, các công cụ điện thoại nằm trên MCP server mang tên \"phone\". Hãy gọi ngay bằng use_tool \
-(tool_name \"phone__<tool>\", ví dụ phone__read_screen, và tool_input kèm các đối số${sigs:+ như được liệt kê tại đây; dấu ? đánh dấu \
-tùy chọn: $sigs}). Bạn không cần dùng search_tool để tìm chúng."
-  [ "$DEV" = 1 ] || note="$note Các lệnh Shell hiện không khả dụng trong phiên trò chuyện này; không thử gọi chúng."
+  sigs=$(format_mcp_sigs <<<"$(fetch_mcp_list)")
+  note="In this chat, Android phone tools are on MCP server \"phone\". Call them directly via use_tool (tool_name \"phone__<tool>\", e.g. phone__read_screen, with tool_input${sigs:+; ? = optional: $sigs}). Do not use search_tool to look them up."
+  [ "$DEV" = 1 ] || note="$note Shell commands are disabled in this chat; do not call them."
   # --rules adds NN's instructions to grok's own, on every run (as --append-system-prompt does for Claude Code)
   local args=(-p "$MSG" --output-format streaming-messages-json --rules "$SYSTEM"$'\n\n'"$note" --allow 'MCPTool(phone__*)')
   case "$DEV" in
@@ -899,8 +935,7 @@ fi
     status=${PIPESTATUS[0]}
     # a refusal ended its turn without a word: nudge it on once, in the same conversation
     if [ -s "$S/agy-denied" ] && [ -s "$S/agy-conversation" ]; then
-      MSG="(Từ hệ thống NN, không phải người dùng) Phiên trò chuyện này không cho phép hành động đó: $(cat "$S/agy-denied"). Hãy tiếp tục với các \
-công cụ điện thoại (call_mcp_tool, ServerName \"phone\") và hoàn tất yêu cầu của người dùng."
+      MSG="(From NN system, not the user) This chat disallows that action: $(cat "$S/agy-denied"). Continue with the phone tools (call_mcp_tool, ServerName \"phone\") to fulfill the user's request."
       run_agy | tee -a "$S/agy-last.jsonl" | stream_agy last
       status=${PIPESTATUS[0]}
     fi
