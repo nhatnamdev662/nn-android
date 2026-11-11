@@ -129,34 +129,50 @@ final class XiaomiHelper {
         openAppDetails(c);
     }
 
-    static void openBatteryForOem(Context c) {
+    static void openAppBatteryDetail(Context c) {
         if (isXiaomi()) {
             openBatterySaver(c);
             return;
         }
-        if (isVivo()) {
-            String[][] vivoBat = {
-                    {"com.vivo.abe", "com.vivo.applicationbehaviorengine.ui.ExcessivePowerManagerActivity"},
-                    {"com.iqoo.powersaving", "com.iqoo.powersaving.PowerSavingManagerActivity"},
-            };
-            for (String[] pair : vivoBat) {
-                try {
-                    Intent i = new Intent();
-                    i.setComponent(new ComponentName(pair[0], pair[1]));
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    c.startActivity(i);
-                    return;
-                } catch (Exception ignored) {
-                }
-            }
+        try {
+            Intent i = new Intent("android.settings.VIEW_ADVANCED_POWER_USAGE_DETAIL");
+            i.setData(Uri.parse("package:" + c.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(i);
+            return;
+        } catch (Exception ignored) {
         }
         try {
             Intent i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             c.startActivity(i);
-        } catch (Exception e) {
-            openAppDetails(c);
+            return;
+        } catch (Exception ignored) {
         }
+        openAppDetails(c);
+    }
+
+    static void openOverlayPermission(Context c) {
+        try {
+            Intent i = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + c.getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(i);
+            return;
+        } catch (Exception ignored) {
+        }
+        try {
+            Intent i = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            c.startActivity(i);
+            return;
+        } catch (Exception ignored) {
+        }
+        openAppDetails(c);
+    }
+
+    static void openBatteryForOem(Context c) {
+        openAppBatteryDetail(c);
     }
 
     static void openAppDetails(Context c) {
