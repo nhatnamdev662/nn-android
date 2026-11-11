@@ -2017,4 +2017,18 @@
     <string name="xiaomi_btn_autostart">2. Avvio automatico</string>
     <string name="xiaomi_btn_battery">3. Batteria: Nessuna restrizione</string>
     <string name="xiaomi_recents_note">Suggerimento: nelle App recenti, tieni premuto su NN Agent e tocca il lucchetto per bloccarlo in RAM.</string>
+    <string name="viewer_close">Chiudi</string>
+    <string name="viewer_save">Salva</string>
+    <string name="viewer_share">Condividi</string>
+    <string name="viewer_saved">Salvato in Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Impossibile salvare l\'immagine</string>
+    <string name="viewer_share_failed">Impossibile condividere: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Porta non valida: %1$d</string>
+    <string name="setup_adb_err_refused">La porta %1$d ha rifiutato la connessione</string>
+    <string name="setup_adb_err_timeout">Timeout connessione porta %1$d</string>
+    <string name="setup_adb_err_failed">Connessione non riuscita: %1$d</string>
+    <string name="setup_adb_err_lost">Connessione persa: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Associazione con 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Associazione riuscita</string>
+    <string name="setup_adb_pair_failed_generic">Associazione non riuscita</string>
 </resources>

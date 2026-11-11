@@ -1577,4 +1577,18 @@
     <string name="xiaomi_btn_autostart">2. ऑटोस्टार्ट</string>
     <string name="xiaomi_btn_battery">3. बैटरी: कोई प्रतिबंध नहीं</string>
     <string name="xiaomi_recents_note">टिप: रीसेंट ऐप्स में NN Agent को दबाए रखें और लॉक आइकन दबाएं ताकि यह RAM से न हटे।</string>
+    <string name="viewer_close">बंद करें</string>
+    <string name="viewer_save">सहेजें</string>
+    <string name="viewer_share">साझा करें</string>
+    <string name="viewer_saved">Download/NN/%1$s में सहेजा गया</string>
+    <string name="viewer_save_failed">चित्र सहेजने में विफल</string>
+    <string name="viewer_share_failed">साझा नहीं किया जा सका: %1$s</string>
+    <string name="setup_adb_err_invalid_port">अमान्य पोर्ट: %1$d</string>
+    <string name="setup_adb_err_refused">पोर्ट %1$d ने कनेक्शन अस्वीकार किया</string>
+    <string name="setup_adb_err_timeout">पोर्ट %1$d पर कनेक्शन समय समाप्त</string>
+    <string name="setup_adb_err_failed">कनेक्शन विफल: %1$d</string>
+    <string name="setup_adb_err_lost">कनेक्शन टूट गया: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d से पेयर हो रहा है</string>
+    <string name="setup_adb_paired">पेयरिंग सफल रही</string>
+    <string name="setup_adb_pair_failed_generic">पेयरिंग विफल रही</string>
 </resources>

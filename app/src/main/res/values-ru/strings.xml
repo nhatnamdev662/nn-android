@@ -2056,4 +2056,18 @@
     <string name="xiaomi_btn_autostart">2. Автозапуск</string>
     <string name="xiaomi_btn_battery">3. Контроль активности: Без ограничений</string>
     <string name="xiaomi_recents_note">Совет: в меню Недавних приложений нажмите и удерживайте NN Agent, затем нажмите на значок Замка, чтобы система не выгружала его из памяти.</string>
+    <string name="viewer_close">Закрыть</string>
+    <string name="viewer_save">Сохранить</string>
+    <string name="viewer_share">Поделиться</string>
+    <string name="viewer_saved">Сохранено в Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Не удалось сохранить изображение</string>
+    <string name="viewer_share_failed">Не удалось поделиться: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Неверный порт: %1$d</string>
+    <string name="setup_adb_err_refused">Порт %1$d отклонил подключение</string>
+    <string name="setup_adb_err_timeout">Превышено время ожидания порта %1$d</string>
+    <string name="setup_adb_err_failed">Ошибка подключения: %1$d</string>
+    <string name="setup_adb_err_lost">Соединение потеряно: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Сопряжение с 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Сопряжение выполнено</string>
+    <string name="setup_adb_pair_failed_generic">Ошибка сопряжения</string>
 </resources>

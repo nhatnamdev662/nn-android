@@ -1629,4 +1629,18 @@
     <string name="xiaomi_btn_autostart">2. التشغيل التلقائي</string>
     <string name="xiaomi_btn_battery">3. البطارية: بدون قيود</string>
     <string name="xiaomi_recents_note">نصيحة: في التطبيقات الحديثة، اضغط مطولًا على NN Agent واضغط أيقونة القفل حتى لا يُزال من الذاكرة.</string>
+    <string name="viewer_close">إغلاق</string>
+    <string name="viewer_save">حفظ</string>
+    <string name="viewer_share">مشاركة</string>
+    <string name="viewer_saved">تم الحفظ في Download/NN/%1$s</string>
+    <string name="viewer_save_failed">فشل حفظ الصورة</string>
+    <string name="viewer_share_failed">تعذرت المشاركة: %1$s</string>
+    <string name="setup_adb_err_invalid_port">منفذ غير صالح: %1$d</string>
+    <string name="setup_adb_err_refused">رفض المنفذ %1$d الاتصال</string>
+    <string name="setup_adb_err_timeout">انتهت مهلة الاتصال بالمنفذ %1$d</string>
+    <string name="setup_adb_err_failed">فشل الاتصال: %1$d</string>
+    <string name="setup_adb_err_lost">انقطع الاتصال: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">جارٍ الإقران مع 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">تم الإقران بنجاح</string>
+    <string name="setup_adb_pair_failed_generic">فشل الإقران</string>
 </resources>

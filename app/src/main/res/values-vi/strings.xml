@@ -2180,5 +2180,21 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="xiaomi_btn_battery">3. Tiết kiệm pin: Không hạn chế</string>
     <string name="xiaomi_recents_note">Mẹo: Vào Đa nhiệm (Recent apps), nhấn giữ NN Agent và bấm biểu tượng Ổ khóa để không bị dọn RAM.</string>
 
+    <!-- Image Viewer & ADB Status Errors -->
+    <string name="viewer_close">Đóng</string>
+    <string name="viewer_save">Lưu</string>
+    <string name="viewer_share">Chia sẻ</string>
+    <string name="viewer_saved">Đã lưu vào Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Không thể lưu ảnh</string>
+    <string name="viewer_share_failed">Không thể chia sẻ: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Cổng không hợp lệ: %1$d</string>
+    <string name="setup_adb_err_refused">Cổng %1$d từ chối kết nối</string>
+    <string name="setup_adb_err_timeout">Quá thời gian kết nối cổng %1$d</string>
+    <string name="setup_adb_err_failed">Kết nối thất bại: %1$d</string>
+    <string name="setup_adb_err_lost">Mất kết nối: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Đang ghép nối với 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Ghép nối thành công</string>
+    <string name="setup_adb_pair_failed_generic">Ghép nối thất bại</string>
+
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>

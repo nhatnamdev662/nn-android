@@ -1569,4 +1569,18 @@
     <string name="xiaomi_btn_autostart">2. 自動起動</string>
     <string name="xiaomi_btn_battery">3. バッテリー: 制限なし</string>
     <string name="xiaomi_recents_note">ヒント: 履歴画面（マルチタスク）で NN Agent を長押しし、鍵アイコンをタップしてロックしてください。</string>
+    <string name="viewer_close">閉じる</string>
+    <string name="viewer_save">保存</string>
+    <string name="viewer_share">共有</string>
+    <string name="viewer_saved">Download/NN/%1$s に保存しました</string>
+    <string name="viewer_save_failed">画像の保存に失敗しました</string>
+    <string name="viewer_share_failed">共有できませんでした: %1$s</string>
+    <string name="setup_adb_err_invalid_port">無効なポート: %1$d</string>
+    <string name="setup_adb_err_refused">ポート %1$d で接続が拒否されました</string>
+    <string name="setup_adb_err_timeout">ポート %1$d の接続がタイムアウトしました</string>
+    <string name="setup_adb_err_failed">接続に失敗しました: %1$d</string>
+    <string name="setup_adb_err_lost">接続が切断されました: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d とペアリング中</string>
+    <string name="setup_adb_paired">ペアリング成功</string>
+    <string name="setup_adb_pair_failed_generic">ペアリングに失敗しました</string>
 </resources>

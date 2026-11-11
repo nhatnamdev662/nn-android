@@ -2056,4 +2056,18 @@
     <string name="xiaomi_btn_autostart">2. Автозапуск</string>
     <string name="xiaomi_btn_battery">3. Батарея: Без обмежень</string>
     <string name="xiaomi_recents_note">Порада: у списку Нещодавніх програм затисніть NN Agent і торкніться значка Замка, щоб система не вивантажувала його з ОЗП.</string>
+    <string name="viewer_close">Закрити</string>
+    <string name="viewer_save">Зберегти</string>
+    <string name="viewer_share">Поділитися</string>
+    <string name="viewer_saved">Збережено до Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Не вдалося зберегти зображення</string>
+    <string name="viewer_share_failed">Не вдалося поділитися: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Недійсний порт: %1$d</string>
+    <string name="setup_adb_err_refused">Порт %1$d відхилив підключення</string>
+    <string name="setup_adb_err_timeout">Час підключення до порту %1$d вийшов</string>
+    <string name="setup_adb_err_failed">Помилка підключення: %1$d</string>
+    <string name="setup_adb_err_lost">З\'єднання втрачено: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Сполучення з 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Сполучення успішне</string>
+    <string name="setup_adb_pair_failed_generic">Помилка сполучення</string>
 </resources>

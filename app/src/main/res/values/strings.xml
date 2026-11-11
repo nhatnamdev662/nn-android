@@ -2198,5 +2198,21 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="xiaomi_btn_battery">3. Battery: No restrictions</string>
     <string name="xiaomi_recents_note">Tip: In Recent Apps (multitasking), long-press NN Agent and tap the Lock icon so it won\'t be cleared from RAM.</string>
 
+    <!-- Image Viewer & ADB Status Errors -->
+    <string name="viewer_close">Close</string>
+    <string name="viewer_save">Save</string>
+    <string name="viewer_share">Share</string>
+    <string name="viewer_saved">Saved to Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Failed to save image</string>
+    <string name="viewer_share_failed">Couldn\'t share: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Invalid port: %1$d</string>
+    <string name="setup_adb_err_refused">Port %1$d refused connection</string>
+    <string name="setup_adb_err_timeout">Port %1$d connection timed out</string>
+    <string name="setup_adb_err_failed">Connection failed: %1$d</string>
+    <string name="setup_adb_err_lost">Connection lost: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Pairing with 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Pairing successful</string>
+    <string name="setup_adb_pair_failed_generic">Pairing failed</string>
+
     <!-- ADB Prerequisites for Auto-Connect -->
 </resources>

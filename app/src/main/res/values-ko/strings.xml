@@ -1568,4 +1568,18 @@
     <string name="xiaomi_btn_autostart">2. 자동 시작</string>
     <string name="xiaomi_btn_battery">3. 배터리: 제한 없음</string>
     <string name="xiaomi_recents_note">팁: 최근 앱 화면에서 NN Agent를 길게 누르고 자물쇠 아이콘을 눌러 RAM에서 정리되지 않도록 잠그세요.</string>
+    <string name="viewer_close">닫기</string>
+    <string name="viewer_save">저장</string>
+    <string name="viewer_share">공유</string>
+    <string name="viewer_saved">Download/NN/%1$s에 저장됨</string>
+    <string name="viewer_save_failed">이미지를 저장하지 못했습니다</string>
+    <string name="viewer_share_failed">공유할 수 없음: %1$s</string>
+    <string name="setup_adb_err_invalid_port">잘못된 포트: %1$d</string>
+    <string name="setup_adb_err_refused">포트 %1$d 연결이 거부됨</string>
+    <string name="setup_adb_err_timeout">포트 %1$d 연결 시간 초과</string>
+    <string name="setup_adb_err_failed">연결 실패: %1$d</string>
+    <string name="setup_adb_err_lost">연결 끊김: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d와 페어링 중</string>
+    <string name="setup_adb_paired">페어링 성공</string>
+    <string name="setup_adb_pair_failed_generic">페어링 실패</string>
 </resources>

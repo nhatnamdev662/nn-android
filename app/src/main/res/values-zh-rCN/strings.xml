@@ -2017,4 +2017,18 @@
     <string name="xiaomi_btn_autostart">2. 自启动</string>
     <string name="xiaomi_btn_battery">3. 省电策略：无限制</string>
     <string name="xiaomi_recents_note">提示：在最近任务界面长按 NN Agent，然后点击“锁定”图标，防止其被系统从内存中清理。</string>
+    <string name="viewer_close">关闭</string>
+    <string name="viewer_save">保存</string>
+    <string name="viewer_share">分享</string>
+    <string name="viewer_saved">已保存到 Download/NN/%1$s</string>
+    <string name="viewer_save_failed">保存图片失败</string>
+    <string name="viewer_share_failed">无法分享：%1$s</string>
+    <string name="setup_adb_err_invalid_port">无效端口：%1$d</string>
+    <string name="setup_adb_err_refused">端口 %1$d 拒绝连接</string>
+    <string name="setup_adb_err_timeout">端口 %1$d 连接超时</string>
+    <string name="setup_adb_err_failed">连接失败：%1$d</string>
+    <string name="setup_adb_err_lost">连接断开：%1$s</string>
+    <string name="setup_adb_pairing_in_progress">正在与 127.0.0.1:%1$d 配对</string>
+    <string name="setup_adb_paired">配对成功</string>
+    <string name="setup_adb_pair_failed_generic">配对失败</string>
 </resources>

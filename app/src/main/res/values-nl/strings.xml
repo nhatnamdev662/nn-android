@@ -1583,4 +1583,18 @@
     <string name="xiaomi_btn_autostart">2. Automatisch starten</string>
     <string name="xiaomi_btn_battery">3. Batterij: Geen beperkingen</string>
     <string name="xiaomi_recents_note">Tip: houd NN Agent ingedrukt in Recente apps en tik op het slotje zodat het in het RAM blijft.</string>
+    <string name="viewer_close">Sluiten</string>
+    <string name="viewer_save">Opslaan</string>
+    <string name="viewer_share">Delen</string>
+    <string name="viewer_saved">Opgeslagen in Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Afbeelding opslaan mislukt</string>
+    <string name="viewer_share_failed">Delen mislukt: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Ongeldige poort: %1$d</string>
+    <string name="setup_adb_err_refused">Poort %1$d weigerde verbinding</string>
+    <string name="setup_adb_err_timeout">Time-out op poort %1$d</string>
+    <string name="setup_adb_err_failed">Verbinding mislukt: %1$d</string>
+    <string name="setup_adb_err_lost">Verbinding verbroken: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Koppelen met 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Koppeling geslaagd</string>
+    <string name="setup_adb_pair_failed_generic">Koppelen mislukt</string>
 </resources>

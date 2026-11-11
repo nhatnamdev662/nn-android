@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -1339,7 +1340,19 @@ final class Tools {
         String note = otherButtonNote(n, hit);
         String before = beforeAction();
         boolean ok = gesture(p, longPress ? 700 : 60);
-        String done = (ok ? (longPress ? "Long-pressed" : "Tapped") : "Gesture was cancelled at") + " (" + x + ", " + y + ")." + note;
+        boolean viaAdb = false;
+        if (!ok && !svc.paused() && ensureAdbReady()) {
+            String adbCmd = longPress
+                    ? ("input swipe " + x + " " + y + " " + x + " " + y + " 700")
+                    : ("input tap " + x + " " + y);
+            if (adbShellOk(adbCmd, 5000)) {
+                Thread.sleep(250);
+                ok = true;
+                viaAdb = true;
+            }
+        }
+        String done = (ok ? (longPress ? "Long-pressed" : "Tapped") : "Gesture was cancelled at")
+                + " (" + x + ", " + y + ")" + (viaAdb ? " via ADB" : "") + "." + note;
         if (!ok) return done + " Call read_screen to see the result.";
         String after = afterAction(before, 1200);
         return done + (after.isEmpty() ? " Call read_screen to see the result." : after);
@@ -1534,8 +1547,16 @@ final class Tools {
         String text = a.getString("text");
         AccessibilityNodeInfo target = node(a);
         if (target == null) target = findFocusedInput();
-        if (target == null)
+        if (target == null) {
+            if (!a.has("element") && isImeVisible() && !foregroundIsOffLimits() && tryAdbType(null, null, text, true)) {
+                String res = "Typed " + text.length() + " characters via ADB.";
+                if (a.optBoolean("submit")) {
+                    res = maybeSubmitViaAdb(null, text, res);
+                }
+                return res;
+            }
             throw new IllegalStateException("No text field is focused. Tap the text field first, then type.");
+        }
         if (Guard.offLimits(svc, target)) return "BLOCKED: that's NN's own screen. Only the user types there.";
         if (!target.isFocused()) target.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
         String value = text;
@@ -1544,44 +1565,75 @@ final class Tools {
         String result;
         if (!text.isEmpty() && !target.isPassword() && inWeb(target) && paste(target, cur, text, a.optBoolean("append"))) {
             result = "Typed " + text.length() + " characters (pasted, as this is a web page; the clipboard now holds them).";
-            Thread.sleep(300);
-            target.refresh();
-            CharSequence now = target.isShowingHintText() ? "" : target.getText();
-            String got = now == null ? "" : now.toString();
-            if (!got.replaceAll("\\s+", " ").trim().equals(value.replaceAll("\\s+", " ").trim())) {
-                result += " The field now reads “" + ChatHub.clip(got, 200) + "”: check it with read_screen.";
-            }
+            result += verifyTypedField(target, value);
         } else {
             Bundle args = new Bundle();
             args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, value);
             boolean ok = target.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
-            if (!ok) throw new IllegalStateException("This field did not accept text.");
-            result = "Typed " + text.length() + " characters.";
-            if (!target.isPassword()) { // some fields take the text and then change or drop it
-                Thread.sleep(150);
-                target.refresh();
-                CharSequence now = target.isShowingHintText() ? "" : target.getText();
-                String got = now == null ? "" : now.toString();
-                if (!got.replaceAll("\\s+", " ").trim().equals(value.replaceAll("\\s+", " ").trim())) {
-                    result += " The field now reads “" + ChatHub.clip(got, 200) + "”: check it with read_screen.";
+            boolean viaAdb = false;
+            if (!ok) {
+                if (!text.isEmpty() && tryAdbType(target, cur, text, a.optBoolean("append"))) {
+                    ok = true;
+                    viaAdb = true;
                 }
+            }
+            if (!ok) throw new IllegalStateException("This field did not accept text.");
+            result = "Typed " + text.length() + " characters" + (viaAdb ? " via ADB." : ".");
+            if (!target.isPassword()) { // some fields take the text and then change or drop it
+                result += verifyTypedField(target, value);
             }
         }
         if (a.optBoolean("submit")) {
-            String mode = mode(str(target.getPackageName()));
-            java.util.function.Function<String, String> card = in -> in == null ? svc.getString(R.string.tools_card_enter)
-                    : svc.getString(R.string.tools_card_enter_in, in);
-            // Hard always asks; Smart lets the reviewer decide, as for a tap the rules don't catch
-            boolean send = !Guard.moneyApp(svc, target.getPackageName());
-            String blocked = "hard".equals(mode) ? guardAction("Press Enter to send", card, text, send,
-                    send && !target.isPassword() && Guard.runRule(svc, str(target.getPackageName())))
-                    : "smart".equals(mode) ? review("Press Enter to send", card, target, text) : null;
+            String blocked = checkSubmitGuard(target, str(target.getPackageName()), text);
             if (blocked != null) return result + " Not sent: " + blocked;
             Thread.sleep(150);
             boolean sent = target.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId());
-            result += sent ? " Pressed enter." : " Enter action not supported here; tap the send button instead.";
+            if (sent) {
+                result += " Pressed enter.";
+            } else if (!svc.paused() && ensureAdbReady() && adbShellOk("input keyevent 66", 4000)) {
+                result += " Pressed enter via ADB.";
+            } else {
+                result += " Enter action not supported here; tap the send button instead.";
+            }
         }
         return result;
+    }
+
+    private String verifyTypedField(AccessibilityNodeInfo target, String expected) throws InterruptedException {
+        Thread.sleep(200);
+        target.refresh();
+        CharSequence now = target.isShowingHintText() ? "" : target.getText();
+        String got = now == null ? "" : now.toString();
+        if (!got.replaceAll("\\s+", " ").trim().equals(expected.replaceAll("\\s+", " ").trim())) {
+            return " The field now reads “" + ChatHub.clip(got, 200) + "”: check it with read_screen.";
+        }
+        return "";
+    }
+
+    private String checkSubmitGuard(AccessibilityNodeInfo target, String pkg, String text) throws InterruptedException {
+        String mode = mode(pkg);
+        java.util.function.Function<String, String> card = in -> in == null ? svc.getString(R.string.tools_card_enter)
+                : svc.getString(R.string.tools_card_enter_in, in);
+        boolean send = !Guard.moneyApp(svc, pkg);
+        boolean isPwd = target != null && target.isPassword();
+        if ("hard".equals(mode)) {
+            return guardAction("Press Enter to send", card, text, send,
+                    send && !isPwd && Guard.runRule(svc, pkg));
+        }
+        if ("smart".equals(mode)) {
+            return review("Press Enter to send", card, target, text);
+        }
+        return null;
+    }
+
+    private String maybeSubmitViaAdb(AccessibilityNodeInfo target, String text, String result) throws InterruptedException {
+        String blocked = checkSubmitGuard(target, svc.foregroundPkg(), text);
+        if (blocked != null) return result + " Not sent: " + blocked;
+        Thread.sleep(150);
+        if (!svc.paused() && ensureAdbReady() && adbShellOk("input keyevent 66", 4000)) {
+            return result + " Pressed enter via ADB.";
+        }
+        return result + " Enter action not supported here; tap the send button instead.";
     }
 
     /** Is the node part of a web page (Chrome, an app's WebView)? */
@@ -1659,10 +1711,18 @@ final class Tools {
         p.lineTo(xy[2], xy[3]);
         String before = beforeAction();
         boolean ok = gesture(p, 350);
-        Thread.sleep(400);
+        boolean viaAdb = false;
+        if (!ok && !svc.paused() && ensureAdbReady()) {
+            String adbCmd = "input swipe " + xy[0] + " " + xy[1] + " " + xy[2] + " " + xy[3] + " 350";
+            if (adbShellOk(adbCmd, 5000)) {
+                ok = true;
+                viaAdb = true;
+            }
+        }
         if (!ok) return "Scroll was cancelled.";
+        Thread.sleep(400);
         String after = afterAction(before, 500);
-        return "Scrolled " + dir + "." + (after.isEmpty() ? " Call read_screen to see the new content."
+        return "Scrolled " + dir + (viaAdb ? " via ADB." : ".") + (after.isEmpty() ? " Call read_screen to see the new content."
                 : after.contains(NOTHING_CHANGED) ? " " + NOTHING_CHANGED + ": this is probably the end of the list, or that spot doesn't scroll." : after);
     }
 
@@ -1679,7 +1739,17 @@ final class Tools {
         long d = Math.max(50, Math.min(3000, a.optLong("duration_ms", 300)));
         String before = beforeAction();
         boolean ok = gesture(p, d);
-        return ok ? "Swiped." + afterAction(before, 1000) : "Swipe was cancelled.";
+        boolean viaAdb = false;
+        if (!ok && !svc.paused() && ensureAdbReady()) {
+            String adbCmd = "input swipe " + x1 + " " + y1 + " " + x2 + " " + y2 + " " + d;
+            if (adbShellOk(adbCmd, (int) Math.max(5000, d + 2000))) {
+                Thread.sleep(250);
+                ok = true;
+                viaAdb = true;
+            }
+        }
+        if (!ok) return "Swipe was cancelled.";
+        return (viaAdb ? "Swiped via ADB." : "Swiped.") + afterAction(before, 1000);
     }
 
     /**
@@ -1738,11 +1808,20 @@ final class Tools {
         }
         String before = "back".equals(button) ? beforeAction() : null;
         boolean ok = svc.performGlobalAction(action);
+        boolean viaAdb = false;
+        if (!ok && ensureAdbReady()) {
+            String adbCmd = adbCommandForButton(button);
+            if (adbCmd != null && adbShellOk(adbCmd, 4000)) {
+                ok = true;
+                viaAdb = true;
+            }
+        }
         try {
             Thread.sleep(500);
         } catch (InterruptedException ignored) {
         }
-        return ok ? "Pressed " + button + "." + afterAction(before, 500) : "Could not press " + button + ".";
+        if (!ok) return "Could not press " + button + ".";
+        return "Pressed " + button + (viaAdb ? " via ADB." : ".") + afterAction(before, 500);
     }
 
     private List<ResolveInfo> launchables() {
@@ -1939,10 +2018,24 @@ final class Tools {
     private JSONObject screenshot() throws Exception {
         try {
             return screenshotOnce();
-        } catch (IllegalStateException e) { // too soon after "View steps" took its own: once more, a second later
-            if (!String.valueOf(e.getMessage()).startsWith("Screenshots are rate-limited")) throw e;
-            Thread.sleep(1100);
-            return screenshotOnce();
+        } catch (IllegalStateException e) { // too soon after "View steps" or restricted window: use ADB or retry once
+            if (String.valueOf(e.getMessage()).startsWith("Screenshots are rate-limited")) {
+                if (AdbManager.isConnected() && !svc.paused()) {
+                    JSONObject fast = screenshotViaAdb();
+                    if (fast != null) return fast;
+                }
+                Thread.sleep(1100);
+                try {
+                    return screenshotOnce();
+                } catch (IllegalStateException retryErr) {
+                    JSONObject adb = screenshotViaAdb();
+                    if (adb != null) return adb;
+                    throw retryErr;
+                }
+            }
+            JSONObject adb = screenshotViaAdb();
+            if (adb != null) return adb;
+            throw e;
         }
     }
 
@@ -1979,6 +2072,24 @@ final class Tools {
         }
         Bitmap full = shot.get();
         if (full == null) throw new IllegalStateException(error.get() != null ? error.get() : "Screenshot timed out.");
+        return encodeScreenshot(full, false);
+    }
+
+    private JSONObject screenshotViaAdb() throws Exception {
+        if (svc.paused() || !ensureAdbReady()) return null;
+        svc.setBubblePassThrough(true);
+        try {
+            byte[] png = AdbConnection.executeRaw("screencap -p", 8000);
+            if (png == null || png.length == 0) return null;
+            Bitmap full = BitmapFactory.decodeByteArray(png, 0, png.length);
+            if (full == null) return null;
+            return encodeScreenshot(full, true);
+        } finally {
+            svc.setBubblePassThrough(false);
+        }
+    }
+
+    private static JSONObject encodeScreenshot(Bitmap full, boolean viaAdb) throws Exception {
         float scale = Math.min(1f, (float) SCREENSHOT_SHORT_SIDE / Math.min(full.getWidth(), full.getHeight()));
         Bitmap small = scale < 1f
                 ? Bitmap.createScaledBitmap(full, Math.round(full.getWidth() * scale), Math.round(full.getHeight() * scale), true)
@@ -1986,11 +2097,119 @@ final class Tools {
         ByteArrayOutputStream jpg = new ByteArrayOutputStream();
         small.compress(Bitmap.CompressFormat.JPEG, 70, jpg);
         String note = String.format(Locale.ROOT,
-                "Screenshot %dx%d (screen is %dx%d). To tap something you see, multiply image coordinates by %.3f.",
-                small.getWidth(), small.getHeight(), full.getWidth(), full.getHeight(), 1f / scale);
+                "Screenshot %dx%d (screen is %dx%d)%s. To tap something you see, multiply image coordinates by %.3f.",
+                small.getWidth(), small.getHeight(), full.getWidth(), full.getHeight(),
+                viaAdb ? " via ADB" : "", 1f / scale);
         return new JSONObject().put("content", new JSONArray()
                 .put(new JSONObject().put("type", "image").put("mimeType", "image/jpeg")
                         .put("data", Base64.encodeToString(jpg.toByteArray(), Base64.NO_WRAP)))
                 .put(new JSONObject().put("type", "text").put("text", note)));
+    }
+
+    // ------------------------------------------------------------- hybrid ADB helpers
+
+    private boolean ensureAdbReady() {
+        if (svc.paused() || !Prefs.adbEnabled(svc)) return false;
+        return AdbManager.isConnected() || AdbManager.ensureConnectedBlocking(svc, 1500);
+    }
+
+    private static boolean adbShellOk(String cmd, int timeoutMs) {
+        try {
+            AdbConnection.ExecutionResult res = AdbConnection.execute(cmd, timeoutMs);
+            return res != null && res.exitCode == 0;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private boolean isImeVisible() {
+        for (AccessibilityWindowInfo w : svc.getWindows()) {
+            if (w.getType() == AccessibilityWindowInfo.TYPE_INPUT_METHOD) return true;
+        }
+        return false;
+    }
+
+    private boolean foregroundIsOffLimits() {
+        for (AccessibilityWindowInfo w : svc.getWindows()) {
+            if (w.getType() == AccessibilityWindowInfo.TYPE_APPLICATION) {
+                AccessibilityNodeInfo root = w.getRoot();
+                if (root != null && Guard.offLimits(svc, root)) return true;
+            }
+        }
+        return svc.getPackageName().equals(svc.foregroundPkg()) && !Prefs.agentsTapNn(svc);
+    }
+
+    private boolean setClipboardSync(String text) {
+        final boolean[] ok = {false};
+        final CountDownLatch done = new CountDownLatch(1);
+        svc.runOnMain(() -> {
+            try {
+                ClipboardManager cm = svc.getSystemService(ClipboardManager.class);
+                if (cm != null) {
+                    cm.setPrimaryClip(ClipData.newPlainText("NN", text));
+                    ok[0] = true;
+                }
+            } catch (Throwable ignored) {
+            }
+            done.countDown();
+        });
+        try {
+            done.await(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return ok[0];
+    }
+
+    private boolean tryAdbType(AccessibilityNodeInfo target, CharSequence cur, String text, boolean append) {
+        if (text == null || text.isEmpty() || svc.paused() || !ensureAdbReady()) return false;
+        boolean isPwd = target != null && target.isPassword();
+        boolean hasSelection = false;
+        if (target != null && cur != null && cur.length() > 0) {
+            Bundle sel = new Bundle();
+            sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, append ? cur.length() : 0);
+            sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, cur.length());
+            hasSelection = target.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, sel);
+            if (!append && hasSelection) {
+                adbShellOk("input keyevent 67", 2000);
+            }
+        }
+        // Prefer clipboard + KEYCODE_PASTE (279) for Unicode/multi-line text on non-password fields
+        if (!isPwd && !isAsciiInputSafe(text)) {
+            if (setClipboardSync(text) && adbShellOk("input keyevent 279", 3000)) return true;
+        }
+        // Fast ASCII path avoids touching the user's clipboard
+        String quoted = quoteAdbInputText(text);
+        if (quoted != null && adbShellOk("input text " + quoted, 5000)) return true;
+        // Fallback: try clipboard paste even for printable strings if input text failed
+        return !isPwd && setClipboardSync(text) && adbShellOk("input keyevent 279", 3000);
+    }
+
+    private static boolean isAsciiInputSafe(String s) {
+        if (s == null || s.isEmpty()) return false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            boolean ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+                    || c == ' ' || c == '.' || c == ',' || c == '_' || c == '-' || c == ':'
+                    || c == '/' || c == '@' || c == '+' || c == '=' || c == '?' || c == '!';
+            if (!ok) return false;
+        }
+        return true;
+    }
+
+    private static String quoteAdbInputText(String s) {
+        if (!isAsciiInputSafe(s)) return null;
+        return "'" + s.replace(" ", "%s") + "'";
+    }
+
+    private static String adbCommandForButton(String button) {
+        switch (button) {
+            case "back": return "input keyevent 4";
+            case "home": return "input keyevent 3";
+            case "recents": return "input keyevent 187";
+            case "notifications": return "cmd statusbar expand-notifications";
+            case "quick_settings": return "cmd statusbar expand-settings";
+            default: return null;
+        }
     }
 }

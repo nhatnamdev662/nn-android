@@ -11,8 +11,10 @@ import android.os.Looper;
 import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Central state coordinator and service manager for on-device Wireless Debugging (ADB).
@@ -76,7 +78,8 @@ public final class AdbManager {
                     } catch (Throwable t) {
                         Log.w(TAG, "ADB Heartbeat probe failed: " + t.getMessage() + ". Disconnecting and re-discovering...");
                         AdbConnection.disconnect();
-                        updateState(State.DISCONNECTED, "Connection lost: " + t.getMessage(), port);
+                        String errText = t.getMessage() != null ? t.getMessage() : t.getClass().getSimpleName();
+                        updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_err_lost, errText), port);
                         if (isWifiConnected && Prefs.adbEnabled(context)) {
                             restartDiscoveryInternal();
                         }
@@ -136,6 +139,11 @@ public final class AdbManager {
 
                 @Override
                 public void onLost(Network network) {
+                    if (isWifiAvailable(context)) {
+                        Log.d(TAG, "Previous Wi-Fi network lost during AP/band switch; Wi-Fi remains active");
+                        isWifiConnected = true;
+                        return;
+                    }
                     Log.d(TAG, "Wi-Fi network lost (switched to 4G/Cellular or offline)");
                     isWifiConnected = false;
                     onWifiLost();
@@ -191,7 +199,8 @@ public final class AdbManager {
         AdbConnection.setDisconnectListener(reason -> {
             Log.w(TAG, "AdbConnection dropped: " + reason);
             if (state == State.CONNECTED) {
-                updateState(State.DISCONNECTED, "Connection lost: " + reason, port);
+                String msg = reason != null ? reason : context.getString(R.string.setup_adb_status_disconnected);
+                updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_err_lost, msg), port);
                 if (isWifiConnected && Prefs.adbEnabled(this.context)) {
                     restartDiscoveryInternal();
                 }
@@ -369,6 +378,44 @@ public final class AdbManager {
         return state == State.CONNECTED && AdbConnection.isConnected();
     }
 
+    /**
+     * Triggers an automatic reconnect through {@link AdbManager} and waits briefly for the loopback session
+     * to become ready, avoiding concurrent {@link AdbConnection#connect} races from background tool calls.
+     * Safe to invoke from worker threads only (returns current connection state if called on the main thread).
+     */
+    public static boolean ensureConnectedBlocking(Context c, long timeoutMs) {
+        if (isConnected()) return true;
+        if (c == null || !Prefs.adbEnabled(c) || !isWifiAvailable(c)) return false;
+        if (Looper.myLooper() == Looper.getMainLooper()) return false;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final Listener listener = new Listener() {
+            @Override
+            public void onAdbStateChanged(State s, String host, int p, String error) {
+                if (s == State.CONNECTED) {
+                    latch.countDown();
+                }
+            }
+
+            @Override
+            public void onAdbPairingDiscovered(String host, int p) {
+            }
+        };
+
+        ensure(c);
+        addListener(listener);
+        try {
+            if (isConnected()) return true;
+            latch.await(Math.max(200L, timeoutMs), TimeUnit.MILLISECONDS);
+            return isConnected();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return isConnected();
+        } finally {
+            removeListener(listener);
+        }
+    }
+
     private synchronized void stopInternal() {
         stopHeartbeat();
         if (mdnsActive && mdns != null) {
@@ -385,7 +432,7 @@ public final class AdbManager {
             return;
         }
         if (targetPort <= 0 || targetPort > 65535) {
-            updateState(State.DISCONNECTED, "Invalid port: " + targetPort, 0);
+            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_err_invalid_port, targetPort), 0);
             return;
         }
 
@@ -403,11 +450,6 @@ public final class AdbManager {
                 updateState(State.CONNECTED, "", targetPort);
                 startHeartbeat();
 
-                // AxManager-style UID 2000 shell daemon presence
-                try {
-                    AdbConnection.execute("nohup sh -c 'while true; do sleep 3600; done' >/dev/null 2>&1 &", 3000);
-                } catch (Throwable ignored) {}
-
                 // Display success notification only after an active user pairing
                 if (justPaired) {
                     justPaired = false;
@@ -421,11 +463,11 @@ public final class AdbManager {
                 if (!isWifiConnected) {
                     friendly = context.getString(R.string.setup_adb_status_wifi_required);
                 } else if (msg != null && (msg.contains("ECONNREFUSED") || msg.contains("refused"))) {
-                    friendly = "Port " + targetPort + " refused connection";
+                    friendly = context.getString(R.string.setup_adb_err_refused, targetPort);
                 } else if (msg != null && msg.contains("timeout")) {
-                    friendly = "Port " + targetPort + " connection timed out";
+                    friendly = context.getString(R.string.setup_adb_err_timeout, targetPort);
                 } else {
-                    friendly = msg != null ? msg : ("Connection failed: " + targetPort);
+                    friendly = msg != null ? msg : context.getString(R.string.setup_adb_err_failed, targetPort);
                 }
                 updateState(State.DISCONNECTED, friendly, targetPort);
 
@@ -456,14 +498,14 @@ public final class AdbManager {
     }
 
     private void pairInternal(int pairingPort, String pairingCode, PairCallback callback) {
-        updateState(State.PAIRING, "Pairing with 127.0.0.1:" + pairingPort, pairingPort);
+        updateState(State.PAIRING, context.getString(R.string.setup_adb_pairing_in_progress, pairingPort), pairingPort);
         executor.execute(() -> {
             AdbPairingClient client = null;
             try {
                 client = new AdbPairingClient("127.0.0.1", pairingPort, pairingCode);
                 client.pair();
                 justPaired = true;
-                updateState(State.PAIRED, "Pairing successful", pairingPort);
+                updateState(State.PAIRED, context.getString(R.string.setup_adb_paired), pairingPort);
 
                 mainHandler.post(() -> {
                     if (callback != null) callback.onResult(true, null);
@@ -482,7 +524,7 @@ public final class AdbManager {
 
             } catch (Throwable t) {
                 Log.e(TAG, "Pairing failed", t);
-                String err = t.getMessage() != null ? t.getMessage() : "Pairing failed";
+                String err = t.getMessage() != null ? t.getMessage() : context.getString(R.string.setup_adb_pair_failed_generic);
                 updateState(State.ERROR, err, pairingPort);
 
                 mainHandler.post(() -> {

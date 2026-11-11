@@ -1585,4 +1585,18 @@
     <string name="xiaomi_btn_autostart">2. Otomatik başlatma</string>
     <string name="xiaomi_btn_battery">3. Pil: Kısıtlama yok</string>
     <string name="xiaomi_recents_note">İpucu: Son Kullanılanlar (çoklu görev) ekranında NN Agent\'a uzun basın ve RAM\'den temizlenmemesi için Kilit simgesine dokunun.</string>
+    <string name="viewer_close">Kapat</string>
+    <string name="viewer_save">Kaydet</string>
+    <string name="viewer_share">Paylaş</string>
+    <string name="viewer_saved">Download/NN/%1$s konumuna kaydedildi</string>
+    <string name="viewer_save_failed">Görsel kaydedilemedi</string>
+    <string name="viewer_share_failed">Paylaşılamadı: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Geçersiz port: %1$d</string>
+    <string name="setup_adb_err_refused">Port %1$d bağlantıyı reddetti</string>
+    <string name="setup_adb_err_timeout">Port %1$d bağlantı zaman aşımı</string>
+    <string name="setup_adb_err_failed">Bağlantı başarısız: %1$d</string>
+    <string name="setup_adb_err_lost">Bağlantı kesildi: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">127.0.0.1:%1$d ile eşleştiriliyor</string>
+    <string name="setup_adb_paired">Eşleştirme başarılı</string>
+    <string name="setup_adb_pair_failed_generic">Eşleştirme başarısız</string>
 </resources>

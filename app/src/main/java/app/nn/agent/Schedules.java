@@ -142,11 +142,6 @@ public final class Schedules extends BroadcastReceiver {
                 long target = after + (long) intervalMin * 60_000L;
                 Calendar c = Calendar.getInstance();
                 c.setTimeInMillis(target);
-                c.set(Calendar.SECOND, 0);
-                c.set(Calendar.MILLISECOND, 0);
-                target = c.getTimeInMillis();
-                if (target <= after) target += 60_000L;
-                c.setTimeInMillis(target);
                 for (int i = 0; i < 8; i++) {
                     if (on(c.get(Calendar.DAY_OF_WEEK))) return c.getTimeInMillis();
                     c.add(Calendar.DAY_OF_YEAR, 1);

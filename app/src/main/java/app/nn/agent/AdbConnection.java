@@ -32,12 +32,18 @@ public final class AdbConnection {
         public final String stdout;
         public final String stderr;
         public final long executionTimeMs;
+        public final byte[] rawStdout;
 
         public ExecutionResult(int exitCode, String stdout, String stderr, long executionTimeMs) {
+            this(exitCode, stdout, stderr, executionTimeMs, null);
+        }
+
+        public ExecutionResult(int exitCode, String stdout, String stderr, long executionTimeMs, byte[] rawStdout) {
             this.exitCode = exitCode;
             this.stdout = stdout != null ? stdout : "";
             this.stderr = stderr != null ? stderr : "";
             this.executionTimeMs = executionTimeMs;
+            this.rawStdout = rawStdout;
         }
 
         public boolean isSuccess() {
@@ -74,6 +80,9 @@ public final class AdbConnection {
     private static final int CONNECT_TIMEOUT_MS = 5000;
     private static final int HANDSHAKE_TIMEOUT_MS = 10000;
     private static final int DEFAULT_EXEC_TIMEOUT_MS = 15000;
+    private static final int MAX_TEXT_OUTPUT_BYTES = 1024 * 1024;
+    private static final int MAX_RAW_OUTPUT_BYTES = 8 * 1024 * 1024;
+    private static final int MAX_STDERR_BYTES = 256 * 1024;
 
     // =========================================================================
     // Destructive Command Blacklist & Sanitization Guardrails
@@ -325,14 +334,31 @@ public final class AdbConnection {
     }
 
     /**
-     * Executes a shell command on the connected Android system.
+     * Executes a shell command on the connected Android system and decodes stdout/stderr as UTF-8 text.
      * Uses monotonic clock (System.nanoTime()) for all timeout accounting.
      */
     public static ExecutionResult execute(String command, int timeoutMs) throws IOException {
+        return executeInternal(command, timeoutMs, false);
+    }
+
+    /**
+     * Executes a shell command and returns raw stdout bytes (useful for binary output such as {@code screencap -p}),
+     * or null if execution failed or exited non-zero.
+     */
+    public static byte[] executeRaw(String command, int timeoutMs) {
+        try {
+            ExecutionResult res = executeInternal(command, timeoutMs, true);
+            return res.exitCode == 0 ? res.rawStdout : null;
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static ExecutionResult executeInternal(String command, int timeoutMs, boolean binaryRaw) throws IOException {
         long startNano = System.nanoTime();
 
         if (command == null || command.trim().isEmpty()) {
-            return new ExecutionResult(0, "", "", 0);
+            return new ExecutionResult(0, "", "", 0, binaryRaw ? new byte[0] : null);
         }
 
         // 1. Guardrail validation
@@ -346,6 +372,7 @@ public final class AdbConnection {
         }
 
         int effectiveTimeout = timeoutMs > 0 ? timeoutMs : DEFAULT_EXEC_TIMEOUT_MS;
+        int maxStdout = binaryRaw ? MAX_RAW_OUTPUT_BYTES : MAX_TEXT_OUTPUT_BYTES;
 
         EXECUTION_LOCK.lock();
         try {
@@ -359,7 +386,16 @@ public final class AdbConnection {
 
             ByteArrayOutputStream stdoutBytes = new ByteArrayOutputStream();
             ByteArrayOutputStream stderrBytes = new ByteArrayOutputStream();
+            boolean stdoutTruncated = false;
+            boolean stderrTruncated = false;
             int exitCode = 0;
+
+            // Persistent streaming state for shell,v2,raw frames spanning A_WRTE chunks
+            byte[] v2Header = new byte[5];
+            int v2HeaderPos = 0;
+            int v2PacketId = 0;
+            int v2Remaining = 0;
+            boolean v2GotExitByte = false;
 
             try {
                 // Determine destination string (prefer shell,v2,raw: if supported)
@@ -387,6 +423,9 @@ public final class AdbConnection {
 
                     AdbMessage msg = AdbMessage.read(sInputStream);
                     if (msg.arg1 != localId) {
+                        if (msg.command == AdbProtocol.A_WRTE && msg.arg0 != 0 && msg.arg1 != 0) {
+                            tryCloseStaleChannel(msg.arg1, msg.arg0);
+                        }
                         continue; // Message belongs to another/stale channel
                     }
 
@@ -411,6 +450,9 @@ public final class AdbConnection {
 
                     AdbMessage msg = AdbMessage.read(sInputStream);
                     if (msg.arg1 != localId) {
+                        if (msg.command == AdbProtocol.A_WRTE && msg.arg0 != 0 && msg.arg1 != 0) {
+                            tryCloseStaleChannel(msg.arg1, msg.arg0);
+                        }
                         continue;
                     }
 
@@ -425,35 +467,45 @@ public final class AdbConnection {
                         ack.write(sOutputStream);
                         sOutputStream.flush();
 
-                        // Demux payload
+                        // Demux payload across A_WRTE boundaries
                         if (msg.payload.length > 0) {
                             if (sSupportsShellV2) {
-                                int offset = 0;
-                                while (offset + 5 <= msg.payload.length) {
-                                    int id = msg.payload[offset] & 0xFF;
-                                    int len = (msg.payload[offset + 1] & 0xFF)
-                                            | ((msg.payload[offset + 2] & 0xFF) << 8)
-                                            | ((msg.payload[offset + 3] & 0xFF) << 16)
-                                            | ((msg.payload[offset + 4] & 0xFF) << 24);
-                                    offset += 5;
-
-                                    if (offset + len > msg.payload.length) {
-                                        break;
-                                    }
-
-                                    if (id == AdbProtocol.SHELL_V2_STDOUT) {
-                                        stdoutBytes.write(msg.payload, offset, len);
-                                    } else if (id == AdbProtocol.SHELL_V2_STDERR) {
-                                        stderrBytes.write(msg.payload, offset, len);
-                                    } else if (id == AdbProtocol.SHELL_V2_EXIT) {
-                                        if (len >= 1) {
-                                            exitCode = msg.payload[offset] & 0xFF;
+                                int pos = 0;
+                                while (pos < msg.payload.length) {
+                                    if (v2Remaining == 0) {
+                                        int take = Math.min(5 - v2HeaderPos, msg.payload.length - pos);
+                                        System.arraycopy(msg.payload, pos, v2Header, v2HeaderPos, take);
+                                        pos += take;
+                                        v2HeaderPos += take;
+                                        if (v2HeaderPos == 5) {
+                                            v2PacketId = v2Header[0] & 0xFF;
+                                            int frameLen = (v2Header[1] & 0xFF)
+                                                    | ((v2Header[2] & 0xFF) << 8)
+                                                    | ((v2Header[3] & 0xFF) << 16)
+                                                    | ((v2Header[4] & 0xFF) << 24);
+                                            v2HeaderPos = 0;
+                                            if (frameLen < 0) {
+                                                break;
+                                            }
+                                            v2Remaining = frameLen;
+                                            v2GotExitByte = false;
                                         }
+                                    } else {
+                                        int take = Math.min(v2Remaining, msg.payload.length - pos);
+                                        if (v2PacketId == AdbProtocol.SHELL_V2_STDOUT) {
+                                            stdoutTruncated |= appendBounded(stdoutBytes, msg.payload, pos, take, maxStdout);
+                                        } else if (v2PacketId == AdbProtocol.SHELL_V2_STDERR) {
+                                            stderrTruncated |= appendBounded(stderrBytes, msg.payload, pos, take, MAX_STDERR_BYTES);
+                                        } else if (v2PacketId == AdbProtocol.SHELL_V2_EXIT && !v2GotExitByte && take > 0) {
+                                            exitCode = msg.payload[pos] & 0xFF;
+                                            v2GotExitByte = true;
+                                        }
+                                        pos += take;
+                                        v2Remaining -= take;
                                     }
-                                    offset += len;
                                 }
                             } else {
-                                stdoutBytes.write(msg.payload);
+                                stdoutTruncated |= appendBounded(stdoutBytes, msg.payload, 0, msg.payload.length, maxStdout);
                             }
                         }
 
@@ -473,12 +525,7 @@ public final class AdbConnection {
                 }
 
                 long elapsed = (System.nanoTime() - startNano) / 1_000_000L;
-                return new ExecutionResult(
-                    exitCode,
-                    new String(stdoutBytes.toByteArray(), StandardCharsets.UTF_8),
-                    new String(stderrBytes.toByteArray(), StandardCharsets.UTF_8),
-                    elapsed
-                );
+                return buildResult(exitCode, stdoutBytes, stderrBytes, stdoutTruncated, stderrTruncated, elapsed, binaryRaw);
 
             } catch (SocketTimeoutException ste) {
                 if (channelOpen) {
@@ -489,9 +536,10 @@ public final class AdbConnection {
                     } catch (Throwable ignored) {}
                 }
                 long elapsed = (System.nanoTime() - startNano) / 1_000_000L;
+                String partialOut = binaryRaw ? "" : new String(stdoutBytes.toByteArray(), StandardCharsets.UTF_8);
                 return new ExecutionResult(
                     -3,
-                    new String(stdoutBytes.toByteArray(), StandardCharsets.UTF_8),
+                    partialOut,
                     "Execution timed out after " + effectiveTimeout + "ms",
                     elapsed
                 );
@@ -505,9 +553,10 @@ public final class AdbConnection {
                     } catch (Throwable ignored) {}
                 }
                 long elapsed = (System.nanoTime() - startNano) / 1_000_000L;
+                String partialOut = binaryRaw ? "" : new String(stdoutBytes.toByteArray(), StandardCharsets.UTF_8);
                 return new ExecutionResult(
                     -4,
-                    new String(stdoutBytes.toByteArray(), StandardCharsets.UTF_8),
+                    partialOut,
                     "I/O error during execution: " + t.getMessage(),
                     elapsed
                 );
@@ -521,6 +570,36 @@ public final class AdbConnection {
         } finally {
             EXECUTION_LOCK.unlock();
         }
+    }
+
+    private static boolean appendBounded(ByteArrayOutputStream dst, byte[] src, int off, int len, int limit) {
+        int avail = limit - dst.size();
+        if (avail <= 0) return len > 0;
+        int writeLen = Math.min(len, avail);
+        if (writeLen > 0) dst.write(src, off, writeLen);
+        return writeLen < len;
+    }
+
+    private static ExecutionResult buildResult(int exitCode, ByteArrayOutputStream stdoutBytes,
+                                               ByteArrayOutputStream stderrBytes, boolean stdoutTruncated,
+                                               boolean stderrTruncated, long elapsed, boolean binaryRaw) {
+        byte[] raw = binaryRaw ? stdoutBytes.toByteArray() : null;
+        String out = "";
+        if (!binaryRaw) {
+            out = new String(stdoutBytes.toByteArray(), StandardCharsets.UTF_8);
+            if (stdoutTruncated) out += "\n…[output truncated at 1 MB]";
+        }
+        String err = new String(stderrBytes.toByteArray(), StandardCharsets.UTF_8);
+        if (stderrTruncated) err += "\n…[stderr truncated at 256 KB]";
+        return new ExecutionResult(exitCode, out, err, elapsed, raw);
+    }
+
+    private static void tryCloseStaleChannel(int staleLocalId, int staleRemoteId) {
+        try {
+            AdbMessage clse = new AdbMessage(AdbProtocol.A_CLSE, staleLocalId, staleRemoteId, new byte[0]);
+            clse.write(sOutputStream);
+            sOutputStream.flush();
+        } catch (Throwable ignored) {}
     }
 
     private static void setSocketReadTimeout(int timeoutMs) throws IOException {

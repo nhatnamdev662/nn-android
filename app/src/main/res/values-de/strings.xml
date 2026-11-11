@@ -1584,4 +1584,18 @@
     <string name="xiaomi_btn_autostart">2. Autostart</string>
     <string name="xiaomi_btn_battery">3. Akku: Keine Beschränkung</string>
     <string name="xiaomi_recents_note">Tipp: Halte NN Agent in den letzten Apps gedrückt und tippe auf das Schloss-Symbol, um es im RAM zu behalten.</string>
+    <string name="viewer_close">Schließen</string>
+    <string name="viewer_save">Speichern</string>
+    <string name="viewer_share">Teilen</string>
+    <string name="viewer_saved">Gespeichert unter Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Bild konnte nicht gespeichert werden</string>
+    <string name="viewer_share_failed">Teilen fehlgeschlagen: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Ungültiger Port: %1$d</string>
+    <string name="setup_adb_err_refused">Port %1$d hat Verbindung abgelehnt</string>
+    <string name="setup_adb_err_timeout">Zeitüberschreitung bei Port %1$d</string>
+    <string name="setup_adb_err_failed">Verbindung fehlgeschlagen: %1$d</string>
+    <string name="setup_adb_err_lost">Verbindung verloren: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Kopplung mit 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Kopplung erfolgreich</string>
+    <string name="setup_adb_pair_failed_generic">Kopplung fehlgeschlagen</string>
 </resources>

@@ -1611,4 +1611,18 @@
     <string name="xiaomi_btn_autostart">2. Autostart</string>
     <string name="xiaomi_btn_battery">3. Bateria: Bez ograniczeń</string>
     <string name="xiaomi_recents_note">Wskazówka: w Ostatnich aplikacjach przytrzymaj NN Agent i kliknij kłódkę, aby nie był usuwany z RAM.</string>
+    <string name="viewer_close">Zamknij</string>
+    <string name="viewer_save">Zapisz</string>
+    <string name="viewer_share">Udostępnij</string>
+    <string name="viewer_saved">Zapisano w Download/NN/%1$s</string>
+    <string name="viewer_save_failed">Nie udało się zapisać obrazu</string>
+    <string name="viewer_share_failed">Nie można udostępnić: %1$s</string>
+    <string name="setup_adb_err_invalid_port">Nieprawidłowy port: %1$d</string>
+    <string name="setup_adb_err_refused">Port %1$d odrzucił połączenie</string>
+    <string name="setup_adb_err_timeout">Przekroczono czas połączenia z portem %1$d</string>
+    <string name="setup_adb_err_failed">Połączenie nieudane: %1$d</string>
+    <string name="setup_adb_err_lost">Utracono połączenie: %1$s</string>
+    <string name="setup_adb_pairing_in_progress">Parowanie z 127.0.0.1:%1$d</string>
+    <string name="setup_adb_paired">Sparowano pomyślnie</string>
+    <string name="setup_adb_pair_failed_generic">Parowanie nie powiodło się</string>
 </resources>

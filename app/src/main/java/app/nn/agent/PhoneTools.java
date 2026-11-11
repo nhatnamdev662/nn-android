@@ -589,15 +589,9 @@ final class PhoneTools {
         }
         cmd = cmd.trim();
 
-        // Auto-reconnect if disconnected but ADB is enabled
+        // Auto-reconnect cleanly via AdbManager if enabled and Wi-Fi is up
         if (!AdbConnection.isConnected() && Prefs.adbEnabled(svc)) {
-            int port = AdbManager.detectedConnectPort > 0 ? AdbManager.detectedConnectPort : Prefs.adbPort(svc);
-            if (port > 0) {
-                try {
-                    AdbConnection.connect("127.0.0.1", port);
-                    AdbManager.ensure(svc);
-                } catch (Throwable ignored) {}
-            }
+            AdbManager.ensureConnectedBlocking(svc, 4000);
         }
 
         int timeoutMs = 15000;

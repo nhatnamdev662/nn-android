@@ -92,7 +92,7 @@ final class ImageViewerDialog {
         topBar.setBackgroundColor(Theme.withAlpha(Ui.CARD, 0xD0));
 
         // Close button
-        ImageButton btnClose = Ui.iconButton(a, R.drawable.ms_close, "Close", Ui.TEXT);
+        ImageButton btnClose = Ui.iconButton(a, R.drawable.ms_close, a.getString(R.string.viewer_close), Ui.TEXT);
         btnClose.setOnClickListener(v -> d.dismiss());
         topBar.addView(btnClose, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
 
@@ -109,19 +109,19 @@ final class ImageViewerDialog {
         topBar.addView(title, tp);
 
         // Save to Download/NN button
-        ImageButton btnSave = Ui.iconButton(a, R.drawable.ms_download, "Save", Ui.TEXT);
+        ImageButton btnSave = Ui.iconButton(a, R.drawable.ms_download, a.getString(R.string.viewer_save), Ui.TEXT);
         btnSave.setOnClickListener(v -> {
             Uri saved = Attachments.saveToGallery(a, id);
             if (saved != null) {
-                Toast.makeText(a, "Saved to Download/NN/" + Attachments.name(id), Toast.LENGTH_SHORT).show();
+                Toast.makeText(a, a.getString(R.string.viewer_saved, Attachments.name(id)), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(a, "Failed to save image", Toast.LENGTH_SHORT).show();
+                Toast.makeText(a, R.string.viewer_save_failed, Toast.LENGTH_SHORT).show();
             }
         });
         topBar.addView(btnSave, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
 
         // Share button
-        ImageButton btnShare = Ui.iconButton(a, R.drawable.ms_share, "Share", Ui.TEXT);
+        ImageButton btnShare = Ui.iconButton(a, R.drawable.ms_share, a.getString(R.string.viewer_share), Ui.TEXT);
         btnShare.setOnClickListener(v -> {
             try {
                 String displayName = Attachments.name(id);
@@ -142,7 +142,7 @@ final class ImageViewerDialog {
                 Intent chooser = Intent.createChooser(send, displayName);
                 a.startActivity(chooser);
             } catch (Exception e) {
-                Toast.makeText(a, "Couldn't share: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(a, a.getString(R.string.viewer_share_failed, String.valueOf(e.getMessage())), Toast.LENGTH_SHORT).show();
             }
         });
         topBar.addView(btnShare, new LinearLayout.LayoutParams(Ui.dp(a, 44), Ui.dp(a, 44)));
