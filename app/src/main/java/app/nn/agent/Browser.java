@@ -642,6 +642,43 @@ final class Browser {
         return t != null && pages.containsKey(t);
     }
 
+    /** Clean host name (e.g. "google.com") for compact headers, or "" when blank. */
+    static String hostLabel(String url) {
+        if (url == null || url.isEmpty() || "about:blank".equals(url)) return "";
+        try {
+            String host = android.net.Uri.parse(url).getHost();
+            if (host != null && !host.isEmpty()) {
+                return host.startsWith("www.") && host.length() > 4 ? host.substring(4) : host;
+            }
+        } catch (Exception ignored) {
+        }
+        return url;
+    }
+
+    /** Closes this chat's tab immediately and stops Chromium if no tabs remain. */
+    static void closeTab(String key) {
+        if (key == null) return;
+        String target = tabs.remove(key);
+        marks.remove(key);
+        touched.remove(key);
+        agentUse.remove(key);
+        viewers.remove(key);
+        String cSess = casting.remove(key);
+        if (cSess != null && !casting.containsValue(cSess)) send("Page.stopScreencast", null, cSess);
+        NnService svc = NnService.get();
+        if (svc != null && svc.pausedForBrowser()) svc.resume();
+        changed();
+        work.execute(() -> {
+            if (target != null) {
+                try {
+                    call("Target.closeTarget", new JSONObject().put("targetId", target), null, 5000);
+                } catch (Exception ignored) {
+                }
+            }
+            if (tabs.isEmpty() && viewers.isEmpty()) stop();
+        });
+    }
+
     /** A JavaScript dialog open on the chat's tab ({type, message}), or null. */
     static JSONObject dialog(String key) {
         String t = tabs.get(key), s = t == null ? null : sessions.get(t);
@@ -743,6 +780,26 @@ final class Browser {
                 h.getJSONArray("entries").getJSONObject(i - 1).getInt("id")), 10_000) == null) return true; // it asks first
         settle(key, 15_000);
         return true;
+    }
+
+    /** Forward in the chat's tab's history; false when there's nothing ahead. */
+    static boolean forward(String key) throws Exception {
+        String s = sessionFor(key);
+        JSONObject h = call("Page.getNavigationHistory", null, s, 5000);
+        int i = h.getInt("currentIndex");
+        JSONArray entries = h.getJSONArray("entries");
+        if (i + 1 >= entries.length()) return false;
+        if (callUnlessDialog(key, "Page.navigateToHistoryEntry", new JSONObject().put("entryId",
+                entries.getJSONObject(i + 1).getInt("id")), 10_000) == null) return true;
+        settle(key, 15_000);
+        return true;
+    }
+
+    /** Reloads the chat's current page. */
+    static void reload(String key) throws Exception {
+        String s = sessionFor(key);
+        if (callUnlessDialog(key, "Page.reload", null, 30_000) == null) return;
+        settle(key, 20_000);
     }
 
     /**

@@ -68,6 +68,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private static final int REQ_CAMERA = 21, REQ_PHOTOS = 22, REQ_FILES = 23;
     /** The background browser's live card, while this chat has a tab there. */
     private BrowserPanel browser;
+    private ImageButton browserBtn;
+    private boolean browserHidden;
+    private LinearLayout editBar;
+    private TextView editLabel;
+    private Sessions.Msg editingMsg;
+    private String preEditDraft;
+    private java.util.List<String> preEditFiles;
     private boolean resumed;
 
     @Override
@@ -113,6 +120,19 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         cp.topMargin = dp(this, 3);
         titles.addView(chips, cp);
         top.addView(titles, weight1());
+        browserBtn = iconButton(this, R.drawable.ms_public, getString(R.string.browser_show_bar), MUTED);
+        browserBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 40), dp(this, 44)));
+        browserBtn.setVisibility(View.GONE);
+        browserBtn.setOnClickListener(v -> {
+            if (browserHidden) {
+                browserHidden = false;
+                if (browser != null) browser.setExpanded(true);
+            } else {
+                browserHidden = true;
+            }
+            onBrowserChanged();
+        });
+        top.addView(browserBtn);
         // how much of the plan is used (Claude Code, Codex): a small speedometer; a tap says both windows and resets
         usage = new UsageGauge(this);
         usage.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 40), dp(this, 44)));
@@ -164,6 +184,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
 
         browser = new BrowserPanel(this, ses.id, false);
         browser.setVisibility(View.GONE);
+        browser.setOnHideListener(() -> {
+            browserHidden = true;
+            onBrowserChanged();
+        });
         LinearLayout.LayoutParams bwp = full();
         bwp.leftMargin = bwp.rightMargin = dp(this, 12);
         bwp.topMargin = dp(this, 8);
@@ -204,6 +228,24 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         slp.leftMargin = slp.rightMargin = dp(this, 12);
         slp.bottomMargin = dp(this, 6);
         root.addView(slashList, slp);
+
+        // editing banner (shown only during non-destructive message edit)
+        editBar = row(this);
+        editBar.setGravity(Gravity.CENTER_VERTICAL);
+        editBar.setBackground(outlined(this, CARD, 12, Theme.withAlpha(ACCENT, 0x66), 1));
+        editBar.setPaddingRelative(dp(this, 12), dp(this, 4), dp(this, 4), dp(this, 4));
+        editBar.addView(icon(this, R.drawable.ms_edit, ACCENT_TEXT, 16));
+        editLabel = single(text(this, "", 13, TEXT));
+        editLabel.setPaddingRelative(dp(this, 8), 0, dp(this, 4), 0);
+        editBar.addView(editLabel, weight1());
+        ImageButton cancelEditBtn = iconButton(this, R.drawable.ms_close, getString(R.string.chat_edit_cancel), MUTED);
+        cancelEditBtn.setOnClickListener(v -> cancelEdit());
+        editBar.addView(cancelEditBtn, new LinearLayout.LayoutParams(dp(this, 34), dp(this, 34)));
+        editBar.setVisibility(View.GONE);
+        LinearLayout.LayoutParams ebp = full();
+        ebp.leftMargin = ebp.rightMargin = dp(this, 12);
+        ebp.bottomMargin = dp(this, 6);
+        root.addView(editBar, ebp);
 
         // composer
         trayScroll = new android.widget.HorizontalScrollView(this);
@@ -495,11 +537,39 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private void send() {
         String text = input.getText().toString().trim();
         if (text.isEmpty() && pending.isEmpty()) return;
+        java.util.List<Sessions.Msg> backup = null;
+        if (editingMsg != null && ses != null) {
+            if (ses.running) {
+                hub.stop(ses);
+                Toast.makeText(this, R.string.bubble_stopping, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int idx = ses.messages.indexOf(editingMsg);
+            if (idx >= 0) {
+                backup = new java.util.ArrayList<>(ses.messages.subList(idx, ses.messages.size()));
+                while (ses.messages.size() > idx) {
+                    ses.messages.remove(ses.messages.size() - 1);
+                }
+            }
+        }
         String err = hub.send(ses, text, pending);
         if (err != null) {
+            if (backup != null && ses != null) {
+                ses.messages.addAll(backup);
+                hub.sessions.save(ses);
+                showAll();
+            }
             Toast.makeText(this, err, Toast.LENGTH_LONG).show();
             return;
         }
+        if (backup != null) {
+            hub.sessions.save(ses);
+            showAll();
+        }
+        editingMsg = null;
+        preEditDraft = null;
+        preEditFiles = null;
+        if (editBar != null) editBar.setVisibility(View.GONE);
         input.setText("");
         pending.clear();
         renderTray();
@@ -1464,7 +1534,18 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     @Override
     public void onBrowserChanged() {
         if (browser == null) return;
-        boolean on = Browser.available(this) && Browser.running() && Browser.hasTab(ses.id);
+        boolean hasTab = Browser.available(this) && Browser.running() && Browser.hasTab(ses.id);
+        if (!hasTab) {
+            browserHidden = false;
+            browser.setExpanded(false);
+        }
+        if (browserBtn != null) {
+            browserBtn.setVisibility(hasTab ? View.VISIBLE : View.GONE);
+            browserBtn.setImageTintList(ColorStateList.valueOf(browserHidden ? ACCENT_TEXT : MUTED));
+        }
+        boolean urgent = hasTab && (Browser.dialog(ses.id) != null || Browser.marks(ses.id) != null);
+        if (urgent && browserHidden) browserHidden = false;
+        boolean on = hasTab && !browserHidden;
         browser.setVisibility(on ? View.VISIBLE : View.GONE);
         browser.setShown(on && resumed);
         if (on) browser.refresh();
@@ -2183,11 +2264,6 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 }));
             }
         }
-        c.addView(actionRow(R.drawable.ms_delete, getString(R.string.chat_action_delete), ERR, v -> {
-            d[0].dismiss();
-            deleteMessage(m);
-        }));
-
         d[0] = bottomSheet(this, c);
         d[0].show();
     }
@@ -2225,23 +2301,42 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
         int idx = ses.messages.indexOf(m);
         if (idx < 0) return;
-        String oldText = m.text;
-        List<String> oldFiles = m.files != null ? new ArrayList<>(m.files) : null;
-        while (ses.messages.size() > idx) {
-            ses.messages.remove(ses.messages.size() - 1);
+        if (editingMsg == null) {
+            preEditDraft = input.getText().toString();
+            preEditFiles = new java.util.ArrayList<>(pending);
         }
-        hub.sessions.save(ses);
-        showAll();
+        editingMsg = m;
+        String preview = ChatHub.clip(m.text != null ? m.text : "", 60);
+        if (editLabel != null) editLabel.setText(getString(R.string.chat_editing_bar, preview.isEmpty() ? "…" : preview));
+        if (editBar != null) editBar.setVisibility(View.VISIBLE);
 
+        String oldText = m.text != null ? m.text : "";
         input.setText(oldText);
         input.setSelection(input.getText().length());
         pending.clear();
-        if (oldFiles != null) pending.addAll(oldFiles);
+        if (m.files != null) pending.addAll(m.files);
         renderTray();
         paintSend();
 
         input.requestFocus();
         ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
+    }
+
+    private void cancelEdit() {
+        if (editingMsg == null) return;
+        editingMsg = null;
+        if (editBar != null) editBar.setVisibility(View.GONE);
+        String restore = preEditDraft != null ? preEditDraft : "";
+        preEditDraft = null;
+        input.setText(restore);
+        input.setSelection(input.getText().length());
+        pending.clear();
+        if (preEditFiles != null) {
+            pending.addAll(preEditFiles);
+            preEditFiles = null;
+        }
+        renderTray();
+        paintSend();
     }
 
     private void retryMessage(Sessions.Msg m) {
@@ -2270,14 +2365,6 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         hub.sessions.save(ses);
         showAll();
         hub.send(ses, uText, uFiles);
-    }
-
-    private void deleteMessage(Sessions.Msg m) {
-        if (ses == null || m == null) return;
-        ses.messages.remove(m);
-        hub.sessions.save(ses);
-        showAll();
-        Toast.makeText(this, R.string.chat_deleted, Toast.LENGTH_SHORT).show();
     }
 
     private void updateTypingIndicator() {

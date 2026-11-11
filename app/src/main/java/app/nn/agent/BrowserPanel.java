@@ -2,6 +2,7 @@ package app.nn.agent;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -14,11 +15,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,95 +30,141 @@ import org.json.JSONObject;
 import static app.nn.agent.Ui.*;
 
 /**
- * The background browser's live view (see Browser): what a chat's tab shows, a few frames a second, with its address
- * on top. The user can use it: a tap taps the page, a swipe scrolls it, the keyboard row types into it. Doing so while
- * the chat's agent works pauses the agent (NnService.pauseForBrowser) until they tap Continue or write to it.
- * Compact in the chat (ChatActivity, foldable), or full screen (BrowserActivity).
+ * The background browser's live view (see Browser): compact 1-line pill with foldable preview in ChatActivity,
+ * or full Chrome-style window in BrowserActivity. Supports touch/scroll/typing delegation, hiding from chat,
+ * and cleanly closing the tab.
  */
 final class BrowserPanel extends LinearLayout implements Browser.Listener {
     private final Activity a;
     private final String key;
     private final boolean full;
     private final FrameView frame;
-    private final TextView address;
+    private final View frameDivider;
+    private final LinearLayout controlsBar, typing, dialogRow;
+    private final View statusDot;
+    private final TextView titleText, address, dialogText;
     private final Button resume;
-    private final LinearLayout typing, dialogRow;
-    private final TextView dialogText;
-    private final ImageButton fold;
+    private final ImageButton fold, kb;
     private final EditText field;
+    private Runnable onHide;
     private boolean askedAddress;
-    private boolean folded, watching, shown;
+    private boolean folded = true, watching, shown;
 
     BrowserPanel(Activity a, String key, boolean full) {
         super(a);
         this.a = a;
         this.key = key;
         this.full = full;
+        if (full) this.folded = false;
         setOrientation(VERTICAL);
-        if (!full) setBackground(outlined(a, CARD, 18, OUTLINE, 1));
+        if (!full) {
+            setBackground(outlined(a, CARD, 16, OUTLINE, 1));
+            setClipToOutline(true);
+        }
 
+        // Top header / compact pill bar
         LinearLayout head = row(a);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.setPaddingRelative(dp(a, 12), dp(a, 4), dp(a, 4), dp(a, 4));
         if (full) {
-            ImageButton close = iconButton(a, R.drawable.ms_arrow_back, a.getString(R.string.chat_back));
+            head.setBackgroundColor(NAV);
+            head.setPaddingRelative(dp(a, 6), dp(a, 6), dp(a, 8), dp(a, 6));
+            ImageButton close = iconButton(a, R.drawable.ms_close, a.getString(R.string.chat_back), MUTED);
             close.setOnClickListener(v -> a.finish());
-            head.addView(close, new LayoutParams(dp(a, 40), dp(a, 40)));
-        }
-        LinearLayout titles = column(a);
-        TextView label = text(a, a.getString(R.string.browser_live_title), 11, ACCENT_TEXT);
-        label.setTypeface(sans(a, 600));
-        label.setLetterSpacing(0.06f);
-        titles.addView(label);
-        address = single(monoText(a, "", 12, MUTED));
-        address.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        if (full) { // a real address bar: tap it to type a site or a search
-            address.setTextSize(14);
-            address.setBackground(outlined(a, CARD, 12, OUTLINE, 1));
-            address.setPaddingRelative(dp(a, 12), dp(a, 8), dp(a, 12), dp(a, 8));
-            address.setOnClickListener(v -> editAddress());
-            LayoutParams ap = full();
-            ap.topMargin = dp(a, 4);
-            titles.addView(address, ap);
+            head.addView(close, new LayoutParams(dp(a, 42), dp(a, 42)));
+
+            // Rounded Chrome-like address bar pill
+            LinearLayout addrPill = row(a);
+            addrPill.setGravity(Gravity.CENTER_VERTICAL);
+            addrPill.setBackground(outlined(a, CARD, 22, OUTLINE, 1));
+            addrPill.setPaddingRelative(dp(a, 12), 0, dp(a, 12), 0);
+            addrPill.setOnClickListener(v -> editAddress());
+            ImageView globe = icon(a, R.drawable.ms_public, MUTED, 16);
+            addrPill.addView(globe);
+            address = single(text(a, "", 14, TEXT));
+            address.setEllipsize(TextUtils.TruncateAt.END);
+            address.setPaddingRelative(dp(a, 8), 0, 0, 0);
+            addrPill.addView(address, weight1());
+            LayoutParams ap = new LayoutParams(0, dp(a, 40), 1);
+            ap.setMarginStart(dp(a, 4));
+            head.addView(addrPill, ap);
+
+            titleText = null;
+            statusDot = null;
         } else {
+            head.setPaddingRelative(dp(a, 10), dp(a, 6), dp(a, 4), dp(a, 6));
+            statusDot = dot(a, OK, 8);
+            head.addView(statusDot);
+
+            ImageView globe = icon(a, R.drawable.ms_public, ACCENT_TEXT, 16);
+            LayoutParams gp = new LayoutParams(dp(a, 16), dp(a, 16));
+            gp.setMarginStart(dp(a, 8));
+            head.addView(globe, gp);
+
+            LinearLayout titles = column(a);
+            titles.setPaddingRelative(dp(a, 8), 0, dp(a, 4), 0);
+            titleText = single(text(a, a.getString(R.string.browser_pill_active), 13, TEXT));
+            titleText.setTypeface(sans(a, 600));
+            titles.addView(titleText);
+            address = single(monoText(a, "", 11, MUTED));
+            address.setEllipsize(TextUtils.TruncateAt.MIDDLE);
             titles.addView(address);
+            titles.setOnClickListener(v -> {
+                folded = !folded;
+                refresh();
+            });
+            head.addView(titles, weight1());
         }
-        head.addView(titles, weight1());
+
         resume = button(a, a.getString(R.string.browser_continue), true);
-        resume.setMinHeight(dp(a, 34));
-        resume.setMinimumHeight(dp(a, 34));
-        resume.setPaddingRelative(dp(a, 14), 0, dp(a, 14), 0);
+        resume.setMinHeight(dp(a, 32));
+        resume.setMinimumHeight(dp(a, 32));
+        resume.setPaddingRelative(dp(a, 12), 0, dp(a, 12), 0);
+        resume.setTextSize(12);
         resume.setOnClickListener(v -> {
             NnService svc = NnService.get();
             if (svc != null) svc.resume();
             refresh();
         });
-        head.addView(resume, new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 34)));
-        ImageButton back = iconButton(a, R.drawable.ms_arrow_back, a.getString(R.string.browser_back), MUTED);
-        back.setOnClickListener(v -> {
-            touched();
-            Browser.later(() -> Browser.back(key));
-        });
-        if (full) head.addView(back, new LayoutParams(dp(a, 40), dp(a, 40)));
-        ImageButton kb = iconButton(a, R.drawable.ms_keyboard_hide, a.getString(R.string.browser_keyboard), MUTED);
-        kb.setRotation(180); // the "hide keyboard" symbol upside down reads as "show"
-        kb.setOnClickListener(v -> toggleTyping());
-        head.addView(kb, new LayoutParams(dp(a, 40), dp(a, 40)));
+        LayoutParams rp = new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 32));
+        rp.setMarginStart(dp(a, 6));
+        head.addView(resume, rp);
+
         if (!full) {
-            ImageButton expand = iconButton(a, R.drawable.ms_open_in_full, a.getString(R.string.browser_full_screen), MUTED);
-            expand.setOnClickListener(v -> a.startActivity(new Intent(a, BrowserActivity.class).putExtra("key", key)));
-            head.addView(expand, new LayoutParams(dp(a, 40), dp(a, 40)));
-            fold = iconButton(a, R.drawable.ms_expand_less, a.getString(R.string.browser_fold), MUTED);
+            fold = iconButton(a, R.drawable.ms_expand_more, a.getString(R.string.browser_fold), MUTED);
             fold.setOnClickListener(v -> {
                 folded = !folded;
                 refresh();
             });
-            head.addView(fold, new LayoutParams(dp(a, 40), dp(a, 40)));
+            head.addView(fold, new LayoutParams(dp(a, 34), dp(a, 34)));
+
+            ImageButton expand = iconButton(a, R.drawable.ms_open_in_full, a.getString(R.string.browser_full_screen), MUTED);
+            expand.setOnClickListener(v -> a.startActivity(new Intent(a, BrowserActivity.class).putExtra("key", key)));
+            head.addView(expand, new LayoutParams(dp(a, 34), dp(a, 34)));
+
+            ImageButton hideBtn = iconButton(a, R.drawable.ms_visibility_off, a.getString(R.string.browser_hide), MUTED);
+            hideBtn.setOnClickListener(v -> {
+                if (onHide != null) onHide.run();
+            });
+            head.addView(hideBtn, new LayoutParams(dp(a, 34), dp(a, 34)));
+
+            ImageButton closeTab = iconButton(a, R.drawable.ms_close, a.getString(R.string.browser_close_tab), MUTED);
+            closeTab.setOnClickListener(v -> {
+                Browser.closeTab(key);
+                Toast.makeText(a, R.string.browser_tab_closed, Toast.LENGTH_SHORT).show();
+            });
+            head.addView(closeTab, new LayoutParams(dp(a, 34), dp(a, 34)));
         } else {
             fold = null;
         }
         addView(head, full());
 
+        if (full) {
+            View topLine = new View(a);
+            topLine.setBackgroundColor(LINE);
+            addView(topLine, new LayoutParams(LayoutParams.MATCH_PARENT, dp(a, 1)));
+        }
+
+        // JavaScript alert/confirm row
         dialogRow = row(a);
         dialogRow.setGravity(Gravity.CENTER_VERTICAL);
         dialogRow.setPaddingRelative(dp(a, 12), dp(a, 6), dp(a, 8), dp(a, 6));
@@ -123,24 +173,27 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         dialogRow.addView(dialogText, weight1());
         Button no = button(a, a.getString(android.R.string.cancel), false);
         no.setOnClickListener(v -> answerDialog(false));
-        dialogRow.addView(no, new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 36)));
+        dialogRow.addView(no, new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 34)));
         Button yes = button(a, a.getString(android.R.string.ok), true);
         yes.setOnClickListener(v -> answerDialog(true));
-        LayoutParams yp = new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 36));
+        LayoutParams yp = new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 34));
         yp.setMarginStart(dp(a, 6));
         dialogRow.addView(yes, yp);
         LayoutParams drp = full();
-        drp.setMargins(dp(a, 8), 0, dp(a, 8), dp(a, 6));
+        drp.setMargins(dp(a, 8), dp(a, 6), dp(a, 8), dp(a, 6));
         addView(dialogRow, drp);
 
+        // Live rendered web viewport
         frame = new FrameView();
         frame.setContentDescription(a.getString(R.string.browser_live_title));
         addView(frame, full ? new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1)
-                : new LayoutParams(LayoutParams.MATCH_PARENT, (int) (a.getResources().getDisplayMetrics().heightPixels * 0.3f)));
+                : new LayoutParams(LayoutParams.MATCH_PARENT, (int) (a.getResources().getDisplayMetrics().heightPixels * 0.26f)));
 
+        // Typing bar (hidden by default in both modes, toggled by Keyboard icon)
         typing = row(a);
         typing.setGravity(Gravity.CENTER_VERTICAL);
-        typing.setPaddingRelative(dp(a, 8), dp(a, 6), dp(a, 8), dp(a, 8));
+        typing.setPaddingRelative(dp(a, 8), dp(a, 6), dp(a, 8), dp(a, 6));
+        if (full) typing.setBackgroundColor(NAV);
         field = new EditText(a);
         field.setHint(R.string.browser_type_hint);
         field.setHintTextColor(MUTED);
@@ -148,7 +201,7 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         field.setTextSize(15);
         field.setSingleLine(true);
         field.setImeOptions(EditorInfo.IME_ACTION_SEND);
-        // no suggestions or learning: this may be a password the user types for a site
+        // No learning/suggestions for sensitive fields/passwords
         field.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         field.setPaddingRelative(dp(a, 12), dp(a, 8), dp(a, 12), dp(a, 8));
         field.setBackground(outlined(a, BG, 12, OUTLINE, 1));
@@ -166,7 +219,7 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
             touched();
             Browser.later(() -> Browser.key(key, "Backspace"));
         });
-        LayoutParams bp = new LayoutParams(dp(a, 48), dp(a, 40));
+        LayoutParams bp = new LayoutParams(dp(a, 46), dp(a, 38));
         bp.setMarginStart(dp(a, 6));
         typing.addView(bs, bp);
         Button enter = button(a, a.getString(R.string.browser_enter), false);
@@ -179,12 +232,82 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
                 Browser.key(key, "Enter");
             });
         });
-        LayoutParams ep = new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 40));
+        LayoutParams ep = new LayoutParams(LayoutParams.WRAP_CONTENT, dp(a, 38));
         ep.setMarginStart(dp(a, 6));
         typing.addView(enter, ep);
-        typing.setVisibility(full ? VISIBLE : GONE);
+        typing.setVisibility(GONE);
         addView(typing, full());
+
+        frameDivider = new View(a);
+        frameDivider.setBackgroundColor(LINE);
+        addView(frameDivider, new LayoutParams(LayoutParams.MATCH_PARENT, dp(a, 1)));
+
+        // Bottom control toolbar (Back, Forward, Reload, Keyboard, Close Tab/Fullscreen)
+        controlsBar = row(a);
+        controlsBar.setGravity(Gravity.CENTER_VERTICAL);
+        if (full) {
+            controlsBar.setBackgroundColor(NAV);
+            controlsBar.setPaddingRelative(dp(a, 8), dp(a, 4), dp(a, 8), dp(a, 4));
+        } else {
+            controlsBar.setBackgroundColor(CARD);
+            controlsBar.setPaddingRelative(dp(a, 6), dp(a, 2), dp(a, 6), dp(a, 2));
+        }
+
+        ImageButton backBtn = toolbarBtn(R.drawable.ms_arrow_back, a.getString(R.string.browser_back), MUTED, v -> {
+            touched();
+            Browser.later(() -> Browser.back(key));
+        });
+        ImageButton fwdBtn = toolbarBtn(R.drawable.ms_arrow_forward, a.getString(R.string.browser_forward), MUTED, v -> {
+            touched();
+            Browser.later(() -> Browser.forward(key));
+        });
+        ImageButton reloadBtn = toolbarBtn(R.drawable.ms_refresh, a.getString(R.string.browser_reload), MUTED, v -> {
+            Browser.later(() -> Browser.reload(key));
+        });
+        kb = toolbarBtn(R.drawable.ms_keyboard, a.getString(R.string.browser_keyboard), MUTED, v -> toggleTyping());
+
+        int btnH = dp(a, full ? 44 : 36);
+        controlsBar.addView(backBtn, new LayoutParams(0, btnH, 1));
+        controlsBar.addView(fwdBtn, new LayoutParams(0, btnH, 1));
+        controlsBar.addView(reloadBtn, new LayoutParams(0, btnH, 1));
+        controlsBar.addView(kb, new LayoutParams(0, btnH, 1));
+
+        if (full) {
+            ImageButton closeTabBtn = toolbarBtn(R.drawable.ms_tab_close, a.getString(R.string.browser_close_tab), ERR, v -> {
+                Browser.closeTab(key);
+                Toast.makeText(a, R.string.browser_tab_closed, Toast.LENGTH_SHORT).show();
+                a.finish();
+            });
+            controlsBar.addView(closeTabBtn, new LayoutParams(0, btnH, 1));
+        } else {
+            ImageButton fullBtn = toolbarBtn(R.drawable.ms_open_in_full, a.getString(R.string.browser_full_screen), ACCENT_TEXT,
+                    v -> a.startActivity(new Intent(a, BrowserActivity.class).putExtra("key", key)));
+            controlsBar.addView(fullBtn, new LayoutParams(0, btnH, 1));
+        }
+        addView(controlsBar, full());
+
         refresh();
+    }
+
+    private ImageButton toolbarBtn(int iconRes, String desc, int tint, View.OnClickListener l) {
+        ImageButton b = iconButton(a, iconRes, desc, tint);
+        b.setBackgroundResource(ripple(a, true));
+        b.setOnClickListener(l);
+        return b;
+    }
+
+    void setOnHideListener(Runnable onHide) {
+        this.onHide = onHide;
+    }
+
+    void setExpanded(boolean expanded) {
+        if (full) return;
+        this.folded = !expanded;
+        refresh();
+    }
+
+    boolean isExpanded() {
+        return !folded;
     }
 
     // ------------------------------------------------------------------ state
@@ -231,26 +354,52 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         removeCallbacks(followMarks);
         followMarks.run();
         String[] page = Browser.page(key);
-        boolean blank = page == null || page[0].isEmpty() || "about:blank".equals(page[0]);
+        String url = page == null ? "" : page[0];
+        String pageTitle = page == null ? "" : page[1];
+        boolean blank = url.isEmpty() || "about:blank".equals(url);
+
+        NnService svc = NnService.get();
+        boolean paused = svc != null && svc.pausedForBrowser();
+
         if (full) {
-            address.setText(blank ? a.getString(R.string.browser_address_hint) : page[0]);
+            address.setText(blank ? a.getString(R.string.browser_address_hint) : url);
             address.setTextColor(blank ? MUTED : TEXT);
-            // nothing to look at yet: ask where to go, once
             if (blank && !askedAddress && hasWindowFocus()) {
                 askedAddress = true;
                 post(this::editAddress);
             }
         } else {
-            address.setText(page == null || page[0].isEmpty() ? a.getString(R.string.browser_no_page) : page[0]);
+            String host = Browser.hostLabel(url);
+            String topTitle = !pageTitle.isEmpty() ? pageTitle
+                    : !host.isEmpty() ? host
+                    : a.getString(R.string.browser_pill_active);
+            if (titleText != null) titleText.setText(topTitle);
+            if (paused) {
+                address.setText(a.getString(R.string.browser_pill_paused));
+                address.setTextColor(ACCENT_TEXT);
+            } else {
+                address.setText(!host.isEmpty() ? host : blank ? a.getString(R.string.browser_no_page) : url);
+                address.setTextColor(MUTED);
+            }
+            if (statusDot != null) {
+                statusDot.setBackground(oval(paused || Browser.dialog(key) != null ? ACCENT : OK));
+            }
         }
-        NnService svc = NnService.get();
-        resume.setVisibility(svc != null && svc.pausedForBrowser() ? VISIBLE : GONE);
+
+        resume.setVisibility(paused ? VISIBLE : GONE);
         if (fold != null) fold.setImageResource(folded ? R.drawable.ms_expand_more : R.drawable.ms_expand_less);
         frame.setVisibility(folded ? GONE : VISIBLE);
+        frameDivider.setVisibility(folded ? GONE : VISIBLE);
+        controlsBar.setVisibility(folded ? GONE : VISIBLE);
         if (folded) typing.setVisibility(GONE);
+        if (kb != null) {
+            kb.setImageTintList(ColorStateList.valueOf(typing.getVisibility() == VISIBLE ? ACCENT_TEXT : MUTED));
+        }
+
         JSONObject d = Browser.dialog(key);
-        dialogRow.setVisibility(d == null || folded ? GONE : VISIBLE);
+        dialogRow.setVisibility(d == null || (folded && !full) ? GONE : VISIBLE);
         if (d != null) dialogText.setText(a.getString(R.string.browser_dialog, d.optString("message")));
+
         boolean watch = shown && !folded && Browser.available(a);
         if (watch != watching) {
             watching = watch;
@@ -273,12 +422,21 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
 
     private void showTyping(boolean on) {
         typing.setVisibility(on ? VISIBLE : GONE);
+        if (kb != null) {
+            kb.setImageTintList(ColorStateList.valueOf(on ? ACCENT_TEXT : MUTED));
+        }
         if (on) {
             folded = false;
             refresh();
             field.requestFocus();
-            field.postDelayed(() -> a.getSystemService(android.view.inputmethod.InputMethodManager.class)
-                    .showSoftInput(field, 0), 150);
+            field.postDelayed(() -> {
+                InputMethodManager imm = a.getSystemService(InputMethodManager.class);
+                if (imm != null) imm.showSoftInput(field, 0);
+            }, 150);
+        } else {
+            field.clearFocus();
+            InputMethodManager imm = a.getSystemService(InputMethodManager.class);
+            if (imm != null) imm.hideSoftInputFromWindow(field.getWindowToken(), 0);
         }
     }
 
@@ -337,7 +495,10 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
         });
         d.show();
         url.requestFocus();
-        url.postDelayed(() -> a.getSystemService(android.view.inputmethod.InputMethodManager.class).showSoftInput(url, 0), 200);
+        url.postDelayed(() -> {
+            InputMethodManager imm = a.getSystemService(InputMethodManager.class);
+            if (imm != null) imm.showSoftInput(url, 0);
+        }, 200);
     }
 
     // ------------------------------------------------------------------ frames
@@ -447,7 +608,6 @@ final class BrowserPanel extends LinearLayout implements Browser.Listener {
                         touched();
                     }
                     if (dragging) {
-                        // a finger moving up scrolls the page down, as on a phone
                         pendingDy += (lastY - e.getY()) / s;
                         pendingDx += (lastX - e.getX()) / s;
                         lastX = e.getX();

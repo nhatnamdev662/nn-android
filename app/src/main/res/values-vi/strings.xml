@@ -2145,9 +2145,19 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="chat_action_speak">Đọc to</string>
     <string name="chat_action_stop_speak">Dừng đọc</string>
     <string name="chat_action_copy_code">Sao chép mã</string>
-    <string name="chat_action_delete">Xóa tin nhắn</string>
     <string name="chat_code_copied">Đã sao chép mã</string>
-    <string name="chat_deleted">Đã xóa tin nhắn</string>
+    <string name="chat_editing_bar">Đang sửa: %1$s</string>
+    <string name="chat_edit_cancel">Hủy sửa</string>
+
+    <!-- Background Browser Controls -->
+    <string name="browser_forward">Trang sau</string>
+    <string name="browser_reload">Tải lại</string>
+    <string name="browser_hide">Ẩn khỏi chat</string>
+    <string name="browser_show_bar">Hiện trình duyệt nền</string>
+    <string name="browser_close_tab">Tắt tab trình duyệt</string>
+    <string name="browser_tab_closed">Đã đóng tab trình duyệt</string>
+    <string name="browser_pill_paused">Tạm dừng · bấm Tiếp tục</string>
+    <string name="browser_pill_active">Trình duyệt nền</string>
 
     <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
     <string name="keepalive_channel_name">Dịch vụ chạy ngầm (Duy trì hoạt động)</string>
