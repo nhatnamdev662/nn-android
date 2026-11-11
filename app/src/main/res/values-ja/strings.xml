@@ -1595,4 +1595,9 @@
     <string name="setup_adb_status_sub_optional">初期設定でスキップ · いつでもペアリングして高速化できます</string>
     <string name="setup_all_set_adb_optional">準備完了 · ADB 任意（未ペアリング）</string>
     <string name="check_adb_optional">任意 · セットアップでスキップ（設定からいつでもペアリング可能）。</string>
+    <string name="onboarding_back">戻る</string>
+    <string name="onboarding_do_later">あとで行う</string>
+    <string name="onboarding_badge_required">必須</string>
+    <string name="onboarding_badge_optional">任意</string>
+    <string name="onboarding_step_done_badge">完了</string>
 </resources>

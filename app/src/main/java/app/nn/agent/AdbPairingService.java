@@ -32,14 +32,21 @@ public final class AdbPairingService {
 
     private AdbPairingService() {}
 
+    private static Intent buildReturnIntent(Context context) {
+        Class<?> target = Prefs.adbReturnToOnboarding(context)
+                ? OnboardingActivity.class
+                : SetupActivity.class;
+        return new Intent(context, target)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    }
+
     /** State 1: Searching for pairing service (Shizuku style) */
     public static void showSearchingNotification(Context context) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) return;
         createChannel(context, nm);
 
-        Intent openIntent = new Intent(context, SetupActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent openIntent = buildReturnIntent(context);
         PendingIntent openPi = PendingIntent.getActivity(
                 context, 0, openIntent,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -106,8 +113,7 @@ public final class AdbPairingService {
                 pairPi
         ).addRemoteInput(remoteInput).build();
 
-        Intent openIntent = new Intent(context, SetupActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent openIntent = buildReturnIntent(context);
         PendingIntent openPi = PendingIntent.getActivity(
                 context, 0, openIntent,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -158,8 +164,7 @@ public final class AdbPairingService {
 
         createChannel(context, nm);
 
-        Intent openIntent = new Intent(context, SetupActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent openIntent = buildReturnIntent(context);
         PendingIntent openPi = PendingIntent.getActivity(
                 context, 2, openIntent,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -217,9 +222,7 @@ public final class AdbPairingService {
                                 AdbManager.ensure(context);
                                 Toast.makeText(context, R.string.adb_notify_pair_success, Toast.LENGTH_SHORT).show();
                                 try {
-                                    Intent appIntent = new Intent(context, SetupActivity.class)
-                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                    context.startActivity(appIntent);
+                                    context.startActivity(buildReturnIntent(context));
                                 } catch (Throwable ignored) {}
                             } else {
                                 Toast.makeText(context, context.getString(R.string.adb_pair_failed, error), Toast.LENGTH_LONG).show();

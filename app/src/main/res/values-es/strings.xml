@@ -2042,4 +2042,9 @@
     <string name="setup_adb_status_sub_optional">Omitido en el ajuste inicial · toca Emparejar cuando quieras</string>
     <string name="setup_all_set_adb_optional">Todo listo · ADB opcional (sin emparejar)</string>
     <string name="check_adb_optional">Opcional · omitido en la configuración (abre Ajustes para emparejar cuando quieras).</string>
+    <string name="onboarding_back">Atrás</string>
+    <string name="onboarding_do_later">Más tarde</string>
+    <string name="onboarding_badge_required">Obligatorio</string>
+    <string name="onboarding_badge_optional">Opcional</string>
+    <string name="onboarding_step_done_badge">Completado</string>
 </resources>

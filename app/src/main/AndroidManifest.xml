@@ -171,7 +171,8 @@
 
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop" />
 
         <provider
             android:name=".FilesProvider"

@@ -1603,4 +1603,9 @@
     <string name="setup_adb_status_sub_optional">सेटअप में छोड़ा गया · कभी भी पेयर करने के लिए टैप करें</string>
     <string name="setup_all_set_adb_optional">तैयार · ADB वैकल्पिक (पेयर नहीं)</string>
     <string name="check_adb_optional">वैकल्पिक · सेटअप के दौरान छोड़ा गया (किसी भी समय सेटिंग्स से पेयर करें)।</string>
+    <string name="onboarding_back">वापस</string>
+    <string name="onboarding_do_later">बाद में करें</string>
+    <string name="onboarding_badge_required">आवश्यक</string>
+    <string name="onboarding_badge_optional">वैकल्पिक</string>
+    <string name="onboarding_step_done_badge">पूर्ण</string>
 </resources>

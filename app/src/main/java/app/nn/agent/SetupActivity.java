@@ -123,6 +123,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         SshServer.addListener(this);
         CodexRemote.addListener(this);
         Browser.addListener(this);
+        Prefs.setAdbReturnToOnboarding(this, false);
         AdbManager.get(this);
         AdbManager.addListener(this);
         AdbManager.ensure(this);
@@ -1052,7 +1053,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             TextView guide = text(this, getString(R.string.setup_open_guide), 14, ACCENT_TEXT);
             guide.setTypeface(sans(this, 600));
             guide.setPaddingRelative(0, dp(this, 12), 0, 0);
-            guide.setOnClickListener(v -> startActivity(new Intent(this, OnboardingActivity.class)));
+            guide.setOnClickListener(v -> startActivity(new Intent(this, OnboardingActivity.class).putExtra(OnboardingActivity.EXTRA_RESUME_UNFINISHED, true)));
             c.addView(guide);
         }
         if (!open) {

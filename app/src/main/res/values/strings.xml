@@ -2229,4 +2229,9 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="check_adb_optional">Optional · skipped during setup (tap Settings to pair anytime).</string>
 
     <!-- ADB Prerequisites for Auto-Connect -->
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_do_later">Do this later</string>
+    <string name="onboarding_badge_required">Required</string>
+    <string name="onboarding_badge_optional">Optional</string>
+    <string name="onboarding_step_done_badge">Completed</string>
 </resources>

@@ -1594,4 +1594,9 @@
     <string name="setup_adb_status_sub_optional">설정 중 건너뜀 · 언제든 페어링하여 하이브리드 가속 사용</string>
     <string name="setup_all_set_adb_optional">준비 완료 · ADB 선택 사항 (미연결)</string>
     <string name="check_adb_optional">선택 사항 · 초기 설정에서 건너뜀 (설정에서 언제든 페어링 가능).</string>
+    <string name="onboarding_back">뒤로</string>
+    <string name="onboarding_do_later">나중에 하기</string>
+    <string name="onboarding_badge_required">필수</string>
+    <string name="onboarding_badge_optional">선택</string>
+    <string name="onboarding_step_done_badge">완료</string>
 </resources>

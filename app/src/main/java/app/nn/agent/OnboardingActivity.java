@@ -1,7 +1,5 @@
 package app.nn.agent;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,26 +15,28 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import static app.nn.agent.Ui.*;
 
 /**
- * First-run guide: one step per screen. Steps that happen elsewhere (Android settings, the browser for
- * sign-in) are detected when the user comes back.
+ * First-run setup wizard: one step per screen with explicit navigation.
+ * Steps never auto-advance behind the user's back; returning from system Settings or
+ * ADB pairing notifications restores the active onboarding step cleanly.
  */
 public class OnboardingActivity extends Screen implements Account.Listener, AdbManager.Listener {
     static final int WELCOME = 0, BRAIN = 1, ACCESS = 2, AGENTS = 3, BACKGROUND = 4, ADB = 5, SAFETY = 6, TRY = 7;
     private static final int LAST = TRY;
+    static final String EXTRA_RESUME_UNFINISHED = "resume_unfinished";
+
+    private static final int BADGE_NONE = 0, BADGE_REQUIRED = 1, BADGE_OPTIONAL = 2;
 
     private ScrollView scroll;
-    private LinearLayout body, bottom;
+    private LinearLayout body, bottom, stepBar;
     private TextView progress;
+    private Button skipBtn;
     private int step;
     private int accessTries;
     private boolean stuckOpen;
-    /** After Back, stay on the (possibly done) step until the user moves on themselves. */
-    private boolean noAutoAdvance;
     private final AdbUi.DialogSession adbUi = new AdbUi.DialogSession();
 
     @Override
@@ -53,40 +53,71 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             }
             Prefs.setOnboardVersion(this, 3);
         }
-        step = Math.min(Prefs.onboardStep(this), LAST);
+
+        if (getIntent() != null && getIntent().getBooleanExtra(EXTRA_RESUME_UNFINISHED, false)) {
+            step = firstUnfinishedStep();
+            Prefs.setOnboardStep(this, step);
+        } else {
+            step = Math.min(Prefs.onboardStep(this), LAST);
+        }
 
         LinearLayout root = column(this);
         root.setBackgroundColor(BG);
         root.setFitsSystemWindows(true);
 
         LinearLayout top = row(this);
-        top.setPaddingRelative(dp(this, 20), dp(this, 12), dp(this, 8), dp(this, 4));
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        top.setPaddingRelative(dp(this, 20), dp(this, 10), dp(this, 8), dp(this, 2));
         progress = monoText(this, "", 12, MUTED);
         top.addView(progress, weight1());
-        Button skip = button(this, getString(R.string.onboarding_skip_setup), false);
-        skip.setBackgroundResource(ripple(this, false));
-        skip.setTextColor(MUTED);
-        skip.setOnClickListener(v -> confirmSheet(this, getString(R.string.onboarding_skip_title),
+        skipBtn = button(this, getString(R.string.onboarding_skip_setup), false);
+        skipBtn.setBackgroundResource(ripple(this, false));
+        skipBtn.setTextColor(MUTED);
+        skipBtn.setOnClickListener(v -> confirmSheet(this, getString(R.string.onboarding_skip_title),
                 getString(R.string.onboarding_skip_text), getString(R.string.onboarding_skip_action), false, this::finishGuide));
-        top.addView(skip);
+        top.addView(skipBtn);
         root.addView(top, full());
 
+        stepBar = row(this);
+        stepBar.setPaddingRelative(dp(this, 20), dp(this, 4), dp(this, 20), dp(this, 10));
+        root.addView(stepBar, full());
+
         scroll = new ScrollView(this);
+        scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
         body = column(this);
-        body.setPaddingRelative(dp(this, 24), dp(this, 16), dp(this, 24), dp(this, 24));
+        body.setPaddingRelative(dp(this, 24), dp(this, 12), dp(this, 24), dp(this, 24));
         scroll.addView(body);
         root.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
 
         bottom = column(this);
-        bottom.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 16));
+        bottom.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 14));
         root.addView(bottom, full());
         setContentView(root);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent != null && intent.getBooleanExtra(EXTRA_RESUME_UNFINISHED, false)) {
+            step = firstUnfinishedStep();
+            Prefs.setOnboardStep(this, step);
+        }
+    }
+
+    private int firstUnfinishedStep() {
+        int[] checkable = {ACCESS, AGENTS, BACKGROUND, ADB};
+        for (int s : checkable) {
+            if (!done(this, s)) return s;
+        }
+        return BRAIN;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (isFinishing()) return;
+        Prefs.setAdbReturnToOnboarding(this, true);
         Account.addListener(this);
         AdbManager.get(this);
         AdbManager.addListener(this);
@@ -97,7 +128,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         if (AdbManager.isConnected()) adbUi.dismissAll();
         for (String a : wanted(this)) Account.of(a).refresh(this);
         render();
-        checkAdvance();
     }
 
     @Override
@@ -111,7 +141,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     public void onAccountChanged() {
         if (isFinishing() || isDestroyed()) return;
         render();
-        checkAdvance();
     }
 
     @Override
@@ -122,7 +151,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         }
         if (step == ADB) {
             render();
-            checkAdvance();
         }
     }
 
@@ -135,7 +163,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     @Override
     public void onBackPressed() {
         if (step > WELCOME) {
-            noAutoAdvance = true;
             go(step - 1);
         } else {
             super.onBackPressed();
@@ -152,12 +179,17 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
                 for (String a : wanted(c)) if (!SetupState.signedIn(c, a)) return false;
                 return true;
             case BACKGROUND:
-                return c.getSystemService(PowerManager.class).isIgnoringBatteryOptimizations(c.getPackageName());
+                PowerManager pm = c.getSystemService(PowerManager.class);
+                return pm != null && pm.isIgnoringBatteryOptimizations(c.getPackageName());
             case ADB:
                 return AdbManager.isConnected();
             default:
                 return false;
         }
+    }
+
+    private static boolean isCheckableStep(int s) {
+        return s == ACCESS || s == AGENTS || s == BACKGROUND || s == ADB;
     }
 
     static String[] wanted(Context c) {
@@ -167,7 +199,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     }
 
     private void go(int s) {
-        if (s > step) noAutoAdvance = false;
         step = Math.max(WELCOME, Math.min(LAST, s));
         Prefs.setOnboardStep(this, step);
         stuckOpen = false;
@@ -176,20 +207,11 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             AdbManager.probeNow(this);
         }
         render();
-        scroll.scrollTo(0, 0);
-        checkAdvance();
-    }
-
-    /** If the current step is already done, show the check briefly and move on. */
-    private void checkAdvance() {
-        if (noAutoAdvance || !done(this, step)) return;
-        final int at = step;
-        body.postDelayed(() -> {
-            if (step == at && done(this, at) && !isFinishing()) go(at + 1);
-        }, 900);
+        if (scroll != null) scroll.scrollTo(0, 0);
     }
 
     private void finishGuide() {
+        Prefs.setAdbReturnToOnboarding(this, false);
         Prefs.setOnboarded(this, true);
         startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
@@ -201,6 +223,9 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         body.removeAllViews();
         bottom.removeAllViews();
         progress.setText(step == WELCOME ? "" : getString(R.string.onboarding_progress, step, LAST));
+        skipBtn.setVisibility(step == TRY ? View.GONE : View.VISIBLE);
+        renderStepBar();
+
         boolean ok = done(this, step);
         switch (step) {
             case WELCOME:
@@ -210,27 +235,7 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
                 brain();
                 break;
             case ACCESS:
-                header(R.drawable.ms_shield_person, getString(R.string.onboarding_access_title),
-                        getString(ok ? R.string.onboarding_access_done : R.string.onboarding_access_text), ok);
-                if (!ok) {
-                    String agents = Prefs.agents(this);
-                    note("opencode".equals(agents) ? getString(R.string.onboarding_access_privacy_opencode, agentNames())
-                            : "both".equals(agents) ? getString(R.string.onboarding_access_privacy_both)
-                            : getString(R.string.onboarding_access_privacy, agentNames(),
-                            "codex".equals(agents) ? "OpenAI" : "agy".equals(agents) ? "Google" : "grok".equals(agents) ? "xAI"
-                            : "Anthropic"));
-                    if (accessTries > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) restrictedHelp();
-                    note(getString(R.string.onboarding_access_list_hint));
-                    primary(getString(R.string.onboarding_access_open), v -> {
-                        accessTries++;
-                        openAccessibilitySettings(this);
-                    });
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        stuck(getString(R.string.onboarding_access_greyed_title),
-                                getString(R.string.onboarding_access_greyed_text), null, null);
-                        secondary(getString(R.string.onboarding_app_info), v -> openAppInfo(getPackageName()));
-                    }
-                }
+                access(ok);
                 break;
             case AGENTS:
                 agents(ok);
@@ -250,20 +255,38 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             default:
                 break;
         }
-        if (ok && step != WELCOME && step != BRAIN && step != TRY) {
-            Button next = button(this, getString(R.string.onboarding_continue), true);
-            next.setOnClickListener(v -> {
-                noAutoAdvance = false;
-                go(step + 1);
-            });
-            bottom.addView(next, bigButton());
+    }
+
+    private void renderStepBar() {
+        stepBar.removeAllViews();
+        if (step == WELCOME) {
+            stepBar.setVisibility(View.GONE);
+            return;
+        }
+        stepBar.setVisibility(View.VISIBLE);
+        for (int s = BRAIN; s <= LAST; s++) {
+            View seg = new View(this);
+            int color;
+            if (s == step) {
+                color = ACCENT;
+            } else if (isCheckableStep(s)) {
+                if (done(this, s)) color = OK;
+                else if (s < step) color = WARN;
+                else color = CARD2;
+            } else {
+                color = s < step ? Theme.withAlpha(ACCENT, 0x77) : CARD2;
+            }
+            seg.setBackground(rounded(this, color, 3));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(this, 4), 1);
+            if (s < LAST) lp.setMarginEnd(dp(this, 5));
+            stepBar.addView(seg, lp);
         }
     }
 
     private void welcome() {
         LinearLayout c = column(this);
         c.setGravity(Gravity.CENTER_HORIZONTAL);
-        c.setPaddingRelative(0, dp(this, 40), 0, 0);
+        c.setPaddingRelative(0, dp(this, 36), 0, 0);
         FrameLayout tile = new FrameLayout(this);
         tile.setBackgroundResource(R.drawable.ic_launcher_background);
         tile.setClipToOutline(true);
@@ -302,7 +325,8 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     }
 
     private void brain() {
-        header(R.drawable.ms_forum, getString(R.string.onboarding_brain_title), getString(R.string.onboarding_brain_text), false);
+        header(R.drawable.ms_forum, getString(R.string.onboarding_brain_title),
+                getString(R.string.onboarding_brain_text), false, BADGE_NONE);
         String cur = Prefs.agents(this);
         String[][] opts = {
                 {"claude", "Claude Code", getString(R.string.onboarding_brain_claude)},
@@ -361,12 +385,53 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             body.addView(r, p);
         }
         primary(getString(R.string.onboarding_continue), v -> go(ACCESS));
+        footerNav(WELCOME, null, null);
+    }
+
+    private void access(boolean ok) {
+        header(R.drawable.ms_shield_person, getString(R.string.onboarding_access_title),
+                getString(ok ? R.string.onboarding_access_done : R.string.onboarding_access_text),
+                ok, BADGE_REQUIRED);
+        if (ok) {
+            completedCard(getString(R.string.onboarding_access_done),
+                    getString(R.string.onboarding_access_open),
+                    v -> openAccessibilitySettings(this));
+            primary(getString(R.string.onboarding_continue), v -> go(AGENTS));
+            footerNav(BRAIN, null, null);
+            return;
+        }
+        String agents = Prefs.agents(this);
+        note("opencode".equals(agents) ? getString(R.string.onboarding_access_privacy_opencode, agentNames())
+                : "both".equals(agents) ? getString(R.string.onboarding_access_privacy_both)
+                : getString(R.string.onboarding_access_privacy, agentNames(),
+                "codex".equals(agents) ? "OpenAI" : "agy".equals(agents) ? "Google" : "grok".equals(agents) ? "xAI"
+                        : "Anthropic"));
+        if (accessTries > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) restrictedHelp();
+        note(getString(R.string.onboarding_access_list_hint));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            stuck(getString(R.string.onboarding_access_greyed_title),
+                    getString(R.string.onboarding_access_greyed_text), null, null);
+            if (stuckOpen) {
+                Button infoBtn = outlinedButton(this, getString(R.string.onboarding_app_info), TEXT);
+                infoBtn.setOnClickListener(v -> openAppInfo(getPackageName()));
+                LinearLayout.LayoutParams ip = full();
+                ip.topMargin = dp(this, 8);
+                body.addView(infoBtn, ip);
+            }
+        }
+        primary(getString(R.string.onboarding_access_open), v -> {
+            accessTries++;
+            openAccessibilitySettings(this);
+        });
+        footerNav(BRAIN, getString(R.string.onboarding_do_later), v -> go(AGENTS));
     }
 
     private void agents(boolean ok) {
-        header(R.drawable.ms_terminal, getString(ok ? R.string.onboarding_agents_done_title : R.string.onboarding_agents_title),
+        header(R.drawable.ms_terminal,
+                getString(ok ? R.string.onboarding_agents_done_title : R.string.onboarding_agents_title),
                 ok && "both".equals(Prefs.agents(this)) ? getString(R.string.onboarding_agents_done_both)
-                        : getString(ok ? R.string.onboarding_agents_done : R.string.onboarding_agents_text, agentNames()), ok);
+                        : getString(ok ? R.string.onboarding_agents_done : R.string.onboarding_agents_text, agentNames()),
+                ok, BADGE_REQUIRED);
         boolean first = true;
         for (String a : wanted(this)) {
             Account acc = Account.of(a);
@@ -374,8 +439,11 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             boolean installing = acc.step == Account.Step.INSTALLING;
             LinearLayout card = column(this);
             card.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
-            card.setBackground(rounded(this, CARD, 16));
+            card.setBackground(signed
+                    ? outlined(this, CARD, 16, Theme.withAlpha(OK, 0x55), 1)
+                    : rounded(this, CARD, 16));
             LinearLayout r = row(this);
+            r.setGravity(Gravity.CENTER_VERTICAL);
             r.addView(agentTile(this, a));
             LinearLayout t = column(this);
             t.setPaddingRelative(dp(this, 12), 0, 0, 0);
@@ -419,72 +487,85 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
                 }
             }
             LinearLayout.LayoutParams p = full();
-            p.topMargin = dp(this, 12);
+            p.topMargin = dp(this, 14);
             body.addView(card, p);
         }
-        if (!ok) {
+        if (ok) {
+            primary(getString(R.string.onboarding_continue), v -> go(BACKGROUND));
+            footerNav(ACCESS, null, null);
+        } else {
             note(getString(R.string.onboarding_agents_wifi));
             stuck(getString(R.string.onboarding_stuck_sign_in_q), getString(R.string.onboarding_stuck_sign_in_a),
                     getString(R.string.onboarding_stuck_install_q), getString(R.string.onboarding_stuck_install_a));
+            footerNav(ACCESS, getString(R.string.onboarding_do_later), v -> go(BACKGROUND));
         }
     }
 
     private void background(boolean ok) {
         header(R.drawable.ms_build_circle, getString(R.string.onboarding_background_title),
-                getString(ok ? R.string.onboarding_background_done : R.string.onboarding_background_text), ok);
-        if (!ok) {
+                getString(ok ? R.string.onboarding_background_done : R.string.onboarding_background_text),
+                ok, BADGE_OPTIONAL);
+        if (ok) {
+            completedCard(getString(R.string.onboarding_background_done), null, null);
+            primary(getString(R.string.onboarding_continue), v -> go(ADB));
+            footerNav(AGENTS, null, null);
+        } else {
             primary(getString(R.string.onboarding_allow), v -> startActivity(new Intent(
                     Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))));
-            secondary(getString(R.string.onboarding_skip_for_now), v -> go(ADB));
+            footerNav(AGENTS, getString(R.string.onboarding_skip_for_now), v -> go(ADB));
         }
     }
 
     private void adbStep(boolean ok) {
         header(R.drawable.ms_terminal, getString(R.string.onboarding_adb_title),
-                getString(ok ? R.string.onboarding_adb_done : R.string.onboarding_adb_text), ok);
+                getString(ok ? R.string.onboarding_adb_done : R.string.onboarding_adb_text),
+                ok, BADGE_OPTIONAL);
         LinearLayout statusBox = AdbUi.statusBanner(this);
         LinearLayout.LayoutParams sp = full();
         sp.topMargin = dp(this, 18);
-        body.addView(statusBox, sp);
-        if (!ok) {
-            Button portBtn = outlinedButton(this, getString(R.string.onboarding_adb_connect_port), ACCENT_TEXT);
-            portBtn.setOnClickListener(v -> AdbUi.showConnectDialog(this, () -> {
-                render();
-                checkAdvance();
-            }));
-            LinearLayout.LayoutParams pp = full();
-            pp.topMargin = dp(this, 14);
-            body.addView(portBtn, pp);
+        if (ok) {
+            LinearLayout card = column(this);
+            card.setBackground(outlined(this, CARD, 16, Theme.withAlpha(OK, 0x55), 1));
+            card.setPaddingRelative(dp(this, 4), dp(this, 4), dp(this, 4), dp(this, 4));
+            card.addView(statusBox, full());
+            body.addView(card, sp);
 
-            stuck(getString(R.string.onboarding_adb_dev_q), getString(R.string.onboarding_adb_dev_a), null, null);
-            if (stuckOpen) {
-                Button aboutBtn = outlinedButton(this, getString(R.string.onboarding_adb_open_about), TEXT);
-                aboutBtn.setOnClickListener(v -> {
-                    try {
-                        startActivity(new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS));
-                    } catch (Throwable ignored) {
-                    }
-                });
-                LinearLayout.LayoutParams ap = full();
-                ap.topMargin = dp(this, 8);
-                body.addView(aboutBtn, ap);
-            }
-
-            primary(getString(R.string.onboarding_adb_pair), v -> AdbUi.showGuideDialog(this, adbUi, () -> {
-                render();
-                checkAdvance();
-            }));
-            secondary(getString(R.string.onboarding_skip_for_now), v -> {
-                Prefs.setAdbSkipped(this, true);
-                noAutoAdvance = false;
-                go(SAFETY);
-            });
+            primary(getString(R.string.onboarding_continue), v -> go(SAFETY));
+            footerNav(BACKGROUND, null, null);
+            return;
         }
+        body.addView(statusBox, sp);
+
+        Button portBtn = outlinedButton(this, getString(R.string.onboarding_adb_connect_port), ACCENT_TEXT);
+        portBtn.setOnClickListener(v -> AdbUi.showConnectDialog(this, this::render));
+        LinearLayout.LayoutParams pp = full();
+        pp.topMargin = dp(this, 14);
+        body.addView(portBtn, pp);
+
+        stuck(getString(R.string.onboarding_adb_dev_q), getString(R.string.onboarding_adb_dev_a), null, null);
+        if (stuckOpen) {
+            Button aboutBtn = outlinedButton(this, getString(R.string.onboarding_adb_open_about), TEXT);
+            aboutBtn.setOnClickListener(v -> {
+                try {
+                    startActivity(new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS));
+                } catch (Throwable ignored) {
+                }
+            });
+            LinearLayout.LayoutParams ap = full();
+            ap.topMargin = dp(this, 8);
+            body.addView(aboutBtn, ap);
+        }
+
+        primary(getString(R.string.onboarding_adb_pair), v -> AdbUi.showGuideDialog(this, adbUi, this::render));
+        footerNav(BACKGROUND, getString(R.string.onboarding_skip_for_now), v -> {
+            Prefs.setAdbSkipped(this, true);
+            go(SAFETY);
+        });
     }
 
     private void safety() {
         header(R.drawable.ms_shield_person, getString(R.string.onboarding_safety_title),
-                getString(R.string.onboarding_safety_text), false);
+                getString(R.string.onboarding_safety_text), false, BADGE_NONE);
         boolean auto = Prefs.autonomousDefault(this);
         String[][] opts = {
                 {"ask", getString(R.string.onboarding_safety_ask_title), getString(R.string.onboarding_safety_ask_text)},
@@ -511,10 +592,12 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         }
         note(getString(R.string.onboarding_safety_note));
         primary(getString(R.string.onboarding_continue), v -> go(TRY));
+        footerNav(ADB, null, null);
     }
 
     private void tryIt() {
-        header(R.drawable.ms_check, getString(R.string.onboarding_try_title), getString(R.string.onboarding_try_text), true);
+        header(R.drawable.ms_check, getString(R.string.onboarding_try_title),
+                getString(R.string.onboarding_try_text), true, BADGE_NONE);
         String prompt = getString(R.string.onboarding_try_prompt);
         TextView ex = monoText(this, getString(R.string.onboarding_try_prompt_quoted, prompt), 13, TEXT);
         ex.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
@@ -524,6 +607,7 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         body.addView(ex, ep);
         note(getString(R.string.onboarding_try_tip));
         primary(getString(R.string.onboarding_try_now), v -> {
+            Prefs.setAdbReturnToOnboarding(this, false);
             Prefs.setOnboarded(this, true);
             ChatHub hub = ChatHub.get(this);
             Sessions.Session s = hub.create(Prefs.backend(this));
@@ -533,23 +617,80 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
                     .putExtra("draft", prompt));
             finish();
         });
-        secondary(getString(R.string.onboarding_go_to_chats), v -> finishGuide());
+        footerNav(SAFETY, getString(R.string.onboarding_go_to_chats), v -> finishGuide());
     }
 
     // ------------------------------------------------------------ pieces
 
-    private void header(int iconRes, String title, String sub, boolean ok) {
+    private void header(int iconRes, String title, String sub, boolean ok, int badgeMode) {
+        LinearLayout topRow = row(this);
+        topRow.setGravity(Gravity.CENTER_VERTICAL);
         FrameLayout ic = new FrameLayout(this);
         ic.setBackground(oval(ok ? Theme.withAlpha(OK, 0x2E) : ACCENT_SOFT));
         ic.addView(icon(this, ok ? R.drawable.ms_check : iconRes, ok ? OK : ACCENT_TEXT, 28),
                 new FrameLayout.LayoutParams(dp(this, 28), dp(this, 28), Gravity.CENTER));
-        LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(dp(this, 56), dp(this, 56));
-        ip.topMargin = dp(this, 8);
-        body.addView(ic, ip);
+        topRow.addView(ic, new LinearLayout.LayoutParams(dp(this, 56), dp(this, 56)));
+
+        if (ok || badgeMode != BADGE_NONE) {
+            String badgeLabel;
+            int badgeFg;
+            int badgeBg;
+            if (ok) {
+                badgeLabel = getString(R.string.onboarding_step_done_badge);
+                badgeFg = OK;
+                badgeBg = Theme.withAlpha(OK, 0x24);
+            } else if (badgeMode == BADGE_REQUIRED) {
+                badgeLabel = getString(R.string.onboarding_badge_required);
+                badgeFg = ACCENT_TEXT;
+                badgeBg = ACCENT_SOFT;
+            } else {
+                badgeLabel = getString(R.string.onboarding_badge_optional);
+                badgeFg = MUTED;
+                badgeBg = CARD2;
+            }
+            TextView pill = monoText(this, badgeLabel, 11, badgeFg);
+            pill.setTypeface(mono(this, 600));
+            pill.setPaddingRelative(dp(this, 10), dp(this, 4), dp(this, 10), dp(this, 4));
+            pill.setBackground(rounded(this, badgeBg, 8));
+            LinearLayout.LayoutParams bp = wrap();
+            bp.setMarginStart(dp(this, 12));
+            topRow.addView(pill, bp);
+        }
+
+        LinearLayout.LayoutParams tp = full();
+        tp.topMargin = dp(this, 6);
+        body.addView(topRow, tp);
+
         TextView t = title(this, title, 26);
-        t.setPaddingRelative(0, dp(this, 18), 0, dp(this, 6));
+        t.setPaddingRelative(0, dp(this, 16), 0, dp(this, 6));
         body.addView(t);
         body.addView(text(this, sub, 16, MUTED));
+    }
+
+    private void completedCard(String summary, String actionLabel, View.OnClickListener actionListener) {
+        LinearLayout card = column(this);
+        card.setBackground(outlined(this, CARD, 16, Theme.withAlpha(OK, 0x55), 1));
+        card.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
+
+        LinearLayout r = row(this);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.addView(icon(this, R.drawable.ms_check, OK, 22));
+        TextView tv = text(this, summary, 15, TEXT);
+        tv.setPaddingRelative(dp(this, 12), 0, 0, 0);
+        r.addView(tv, weight1());
+        card.addView(r, full());
+
+        if (actionLabel != null && actionListener != null) {
+            Button reopen = outlinedButton(this, actionLabel, MUTED);
+            reopen.setOnClickListener(actionListener);
+            LinearLayout.LayoutParams bp = full();
+            bp.topMargin = dp(this, 12);
+            card.addView(reopen, bp);
+        }
+
+        LinearLayout.LayoutParams cp = full();
+        cp.topMargin = dp(this, 18);
+        body.addView(card, cp);
     }
 
     private void note(String s) {
@@ -557,29 +698,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         LinearLayout.LayoutParams p = full();
         p.topMargin = dp(this, 14);
         body.addView(t, p);
-    }
-
-    private void numbered(String[] lines) {
-        LinearLayout box = column(this);
-        box.setPaddingRelative(dp(this, 16), dp(this, 6), dp(this, 16), dp(this, 14));
-        box.setBackground(rounded(this, CARD, 16));
-        for (int i = 0; i < lines.length; i++) {
-            LinearLayout r = row(this);
-            r.setGravity(Gravity.TOP);
-            r.setPaddingRelative(0, dp(this, 10), 0, 0);
-            TextView n = monoText(this, String.valueOf(i + 1), 12, ACCENT_TEXT);
-            n.setTypeface(mono(this, 600));
-            n.setGravity(Gravity.CENTER);
-            n.setBackground(outlined(this, 0x00000000, 11, ACCENT, 2));
-            r.addView(n, new LinearLayout.LayoutParams(dp(this, 22), dp(this, 22)));
-            TextView t = text(this, lines[i], 15, TEXT);
-            t.setPaddingRelative(dp(this, 12), dp(this, 1), 0, 0);
-            r.addView(t, weight1());
-            box.addView(r, full());
-        }
-        LinearLayout.LayoutParams p = full();
-        p.topMargin = dp(this, 18);
-        body.addView(box, p);
     }
 
     private void bullet(LinearLayout list, int iconRes, String title, String sub) {
@@ -595,16 +713,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         list.addView(r, full());
     }
 
-    private void statusLine(String what, boolean on) {
-        LinearLayout r = row(this);
-        r.setPaddingRelative(0, dp(this, 14), 0, 0);
-        r.addView(dot(this, on ? OK : CARD2, 10));
-        TextView t = text(this, what + (on ? ": allowed" : ": not yet"), 15, on ? TEXT : MUTED);
-        t.setPaddingRelative(dp(this, 10), 0, 0, 0);
-        r.addView(t);
-        body.addView(r, full());
-    }
-
     /** Shown after a first try at the accessibility switch on Android 13+. */
     private void restrictedHelp() {
         LinearLayout c = column(this);
@@ -615,6 +723,11 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         t.setLineSpacing(0, 1.2f);
         t.setPaddingRelative(0, dp(this, 6), 0, 0);
         c.addView(t);
+        Button infoBtn = outlinedButton(this, getString(R.string.onboarding_app_info), ACCENT_TEXT);
+        infoBtn.setOnClickListener(v -> openAppInfo(getPackageName()));
+        LinearLayout.LayoutParams ibp = full();
+        ibp.topMargin = dp(this, 12);
+        c.addView(infoBtn, ibp);
         LinearLayout.LayoutParams p = full();
         p.topMargin = dp(this, 16);
         body.addView(c, p);
@@ -668,14 +781,35 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         bottom.addView(b, bigButton());
     }
 
-    private void secondary(String label, View.OnClickListener l) {
-        Button b = button(this, label, false);
-        b.setBackgroundResource(ripple(this, false));
-        b.setTextColor(TEXT);
-        b.setOnClickListener(l);
-        LinearLayout.LayoutParams p = bigButton();
-        p.topMargin = dp(this, 4);
-        bottom.addView(b, p);
+    private void footerNav(int backStep, String rightLabel, View.OnClickListener rightClick) {
+        LinearLayout r = row(this);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams rp = full();
+        rp.topMargin = bottom.getChildCount() > 0 ? dp(this, 6) : 0;
+
+        if (backStep >= WELCOME) {
+            Button backBtn = button(this, "← " + getString(R.string.onboarding_back), false);
+            backBtn.setBackgroundResource(ripple(this, false));
+            backBtn.setTextColor(MUTED);
+            backBtn.setOnClickListener(v -> go(backStep));
+            r.addView(backBtn, rightLabel != null
+                    ? new LinearLayout.LayoutParams(0, dp(this, 44), 1)
+                    : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(this, 44)));
+        }
+
+        if (rightLabel != null && rightClick != null) {
+            Button rightBtn = button(this, rightLabel, false);
+            rightBtn.setBackgroundResource(ripple(this, false));
+            rightBtn.setTextColor(TEXT);
+            rightBtn.setOnClickListener(rightClick);
+            LinearLayout.LayoutParams rlp = backStep >= WELCOME
+                    ? new LinearLayout.LayoutParams(0, dp(this, 44), 1)
+                    : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(this, 44));
+            if (backStep >= WELCOME) rlp.setMarginStart(dp(this, 8));
+            r.addView(rightBtn, rlp);
+        }
+
+        bottom.addView(r, rp);
     }
 
     private LinearLayout.LayoutParams bigButton() {
@@ -691,14 +825,9 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
         startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg)));
     }
 
-    private void openUrl(String url) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-    }
-
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
         super.onRequestPermissionsResult(code, perms, res);
         render();
-        checkAdvance();
     }
 }

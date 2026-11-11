@@ -1637,4 +1637,9 @@
     <string name="setup_adb_status_sub_optional">Pominięto w konfiguracji · sparuj w dowolnym momencie</string>
     <string name="setup_all_set_adb_optional">Gotowe · ADB opcjonalne (niesparowane)</string>
     <string name="check_adb_optional">Opcjonalne · pominięto przy konfiguracji (sparuj w dowolnej chwili w Ustawieniach).</string>
+    <string name="onboarding_back">Wstecz</string>
+    <string name="onboarding_do_later">Zrób później</string>
+    <string name="onboarding_badge_required">Wymagane</string>
+    <string name="onboarding_badge_optional">Opcjonalne</string>
+    <string name="onboarding_step_done_badge">Ukończono</string>
 </resources>

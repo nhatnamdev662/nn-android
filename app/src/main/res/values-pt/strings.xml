@@ -2055,4 +2055,9 @@
     <string name="setup_adb_status_sub_optional">Ignorado na configuração · toque em Parear quando quiser</string>
     <string name="setup_all_set_adb_optional">Tudo pronto · ADB opcional (não pareado)</string>
     <string name="check_adb_optional">Opcional · ignorado na configuração (abra Configurações para parear a qualquer momento).</string>
+    <string name="onboarding_back">Voltar</string>
+    <string name="onboarding_do_later">Fazer depois</string>
+    <string name="onboarding_badge_required">Obrigatório</string>
+    <string name="onboarding_badge_optional">Opcional</string>
+    <string name="onboarding_step_done_badge">Concluído</string>
 </resources>

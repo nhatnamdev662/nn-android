@@ -2043,4 +2043,9 @@
     <string name="setup_adb_status_sub_optional">初始化时已跳过 · 随时点击配对即可加速</string>
     <string name="setup_all_set_adb_optional">已就绪 · ADB 可选（未配对）</string>
     <string name="check_adb_optional">可选 · 初始化时已跳过（可随时在设置中配对）。</string>
+    <string name="onboarding_back">返回</string>
+    <string name="onboarding_do_later">稍后设置</string>
+    <string name="onboarding_badge_required">必需</string>
+    <string name="onboarding_badge_optional">可选</string>
+    <string name="onboarding_step_done_badge">已完成</string>
 </resources>

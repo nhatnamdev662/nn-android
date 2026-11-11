@@ -136,6 +136,7 @@ final class AdbUi {
             return;
         }
         AdbManager.startDiscovery(a);
+        Prefs.setAdbReturnToOnboarding(a, a instanceof OnboardingActivity);
         AdbPairingService.showSearchingNotification(a);
 
         LinearLayout c = column(a);

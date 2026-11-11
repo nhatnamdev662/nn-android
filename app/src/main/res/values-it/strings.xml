@@ -2043,4 +2043,9 @@
     <string name="setup_adb_status_sub_optional">Saltato nella configurazione · tocca Associa in qualsiasi momento</string>
     <string name="setup_all_set_adb_optional">Pronto · ADB facoltativo (non associato)</string>
     <string name="check_adb_optional">Facoltativo · saltato in configurazione (associa quando vuoi dalle Impostazioni).</string>
+    <string name="onboarding_back">Indietro</string>
+    <string name="onboarding_do_later">Più tardi</string>
+    <string name="onboarding_badge_required">Obbligatorio</string>
+    <string name="onboarding_badge_optional">Facoltativo</string>
+    <string name="onboarding_step_done_badge">Completato</string>
 </resources>

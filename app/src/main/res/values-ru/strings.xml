@@ -2082,4 +2082,9 @@
     <string name="setup_adb_status_sub_optional">Пропущено при настройке · можно подключить в любой момент</string>
     <string name="setup_all_set_adb_optional">Готово · ADB не обязателен (не сопряжён)</string>
     <string name="check_adb_optional">Необязательно · пропущено при настройке (можно сопрячь в Настройках в любое время).</string>
+    <string name="onboarding_back">Назад</string>
+    <string name="onboarding_do_later">Позже</string>
+    <string name="onboarding_badge_required">Обязательно</string>
+    <string name="onboarding_badge_optional">Необязательно</string>
+    <string name="onboarding_step_done_badge">Выполнено</string>
 </resources>

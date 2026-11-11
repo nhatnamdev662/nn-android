@@ -677,5 +677,14 @@ final class Prefs {
     static void setAdbSkipped(Context c, boolean skipped) {
         sp(c).edit().putBoolean("adb_skipped", skipped).apply();
     }
+
+    /** True when the user initiated ADB setup/pairing from OnboardingActivity so pairing returns there. */
+    static boolean adbReturnToOnboarding(Context c) {
+        return sp(c).getBoolean("adb_return_onboarding", false);
+    }
+
+    static void setAdbReturnToOnboarding(Context c, boolean on) {
+        sp(c).edit().putBoolean("adb_return_onboarding", on).apply();
+    }
 }
 

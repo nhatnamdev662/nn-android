@@ -1611,4 +1611,9 @@
     <string name="setup_adb_status_sub_optional">Kurulumda atlandı · dilediğiniz zaman Eşle\'ye dokunun</string>
     <string name="setup_all_set_adb_optional">Hazır · ADB isteğe bağlı (eşlenmedi)</string>
     <string name="check_adb_optional">İsteğe bağlı · kurulumda atlandı (Ayarlar\'dan istediğiniz zaman eşleyebilirsiniz).</string>
+    <string name="onboarding_back">Geri</string>
+    <string name="onboarding_do_later">Sonra yap</string>
+    <string name="onboarding_badge_required">Zorunlu</string>
+    <string name="onboarding_badge_optional">İsteğe bağlı</string>
+    <string name="onboarding_step_done_badge">Tamamlandı</string>
 </resources>

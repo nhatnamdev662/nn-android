@@ -1609,4 +1609,9 @@
     <string name="setup_adb_status_sub_optional">Overgeslagen bij instellen · tik altijd op Koppelen voor boost</string>
     <string name="setup_all_set_adb_optional">Klaar · ADB optioneel (niet gekoppeld)</string>
     <string name="check_adb_optional">Optioneel · overgeslagen bij instellen (koppel op elk moment via Instellingen).</string>
+    <string name="onboarding_back">Terug</string>
+    <string name="onboarding_do_later">Later doen</string>
+    <string name="onboarding_badge_required">Vereist</string>
+    <string name="onboarding_badge_optional">Optioneel</string>
+    <string name="onboarding_step_done_badge">Voltooid</string>
 </resources>

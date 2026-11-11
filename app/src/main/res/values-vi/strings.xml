@@ -2211,4 +2211,9 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="check_adb_optional">Tùy chọn · đã bỏ qua khi thiết lập (có thể bật trong Cài đặt bất cứ lúc nào).</string>
 
     <!-- ADB Prerequisites for Auto-Connect -->
+    <string name="onboarding_back">Quay lại</string>
+    <string name="onboarding_do_later">Làm sau</string>
+    <string name="onboarding_badge_required">Bắt buộc</string>
+    <string name="onboarding_badge_optional">Tùy chọn</string>
+    <string name="onboarding_step_done_badge">Đã hoàn thành</string>
 </resources>

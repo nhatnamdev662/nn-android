@@ -1610,4 +1610,9 @@
     <string name="setup_adb_status_sub_optional">Beim Einrichten übersprungen · jederzeit koppeln für Hybrid-Boost</string>
     <string name="setup_all_set_adb_optional">Bereit · ADB optional (nicht gekoppelt)</string>
     <string name="check_adb_optional">Optional · beim Einrichten übersprungen (jederzeit in den Einstellungen koppeln).</string>
+    <string name="onboarding_back">Zurück</string>
+    <string name="onboarding_do_later">Später erledigen</string>
+    <string name="onboarding_badge_required">Erforderlich</string>
+    <string name="onboarding_badge_optional">Optional</string>
+    <string name="onboarding_step_done_badge">Abgeschlossen</string>
 </resources>

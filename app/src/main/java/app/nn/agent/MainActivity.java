@@ -41,8 +41,8 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         super.onCreate(state);
         hub = ChatHub.get(this);
         if (!Prefs.onboarded(this)) {
-            // already set up: no need for the guide
-            if (new SetupState(this).count() >= 3) Prefs.setOnboarded(this, true);
+            // Only skip onboarding for existing pre-v2 users who already used the agent cleanly.
+            if (Prefs.hadReply(this) || new SetupState(this).count() >= 5) Prefs.setOnboarded(this, true);
             else startActivity(new Intent(this, OnboardingActivity.class));
         }
         // Needed for the "NN Agent is hidden" notification after dragging the bubble away.

@@ -2043,4 +2043,9 @@
     <string name="setup_adb_status_sub_optional">Ignoré à l\'installation · appuyez sur Appairer à tout moment</string>
     <string name="setup_all_set_adb_optional">Prêt · ADB facultatif (non appairé)</string>
     <string name="check_adb_optional">Facultatif · ignoré lors de la configuration (appairable à tout moment dans Paramètres).</string>
+    <string name="onboarding_back">Retour</string>
+    <string name="onboarding_do_later">Plus tard</string>
+    <string name="onboarding_badge_required">Requis</string>
+    <string name="onboarding_badge_optional">Facultatif</string>
+    <string name="onboarding_step_done_badge">Terminé</string>
 </resources>
