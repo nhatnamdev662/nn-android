@@ -27,11 +27,11 @@ android {
 
     // Release signing: uses NN_KEYSTORE env if provided, otherwise embedded keystore/nn.jks
     val defaultKeystore = file("../keystore/nn.jks")
-    val envKeystore = System.getenv("NN_KEYSTORE")
+    val envKeystore = System.getenv("NN_KEYSTORE")?.takeIf { it.isNotBlank() }
     val keystoreFile = if (envKeystore != null) file(envKeystore) else if (defaultKeystore.exists()) defaultKeystore else null
-    val keystorePass = System.getenv("NN_KEYSTORE_PASSWORD") ?: "nnagent2026"
-    val keyAliasName = System.getenv("NN_KEY_ALIAS") ?: "nn"
-    val keyPass = System.getenv("NN_KEY_PASSWORD") ?: keystorePass
+    val keystorePass = System.getenv("NN_KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() } ?: "nnagent2026"
+    val keyAliasName = System.getenv("NN_KEY_ALIAS")?.takeIf { it.isNotBlank() } ?: "nn"
+    val keyPass = System.getenv("NN_KEY_PASSWORD")?.takeIf { it.isNotBlank() } ?: keystorePass
 
     signingConfigs {
         if (keystoreFile != null && keystoreFile.exists()) {
@@ -63,7 +63,7 @@ android {
         release {
             isMinifyEnabled = false
             vcsInfo.include = false
-            if (System.getenv("NN_UNSIGNED") == null && keystoreFile != null && keystoreFile.exists()) {
+            if (System.getenv("NN_UNSIGNED").isNullOrBlank() && keystoreFile != null && keystoreFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
