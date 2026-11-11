@@ -356,14 +356,38 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                         ? R.string.setup_step_background_done : R.string.setup_step_background_body),
                 nnBg, nnBg ? null : getString(R.string.setup_allow), v -> startActivity(new Intent(
                         Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName()))),
-                !nnBg && XiaomiHelper.needsOemGuide() ? getString(R.string.oem_open_guide_btn, XiaomiHelper.oemLabel()) : null,
-                v -> oemGuideSheet());
+                null, null);
 
         boolean replied = Prefs.hadReply(this);
         steps[4] = step(getString(R.string.setup_step_try_title), getString(replied ? R.string.setup_step_try_done
                         : a11y && signed ? R.string.setup_step_try_body : R.string.setup_step_try_wait),
                 replied ? Boolean.TRUE : null, null, null, null, null);
         setupCard(steps);
+
+        if (XiaomiHelper.isXiaomi()) {
+            list.addView(sectionLabel(this, getString(R.string.xiaomi_guide_title)));
+            LinearLayout xc = card();
+            xc.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 16));
+            xc.addView(text(this, getString(R.string.xiaomi_guide_desc), 13, MUTED));
+
+            Button btnPopup = outlinedButton(this, getString(R.string.xiaomi_btn_popup), ACCENT_TEXT);
+            btnPopup.setOnClickListener(v -> XiaomiHelper.openPopupPermission(this));
+            xc.addView(btnPopup, topGap(10));
+
+            Button btnAuto = outlinedButton(this, getString(R.string.xiaomi_btn_autostart), ACCENT_TEXT);
+            btnAuto.setOnClickListener(v -> XiaomiHelper.openAutostart(this));
+            xc.addView(btnAuto, topGap(8));
+
+            Button btnBattery = outlinedButton(this, getString(R.string.xiaomi_btn_battery), ACCENT_TEXT);
+            btnBattery.setOnClickListener(v -> XiaomiHelper.openBatterySaver(this));
+            xc.addView(btnBattery, topGap(8));
+
+            TextView tip = text(this, getString(R.string.xiaomi_recents_note), 12, MUTED);
+            tip.setPaddingRelative(0, dp(this, 6), 0, 0);
+            xc.addView(tip, topGap(6));
+
+            list.addView(xc);
+        }
 
         // ----------------------------------------------------------- appearance
         list.addView(sectionLabel(this, getString(R.string.setup_appearance)));
@@ -1132,131 +1156,9 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 c.addView(r, full());
             }
         }
-        if (XiaomiHelper.needsOemGuide()) {
-            TextView oemLink = text(this, getString(R.string.oem_link_guide, XiaomiHelper.oemLabel()), 13, ACCENT_TEXT);
-            oemLink.setTypeface(sans(this, 600));
-            oemLink.setPaddingRelative(0, dp(this, 12), 0, dp(this, 2));
-            oemLink.setOnClickListener(v -> oemGuideSheet());
-            c.addView(oemLink);
-        }
         LinearLayout.LayoutParams p = full();
         p.setMargins(dp(this, 16), dp(this, 14), dp(this, 16), 0);
         list.addView(c, p);
-    }
-
-    /** Plain step-by-step BottomSheet explaining exact settings paths on Vivo/Xiaomi/OPPO/Samsung. */
-    private void oemGuideSheet() {
-        String brand = XiaomiHelper.oemLabel();
-        LinearLayout c = column(this);
-        c.addView(title(this, getString(R.string.oem_sheet_title, brand), 18));
-        TextView intro = text(this, getString(R.string.oem_sheet_intro, brand), 13, MUTED);
-        intro.setPaddingRelative(0, dp(this, 6), 0, dp(this, 12));
-        c.addView(intro);
-
-        PowerManager pm = getSystemService(PowerManager.class);
-        boolean nnBg = pm != null && pm.isIgnoringBatteryOptimizations(getPackageName());
-        boolean canOverlay = Settings.canDrawOverlays(this);
-
-        // Step 1: Battery unrestricted
-        String s1Desc = XiaomiHelper.isXiaomi() ? getString(R.string.oem_step1_desc_xiaomi)
-                : XiaomiHelper.isOppo() ? getString(R.string.oem_step1_desc_oppo)
-                : XiaomiHelper.isSamsung() ? getString(R.string.oem_step1_desc_samsung)
-                : getString(R.string.oem_step1_desc_vivo);
-        final Dialog[] d = new Dialog[1];
-        c.addView(oemStepBox(getString(R.string.oem_step1_title), s1Desc, nnBg,
-                getString(nnBg ? R.string.oem_step1_btn_open : R.string.oem_step1_btn_enable),
-                v -> {
-                    if (d[0] != null) d[0].dismiss();
-                    if (!nnBg) {
-                        try {
-                            startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                                    Uri.parse("package:" + getPackageName())));
-                            return;
-                        } catch (Exception ignored) {
-                        }
-                    }
-                    XiaomiHelper.openAppBatteryDetail(this);
-                },
-                !nnBg ? getString(R.string.oem_step1_btn_open) : null,
-                v -> {
-                    if (d[0] != null) d[0].dismiss();
-                    XiaomiHelper.openAppBatteryDetail(this);
-                }));
-
-        // Step 2: Display over other apps / Floating window
-        String s2Desc = getString(XiaomiHelper.isXiaomi() ? R.string.oem_step2_desc_xiaomi : R.string.oem_step2_desc);
-        c.addView(oemStepBox(getString(R.string.oem_step2_title), s2Desc, canOverlay,
-                getString(R.string.oem_step2_btn),
-                v -> {
-                    if (d[0] != null) d[0].dismiss();
-                    XiaomiHelper.openOverlayPermission(this);
-                },
-                XiaomiHelper.isXiaomi() ? getString(R.string.xiaomi_btn_popup) : null,
-                v -> {
-                    if (d[0] != null) d[0].dismiss();
-                    XiaomiHelper.openPopupPermission(this);
-                }));
-
-        // Step 3: Autostart & Lock in Recent Apps
-        String s3Desc = XiaomiHelper.isXiaomi() ? getString(R.string.oem_step3_desc_xiaomi)
-                : XiaomiHelper.isOppo() ? getString(R.string.oem_step3_desc_oppo)
-                : XiaomiHelper.isSamsung() ? getString(R.string.oem_step3_desc_samsung)
-                : getString(R.string.oem_step3_desc_vivo);
-        c.addView(oemStepBox(getString(R.string.oem_step3_title), s3Desc, null,
-                XiaomiHelper.isSamsung() ? null : getString(R.string.oem_step3_btn_autostart),
-                v -> {
-                    if (d[0] != null) d[0].dismiss();
-                    XiaomiHelper.openAutostartForOem(this);
-                },
-                null, null));
-
-        d[0] = bottomSheet(this, c);
-        d[0].show();
-    }
-
-    private View oemStepBox(String stepTitle, String stepBody, Boolean done,
-                            String btn1Label, View.OnClickListener l1,
-                            String btn2Label, View.OnClickListener l2) {
-        LinearLayout box = column(this);
-        box.setBackground(rounded(this, CARD2, 14));
-        box.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
-
-        LinearLayout hr = row(this);
-        hr.setGravity(Gravity.CENTER_VERTICAL);
-        TextView t = title(this, stepTitle, 14);
-        hr.addView(t, weight1());
-        if (done != null) {
-            TextView badge = monoText(this, getString(done ? R.string.oem_badge_done : R.string.oem_badge_needed),
-                    11, done ? OK : ACCENT_TEXT);
-            badge.setPaddingRelative(dp(this, 8), dp(this, 2), dp(this, 8), dp(this, 2));
-            badge.setBackground(rounded(this, done ? Theme.withAlpha(OK, 0x26) : ACCENT_SOFT, 8));
-            hr.addView(badge);
-        }
-        box.addView(hr, full());
-
-        TextView body = text(this, stepBody, 13, MUTED);
-        body.setLineSpacing(dp(this, 2), 1.2f);
-        body.setPaddingRelative(0, dp(this, 6), 0, 0);
-        box.addView(body, full());
-
-        if (btn1Label != null) {
-            Button b1 = button(this, btn1Label, !Boolean.TRUE.equals(done) && done != null);
-            b1.setMinHeight(dp(this, 40));
-            b1.setMinimumHeight(dp(this, 40));
-            b1.setOnClickListener(l1);
-            box.addView(b1, topGap(10));
-        }
-        if (btn2Label != null) {
-            Button b2 = button(this, btn2Label, false);
-            b2.setMinHeight(dp(this, 40));
-            b2.setMinimumHeight(dp(this, 40));
-            b2.setOnClickListener(l2);
-            box.addView(b2, topGap(8));
-        }
-        LinearLayout.LayoutParams lp = full();
-        lp.bottomMargin = dp(this, 10);
-        box.setLayoutParams(lp);
-        return box;
     }
 
     // ----------------------------------------------------------- appearance

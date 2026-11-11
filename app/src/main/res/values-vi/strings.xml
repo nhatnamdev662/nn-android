@@ -2164,31 +2164,8 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="browser_pill_paused">Tạm dừng · bấm Tiếp tục</string>
     <string name="browser_pill_active">Trình duyệt nền</string>
 
-    <!-- ADB Quick Controls & OEM Background Guide -->
+    <!-- ADB Quick Controls & Terminal -->
     <string name="setup_adb_disconnected_toast">Đã ngắt kết nối ADB</string>
-    <string name="oem_link_guide">Bị mất bong bóng hoặc tắt chạy nền? Mẹo cho %1$s</string>
-    <string name="oem_open_guide_btn">Hướng dẫn cho %1$s</string>
-    <string name="oem_sheet_title">Giữ NN chạy ổn định (%1$s)</string>
-    <string name="oem_sheet_intro">Máy %1$s hay tự đóng ứng dụng chạy ngầm để tiết kiệm pin. Bạn chỉ cần chỉnh nhanh 3 bước đơn giản dưới đây:</string>
-    <string name="oem_badge_done">Đã bật</string>
-    <string name="oem_badge_needed">Cần bật</string>
-    <string name="oem_step1_title">1. Tắt tiết kiệm pin cho NN</string>
-    <string name="oem_step1_desc_vivo">Bấm nút bên dưới → vào mục “Pin” (Mức sử dụng pin) → chọn “Không hạn chế” (hoặc Cho phép hoạt động dưới nền).</string>
-    <string name="oem_step1_desc_xiaomi">Bấm nút bên dưới → chọn “Không hạn chế (No restrictions)”.</string>
-    <string name="oem_step1_desc_oppo">Bấm nút bên dưới → vào “Mức sử dụng pin” → bật “Cho phép hoạt động dưới nền”.</string>
-    <string name="oem_step1_desc_samsung">Bấm nút bên dưới → vào mục “Pin” → chọn “Không bị hạn chế”.</string>
-    <string name="oem_step1_btn_enable">Bật chạy nền ngay</string>
-    <string name="oem_step1_btn_open">Mở trang Pin của NN</string>
-    <string name="oem_step2_title">2. Cho phép Cửa sổ nổi (Bong bóng)</string>
-    <string name="oem_step2_desc">Bấm nút bên dưới → tìm NN Agent và gạt Bật “Hiển thị trên các ứng dụng khác”.</string>
-    <string name="oem_step2_desc_xiaomi">Bấm nút bên dưới → gạt Bật “Hiển thị trên ứng dụng khác” và “Cửa sổ pop-up khi chạy dưới nền”.</string>
-    <string name="oem_step2_btn">Mở cài đặt Cửa sổ nổi</string>
-    <string name="oem_step3_title">3. Tự khởi chạy &amp; Khóa đa nhiệm</string>
-    <string name="oem_step3_desc_vivo">• Bấm nút bên dưới → vào “Quyền” → bật “Tự khởi chạy” cho NN.\n• Mở màn hình Đa nhiệm (vuốt từ đáy lên giữ nhẹ) → chạm mũi tên / ⋮ trên thẻ NN → chọn “Khóa”.</string>
-    <string name="oem_step3_desc_xiaomi">• Bấm nút bên dưới → gạt Bật “Tự khởi chạy”.\n• Mở màn hình Đa nhiệm → nhấn giữ thẻ NN → chạm biểu tượng Ổ khóa.</string>
-    <string name="oem_step3_desc_oppo">• Bấm nút bên dưới → vào Quyền / Quản lý pin → bật “Tự khởi chạy”.\n• Mở màn hình Đa nhiệm → chạm ⋮ trên thẻ NN → chọn “Khóa”.</string>
-    <string name="oem_step3_desc_samsung">• Mở màn hình Đa nhiệm → chạm vào icon NN ở trên đầu thẻ → chọn “Giữ mở”.</string>
-    <string name="oem_step3_btn_autostart">Mở Tự khởi chạy / Thông tin app</string>
     <string name="terminal_toggle_keyboard">Bật/tắt bàn phím</string>
 
     <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->

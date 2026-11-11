@@ -2182,31 +2182,8 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="browser_pill_paused">Paused · tap Continue</string>
     <string name="browser_pill_active">Background browser</string>
 
-    <!-- ADB Quick Controls & OEM Background Guide -->
+    <!-- ADB Quick Controls & Terminal -->
     <string name="setup_adb_disconnected_toast">ADB disconnected</string>
-    <string name="oem_link_guide">Bubble or background stopped? Guide for %1$s</string>
-    <string name="oem_open_guide_btn">Guide for %1$s</string>
-    <string name="oem_sheet_title">Keep NN running smoothly (%1$s)</string>
-    <string name="oem_sheet_intro">%1$s phones often close background apps to save battery. Follow these 3 quick steps so your bubble and ADB stay alive:</string>
-    <string name="oem_badge_done">Enabled</string>
-    <string name="oem_badge_needed">Action needed</string>
-    <string name="oem_step1_title">1. Allow unrestricted battery</string>
-    <string name="oem_step1_desc_vivo">Tap the button below → open “Battery” (Battery usage) → choose “Unrestricted” or allow high background usage.</string>
-    <string name="oem_step1_desc_xiaomi">Tap the button below → choose “No restrictions”.</string>
-    <string name="oem_step1_desc_oppo">Tap the button below → open “Battery usage” → turn on “Allow background activity”.</string>
-    <string name="oem_step1_desc_samsung">Tap the button below → open “Battery” → select “Unrestricted”.</string>
-    <string name="oem_step1_btn_enable">Allow background now</string>
-    <string name="oem_step1_btn_open">Open Battery setting</string>
-    <string name="oem_step2_title">2. Display over other apps</string>
-    <string name="oem_step2_desc">Tap below → turn ON “Allow display over other apps” for NN Agent.</string>
-    <string name="oem_step2_desc_xiaomi">Tap below → turn ON “Display over other apps”, and allow “Display pop-up windows while running in the background”.</string>
-    <string name="oem_step2_btn">Open Floating Window setting</string>
-    <string name="oem_step3_title">3. Autostart &amp; Lock in Recent Apps</string>
-    <string name="oem_step3_desc_vivo">• Tap below → go to “Permissions” → enable “Autostart” for NN.\n• Open Recent Apps → tap the arrow / ⋮ on NN’s card → choose “Lock”.</string>
-    <string name="oem_step3_desc_xiaomi">• Tap below → enable “Autostart” for NN.\n• Open Recent Apps → long-press NN’s card → tap the Lock icon.</string>
-    <string name="oem_step3_desc_oppo">• Tap below → go to App Info / Permissions → enable “Auto-launch”.\n• Open Recent Apps → tap ⋮ on NN’s card → choose “Lock”.</string>
-    <string name="oem_step3_desc_samsung">• Open Recent Apps → tap NN’s icon at the top → choose “Keep open”.</string>
-    <string name="oem_step3_btn_autostart">Open Autostart / App Info</string>
     <string name="terminal_toggle_keyboard">Toggle keyboard</string>
 
     <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
