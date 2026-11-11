@@ -2148,6 +2148,11 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="chat_code_copied">Đã sao chép mã</string>
     <string name="chat_editing_bar">Đang sửa: %1$s</string>
     <string name="chat_edit_cancel">Hủy sửa</string>
+    <string name="chat_retry_title">Thử lại từ bước này?</string>
+    <string name="chat_retry_message">Các tin nhắn phía sau điểm này sẽ bị xóa và chạy lại.</string>
+    <string name="chat_retry_confirm">Thử lại</string>
+    <string name="bubble_retry_confirm_msg">Thử lại từ đây? (sẽ xóa các tin phía sau)</string>
+    <string name="chat_scroll_bottom">Cuộn xuống cuối</string>
 
     <!-- Background Browser Controls -->
     <string name="browser_forward">Trang sau</string>
@@ -2158,6 +2163,16 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="browser_tab_closed">Đã đóng tab trình duyệt</string>
     <string name="browser_pill_paused">Tạm dừng · bấm Tiếp tục</string>
     <string name="browser_pill_active">Trình duyệt nền</string>
+
+    <!-- ADB Quick Controls & OEM Optimization -->
+    <string name="setup_adb_disconnected_toast">Đã ngắt kết nối ADB</string>
+    <string name="oem_guide_title">Tối ưu chạy ngầm (%1$s)</string>
+    <string name="oem_guide_desc">Thiết bị %1$s thường bóp tiến trình ngầm và cửa sổ nổi. Hãy kiểm tra các mục sau để bong bóng và ADB chạy ổn định:</string>
+    <string name="oem_btn_battery">1. Pin: Không hạn chế / Cho phép chạy nền</string>
+    <string name="oem_btn_autostart">2. Tự khởi chạy &amp; Cửa sổ nổi</string>
+    <string name="oem_btn_app_info">Mở Cài đặt ứng dụng</string>
+    <string name="oem_recents_note">Mẹo: Vào Đa nhiệm (Recent apps), khóa ứng dụng NN Agent lại để không bị dọn RAM.</string>
+    <string name="terminal_toggle_keyboard">Bật/tắt bàn phím</string>
 
     <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
     <string name="keepalive_channel_name">Dịch vụ chạy ngầm (Duy trì hoạt động)</string>

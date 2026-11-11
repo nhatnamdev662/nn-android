@@ -129,7 +129,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         AdbManager.get(this);
         AdbManager.addListener(this);
         AdbManager.ensure(this);
-        if (!AdbManager.isConnected() && !AdbManager.isDiscovering()) {
+        if (!AdbManager.isConnected() && !AdbManager.isDiscovering()
+                && AdbManager.isWifiAvailable(this) && Prefs.adbEnabled(this)) {
             AdbManager.restartDiscovery();
         }
         if (AdbManager.isConnected()) dismissAdbDialogs();
@@ -386,6 +387,30 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             xc.addView(tip, topGap(6));
 
             list.addView(xc);
+        } else if (XiaomiHelper.needsOemGuide()) {
+            String brand = XiaomiHelper.oemLabel();
+            list.addView(sectionLabel(this, getString(R.string.oem_guide_title, brand)));
+            LinearLayout oc = card();
+            oc.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 16));
+            oc.addView(text(this, getString(R.string.oem_guide_desc, brand), 13, MUTED));
+
+            Button btnBattery = outlinedButton(this, getString(R.string.oem_btn_battery), ACCENT_TEXT);
+            btnBattery.setOnClickListener(v -> XiaomiHelper.openBatteryForOem(this));
+            oc.addView(btnBattery, topGap(10));
+
+            Button btnAuto = outlinedButton(this, getString(R.string.oem_btn_autostart), ACCENT_TEXT);
+            btnAuto.setOnClickListener(v -> XiaomiHelper.openAutostartForOem(this));
+            oc.addView(btnAuto, topGap(8));
+
+            Button btnInfo = outlinedButton(this, getString(R.string.oem_btn_app_info), MUTED);
+            btnInfo.setOnClickListener(v -> XiaomiHelper.openAppDetails(this));
+            oc.addView(btnInfo, topGap(8));
+
+            TextView tip = text(this, getString(R.string.oem_recents_note), 12, MUTED);
+            tip.setPaddingRelative(0, dp(this, 6), 0, 0);
+            oc.addView(tip, topGap(6));
+
+            list.addView(oc);
         }
 
         // ----------------------------------------------------------- appearance
@@ -821,13 +846,34 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         sc.addView(sr, full());
         ac.addView(sc, scp);
 
-        if (!isConn) {
-            // Action button: Pair
+        if (isConn) {
+            LinearLayout btns = row(this);
+            btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
+            Button recBtn = button(this, getString(R.string.setup_adb_reconnect), false);
+            recBtn.setOnClickListener(v -> AdbManager.reconnect(this));
+            btns.addView(recBtn, new LinearLayout.LayoutParams(0, dp(this, 42), 1));
+            Button discBtn = button(this, getString(R.string.setup_adb_disconnect), false);
+            discBtn.setTextColor(ERR);
+            discBtn.setOnClickListener(v -> {
+                AdbManager.disconnect();
+                Toast.makeText(this, R.string.setup_adb_disconnected_toast, Toast.LENGTH_SHORT).show();
+            });
+            LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(0, dp(this, 42), 1);
+            dlp.setMarginStart(dp(this, 8));
+            btns.addView(discBtn, dlp);
+            ac.addView(btns, full());
+        } else {
+            // Action buttons: Pair & Reconnect
             LinearLayout btns = row(this);
             btns.setPaddingRelative(dp(this, 16), 0, dp(this, 16), dp(this, 14));
             Button pairBtn = button(this, getString(R.string.setup_adb_pair), true);
             pairBtn.setOnClickListener(v -> adbGuideSheet());
-            btns.addView(pairBtn, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(this, 44)));
+            btns.addView(pairBtn, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
+            Button recBtn = button(this, getString(R.string.setup_adb_reconnect), false);
+            recBtn.setOnClickListener(v -> AdbManager.reconnect(this));
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
+            rlp.setMarginStart(dp(this, 8));
+            btns.addView(recBtn, rlp);
             ac.addView(btns, full());
 
             ac.addView(divider(), lineParams());

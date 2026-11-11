@@ -98,6 +98,8 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
     private TextView editLabel;
     private Sessions.Msg editingMsg;
     private String preEditDraft;
+    private LinearLayout retryBar;
+    private Sessions.Msg retryingMsg;
     private View headButtons;
     /** The card asks a question (the ask tool) rather than for approval; askOptions are its buttons. */
     private boolean asking;
@@ -578,6 +580,42 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         clp.bottomMargin = dp(8);
         panel.addView(confirmCard, clp);
 
+        // retry confirmation banner (prevents accidental tap wipe)
+        retryBar = new LinearLayout(svc);
+        retryBar.setOrientation(LinearLayout.HORIZONTAL);
+        retryBar.setGravity(Gravity.CENTER_VERTICAL);
+        retryBar.setBackground(rounded(Ui.CARD, 12, Theme.withAlpha(Ui.ERR, 0x66), 1));
+        retryBar.setPaddingRelative(dp(10), dp(5), dp(6), dp(5));
+        retryBar.addView(Ui.icon(svc, R.drawable.ms_refresh, Ui.ERR, 15));
+        TextView retryPrompt = Ui.single(Ui.text(svc, svc.getString(R.string.bubble_retry_confirm_msg), 12, Ui.TEXT));
+        retryPrompt.setPaddingRelative(dp(8), 0, dp(6), 0);
+        retryBar.addView(retryPrompt, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        Button cancelRetryBtn = actionButton(svc.getString(android.R.string.cancel), Ui.CARD2);
+        cancelRetryBtn.setMinHeight(dp(28));
+        cancelRetryBtn.setMinimumHeight(dp(28));
+        cancelRetryBtn.setPaddingRelative(dp(10), dp(3), dp(10), dp(3));
+        cancelRetryBtn.setOnClickListener(v -> cancelBubbleRetry());
+        retryBar.addView(cancelRetryBtn);
+        Button goRetryBtn = actionButton(svc.getString(R.string.chat_retry_confirm), Ui.ERR_SOFT);
+        goRetryBtn.setTextColor(Ui.ERR);
+        goRetryBtn.setMinHeight(dp(28));
+        goRetryBtn.setMinimumHeight(dp(28));
+        goRetryBtn.setPaddingRelative(dp(10), dp(3), dp(10), dp(3));
+        goRetryBtn.setOnClickListener(v -> {
+            Sessions.Msg target = retryingMsg;
+            cancelBubbleRetry();
+            if (target != null) doBubbleRetryMessage(target);
+        });
+        LinearLayout.LayoutParams grlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        grlp.setMarginStart(dp(6));
+        retryBar.addView(goRetryBtn, grlp);
+        retryBar.setVisibility(View.GONE);
+        LinearLayout.LayoutParams rbp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        rbp.bottomMargin = dp(6);
+        panel.addView(retryBar, rbp);
+
         // editing banner (shown during non-destructive edit)
         editBar = new LinearLayout(svc);
         editBar.setOrientation(LinearLayout.HORIZONTAL);
@@ -1012,9 +1050,17 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                 int h = Math.max(dp(220), usable().bottom - dp(8) - loc[1]);
                 if (Math.abs(h - lp.height) <= 1) return;
                 lp.height = h;
-                wm.updateViewLayout(root, lp);
+                safeUpdateRootLayout();
             }
         });
+    }
+
+    private void safeUpdateRootLayout() {
+        if (wm == null || root == null || !root.isAttachedToWindow()) return;
+        try {
+            wm.updateViewLayout(root, lp);
+        } catch (Throwable ignored) {
+        }
     }
 
     /** The screen rotated: size the panel (or place the bubble) for the new orientation. */
@@ -1026,7 +1072,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         } else {
             applyCollapsedParams();
         }
-        wm.updateViewLayout(root, lp);
+        safeUpdateRootLayout();
         updateThumb();
         if (expanded) {
             fitPanelHeight();
@@ -1056,7 +1102,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         }
         applyExpandedParams();
         Voice.prepare(svc); // so the mic is quick
-        wm.updateViewLayout(root, lp);
+        safeUpdateRootLayout();
         fitPanelHeight();
         boolean right = Prefs.bubblePos(svc)[0] != 0;
         panel.setPivotX(headButtons != null ? lp.width / 2f : right ? lp.width : 0); // chat heads: from NN's face
@@ -1093,7 +1139,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         root.setPaddingRelative(0, 0, 0, 0);
         root.addView(collapsed);
         applyCollapsedParams();
-        wm.updateViewLayout(root, lp);
+        safeUpdateRootLayout();
         applyEnabled();
         popIn();
         if (themeDirty) restyle();
@@ -1321,7 +1367,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                     Prefs.setBubbleEnabled(svc, false);
                     HiddenNotice.show(svc);
                     applyCollapsedParams();
-                    wm.updateViewLayout(root, lp);
+                    safeUpdateRootLayout();
                     applyEnabled();
                     head.setScaleX(1f);
                     head.setScaleY(1f);
@@ -1435,6 +1481,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         root.removeCallbacks(outsideCollapse);
         if (keyboardVisible()) hideKeyboard();
         else if (changing) endChange();
+        else if (retryingMsg != null) cancelBubbleRetry();
         else if (editingMsg != null) cancelBubbleEdit();
         else if (pendingConfirm != null) answerConfirm(false);
         else collapse();
@@ -1509,6 +1556,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         editingMsg = null;
         preEditDraft = null;
         if (editBar != null) editBar.setVisibility(View.GONE);
+        cancelBubbleRetry();
         input.setText("");
         updateTypingIndicator();
     }
@@ -1880,6 +1928,9 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         if (editBar != null) {
             editBar.setVisibility(!showingList && editingMsg != null ? View.VISIBLE : View.GONE);
         }
+        if (retryBar != null) {
+            retryBar.setVisibility(!showingList && retryingMsg != null ? View.VISIBLE : View.GONE);
+        }
         paintLive();
     }
 
@@ -2160,6 +2211,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         if (!showingList) picking = pickingModel = false;
         if (renderedFor != null && sessions != null && renderedFor != sessions.current) {
             cancelBubbleEdit();
+            cancelBubbleRetry();
             browserQuickOpen = false;
         }
         showListMode();
@@ -2971,11 +3023,11 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         View hint = messages.findViewWithTag("hint");
         if (hint != null) messages.removeView(hint);
         int maxW = dp(230);
-        android.graphics.Bitmap b = Attachments.thumb(svc, id, maxW);
-        if (b == null) return;
+        int[] sz = Attachments.bounds(svc, id);
+        if (sz == null) return;
         int h = dp(160);
-        if (b.getWidth() > 0) {
-            h = Math.max(dp(100), Math.min(dp(260), maxW * b.getHeight() / b.getWidth()));
+        if (sz[0] > 0) {
+            h = Math.max(dp(100), Math.min(dp(260), maxW * sz[1] / sz[0]));
         }
 
         FrameLayout card = new FrameLayout(svc);
@@ -2991,9 +3043,8 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         ImageView iv = new ImageView(svc);
         iv.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        iv.setImageBitmap(b);
-        Attachments.playGif(svc, id, iv, b);
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Attachments.loadThumb(svc, id, maxW, iv);
         card.addView(iv);
 
         // Bottom badge overlay with filename
@@ -3278,6 +3329,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         }
         int idx = sessions.current.messages.indexOf(m);
         if (idx < 0) return;
+        cancelBubbleRetry();
         if (editingMsg == null) {
             preEditDraft = input.getText().toString();
         }
@@ -3316,29 +3368,49 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
             stop();
             refreshStatus();
             paintSend();
+            toast(svc.getString(R.string.bubble_stopping));
+            return;
         }
-        int idx = sessions.current.messages.indexOf(m);
+        if (sessions.current.messages.indexOf(m) < 0) return;
+        cancelBubbleEdit();
+        retryingMsg = m;
+        if (retryBar != null) retryBar.setVisibility(View.VISIBLE);
+    }
+
+    private void cancelBubbleRetry() {
+        retryingMsg = null;
+        if (retryBar != null) retryBar.setVisibility(View.GONE);
+    }
+
+    private void doBubbleRetryMessage(Sessions.Msg m) {
+        Sessions.Session cur = sessions.current;
+        if (cur == null || m == null || cur.running) return;
+        int idx = cur.messages.indexOf(m);
         if (idx < 0) return;
         int userIdx = -1;
         for (int i = idx - 1; i >= 0; i--) {
-            if (sessions.current.messages.get(i).kind == Kind.USER) {
+            if (cur.messages.get(i).kind == Kind.USER) {
                 userIdx = i;
                 break;
             }
         }
         if (userIdx < 0) return;
-        Sessions.Msg userMsg = sessions.current.messages.get(userIdx);
+        Sessions.Msg userMsg = cur.messages.get(userIdx);
         String retryText = userMsg.text;
         java.util.List<String> retryFiles = new java.util.ArrayList<>(userMsg.files);
-        while (sessions.current.messages.size() > userIdx) {
-            sessions.current.messages.remove(sessions.current.messages.size() - 1);
+        java.util.List<Sessions.Msg> backup = new java.util.ArrayList<>(cur.messages.subList(userIdx, cur.messages.size()));
+        while (cur.messages.size() > userIdx) {
+            cur.messages.remove(cur.messages.size() - 1);
         }
-        sessions.save();
-        renderCurrent();
-        String err = hub.send(sessions.current, retryText, retryFiles);
+        String err = hub.send(cur, retryText, retryFiles);
         if (err != null) {
+            cur.messages.addAll(backup);
+            sessions.save();
+            renderCurrent();
             toast(err);
         } else {
+            sessions.save();
+            renderCurrent();
             collapse();
         }
     }
@@ -3669,7 +3741,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                         if (wasOver && windowAnim != null) windowAnim.cancel();
                         lp.x = x;
                         lp.y = y;
-                        wm.updateViewLayout(root, lp);
+                        safeUpdateRootLayout();
                         followWaves();
                         feedArcs();
                     }
@@ -3703,7 +3775,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                         animateWindowTo(edgeX, y, 340, new OvershootInterpolator(1.4f), () -> {
                             Prefs.saveBubblePos(svc, right ? 1 : 0, lp.y);
                             applyCollapsedParams();
-                            wm.updateViewLayout(root, lp);
+                            safeUpdateRootLayout();
                             followWaves();
                             updateThumb();
                         });

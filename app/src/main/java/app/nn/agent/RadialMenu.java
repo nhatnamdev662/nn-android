@@ -171,6 +171,10 @@ final class RadialMenu {
         open(cx, cy, onRight, list, null);
         if (win == null) return;
         final FrameLayout w = win;
+        if (!w.isAttachedToWindow()) {
+            close(false);
+            return;
+        }
         try {
             WindowManager.LayoutParams p = (WindowManager.LayoutParams) w.getLayoutParams();
             if (p != null) {

@@ -69,6 +69,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     /** The background browser's live card, while this chat has a tab there. */
     private BrowserPanel browser;
     private ImageButton browserBtn;
+    private ImageButton scrollBottomBtn;
     private boolean browserHidden;
     private LinearLayout editBar;
     private TextView editLabel;
@@ -193,13 +194,28 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         bwp.topMargin = dp(this, 8);
         root.addView(browser, bwp);
 
+        FrameLayout scrollContainer = new FrameLayout(this);
         scroll = new ScrollView(this);
         scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
         scroll.setVerticalScrollBarEnabled(false);
         messages = column(this);
         messages.setPaddingRelative(dp(this, 16), dp(this, 8), dp(this, 16), dp(this, 12));
         scroll.addView(messages);
-        root.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+        scroll.setOnScrollChangeListener((v, sx, sy, osx, osy) -> updateScrollBottomBtn());
+        messages.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> updateScrollBottomBtn());
+        scrollContainer.addView(scroll, new FrameLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+        scrollBottomBtn = iconButton(this, R.drawable.ms_expand_more, getString(R.string.chat_scroll_bottom), TEXT);
+        scrollBottomBtn.setBackground(outlined(this, CARD, 20, OUTLINE, 1));
+        scrollBottomBtn.setElevation(dp(this, 4));
+        scrollBottomBtn.setVisibility(View.GONE);
+        scrollBottomBtn.setOnClickListener(v -> scrollToEnd());
+        FrameLayout.LayoutParams sbp = new FrameLayout.LayoutParams(dp(this, 40), dp(this, 40), Gravity.BOTTOM | Gravity.END);
+        sbp.setMargins(0, 0, dp(this, 16), dp(this, 12));
+        scrollContainer.addView(scrollBottomBtn, sbp);
+
+        root.addView(scrollContainer, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
 
         // inline approval card (when an agent asks for an OK)
         approval = protect(column(this)); // the inline approval card: only the user answers it
@@ -1966,10 +1982,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             if (inThread) {
                 int displayW = getResources().getDisplayMetrics().widthPixels;
                 int maxW = Math.min(dp(this, 280), (int) (displayW * 0.72f));
-                android.graphics.Bitmap b = Attachments.thumb(this, id, maxW);
+                int[] sz = Attachments.bounds(this, id);
                 int h = dp(this, 180);
-                if (b != null && b.getWidth() > 0) {
-                    h = Math.max(dp(this, 120), Math.min(dp(this, 340), maxW * b.getHeight() / b.getWidth()));
+                if (sz != null && sz[0] > 0) {
+                    h = Math.max(dp(this, 120), Math.min(dp(this, 340), maxW * sz[1] / sz[0]));
                 }
 
                 android.widget.FrameLayout card = new android.widget.FrameLayout(this);
@@ -1987,8 +2003,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 iv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT));
                 iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                if (b != null) iv.setImageBitmap(b);
-                Attachments.playGif(this, id, iv, b);
+                Attachments.loadThumb(this, id, maxW, iv);
                 card.addView(iv);
 
                 // Bottom badge overlay with subtle theme frosted pill
@@ -2013,9 +2028,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             } else {
                 ImageView iv = new ImageView(this);
                 int side = dp(this, 64);
-                android.graphics.Bitmap b = Attachments.thumb(this, id, side);
-                if (b != null) iv.setImageBitmap(b);
-                else iv.setBackground(rounded(this, CARD2, 14));
+                iv.setBackground(rounded(this, CARD2, 14));
                 iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 iv.setClipToOutline(true);
                 iv.setOutlineProvider(new android.view.ViewOutlineProvider() {
@@ -2025,6 +2038,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                     }
                 });
                 iv.setLayoutParams(new LinearLayout.LayoutParams(side, side));
+                Attachments.loadThumb(this, id, side, iv);
                 v = iv;
             }
         } else {
@@ -2117,7 +2131,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 TextView tv = text(this, text, 15, TEXT);
                 tv.setTextIsSelectable(true);
                 tv.setText(Ui.markdown(text, null)); // **bold**, lists, `code`, [text](url) as a link…
-                links(tv);
+                Ui.linkifySelectable(tv);
                 Ui.copyWithLinks(tv);
                 tv.setLineSpacing(dp(this, 3), 1.25f);
                 tv.setMaxWidth(maxBubble - dp(this, 32));
@@ -2339,13 +2353,19 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         paintSend();
     }
 
-    private void retryMessage(Sessions.Msg m) {
+    private void retryMessage(final Sessions.Msg m) {
         if (ses == null || m == null) return;
         if (ses.running) {
             hub.stop(ses);
             Toast.makeText(this, R.string.bubble_stopping, Toast.LENGTH_SHORT).show();
             return;
         }
+        confirmSheet(this, getString(R.string.chat_retry_title), getString(R.string.chat_retry_message),
+                getString(R.string.chat_retry_confirm), true, () -> doRetryMessage(m));
+    }
+
+    private void doRetryMessage(Sessions.Msg m) {
+        if (ses == null || m == null || ses.running) return;
         int idx = ses.messages.indexOf(m);
         if (idx < 0) return;
         int userIdx = -1;
@@ -2359,12 +2379,20 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         Sessions.Msg u = ses.messages.get(userIdx);
         String uText = u.text;
         List<String> uFiles = u.files != null ? new ArrayList<>(u.files) : null;
+        List<Sessions.Msg> backup = new ArrayList<>(ses.messages.subList(userIdx, ses.messages.size()));
         while (ses.messages.size() > userIdx) {
             ses.messages.remove(ses.messages.size() - 1);
         }
+        String err = hub.send(ses, uText, uFiles);
+        if (err != null) {
+            ses.messages.addAll(backup);
+            hub.sessions.save(ses);
+            showAll();
+            Toast.makeText(this, err, Toast.LENGTH_LONG).show();
+            return;
+        }
         hub.sessions.save(ses);
         showAll();
-        hub.send(ses, uText, uFiles);
     }
 
     private void updateTypingIndicator() {
@@ -2397,6 +2425,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
     }
 
+    private void updateScrollBottomBtn() {
+        if (scrollBottomBtn == null || scroll == null || messages == null) return;
+        int maxScroll = Math.max(0, messages.getHeight() - scroll.getHeight());
+        boolean farUp = maxScroll - scroll.getScrollY() > dp(this, 140);
+        scrollBottomBtn.setVisibility(farUp ? View.VISIBLE : View.GONE);
+    }
+
     private Runnable pendingChatScroll;
     private void scrollToEnd() {
         if (scroll != null && messages != null) {
@@ -2405,6 +2440,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 pendingChatScroll = null;
                 if (scroll != null && messages != null) {
                     scroll.smoothScrollTo(0, messages.getBottom());
+                    updateScrollBottomBtn();
                 }
             };
             scroll.post(pendingChatScroll);

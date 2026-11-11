@@ -102,9 +102,15 @@ public final class AdbManager {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) return false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network net = cm.getActiveNetwork();
-            if (net == null) return false;
-            NetworkCapabilities caps = cm.getNetworkCapabilities(net);
+            for (Network net : cm.getAllNetworks()) {
+                NetworkCapabilities caps = cm.getNetworkCapabilities(net);
+                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    return true;
+                }
+            }
+            Network active = cm.getActiveNetwork();
+            if (active == null) return false;
+            NetworkCapabilities caps = cm.getNetworkCapabilities(active);
             return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
         } else {
             android.net.NetworkInfo info = cm.getActiveNetworkInfo();
@@ -240,8 +246,37 @@ public final class AdbManager {
 
     public static void disconnect() {
         if (sInstance != null) {
-            sInstance.disconnectInternal();
+            sInstance.stopInternal();
         }
+    }
+
+    public static void reconnect(Context c) {
+        AdbManager mgr = get(c);
+        Prefs.setAdbEnabled(mgr.context, true);
+        mgr.reconnectInternal();
+    }
+
+    private synchronized void reconnectInternal() {
+        stopHeartbeat();
+        isWifiConnected = isWifiAvailable(context);
+        if (!isWifiConnected) {
+            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+            return;
+        }
+        executor.execute(() -> {
+            try {
+                AdbConnection.disconnect();
+            } catch (Throwable ignored) {}
+            mainHandler.post(() -> {
+                synchronized (this) {
+                    if (mdns != null) {
+                        mdns.restart();
+                        mdnsActive = true;
+                    }
+                    startInternal();
+                }
+            });
+        });
     }
 
     public static void pair(int pairingPort, String pairingCode, PairCallback callback) {

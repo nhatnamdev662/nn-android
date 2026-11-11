@@ -540,6 +540,74 @@ final class Ui {
         t.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
     }
 
+    /**
+     * Makes both Markdown [label](url) LinkSpans and bare addresses tappable inside a selectable TextView
+     * without breaking text selection or Linkify clobbering existing LinkSpans.
+     */
+    static void linkifySelectable(final TextView tv) {
+        CharSequence cur = tv.getText();
+        android.text.SpannableStringBuilder s = cur instanceof android.text.SpannableStringBuilder
+                ? (android.text.SpannableStringBuilder) cur : new android.text.SpannableStringBuilder(cur);
+        android.text.style.ClickableSpan[] existing = s.getSpans(0, s.length(), android.text.style.ClickableSpan.class);
+        android.text.SpannableStringBuilder copy = new android.text.SpannableStringBuilder(s.toString());
+        if (android.text.util.Linkify.addLinks(copy, android.text.util.Linkify.WEB_URLS | android.text.util.Linkify.EMAIL_ADDRESSES)) {
+            for (android.text.style.URLSpan u : copy.getSpans(0, copy.length(), android.text.style.URLSpan.class)) {
+                int a = copy.getSpanStart(u), b = copy.getSpanEnd(u);
+                boolean overlaps = false;
+                for (android.text.style.ClickableSpan cs : existing) {
+                    int ea = s.getSpanStart(cs), eb = s.getSpanEnd(cs);
+                    if (a < eb && b > ea) {
+                        overlaps = true;
+                        break;
+                    }
+                }
+                if (!overlaps) {
+                    s.setSpan(new LinkSpan(u.getURL(), null), a, b, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+        }
+        tv.setText(s, TextView.BufferType.SPANNABLE);
+        tv.setLinkTextColor(ACCENT_TEXT);
+        tv.setOnTouchListener(new android.view.View.OnTouchListener() {
+            private float downX, downY;
+            private long downAt;
+
+            @Override
+            public boolean onTouch(android.view.View v, android.view.MotionEvent event) {
+                int action = event.getActionMasked();
+                if (action == android.view.MotionEvent.ACTION_DOWN) {
+                    downX = event.getX();
+                    downY = event.getY();
+                    downAt = android.os.SystemClock.uptimeMillis();
+                } else if (action == android.view.MotionEvent.ACTION_UP) {
+                    if (android.os.SystemClock.uptimeMillis() - downAt < 400
+                            && Math.hypot(event.getX() - downX, event.getY() - downY) < dp(v.getContext(), 10)
+                            && !tv.hasSelection()) {
+                        int x = (int) event.getX() - tv.getTotalPaddingLeft() + tv.getScrollX();
+                        int y = (int) event.getY() - tv.getTotalPaddingTop() + tv.getScrollY();
+                        android.text.Layout layout = tv.getLayout();
+                        if (layout != null && y >= 0 && y < layout.getHeight()) {
+                            int line = layout.getLineForVertical(y);
+                            if (x >= layout.getLineLeft(line) && x <= layout.getLineRight(line)) {
+                                int off = layout.getOffsetForHorizontal(line, x);
+                                CharSequence cs = tv.getText();
+                                if (cs instanceof android.text.Spanned) {
+                                    android.text.style.ClickableSpan[] links = ((android.text.Spanned) cs)
+                                            .getSpans(off, off, android.text.style.ClickableSpan.class);
+                                    if (links.length > 0) {
+                                        links[0].onClick(tv);
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
     /** A markdown link, [text](https://…); one level of parentheses in the address too (Wikipedia's have them). */
     private static final java.util.regex.Pattern MD_LINK = java.util.regex.Pattern.compile(
             "\\[([^\\[\\]\\n]+)\\]\\((https?://[^\\s()]*(?:\\([^\\s()]*\\)[^\\s()]*)*)\\)");

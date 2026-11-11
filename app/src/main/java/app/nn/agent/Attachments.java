@@ -11,8 +11,12 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.LruCache;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Photos and files attached to chat messages. They live in the app's own storage; the helper in NN's Linux
@@ -29,6 +35,15 @@ import java.util.Locale;
 final class Attachments {
     static final long MAX_BYTES = 25L * 1024 * 1024;
     private static final int MAX_SIDE = 2048;
+    private static final ExecutorService THUMB_EXEC = Executors.newFixedThreadPool(2);
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    private static final LruCache<String, Bitmap> THUMB_CACHE = new LruCache<String, Bitmap>(
+            Math.max(8 * 1024 * 1024, (int) Math.min(24L * 1024 * 1024, Runtime.getRuntime().maxMemory() / 8))) {
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value == null ? 0 : value.getAllocationByteCount();
+        }
+    };
 
     private Attachments() {
     }
@@ -162,18 +177,56 @@ final class Attachments {
         return p == null ? null : p.substring(p.lastIndexOf('/') + 1);
     }
 
-    /** A small bitmap for previews. */
-    static Bitmap thumb(Context c, String id, int px) {
+    /** Fast dimension check without allocating bitmap pixels; null if unreadable. */
+    static int[] bounds(Context c, String id) {
         File f = file(c, id);
         if (f == null || !f.exists()) return null;
         BitmapFactory.Options b = new BitmapFactory.Options();
         b.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(f.getPath(), b);
+        return b.outWidth > 0 && b.outHeight > 0 ? new int[]{b.outWidth, b.outHeight} : null;
+    }
+
+    /** A small bitmap for previews (backed by in-memory LruCache). */
+    static Bitmap thumb(Context c, String id, int px) {
+        String key = id + "#" + px;
+        Bitmap hit = THUMB_CACHE.get(key);
+        if (hit != null && !hit.isRecycled()) return hit;
+        File f = file(c, id);
+        if (f == null || !f.exists()) return null;
+        BitmapFactory.Options b = new BitmapFactory.Options();
+        b.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(f.getPath(), b);
+        if (b.outWidth <= 0 || b.outHeight <= 0) return null;
         int s = 1;
         while (Math.min(b.outWidth, b.outHeight) / (s * 2) >= px) s *= 2;
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inSampleSize = s;
-        return BitmapFactory.decodeFile(f.getPath(), o);
+        Bitmap bmp = BitmapFactory.decodeFile(f.getPath(), o);
+        if (bmp != null) THUMB_CACHE.put(key, bmp);
+        return bmp;
+    }
+
+    /** Loads a thumbnail from LruCache immediately or decodes off the UI thread. */
+    static void loadThumb(Context c, final String id, final int px, final ImageView iv) {
+        final String key = id + "#" + px;
+        iv.setTag(key);
+        Bitmap hit = THUMB_CACHE.get(key);
+        if (hit != null && !hit.isRecycled()) {
+            iv.setImageBitmap(hit);
+            playGif(c, id, iv, hit);
+            return;
+        }
+        final Context app = c.getApplicationContext();
+        THUMB_EXEC.execute(() -> {
+            final Bitmap bmp = thumb(app, id, px);
+            if (bmp == null) return;
+            MAIN.post(() -> {
+                if (!key.equals(iv.getTag())) return;
+                iv.setImageBitmap(bmp);
+                playGif(app, id, iv, bmp);
+            });
+        });
     }
 
     /** Full-resolution bitmap for the viewer dialog (up to 4096px max side to stay within GPU texture limits). */

@@ -2166,6 +2166,11 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="chat_code_copied">Code copied</string>
     <string name="chat_editing_bar">Editing: %1$s</string>
     <string name="chat_edit_cancel">Cancel edit</string>
+    <string name="chat_retry_title">Retry from here?</string>
+    <string name="chat_retry_message">Messages after this point will be removed and re-run.</string>
+    <string name="chat_retry_confirm">Retry</string>
+    <string name="bubble_retry_confirm_msg">Retry from here? (replaces later replies)</string>
+    <string name="chat_scroll_bottom">Scroll to bottom</string>
 
     <!-- Background Browser Controls -->
     <string name="browser_forward">Next page</string>
@@ -2176,6 +2181,16 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="browser_tab_closed">Browser tab closed</string>
     <string name="browser_pill_paused">Paused · tap Continue</string>
     <string name="browser_pill_active">Background browser</string>
+
+    <!-- ADB Quick Controls & OEM Optimization -->
+    <string name="setup_adb_disconnected_toast">ADB disconnected</string>
+    <string name="oem_guide_title">Background Optimization (%1$s)</string>
+    <string name="oem_guide_desc">Your device (%1$s) may restrict background overlays and services. Check these settings so NN Agent and its bubble stay reliable:</string>
+    <string name="oem_btn_battery">1. Battery: Allow background usage</string>
+    <string name="oem_btn_autostart">2. Autostart &amp; Background pop-ups</string>
+    <string name="oem_btn_app_info">Open App Settings</string>
+    <string name="oem_recents_note">Tip: In Recent Apps (multitasking), lock NN Agent so it stays alive in RAM.</string>
+    <string name="terminal_toggle_keyboard">Toggle keyboard</string>
 
     <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
     <string name="keepalive_channel_name">Background Service (Keep-Alive)</string>

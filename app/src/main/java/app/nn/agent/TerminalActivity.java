@@ -66,9 +66,14 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
         sub.addView(subView);
         titles.addView(sub);
         bar.addView(titles, weight1());
-        ImageButton kb = iconButton(this, R.drawable.ms_keyboard_hide, getString(R.string.terminal_hide_keyboard), fg);
+        ImageButton kb = iconButton(this, R.drawable.ms_keyboard, getString(R.string.terminal_toggle_keyboard), fg);
         kb.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 44), dp(this, 44)));
-        kb.setOnClickListener(v -> term.hideKeyboard());
+        kb.setOnClickListener(v -> {
+            android.view.WindowInsets ins = getWindow().getDecorView().getRootWindowInsets();
+            boolean imeUp = ins != null && ins.isVisible(android.view.WindowInsets.Type.ime());
+            if (imeUp) term.hideKeyboard();
+            else term.showKeyboard();
+        });
         bar.addView(kb);
         ImageButton menu = iconButton(this, R.drawable.ms_more_vert, getString(R.string.terminal_menu), fg);
         menu.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 44), dp(this, 44)));
@@ -222,7 +227,8 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
         for (final TermSession s : TermSession.all) {
             boolean on = s == session;
             LinearLayout tab = row(this);
-            tab.setPaddingRelative(dp(this, 12), 0, dp(this, 12), 0);
+            tab.setGravity(Gravity.CENTER_VERTICAL);
+            tab.setPaddingRelative(dp(this, 12), 0, dp(this, 6), 0);
             tab.setBackground(rounded(this, on ? Theme.withAlpha(TermColors.CURSOR, 0x33) : Theme.withAlpha(fg, 0x0F), 10));
             if (!s.exited) {
                 View d = dot(this, on ? TermColors.CURSOR : OK, 6);
@@ -230,9 +236,22 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
                 tab.addView(d);
             }
             TextView t = single(monoText(this, s.label(), 12, s.exited ? Theme.withAlpha(fg, 0x66) : fg));
-            t.setMaxWidth(dp(this, 150));
+            t.setMaxWidth(dp(this, 140));
             if (on) t.setTypeface(mono(this, 600));
             tab.addView(t);
+            ImageButton xTab = iconButton(this, R.drawable.ms_close, getString(R.string.terminal_close),
+                    Theme.withAlpha(fg, 0x99));
+            int xp = dp(this, 4);
+            xTab.setPadding(xp, xp, xp, xp);
+            LinearLayout.LayoutParams xlp = new LinearLayout.LayoutParams(dp(this, 24), dp(this, 24));
+            xlp.setMarginStart(dp(this, 4));
+            xTab.setOnClickListener(v -> {
+                if (s.exited) closeSession(s);
+                else confirmSheet(this, getString(R.string.terminal_close_title, s.label()),
+                        getString(R.string.terminal_close_running), getString(R.string.terminal_close), true,
+                        () -> closeSession(s));
+            });
+            tab.addView(xTab, xlp);
             tab.setOnClickListener(v -> {
                 if (s != session) show(s);
             });
