@@ -137,7 +137,11 @@ final class Account {
         listeners.remove(l);
     }
 
+    private long lastRefreshAt = 0;
+    private static final long REFRESH_TTL_MS = 60_000;
+
     private void set(Step s, String d) {
+        boolean changed = (step != s) || !java.util.Objects.equals(detail, d);
         step = s;
         detail = d == null ? "" : d;
         Context a = app;
@@ -146,9 +150,11 @@ final class Account {
             Prefs.setAgentState(a, agent, s.name());
             if (s == Step.SIGNED_IN) Prefs.setAgentPlan(a, agent, planIn);
         }
-        main.post(() -> {
-            for (Listener l : new ArrayList<>(listeners)) l.onAccountChanged();
-        });
+        if (changed) {
+            main.post(() -> {
+                for (Listener l : new ArrayList<>(listeners)) l.onAccountChanged();
+            });
+        }
     }
 
     boolean busy() {
@@ -159,10 +165,19 @@ final class Account {
         return step == Step.SIGNED_IN;
     }
 
-    /** Works out where things stand: installed? signed in? */
+    /** Works out where things stand: installed? signed in? Cached for 60s to prevent spamming Linux on tab switches. */
     void refresh(Context c) {
+        refresh(c, false);
+    }
+
+    void refresh(Context c, boolean force) {
+        long currentTime = System.currentTimeMillis();
+        if (!force && lastRefreshAt > 0 && (currentTime - lastRefreshAt < REFRESH_TTL_MS)) {
+            return;
+        }
         app = c.getApplicationContext();
         if (busy()) return;
+        lastRefreshAt = currentTime;
         final Context app = c.getApplicationContext();
         new Thread(() -> {
             try {

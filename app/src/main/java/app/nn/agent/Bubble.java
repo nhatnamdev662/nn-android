@@ -164,6 +164,7 @@ final class Bubble implements ChatHub.Listener {
         lp = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, 0, PixelFormat.TRANSLUCENT);
+        Ui.unlockHighRefreshRate(lp, wm != null ? wm.getDefaultDisplay() : null);
         root.addView(collapsed);
         applyCollapsedParams();
         createArcs();
@@ -410,12 +411,16 @@ final class Bubble implements ChatHub.Listener {
                 return super.dispatchTouchEvent(e);
             }
         };
+        scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        scroll.setVerticalScrollBarEnabled(false);
         messages = new LinearLayout(svc);
         messages.setOrientation(LinearLayout.VERTICAL);
         messages.setPaddingRelative(0, dp(8), 0, dp(8));
         scroll.addView(messages);
         panel.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         listScroll = new ScrollView(svc);
+        listScroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        listScroll.setVerticalScrollBarEnabled(false);
         sessionList = new LinearLayout(svc);
         sessionList.setOrientation(LinearLayout.VERTICAL);
         sessionList.setPaddingRelative(0, dp(8), 0, dp(8));
@@ -3281,13 +3286,16 @@ final class Bubble implements ChatHub.Listener {
                 p.topMargin = dp(10);
                 messages.addView(typing, p);
                 scrollToEnd();
-            } else if (messages.indexOfChild(typing) != messages.getChildCount() - 1) {
-                messages.removeView(typing);
-                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                p.topMargin = dp(10);
-                messages.addView(typing, p);
-                scrollToEnd();
+            } else {
+                int targetIdx = messages.getChildCount() - 1;
+                if (messages.indexOfChild(typing) != targetIdx) {
+                    messages.removeView(typing);
+                    LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    p.topMargin = dp(10);
+                    messages.addView(typing, p);
+                    scrollToEnd();
+                }
             }
             typing.startAnimation();
         } else {
@@ -3298,9 +3306,17 @@ final class Bubble implements ChatHub.Listener {
         }
     }
 
+    private Runnable pendingBubbleScroll;
     private void scrollToEnd() {
         if (scroll != null && messages != null) {
-            scroll.post(() -> scroll.smoothScrollTo(0, messages.getBottom()));
+            if (pendingBubbleScroll != null) scroll.removeCallbacks(pendingBubbleScroll);
+            pendingBubbleScroll = () -> {
+                pendingBubbleScroll = null;
+                if (scroll != null && messages != null) {
+                    scroll.smoothScrollTo(0, messages.getBottom());
+                }
+            };
+            scroll.post(pendingBubbleScroll);
         }
     }
 

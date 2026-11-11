@@ -3,6 +3,8 @@ package app.nn.agent;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -57,6 +59,8 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         root.setFitsSystemWindows(true);
         LinearLayout column = column(this);
         scroll = new ScrollView(this);
+        scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        scroll.setVerticalScrollBarEnabled(false);
         list = column(this);
         list.setPaddingRelative(0, dp(this, 8), 0, dp(this, 96));
         scroll.addView(list);
@@ -99,11 +103,20 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         Account.GROK.refresh(this);
     }
 
-    private final Runnable waitingChanged = this::render;
+    private final Handler renderHandler = new Handler(Looper.getMainLooper());
+    private final Runnable renderRunnable = this::render;
+
+    private void scheduleRender() {
+        if (isFinishing() || isDestroyed()) return;
+        renderHandler.removeCallbacks(renderRunnable);
+        renderHandler.postDelayed(renderRunnable, 100);
+    }
+
+    private final Runnable waitingChanged = this::scheduleRender;
 
     @Override
     public void onAccountChanged() {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) scheduleRender();
     }
 
     @Override
@@ -116,7 +129,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
 
     @Override
     public void onChatsChanged() {
-        render();
+        scheduleRender();
     }
 
     @Override
@@ -522,5 +535,11 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
     private void open(Sessions.Session ses) {
         hub.select(ses);
         startActivity(new Intent(this, ChatActivity.class).putExtra("id", ses.id));
+    }
+
+    @Override
+    protected void onDestroy() {
+        renderHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 }

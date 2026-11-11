@@ -7,11 +7,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +38,24 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private Boolean setupOpen;
     private Dialog activeAdbGuideDialog;
     private Dialog activeAdbPairDialog;
+
+    private final Handler renderHandler = new Handler(Looper.getMainLooper());
+    private final Runnable renderRunnable = this::render;
+    private boolean isUserScrolling = false;
+    private boolean pendingRenderDuringScroll = false;
+    private final Runnable scrollSettledRunnable = () -> {
+        isUserScrolling = false;
+        if (pendingRenderDuringScroll) {
+            pendingRenderDuringScroll = false;
+            render();
+        }
+    };
+
+    private void scheduleRender() {
+        if (isFinishing() || isDestroyed()) return;
+        renderHandler.removeCallbacks(renderRunnable);
+        renderHandler.postDelayed(renderRunnable, 100);
+    }
 
     private void dismissAdbDialogs() {
         if (activeAdbGuideDialog != null && activeAdbGuideDialog.isShowing()) {
@@ -61,6 +82,30 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         root.setBackgroundColor(BG);
         root.setFitsSystemWindows(true);
         scroll = new ScrollView(this);
+        scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    isUserScrolling = true;
+                    renderHandler.removeCallbacks(scrollSettledRunnable);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    renderHandler.removeCallbacks(scrollSettledRunnable);
+                    renderHandler.postDelayed(scrollSettledRunnable, 200);
+                    break;
+            }
+            return false;
+        });
+        scroll.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (Math.abs(scrollY - oldScrollY) > 2) {
+                isUserScrolling = true;
+                renderHandler.removeCallbacks(scrollSettledRunnable);
+                renderHandler.postDelayed(scrollSettledRunnable, 200);
+            }
+        });
         list = column(this);
         list.setPaddingRelative(0, dp(this, 12), 0, dp(this, 24));
         scroll.addView(list);
@@ -84,7 +129,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         AdbManager.get(this);
         AdbManager.addListener(this);
         AdbManager.ensure(this);
-        if (!AdbManager.isConnected()) {
+        if (!AdbManager.isConnected() && !AdbManager.isDiscovering()) {
             AdbManager.restartDiscovery();
         }
         if (AdbManager.isConnected()) dismissAdbDialogs();
@@ -111,23 +156,23 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     public void onAdbStateChanged(AdbManager.State state, String host, int port, String error) {
         if (!isFinishing() && !isDestroyed()) {
             if (AdbManager.isConnected()) dismissAdbDialogs();
-            render();
+            scheduleRender();
         }
     }
 
     @Override
     public void onAdbPairingDiscovered(String host, int port) {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) scheduleRender();
     }
 
     @Override
     public void onRemoteChanged() {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) scheduleRender();
     }
 
     @Override
     public void onCodexRemoteChanged() {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) scheduleRender();
     }
 
     /** The browser's state as last shown: its tabs change often, and only the state matters here. */
@@ -137,17 +182,17 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     public void onBrowserChanged() {
         String now = Browser.state + Browser.detail;
         if (now.equals(browserShown) || isFinishing() || isDestroyed()) return;
-        render();
+        scheduleRender();
     }
 
     @Override
     public void onSshChanged() {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) scheduleRender();
     }
 
     @Override
     public void onAccountChanged() {
-        if (!isFinishing() && !isDestroyed()) render();
+        if (!isFinishing() && !isDestroyed()) scheduleRender();
     }
 
     /** Appearance changed on this screen: restyle everything in place, keeping the scroll position. */
@@ -213,6 +258,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
     private void render() {
         if (isFinishing() || isDestroyed()) return;
+        if (isUserScrolling) {
+            pendingRenderDuringScroll = true;
+            return;
+        }
         final int y = scroll != null ? scroll.getScrollY() : 0;
         if (list.getHeight() > 0) list.setMinimumHeight(list.getHeight());
         list.removeAllViews();
@@ -1861,5 +1910,11 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
     private void openUrl(String url) {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+    }
+
+    @Override
+    protected void onDestroy() {
+        renderHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 }

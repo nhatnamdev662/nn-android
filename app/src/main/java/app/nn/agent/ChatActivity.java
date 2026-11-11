@@ -170,6 +170,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         root.addView(browser, bwp);
 
         scroll = new ScrollView(this);
+        scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        scroll.setVerticalScrollBarEnabled(false);
         messages = column(this);
         messages.setPaddingRelative(dp(this, 16), dp(this, 8), dp(this, 16), dp(this, 12));
         scroll.addView(messages);
@@ -2289,12 +2291,15 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 p.topMargin = dp(this, 12);
                 messages.addView(typing, p);
                 scrollToEnd();
-            } else if (messages.indexOfChild(typing) != messages.getChildCount() - 1) {
-                messages.removeView(typing);
-                LinearLayout.LayoutParams p = wrap();
-                p.topMargin = dp(this, 12);
-                messages.addView(typing, p);
-                scrollToEnd();
+            } else {
+                int targetIdx = messages.getChildCount() - 1;
+                if (messages.indexOfChild(typing) != targetIdx) {
+                    messages.removeView(typing);
+                    LinearLayout.LayoutParams p = wrap();
+                    p.topMargin = dp(this, 12);
+                    messages.addView(typing, p);
+                    scrollToEnd();
+                }
             }
             typing.startAnimation();
         } else {
@@ -2305,9 +2310,17 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
     }
 
+    private Runnable pendingChatScroll;
     private void scrollToEnd() {
         if (scroll != null && messages != null) {
-            scroll.post(() -> scroll.smoothScrollTo(0, messages.getBottom()));
+            if (pendingChatScroll != null) scroll.removeCallbacks(pendingChatScroll);
+            pendingChatScroll = () -> {
+                pendingChatScroll = null;
+                if (scroll != null && messages != null) {
+                    scroll.smoothScrollTo(0, messages.getBottom());
+                }
+            };
+            scroll.post(pendingChatScroll);
         }
     }
 

@@ -12,6 +12,7 @@ abstract class Screen extends Activity {
     protected void onCreate(Bundle state) {
         Theme.apply(this);
         themeKey = Theme.key();
+        Ui.unlockHighRefreshRate(this);
         super.onCreate(state);
         overridePendingTransition(0, 0);
     }

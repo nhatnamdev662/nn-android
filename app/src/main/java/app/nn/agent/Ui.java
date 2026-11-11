@@ -8,8 +8,10 @@ import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1043,7 +1045,15 @@ final class Ui {
             stopAnimation();
         }
 
+        boolean isAnimating() {
+            for (android.animation.ValueAnimator a : anims) {
+                if (a != null && a.isRunning()) return true;
+            }
+            return false;
+        }
+
         void startAnimation() {
+            if (isAnimating()) return;
             stopAnimation();
             final float up = -dp(getContext(), 4);
             final float down = dp(getContext(), 2);
@@ -1064,6 +1074,7 @@ final class Ui {
         void stopAnimation() {
             for (int i = 0; i < 3; i++) {
                 if (anims[i] != null) {
+                    anims[i].removeAllUpdateListeners();
                     anims[i].cancel();
                     anims[i] = null;
                 }
@@ -1072,5 +1083,48 @@ final class Ui {
                 }
             }
         }
+    }
+
+    /** Unlocks 90Hz/120Hz/144Hz high refresh rate on the Activity window. */
+    static void unlockHighRefreshRate(Activity a) {
+        if (a == null) return;
+        Window w = a.getWindow();
+        if (w == null) return;
+        Display d = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try { d = a.getDisplay(); } catch (Throwable ignored) {}
+        }
+        if (d == null && a.getWindowManager() != null) {
+            try { d = a.getWindowManager().getDefaultDisplay(); } catch (Throwable ignored) {}
+        }
+        WindowManager.LayoutParams lp = w.getAttributes();
+        if (unlockHighRefreshRate(lp, d)) {
+            w.setAttributes(lp);
+        }
+    }
+
+    /** Unlocks 90Hz/120Hz/144Hz high refresh rate on a WindowManager.LayoutParams. Returns true if modified. */
+    static boolean unlockHighRefreshRate(WindowManager.LayoutParams lp, Display display) {
+        if (lp == null) return false;
+        boolean changed = false;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && display != null) {
+                Display.Mode[] modes = display.getSupportedModes();
+                Display.Mode maxMode = null;
+                for (Display.Mode m : modes) {
+                    if (maxMode == null || m.getRefreshRate() > maxMode.getRefreshRate()) {
+                        maxMode = m;
+                    }
+                }
+                if (maxMode != null) {
+                    lp.preferredDisplayModeId = maxMode.getModeId();
+                    changed = true;
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                lp.preferredRefreshRate = 120.0f;
+                changed = true;
+            }
+        } catch (Throwable ignored) {}
+        return changed;
     }
 }

@@ -80,6 +80,10 @@ public final class AdbManager {
         mgr.startInternal();
     }
 
+    public static boolean isDiscovering() {
+        return sInstance != null && sInstance.mdnsActive;
+    }
+
     public static void restartDiscovery() {
         if (sInstance != null) {
             sInstance.restartDiscoveryInternal();

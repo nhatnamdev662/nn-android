@@ -38,10 +38,23 @@ final class GitHub {
         });
     }
 
-    /** Who gh is signed in as. */
+    private static long lastRefreshAt = 0;
+    private static final long REFRESH_TTL_MS = 60_000;
+
+    /** Who gh is signed in as. Cached for 60s to prevent spamming Linux on tab switches. */
     static void refresh(Context c) {
+        refresh(c, false);
+    }
+
+    static void refresh(Context c, boolean force) {
+        long now = System.currentTimeMillis();
+        if (!force && lastRefreshAt > 0 && (now - lastRefreshAt < REFRESH_TTL_MS)) {
+            return;
+        }
+        lastRefreshAt = now;
         final Context app = c.getApplicationContext();
         new Thread(() -> {
+            String oldLogin = login;
             try {
                 String out = Linux.exec(app, "command -v gh >/dev/null && gh auth status -h github.com >/dev/null 2>&1 "
                         + "&& gh api user -q .login 2>/dev/null", 40);
@@ -50,7 +63,9 @@ final class GitHub {
             } catch (Exception e) {
                 login = "";
             }
-            changed();
+            if (!java.util.Objects.equals(oldLogin, login)) {
+                changed();
+            }
         }, "github").start();
     }
 
