@@ -1735,6 +1735,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     }
 
     private void adbGuideSheet() {
+        if (!AdbManager.isWifiAvailable(this)) {
+            Toast.makeText(this, R.string.setup_adb_status_wifi_required, Toast.LENGTH_LONG).show();
+            return;
+        }
         // Trigger searching notification immediately when opening guide, like Shizuku
         AdbPairingService.showSearchingNotification(this);
 
@@ -1900,7 +1904,12 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
         Dialog d = bottomSheet(this, c);
         activeAdbGuideDialog = d;
-        d.setOnDismissListener(di -> { if (activeAdbGuideDialog == di) activeAdbGuideDialog = null; });
+        d.setOnDismissListener(di -> {
+            if (activeAdbGuideDialog == di) activeAdbGuideDialog = null;
+            if (AdbManager.state != AdbManager.State.PAIRING && AdbManager.detectedPairingPort <= 0) {
+                AdbPairingService.cancelNotification(this);
+            }
+        });
         d.show();
     }
 

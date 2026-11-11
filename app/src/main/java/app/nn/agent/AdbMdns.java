@@ -18,8 +18,8 @@ import java.util.Queue;
 public final class AdbMdns {
     private static final String TAG = "AdbMdns";
 
-    public static final String SERVICE_TYPE_PAIRING = "_adb-tls-pairing._tcp.";
-    public static final String SERVICE_TYPE_CONNECT = "_adb-tls-connect._tcp.";
+    public static final String SERVICE_TYPE_PAIRING = "_adb-tls-pairing._tcp";
+    public static final String SERVICE_TYPE_CONNECT = "_adb-tls-connect._tcp";
 
     public interface Listener {
         void onPairingServiceDiscovered(String host, int port);
@@ -81,9 +81,10 @@ public final class AdbMdns {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                enqueueResolve(serviceInfo, true);
+                String type = serviceInfo.getServiceType();
+                boolean isPairing = type != null ? type.contains("pairing") : true;
+                enqueueResolve(serviceInfo, isPairing);
             }
-
             @Override
             public void onServiceLost(NsdServiceInfo serviceInfo) {
                 Log.d(TAG, "Pairing service lost: " + serviceInfo.getServiceName());
@@ -113,7 +114,9 @@ public final class AdbMdns {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                enqueueResolve(serviceInfo, false);
+                String type = serviceInfo.getServiceType();
+                boolean isPairing = type != null ? type.contains("pairing") : false;
+                enqueueResolve(serviceInfo, isPairing);
             }
 
             @Override
@@ -198,10 +201,13 @@ public final class AdbMdns {
                     InetAddress host = info.getHost();
                     int port = info.getPort();
                     String hostAddr = (host != null) ? host.getHostAddress() : "127.0.0.1";
-                    Log.d(TAG, "Service resolved: " + info.getServiceName() + " -> " + hostAddr + ":" + port);
+                    String sType = info.getServiceType();
+                    boolean isPairing = (sType != null && sType.contains("pairing"))
+                            || (req.isPairing && (sType == null || !sType.contains("connect")));
+                    Log.d(TAG, "Service resolved: " + info.getServiceName() + " (" + sType + ") -> " + hostAddr + ":" + port + " isPairing=" + isPairing);
 
                     if (listener != null) {
-                        if (req.isPairing) {
+                        if (isPairing) {
                             listener.onPairingServiceDiscovered(hostAddr, port);
                         } else {
                             listener.onConnectServiceDiscovered(hostAddr, port);

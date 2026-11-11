@@ -393,8 +393,18 @@ public final class AdbManager {
                     friendly = msg != null ? msg : ("Connection failed: " + targetPort);
                 }
                 updateState(State.DISCONNECTED, friendly, targetPort);
-                if (isWifiConnected && detectedConnectPort > 0 && detectedConnectPort != targetPort) {
-                    mainHandler.postDelayed(() -> connectInternal(detectedConnectPort), 500);
+
+                if (targetPort == detectedConnectPort) {
+                    detectedConnectPort = 0;
+                }
+
+                if (isWifiConnected) {
+                    if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
+                        mainHandler.postDelayed(() -> connectInternal(detectedConnectPort), 500);
+                    } else if (targetPort != 5555 && state != State.CONNECTED && state != State.CONNECTING) {
+                        // Fallback: try standard loopback ADB port 5555
+                        mainHandler.postDelayed(() -> connectInternal(5555), 300);
+                    }
                 }
             }
         });
