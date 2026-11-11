@@ -2085,6 +2085,7 @@
     <string name="setup_adb_status_inactive">ADB Disconnected</string>
     <string name="setup_adb_status_sub_connected">127.0.0.1:%1$d · Shell UID 2000 (sh)</string>
     <string name="setup_adb_status_sub_disconnected">Enable Wireless Debugging to pair or connect.</string>
+    <string name="setup_adb_status_wifi_required">Wi-Fi connection required for Wireless Debugging</string>
     <string name="setup_adb_pair">Pair with pairing code</string>
     <string name="setup_adb_connect_manual">Enter Port &amp; Connect</string>
     <string name="setup_adb_change_port">Change Port</string>

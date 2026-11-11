@@ -2067,6 +2067,7 @@
     <string name="setup_adb_status_inactive">ADB chưa kết nối</string>
     <string name="setup_adb_status_sub_connected">127.0.0.1:%1$d · Quyền Shell UID 2000 (sh)</string>
     <string name="setup_adb_status_sub_disconnected">Bật Gỡ lỗi không dây để ghép nối hoặc kết nối.</string>
+    <string name="setup_adb_status_wifi_required">Yêu cầu kết nối Wi-Fi để dùng ADB</string>
     <string name="setup_adb_pair">Ghép nối bằng mã</string>
     <string name="setup_adb_connect_manual">Nhập cổng &amp; Kết nối</string>
     <string name="setup_adb_change_port">Đổi cổng</string>

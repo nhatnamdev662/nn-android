@@ -61,6 +61,16 @@ public final class AdbConnection {
         ERROR
     }
 
+    public interface DisconnectListener {
+        void onDisconnected(String reason);
+    }
+
+    private static volatile DisconnectListener sDisconnectListener;
+
+    public static void setDisconnectListener(DisconnectListener listener) {
+        sDisconnectListener = listener;
+    }
+
     private static final int CONNECT_TIMEOUT_MS = 5000;
     private static final int HANDSHAKE_TIMEOUT_MS = 10000;
     private static final int DEFAULT_EXEC_TIMEOUT_MS = 15000;
@@ -488,6 +498,12 @@ public final class AdbConnection {
 
             } catch (Throwable t) {
                 disconnect();
+                DisconnectListener dl = sDisconnectListener;
+                if (dl != null) {
+                    try {
+                        dl.onDisconnected(t.getMessage());
+                    } catch (Throwable ignored) {}
+                }
                 long elapsed = (System.nanoTime() - startNano) / 1_000_000L;
                 return new ExecutionResult(
                     -4,

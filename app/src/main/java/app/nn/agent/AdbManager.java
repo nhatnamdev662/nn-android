@@ -1,6 +1,11 @@
 package app.nn.agent;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -52,9 +57,140 @@ public final class AdbManager {
     private AdbMdns mdns;
     private boolean mdnsActive = false;
 
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private volatile boolean isWifiConnected = false;
+    private volatile boolean networkCallbackRegistered = false;
+
+    private static final long HEARTBEAT_INTERVAL_MS = 10000;
+    private final Runnable heartbeatRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (state == State.CONNECTED && isWifiConnected) {
+                executor.execute(() -> {
+                    try {
+                        AdbConnection.ExecutionResult res = AdbConnection.execute("echo 1", 2000);
+                        if (res.exitCode != 0) {
+                            throw new java.io.IOException("Heartbeat failed (exitCode=" + res.exitCode + ")");
+                        }
+                    } catch (Throwable t) {
+                        Log.w(TAG, "ADB Heartbeat probe failed: " + t.getMessage() + ". Disconnecting and re-discovering...");
+                        AdbConnection.disconnect();
+                        updateState(State.DISCONNECTED, "Connection lost: " + t.getMessage(), port);
+                        if (isWifiConnected && Prefs.adbEnabled(context)) {
+                            restartDiscoveryInternal();
+                        }
+                    }
+                });
+            }
+            if (state == State.CONNECTED && isWifiConnected) {
+                mainHandler.postDelayed(this, HEARTBEAT_INTERVAL_MS);
+            }
+        }
+    };
+
+    private void startHeartbeat() {
+        stopHeartbeat();
+        mainHandler.postDelayed(heartbeatRunnable, HEARTBEAT_INTERVAL_MS);
+    }
+
+    private void stopHeartbeat() {
+        mainHandler.removeCallbacks(heartbeatRunnable);
+    }
+
+    public static boolean isWifiAvailable(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network net = cm.getActiveNetwork();
+            if (net == null) return false;
+            NetworkCapabilities caps = cm.getNetworkCapabilities(net);
+            return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+        } else {
+            android.net.NetworkInfo info = cm.getActiveNetworkInfo();
+            return info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
+        }
+    }
+
+    private synchronized void registerNetworkCallback() {
+        if (networkCallbackRegistered) return;
+        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) return;
+        try {
+            NetworkRequest request = new NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .build();
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    Log.d(TAG, "Wi-Fi network became available");
+                    isWifiConnected = true;
+                    onWifiAvailable();
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    Log.d(TAG, "Wi-Fi network lost (switched to 4G/Cellular or offline)");
+                    isWifiConnected = false;
+                    onWifiLost();
+                }
+
+                @Override
+                public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
+                    boolean wifi = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+                    if (wifi && !isWifiConnected) {
+                        isWifiConnected = true;
+                        onWifiAvailable();
+                    } else if (!wifi && isWifiConnected) {
+                        isWifiConnected = false;
+                        onWifiLost();
+                    }
+                }
+            };
+            connectivityManager.registerNetworkCallback(request, networkCallback);
+            networkCallbackRegistered = true;
+        } catch (Throwable t) {
+            Log.w(TAG, "Failed to register network callback", t);
+        }
+    }
+
+    private synchronized void onWifiLost() {
+        Log.i(TAG, "Wi-Fi disconnected. Disconnecting ADB and pausing mDNS.");
+        stopHeartbeat();
+        if (mdnsActive && mdns != null) {
+            mdns.stop();
+            mdnsActive = false;
+        }
+        AdbPairingService.cancelNotification(context);
+        executor.execute(() -> {
+            try {
+                AdbConnection.disconnect();
+            } catch (Throwable ignored) {}
+            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+        });
+    }
+
+    private synchronized void onWifiAvailable() {
+        Log.i(TAG, "Wi-Fi restored. Auto-reconnecting ADB if enabled.");
+        if (Prefs.adbEnabled(context)) {
+            startInternal();
+        }
+    }
+
     private AdbManager(Context context) {
         this.context = context.getApplicationContext();
         port = Prefs.adbPort(this.context);
+        isWifiConnected = isWifiAvailable(this.context);
+        registerNetworkCallback();
+        AdbConnection.setDisconnectListener(reason -> {
+            Log.w(TAG, "AdbConnection dropped: " + reason);
+            if (state == State.CONNECTED) {
+                updateState(State.DISCONNECTED, "Connection lost: " + reason, port);
+                if (isWifiConnected && Prefs.adbEnabled(this.context)) {
+                    restartDiscoveryInternal();
+                }
+            }
+        });
     }
 
     public static AdbManager get(Context context) {
@@ -135,11 +271,19 @@ public final class AdbManager {
     }
 
     private synchronized void startInternal() {
+        registerNetworkCallback();
+        isWifiConnected = isWifiAvailable(context);
+        if (!isWifiConnected) {
+            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+            return;
+        }
+
         if (!mdnsActive) {
             mdns = new AdbMdns(context, new AdbMdns.Listener() {
                 @Override
                 public void onPairingServiceDiscovered(String host, int p) {
                     detectedPairingPort = p;
+                    if (!isWifiConnected) return;
                     notifyPairingDiscovered(host, p);
                     AdbPairingService.showNotification(context, p);
                 }
@@ -147,7 +291,11 @@ public final class AdbManager {
                 @Override
                 public void onConnectServiceDiscovered(String host, int p) {
                     detectedConnectPort = p;
+                    if (!isWifiConnected) return;
                     if (state != State.CONNECTED && state != State.CONNECTING) {
+                        connectInternal(p);
+                    } else if (state == State.CONNECTED && p != port) {
+                        Log.i(TAG, "Wireless Debugging port changed from " + port + " to " + p + ". Reconnecting...");
                         connectInternal(p);
                     }
                 }
@@ -164,8 +312,14 @@ public final class AdbManager {
     }
 
     private synchronized void restartDiscoveryInternal() {
+        isWifiConnected = isWifiAvailable(context);
+        if (!isWifiConnected) {
+            onWifiLost();
+            return;
+        }
         if (mdns != null) {
             mdns.restart();
+            mdnsActive = true;
         } else {
             startInternal();
         }
@@ -181,6 +335,7 @@ public final class AdbManager {
     }
 
     private synchronized void stopInternal() {
+        stopHeartbeat();
         if (mdnsActive && mdns != null) {
             mdns.stop();
             mdnsActive = false;
@@ -190,6 +345,10 @@ public final class AdbManager {
     }
 
     private void connectInternal(int targetPort) {
+        if (!isWifiConnected) {
+            updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+            return;
+        }
         if (targetPort <= 0 || targetPort > 65535) {
             updateState(State.DISCONNECTED, "Invalid port: " + targetPort, 0);
             return;
@@ -197,12 +356,17 @@ public final class AdbManager {
 
         updateState(State.CONNECTING, "", targetPort);
         executor.execute(() -> {
+            if (!isWifiConnected) {
+                updateState(State.DISCONNECTED, context.getString(R.string.setup_adb_status_wifi_required), 0);
+                return;
+            }
             try {
                 AdbConnection.connect("127.0.0.1", targetPort);
                 port = targetPort;
                 Prefs.setAdbPort(context, targetPort);
                 Prefs.setAdbEnabled(context, true);
                 updateState(State.CONNECTED, "", targetPort);
+                startHeartbeat();
 
                 // AxManager-style UID 2000 shell daemon presence
                 try {
@@ -215,10 +379,13 @@ public final class AdbManager {
                     AdbPairingService.showSuccessNotification(context, targetPort);
                 }
             } catch (Throwable t) {
+                stopHeartbeat();
                 Log.w(TAG, "Connection failed to 127.0.0.1:" + targetPort, t);
                 String msg = t.getMessage();
                 String friendly;
-                if (msg != null && (msg.contains("ECONNREFUSED") || msg.contains("refused"))) {
+                if (!isWifiConnected) {
+                    friendly = context.getString(R.string.setup_adb_status_wifi_required);
+                } else if (msg != null && (msg.contains("ECONNREFUSED") || msg.contains("refused"))) {
                     friendly = "Port " + targetPort + " refused connection";
                 } else if (msg != null && msg.contains("timeout")) {
                     friendly = "Port " + targetPort + " connection timed out";
@@ -226,7 +393,7 @@ public final class AdbManager {
                     friendly = msg != null ? msg : ("Connection failed: " + targetPort);
                 }
                 updateState(State.DISCONNECTED, friendly, targetPort);
-                if (detectedConnectPort > 0 && detectedConnectPort != targetPort) {
+                if (isWifiConnected && detectedConnectPort > 0 && detectedConnectPort != targetPort) {
                     mainHandler.postDelayed(() -> connectInternal(detectedConnectPort), 500);
                 }
             }
@@ -234,6 +401,7 @@ public final class AdbManager {
     }
 
     private void disconnectInternal() {
+        stopHeartbeat();
         executor.execute(() -> {
             try {
                 AdbConnection.disconnect();
