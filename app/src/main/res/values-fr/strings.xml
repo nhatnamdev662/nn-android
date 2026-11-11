@@ -2048,4 +2048,10 @@
     <string name="onboarding_badge_required">Requis</string>
     <string name="onboarding_badge_optional">Facultatif</string>
     <string name="onboarding_step_done_badge">Terminé</string>
+    <string name="setup_lock_title">Aucun agent configuré</string>
+    <string name="setup_lock_body">Installez et connectez au moins un agent (Claude Code, Codex, OpenCode, Antigravity ou Grok) dans les Paramètres avant de démarrer une discussion.</string>
+    <string name="setup_lock_cta">Configurer un agent</string>
+    <string name="setup_lock_guide">Ouvrir l\'assistant</string>
+    <string name="bubble_locked_subtitle">Configuration requise</string>
+    <string name="chat_agent_locked">%1$s n\'est pas encore installé ou connecté.</string>
 </resources>

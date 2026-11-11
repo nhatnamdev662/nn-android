@@ -2049,4 +2049,10 @@
     <string name="onboarding_badge_required">Wajib</string>
     <string name="onboarding_badge_optional">Opsional</string>
     <string name="onboarding_step_done_badge">Selesai</string>
+    <string name="setup_lock_title">Belum ada agen yang diatur</string>
+    <string name="setup_lock_body">Pasang dan masuk ke minimal satu agen (Claude Code, Codex, OpenCode, Antigravity, atau Grok) di Pengaturan sebelum mulai mengobrol.</string>
+    <string name="setup_lock_cta">Atur agen sekarang</string>
+    <string name="setup_lock_guide">Buka panduan pengaturan</string>
+    <string name="bubble_locked_subtitle">Perlu pengaturan</string>
+    <string name="chat_agent_locked">%1$s belum terpasang atau masuk.</string>
 </resources>

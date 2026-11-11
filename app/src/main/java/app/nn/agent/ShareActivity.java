@@ -26,7 +26,7 @@ public final class ShareActivity extends Screen {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         hub = ChatHub.get(this);
-        if (!SetupState.signedIn(this, Prefs.backend(this))) { // not set up yet: the main screen leads the way
+        if (!SetupState.anySignedIn(this)) { // not set up yet: the main screen leads the way
             startActivity(new Intent(this, MainActivity.class));
             finish();
             return;
@@ -54,8 +54,8 @@ public final class ShareActivity extends Screen {
 
         // a new chat with any agent that's signed in, the default first
         c.addView(sectionLabel(this, getString(R.string.main_new_chat)));
-        String def = Prefs.backend(this);
-        c.addView(choice(def, getString(R.string.share_new_chat, Account.of(def).name()), null), full());
+        String def = Prefs.activeBackend(this);
+        if (def != null) c.addView(choice(def, getString(R.string.share_new_chat, Account.of(def).name()), null), full());
         for (Account acc : Account.ALL) {
             if (acc.agent.equals(def) || !SetupState.signedIn(this, acc.agent)) continue;
             c.addView(choice(acc.agent, getString(R.string.share_new_chat, acc.name()), null), full());

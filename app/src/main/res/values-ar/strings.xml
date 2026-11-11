@@ -1660,4 +1660,10 @@
     <string name="onboarding_badge_required">مطلوب</string>
     <string name="onboarding_badge_optional">اختياري</string>
     <string name="onboarding_step_done_badge">مكتمل</string>
+    <string name="setup_lock_title">لم يتم إعداد أي وكيل بعد</string>
+    <string name="setup_lock_body">ثبّت وكيلًا واحدًا على الأقل وسجّل الدخول إليه (Claude Code أو Codex أو OpenCode أو Antigravity أو Grok) من الإعدادات قبل بدء الدردشة.</string>
+    <string name="setup_lock_cta">إعداد الوكيل الآن</string>
+    <string name="setup_lock_guide">فتح دليل الإعداد</string>
+    <string name="bubble_locked_subtitle">يلزم الإعداد</string>
+    <string name="chat_agent_locked">%1$s غير مثبّت أو غير مسجّل الدخول بعد.</string>
 </resources>

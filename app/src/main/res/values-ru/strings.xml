@@ -2087,4 +2087,10 @@
     <string name="onboarding_badge_required">Обязательно</string>
     <string name="onboarding_badge_optional">Необязательно</string>
     <string name="onboarding_step_done_badge">Выполнено</string>
+    <string name="setup_lock_title">Агент ещё не настроен</string>
+    <string name="setup_lock_body">Установите и войдите хотя бы в одного агента (Claude Code, Codex, OpenCode, Antigravity или Grok) в Настройках перед началом чата.</string>
+    <string name="setup_lock_cta">Настроить агента</string>
+    <string name="setup_lock_guide">Открыть мастер настройки</string>
+    <string name="bubble_locked_subtitle">Требуется настройка</string>
+    <string name="chat_agent_locked">%1$s ещё не установлен или не выполнен вход.</string>
 </resources>

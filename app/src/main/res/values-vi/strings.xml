@@ -2216,4 +2216,10 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="onboarding_badge_required">Bắt buộc</string>
     <string name="onboarding_badge_optional">Tùy chọn</string>
     <string name="onboarding_step_done_badge">Đã hoàn thành</string>
+    <string name="setup_lock_title">Chưa cài đặt Agent</string>
+    <string name="setup_lock_body">Hãy cài đặt và đăng nhập ít nhất một Agent (Claude Code, Codex, OpenCode, Antigravity hoặc Grok) trong Cài đặt trước khi bắt đầu trò chuyện.</string>
+    <string name="setup_lock_cta">Cài đặt Agent ngay</string>
+    <string name="setup_lock_guide">Mở hướng dẫn thiết lập</string>
+    <string name="bubble_locked_subtitle">Cần thiết lập Agent</string>
+    <string name="chat_agent_locked">%1$s chưa được cài đặt hoặc đăng nhập.</string>
 </resources>

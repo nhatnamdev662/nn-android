@@ -39,6 +39,19 @@ final class SetupState {
         return Linux.installed(c) && "SIGNED_IN".equals(Prefs.agentState(c, agent));
     }
 
+    /** True if at least one AI agent is installed and ready to run chats. */
+    static boolean anySignedIn(Context c) {
+        return firstSignedIn(c) != null;
+    }
+
+    /** First agent ID that is currently installed and signed in, or null when none are set up yet. */
+    static String firstSignedIn(Context c) {
+        for (Account a : Account.ALL) {
+            if (signedIn(c, a.agent)) return a.agent;
+        }
+        return null;
+    }
+
     /**
      * Signed in with the plan itself, not an API key: what voice input, live voice, Remote Control and the ChatGPT
      * app's Codex session need.

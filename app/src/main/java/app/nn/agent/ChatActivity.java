@@ -43,6 +43,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private TextView hint;
     private Button mic;
     private LinearLayout pill;
+    private LinearLayout lockedComposer;
+    private TextView lockedText;
     private VoiceBar voiceBar;
     /** In place of the composer while this chat has a live voice call (see CodexLive). */
     private VoiceBar liveBar;
@@ -353,6 +355,26 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         hp.setMarginEnd(dp(this, 16));
         root.addView(liveHint, hp);
         root.addView(pill, pp);
+
+        lockedComposer = row(this);
+        lockedComposer.setGravity(Gravity.CENTER_VERTICAL);
+        lockedComposer.setBackground(outlined(this, CARD, 18, Theme.withAlpha(ACCENT, 0x59), 1));
+        lockedComposer.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 10), dp(this, 10));
+        lockedComposer.addView(icon(this, R.drawable.ms_build_circle, ACCENT_TEXT, 20));
+        lockedText = text(this, "", 13, TEXT);
+        lockedText.setPaddingRelative(dp(this, 10), 0, dp(this, 8), 0);
+        lockedComposer.addView(lockedText, weight1());
+        Button setupBtn = button(this, getString(R.string.setup_lock_cta), true);
+        setupBtn.setOnClickListener(v -> {
+            if (!SetupState.anySignedIn(this)) {
+                startActivity(new android.content.Intent(this, SetupActivity.class));
+            } else {
+                startActivity(new android.content.Intent(this, SignInActivity.class).putExtra("agent", ses.backend));
+            }
+        });
+        lockedComposer.addView(setupBtn, wrap());
+        lockedComposer.setVisibility(View.GONE);
+        root.addView(lockedComposer, pp);
         voiceBar = new VoiceBar(this, new VoiceBar.Actions() {
             @Override
             public void cancel() {
@@ -443,6 +465,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
 
     /** The empty-chat hint mentions Linux tools when the chat has them. */
     private String hintText() {
+        if (!SetupState.anySignedIn(this)) return getString(R.string.setup_lock_body);
+        if (!SetupState.signedIn(this, ses.backend)) return getString(R.string.chat_agent_locked, ses.brainName());
         return getString(ses.dev ? R.string.chat_empty_hint_dev : R.string.chat_empty_hint, ses.brainName());
     }
 
@@ -551,6 +575,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void send() {
+        if (!SetupState.signedIn(this, ses.backend)) {
+            refresh();
+            return;
+        }
         String text = input.getText().toString().trim();
         if (text.isEmpty() && pending.isEmpty()) return;
         java.util.List<Sessions.Msg> backup = null;
@@ -1533,6 +1561,23 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         renderInterrupted();
         onBrowserChanged();
         paintLive();
+        boolean agentReady = SetupState.signedIn(this, ses.backend);
+        if (!agentReady && !ses.running) {
+            if (pill != null) pill.setVisibility(View.GONE);
+            if (liveBar != null) liveBar.setVisibility(View.GONE);
+            if (voiceBar != null) voiceBar.setVisibility(View.GONE);
+            if (lockedText != null) {
+                lockedText.setText(SetupState.anySignedIn(this)
+                        ? getString(R.string.chat_agent_locked, ses.brainName())
+                        : getString(R.string.setup_lock_title));
+            }
+            if (lockedComposer != null) lockedComposer.setVisibility(View.VISIBLE);
+        } else {
+            if (lockedComposer != null) lockedComposer.setVisibility(View.GONE);
+            boolean voiceOrLive = (voiceBar != null && voiceBar.getVisibility() == View.VISIBLE)
+                    || (liveBar != null && liveBar.getVisibility() == View.VISIBLE);
+            if (pill != null && !voiceOrLive) pill.setVisibility(View.VISIBLE);
+        }
         if (resumed) restoreUnsent(ses);
     }
 

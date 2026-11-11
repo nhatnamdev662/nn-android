@@ -2047,4 +2047,10 @@
     <string name="onboarding_badge_required">Obligatorio</string>
     <string name="onboarding_badge_optional">Opcional</string>
     <string name="onboarding_step_done_badge">Completado</string>
+    <string name="setup_lock_title">Aún no hay ningún agente configurado</string>
+    <string name="setup_lock_body">Instala e inicia sesión en al menos un agente (Claude Code, Codex, OpenCode, Antigravity o Grok) en Ajustes antes de empezar un chat.</string>
+    <string name="setup_lock_cta">Configurar agente</string>
+    <string name="setup_lock_guide">Abrir guía de configuración</string>
+    <string name="bubble_locked_subtitle">Configuración necesaria</string>
+    <string name="chat_agent_locked">%1$s aún no está instalado o con sesión iniciada.</string>
 </resources>

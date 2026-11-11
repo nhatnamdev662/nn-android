@@ -1599,4 +1599,10 @@
     <string name="onboarding_badge_required">필수</string>
     <string name="onboarding_badge_optional">선택</string>
     <string name="onboarding_step_done_badge">완료</string>
+    <string name="setup_lock_title">아직 설정된 에이전트가 없습니다</string>
+    <string name="setup_lock_body">채팅을 시작하기 전에 설정에서 최소 하나의 에이전트(Claude Code, Codex, OpenCode, Antigravity 또는 Grok)를 설치하고 로그인하세요.</string>
+    <string name="setup_lock_cta">에이전트 설정하기</string>
+    <string name="setup_lock_guide">설정 가이드 열기</string>
+    <string name="bubble_locked_subtitle">설정 필요</string>
+    <string name="chat_agent_locked">%1$s이(가) 아직 설치되거나 로그인되지 않았습니다.</string>
 </resources>

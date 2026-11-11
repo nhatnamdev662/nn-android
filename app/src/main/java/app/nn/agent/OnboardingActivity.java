@@ -596,27 +596,45 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     }
 
     private void tryIt() {
+        boolean ready = SetupState.anySignedIn(this);
         header(R.drawable.ms_check, getString(R.string.onboarding_try_title),
-                getString(R.string.onboarding_try_text), true, BADGE_NONE);
+                getString(ready ? R.string.onboarding_try_text : R.string.setup_lock_body), true, BADGE_NONE);
         String prompt = getString(R.string.onboarding_try_prompt);
-        TextView ex = monoText(this, getString(R.string.onboarding_try_prompt_quoted, prompt), 13, TEXT);
-        ex.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
-        ex.setBackground(rounded(this, CARD, 12));
-        LinearLayout.LayoutParams ep = full();
-        ep.topMargin = dp(this, 16);
-        body.addView(ex, ep);
-        note(getString(R.string.onboarding_try_tip));
-        primary(getString(R.string.onboarding_try_now), v -> {
-            Prefs.setAdbReturnToOnboarding(this, false);
-            Prefs.setOnboarded(this, true);
-            ChatHub hub = ChatHub.get(this);
-            Sessions.Session s = hub.create(Prefs.backend(this));
-            hub.select(s);
-            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            startActivity(new Intent(this, ChatActivity.class).putExtra("id", s.id)
-                    .putExtra("draft", prompt));
-            finish();
-        });
+        if (ready) {
+            TextView ex = monoText(this, getString(R.string.onboarding_try_prompt_quoted, prompt), 13, TEXT);
+            ex.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
+            ex.setBackground(rounded(this, CARD, 12));
+            LinearLayout.LayoutParams ep = full();
+            ep.topMargin = dp(this, 16);
+            body.addView(ex, ep);
+            note(getString(R.string.onboarding_try_tip));
+            primary(getString(R.string.onboarding_try_now), v -> {
+                Prefs.setAdbReturnToOnboarding(this, false);
+                Prefs.setOnboarded(this, true);
+                String backend = Prefs.activeBackend(this);
+                if (backend == null) {
+                    startActivity(new Intent(this, SetupActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    finish();
+                    return;
+                }
+                ChatHub hub = ChatHub.get(this);
+                Sessions.Session s = hub.create(backend);
+                hub.select(s);
+                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(this, ChatActivity.class).putExtra("id", s.id)
+                        .putExtra("draft", prompt));
+                finish();
+            });
+        } else {
+            note(getString(R.string.onboarding_try_tip));
+            primary(getString(R.string.setup_lock_cta), v -> {
+                Prefs.setAdbReturnToOnboarding(this, false);
+                Prefs.setOnboarded(this, true);
+                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(this, SetupActivity.class));
+                finish();
+            });
+        }
         footerNav(SAFETY, getString(R.string.onboarding_go_to_chats), v -> finishGuide());
     }
 

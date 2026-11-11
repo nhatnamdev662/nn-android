@@ -1615,4 +1615,10 @@
     <string name="onboarding_badge_required">Erforderlich</string>
     <string name="onboarding_badge_optional">Optional</string>
     <string name="onboarding_step_done_badge">Abgeschlossen</string>
+    <string name="setup_lock_title">Noch kein Agent eingerichtet</string>
+    <string name="setup_lock_body">Installiere und melde dich in den Einstellungen bei mindestens einem Agenten (Claude Code, Codex, OpenCode, Antigravity oder Grok) an, bevor du einen Chat startest.</string>
+    <string name="setup_lock_cta">Agent jetzt einrichten</string>
+    <string name="setup_lock_guide">Einrichtungsassistent öffnen</string>
+    <string name="bubble_locked_subtitle">Einrichtung erforderlich</string>
+    <string name="chat_agent_locked">%1$s ist noch nicht installiert oder angemeldet.</string>
 </resources>

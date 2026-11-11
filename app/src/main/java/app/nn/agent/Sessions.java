@@ -156,10 +156,13 @@ final class Sessions {
         dir = new java.io.File(c.getFilesDir(), "chats");
         dir.mkdirs();
         boolean older = load(); // chats from before Linux tools were per chat
-        if (all.isEmpty()) create(Prefs.backend(c));
+        if (all.isEmpty() && SetupState.anySignedIn(c)) {
+            String b = Prefs.activeBackend(c);
+            if (b != null) create(b);
+        }
         String cur = sp.getString("current", null);
         current = find(cur);
-        if (current == null) current = all.get(0);
+        if (current == null && !all.isEmpty()) current = all.get(0);
         if (older) save(); // so they keep what Settings said now, whatever it says later
     }
 
@@ -198,8 +201,11 @@ final class Sessions {
             //noinspection ResultOfMethodCallIgnored
             file(id).delete();
         });
-        if (all.isEmpty()) create(s.backend);
-        if (current == s) current = all.get(0);
+        if (all.isEmpty() && SetupState.anySignedIn(app)) {
+            String b = Prefs.activeBackend(app);
+            if (b != null) create(b);
+        }
+        if (current == s) current = all.isEmpty() ? null : all.get(0);
         saveOrder();
     }
 

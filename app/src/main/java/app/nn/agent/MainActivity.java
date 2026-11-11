@@ -29,6 +29,9 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
     /** The Archived section is open (folded by default, each time the app starts). */
     private boolean showArchived;
     private FrameLayout navSlot;
+    private LinearLayout fab;
+    private ImageView fabIcon;
+    private TextView fabText;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -69,17 +72,22 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         column.addView(navSlot, full());
         root.addView(column);
 
-        // "New chat" extended FAB above the nav
-        LinearLayout fab = row(this);
+        // "New chat" extended FAB above the nav (soft-locked when no agent is set up yet)
+        fab = row(this);
+        fab.setGravity(Gravity.CENTER_VERTICAL);
         fab.setPaddingRelative(dp(this, 16), 0, dp(this, 20), 0);
         fab.setBackground(rounded(this, ACCENT, 18));
         fab.setElevation(dp(this, 6));
-        fab.addView(icon(this, R.drawable.ms_add, ON_ACCENT, 24));
-        TextView ft = title(this, getString(R.string.main_new_chat), 15);
-        ft.setTextColor(ON_ACCENT);
-        ft.setPaddingRelative(dp(this, 8), 0, 0, 0);
-        fab.addView(ft);
-        fab.setOnClickListener(v -> newChatSheet());
+        fabIcon = icon(this, R.drawable.ms_add, ON_ACCENT, 24);
+        fab.addView(fabIcon);
+        fabText = title(this, getString(R.string.main_new_chat), 15);
+        fabText.setTextColor(ON_ACCENT);
+        fabText.setPaddingRelative(dp(this, 8), 0, 0, 0);
+        fab.addView(fabText);
+        fab.setOnClickListener(v -> {
+            if (SetupState.anySignedIn(this)) newChatSheet();
+            else setupRequiredSheet();
+        });
         FrameLayout.LayoutParams fp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(this, 56),
                 Gravity.BOTTOM | Gravity.END);
         fp.setMarginEnd(dp(this, 16));
@@ -146,6 +154,14 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         // header
         SetupState setup = new SetupState(this);
         boolean ready = setup.canRun();
+        boolean anyAgent = SetupState.anySignedIn(this);
+        if (fab != null) {
+            fab.setBackground(anyAgent ? rounded(this, ACCENT, 18) : outlined(this, CARD, 18, Theme.withAlpha(ACCENT, 0x66), 1));
+            fabIcon.setImageResource(anyAgent ? R.drawable.ms_add : R.drawable.ms_build_circle);
+            fabIcon.setImageTintList(android.content.res.ColorStateList.valueOf(anyAgent ? ON_ACCENT : ACCENT_TEXT));
+            fabText.setText(getString(R.string.main_new_chat));
+            fabText.setTextColor(anyAgent ? ON_ACCENT : TEXT);
+        }
         LinearLayout top = row(this);
         top.setPaddingRelative(dp(this, 20), dp(this, 12), dp(this, 20), dp(this, 8));
         FrameLayout tile = new FrameLayout(this);
@@ -267,14 +283,40 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         if (working.isEmpty() && pinned.isEmpty() && recent.isEmpty() && archived.isEmpty()) {
             LinearLayout empty = column(this);
             empty.setGravity(Gravity.CENTER_HORIZONTAL);
-            empty.setPaddingRelative(dp(this, 32), dp(this, 64), dp(this, 32), 0);
-            empty.addView(icon(this, R.drawable.ms_forum, MUTED, 40));
-            TextView et = title(this, getString(R.string.main_empty_title), 17);
-            et.setPaddingRelative(0, dp(this, 12), 0, dp(this, 4));
-            empty.addView(et);
-            TextView es = text(this, getString(R.string.main_empty_text), 14, MUTED);
-            es.setGravity(Gravity.CENTER);
-            empty.addView(es);
+            empty.setPaddingRelative(dp(this, 32), dp(this, 56), dp(this, 32), 0);
+            if (!anyAgent) {
+                empty.addView(icon(this, R.drawable.ms_build_circle, ACCENT_TEXT, 44));
+                TextView et = title(this, getString(R.string.setup_lock_title), 18);
+                et.setGravity(Gravity.CENTER);
+                et.setPaddingRelative(0, dp(this, 14), 0, dp(this, 6));
+                empty.addView(et);
+                TextView es = text(this, getString(R.string.setup_lock_body), 14, MUTED);
+                es.setGravity(Gravity.CENTER);
+                empty.addView(es);
+                android.widget.Button cta = button(this, getString(R.string.setup_lock_cta), true);
+                cta.setOnClickListener(v -> go(SetupActivity.class));
+                LinearLayout.LayoutParams cp = wrap();
+                cp.topMargin = dp(this, 18);
+                empty.addView(cta, cp);
+                if (!Prefs.onboarded(this)) {
+                    android.widget.Button guide = button(this, getString(R.string.setup_lock_guide), false);
+                    guide.setBackgroundResource(ripple(this, false));
+                    guide.setTextColor(ACCENT_TEXT);
+                    guide.setOnClickListener(v -> startActivity(new Intent(this, OnboardingActivity.class)
+                            .putExtra(OnboardingActivity.EXTRA_RESUME_UNFINISHED, true)));
+                    LinearLayout.LayoutParams gp = wrap();
+                    gp.topMargin = dp(this, 6);
+                    empty.addView(guide, gp);
+                }
+            } else {
+                empty.addView(icon(this, R.drawable.ms_forum, MUTED, 40));
+                TextView et = title(this, getString(R.string.main_empty_title), 17);
+                et.setPaddingRelative(0, dp(this, 12), 0, dp(this, 4));
+                empty.addView(et);
+                TextView es = text(this, getString(R.string.main_empty_text), 14, MUTED);
+                es.setGravity(Gravity.CENTER);
+                empty.addView(es);
+            }
             list.addView(empty, full());
         }
         if (scroll != null) {
@@ -464,7 +506,50 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
         name.requestFocus();
     }
 
+    private void setupRequiredSheet() {
+        LinearLayout c = column(this);
+        LinearLayout hr = row(this);
+        hr.setGravity(Gravity.CENTER_VERTICAL);
+        hr.addView(icon(this, R.drawable.ms_build_circle, ACCENT_TEXT, 24));
+        TextView h = title(this, getString(R.string.setup_lock_title), 18);
+        h.setPaddingRelative(dp(this, 10), 0, 0, 0);
+        hr.addView(h, weight1());
+        c.addView(hr, full());
+
+        TextView body = text(this, getString(R.string.setup_lock_body), 14, MUTED);
+        body.setPaddingRelative(0, dp(this, 10), 0, dp(this, 18));
+        c.addView(body, full());
+
+        final Dialog[] d = new Dialog[1];
+        android.widget.Button setupBtn = button(this, getString(R.string.setup_lock_cta), true);
+        setupBtn.setOnClickListener(v -> {
+            d[0].dismiss();
+            go(SetupActivity.class);
+        });
+        c.addView(setupBtn, full());
+
+        if (!Prefs.onboarded(this)) {
+            android.widget.Button guideBtn = button(this, getString(R.string.setup_lock_guide), false);
+            guideBtn.setBackgroundResource(ripple(this, false));
+            guideBtn.setTextColor(ACCENT_TEXT);
+            guideBtn.setOnClickListener(v -> {
+                d[0].dismiss();
+                startActivity(new Intent(this, OnboardingActivity.class)
+                        .putExtra(OnboardingActivity.EXTRA_RESUME_UNFINISHED, true));
+            });
+            LinearLayout.LayoutParams gp = full();
+            gp.topMargin = dp(this, 6);
+            c.addView(guideBtn, gp);
+        }
+        d[0] = bottomSheet(this, c);
+        d[0].show();
+    }
+
     private void newChatSheet() {
+        if (!SetupState.anySignedIn(this)) {
+            setupRequiredSheet();
+            return;
+        }
         LinearLayout c = column(this);
         TextView h = title(this, getString(R.string.main_new_chat), 18);
         h.setPaddingRelative(0, 0, 0, dp(this, 8));
@@ -476,7 +561,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
                 getString(R.string.chat_linux_tools_info), dev[0], on -> dev[0] = on));
         sw.setPaddingRelative(dp(this, 4), dp(this, 4), dp(this, 4), dp(this, 12));
         c.addView(sw, full());
-        String def = Prefs.backend(this);
+        String def = Prefs.activeBackend(this);
         for (Account acc : Account.ALL) {
             String[] a = {acc.agent, acc.name(), acc.tagline()};
             // agents that aren't set up are greyed out; tapping one opens its setup instead of a chat
@@ -492,7 +577,7 @@ public class MainActivity extends Screen implements ChatHub.Listener, Account.Li
             t.setPaddingRelative(dp(this, 14), 0, 0, 0);
             LinearLayout tr = row(this);
             tr.addView(title(this, a[1], 15));
-            if (a[0].equals(def)) {
+            if (ready && a[0].equals(def)) {
                 TextView tag = monoText(this, getString(R.string.main_new_chat_default), 11, ACCENT_TEXT);
                 tag.setPaddingRelative(dp(this, 6), dp(this, 1), dp(this, 6), dp(this, 1));
                 tag.setBackground(rounded(this, ACCENT_SOFT, 6));

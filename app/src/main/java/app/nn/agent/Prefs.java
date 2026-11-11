@@ -74,6 +74,13 @@ final class Prefs {
         sp(c).edit().putString("backend", backend).apply();
     }
 
+    /** Currently usable default agent, or null when no agent is installed and signed in yet. */
+    static String activeBackend(Context c) {
+        String b = sp(c).getString("backend", null);
+        if (b != null && SetupState.signedIn(c, b)) return b;
+        return SetupState.firstSignedIn(c);
+    }
+
     /**
      * Agents (any MCP client, e.g. Claude Code testing NN Agent) may tap and type in NN's own screens, except the
      * bubble, approval cards, App permissions and the developer switches. Off by default.

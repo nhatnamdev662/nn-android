@@ -2048,4 +2048,10 @@
     <string name="onboarding_badge_required">必需</string>
     <string name="onboarding_badge_optional">可选</string>
     <string name="onboarding_step_done_badge">已完成</string>
+    <string name="setup_lock_title">尚未设置 Agent</string>
+    <string name="setup_lock_body">开始聊天前，请先在设置中安装并登录至少一个 Agent（Claude Code、Codex、OpenCode、Antigravity 或 Grok）。</string>
+    <string name="setup_lock_cta">立即设置 Agent</string>
+    <string name="setup_lock_guide">打开设置向导</string>
+    <string name="bubble_locked_subtitle">需要先完成设置</string>
+    <string name="chat_agent_locked">%1$s 尚未安装或登录。</string>
 </resources>

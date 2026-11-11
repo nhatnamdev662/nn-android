@@ -148,7 +148,12 @@ final class Account {
         // remembered, so screens can show progress right away before the next check finishes
         if (a != null && (s == Step.NEED_INSTALL || s == Step.SIGNED_OUT || s == Step.SIGNED_IN)) {
             Prefs.setAgentState(a, agent, s.name());
-            if (s == Step.SIGNED_IN) Prefs.setAgentPlan(a, agent, planIn);
+            if (s == Step.SIGNED_IN) {
+                Prefs.setAgentPlan(a, agent, planIn);
+                if (!SetupState.signedIn(a, Prefs.backend(a))) {
+                    Prefs.setBackend(a, agent);
+                }
+            }
         }
         if (changed) {
             main.post(() -> {

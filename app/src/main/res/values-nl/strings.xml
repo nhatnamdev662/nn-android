@@ -1614,4 +1614,10 @@
     <string name="onboarding_badge_required">Vereist</string>
     <string name="onboarding_badge_optional">Optioneel</string>
     <string name="onboarding_step_done_badge">Voltooid</string>
+    <string name="setup_lock_title">Nog geen agent ingesteld</string>
+    <string name="setup_lock_body">Installeer en log eerst in bij minimaal één agent (Claude Code, Codex, OpenCode, Antigravity of Grok) via Instellingen voordat je een chat start.</string>
+    <string name="setup_lock_cta">Agent instellen</string>
+    <string name="setup_lock_guide">Configuratiegids openen</string>
+    <string name="bubble_locked_subtitle">Instellen vereist</string>
+    <string name="chat_agent_locked">%1$s is nog niet geïnstalleerd of aangemeld.</string>
 </resources>

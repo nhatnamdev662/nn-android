@@ -283,7 +283,8 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
         // ---------------------------------------------------------------- setup
         boolean a11y = SetupState.accessibilityEnabled(this);
-        String backend = Prefs.backend(this);
+        String activeBackend = Prefs.activeBackend(this);
+        String backend = activeBackend != null ? activeBackend : Prefs.backend(this);
         Account acc = Account.of(backend);
         Step[] steps = new Step[5];
 
@@ -457,7 +458,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         ag.addView(brainInfo);
         ag.addView(segmented(this, new String[][]{{"claude", "Claude Code"}, {"codex", "Codex"}, {"opencode", "OpenCode"},
                         {"agy", "Antigravity"}, {"grok", "Grok"}},
-                backend, false, v -> {
+                activeBackend != null ? activeBackend : "", false, v -> {
                     Prefs.setBackend(this, v);
                     Toast.makeText(this, getString(R.string.setup_default_brain_set, Account.nameOf(v)),
                             Toast.LENGTH_LONG).show();
