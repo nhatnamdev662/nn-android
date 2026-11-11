@@ -20,13 +20,13 @@
       },
       "environmentVariables": [
         {
-          "name": "BUDDY_TOKEN",
+          "name": "NN_TOKEN",
           "description": "Token from NN Agent's Settings > Phone tools in your own sessions",
           "isRequired": true,
           "isSecret": true
         },
         {
-          "name": "BUDDY_URL",
+          "name": "NN_URL",
           "description": "NN Agent's address, if not http://127.0.0.1:8765/mcp",
           "isRequired": false
         }

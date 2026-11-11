@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="service_label">Asistente NN</string>
     <string name="service_description">Muestra la burbuja de chat de NN y permite que el agente que elijas (Claude Code, Codex, OpenCode, Antigravity o Grok), que se ejecuta dentro de NN en este teléfono, lea la pantalla, toque, escriba y se desplace por ti. Nada sale del teléfono, excepto lo que el propio agente envía a su servicio de IA (Anthropic, OpenAI, Google, xAI o el proveedor de tu modelo de OpenCode).</string>
@@ -1142,7 +1142,7 @@
     <!-- "Warm" and "Black" are options of the Surface picker: use the same words as those options. -->
     <string name="setup_surface_note">Cálido es el tono original de NN. Negro (negro puro) solo se aplica en modo oscuro.</string>
     <string name="setup_face">Aspecto de NN</string>
-    <string name="setup_face_buddy">Original</string>
+    <string name="setup_face_nn">Original</string>
     <string name="setup_face_picture">Tu imagen</string>
     <string name="setup_face_note">Funciona mejor un PNG o WebP con fondo transparente. Aparece en la burbuja y junto a las respuestas de NN.</string>
     <string name="setup_face_change">Elegir otra imagen</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Dutch (je). Source and translator notes: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN-assistent</string>
@@ -839,7 +839,7 @@
     <string name="setup_surface">Achtergrond</string>
     <string name="setup_surface_note">Warm is de oorspronkelijke tint van NN. Zwart (echt zwart) geldt alleen in de donkere modus.</string>
     <string name="setup_face">Uiterlijk van NN</string>
-    <string name="setup_face_buddy">Origineel</string>
+    <string name="setup_face_nn">Origineel</string>
     <string name="setup_face_picture">Eigen afbeelding</string>
     <string name="setup_face_note">Een PNG of WebP met een transparante achtergrond werkt het best. Hij staat op de bubbel en naast de antwoorden van NN.</string>
     <string name="setup_face_change">Andere afbeelding kiezen</string>

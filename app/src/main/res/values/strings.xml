@@ -1216,7 +1216,7 @@
     <!-- Setting: NN's face on the floating bubble and next to its replies. Title above two short choices. -->
     <string name="setup_face">NN\'s look</string>
     <!-- Choice: NN's own drawn face. Keep it short. -->
-    <string name="setup_face_buddy">Original</string>
+    <string name="setup_face_nn">Original</string>
     <!-- Choice: a picture the user picks from the phone. Keep it short. -->
     <string name="setup_face_picture">Your picture</string>
     <string name="setup_face_note">A PNG or WebP with a transparent background works best. It shows on the bubble and next to NN\'s replies.</string>

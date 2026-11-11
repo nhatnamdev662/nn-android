@@ -3,7 +3,7 @@
 #   libproot.so + libproot-loader.so  PRoot (Termux's fork), runs the built-in Linux
 #   libtalloc.so                      talloc, PRoot's memory allocator
 #   libandroid-shmem.so               System V shared memory for PRoot's guests
-#   libbuddypty.so                    the terminal's pty helper (pty.c)
+#   libnnpty.so                       the terminal's pty helper (pty.c)
 # With ANDROID_NDK_HOME set it uses that NDK (CI); otherwise Termux's clang on the phone
 # (pkg install clang make readelf). Sources: third_party/proot and third_party/libandroid-shmem (git submodules:
 # git submodule update --init) and talloc's three files in third_party/talloc. They're copied into build/ first, so
@@ -65,7 +65,7 @@ $CC -shared -Wl,-soname,libandroid-shmem.so -Wl,--version-script="$S/exports.txt
   -o lib/libandroid-shmem.so -llog -landroid
 cp "$S/shm.h" include/sys/shm.h
 
-# PRoot, as Termux builds it, with the loader as its own file (Buddy passes its path in PROOT_LOADER).
+# PRoot, as Termux builds it, with the loader as its own file (NN Agent passes its path in PROOT_LOADER).
 # One source file gets string.h only through Termux's headers, so it's added for the NDK.
 sed -i '1i #include <string.h>' "proot/src/extension/ashmem_memfd/ashmem_memfd.c"
 # CPPFLAGS/LDFLAGS go in the environment so the Makefile's own additions still apply. The loader links with its own
@@ -87,5 +87,4 @@ if command -v javac >/dev/null; then
   JNI=(-I"$J" -I"$J/linux")
 fi
 $CC -shared -fPIC -O2 -Wall $LDPAGE "${JNI[@]}" -o pty.so "$HERE/pty.c"
-finish pty.so libbuddypty.so
-cp "$OUT/libbuddypty.so" "$OUT/libnnpty.so" && echo "Built libnnpty.so"
+finish pty.so libnnpty.so

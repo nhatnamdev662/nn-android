@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Turkish translation of NN's UI. Source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN asistanı</string>
@@ -842,7 +842,7 @@
     <string name="setup_surface">Yüzey</string>
     <string name="setup_surface_note">Sıcak, NN\'nin orijinal tonudur. Siyah (tam siyah) yalnızca koyu modda uygulanır.</string>
     <string name="setup_face">NN\'nin görünümü</string>
-    <string name="setup_face_buddy">Orijinal</string>
+    <string name="setup_face_nn">Orijinal</string>
     <string name="setup_face_picture">Kendi resmin</string>
     <string name="setup_face_note">En iyi sonucu şeffaf arka planlı bir PNG veya WebP verir. Baloncukta ve NN\'nin yanıtlarının yanında görünür.</string>
     <string name="setup_face_change">Başka bir resim seç</string>

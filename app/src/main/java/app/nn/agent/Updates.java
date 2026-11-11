@@ -72,7 +72,7 @@ public final class Updates extends BroadcastReceiver {
         for (int i = 0; assets != null && i < assets.length(); i++) {
             JSONObject a = assets.getJSONObject(i);
             String url = a.optString("browser_download_url");
-            if (("NN_AGENT.apk".equals(a.optString("name")) || "buddy.apk".equals(a.optString("name"))) && url.startsWith(REPO + "/releases/download/")) apk = url;
+            if ("NN_AGENT.apk".equals(a.optString("name")) && url.startsWith(REPO + "/releases/download/")) apk = url;
         }
         String notes = rel.optString("body").trim();
         if (notes.length() > 1200) notes = notes.substring(0, 1200) + "…";

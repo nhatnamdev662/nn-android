@@ -12,9 +12,10 @@ local.properties
 .idea/
 *.iml
 
-# signing keys — never commit
+# signing keys — never commit (except dedicated repo keystore)
 *.jks
 *.keystore
+!keystore/nn.jks
 .nn-keys/
 .buddy-keys/
 

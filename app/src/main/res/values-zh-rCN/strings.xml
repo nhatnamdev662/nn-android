@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Simplified Chinese (zh-CN). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN 助手</string>
@@ -1134,7 +1134,7 @@
     <!-- "Warm" and "Black" are options of the Surface picker: use the same words as those options. -->
     <string name="setup_surface_note">“暖色”是 NN 的原始色调。“纯黑”仅在深色模式下生效。</string>
     <string name="setup_face">NN 的形象</string>
-    <string name="setup_face_buddy">原版</string>
+    <string name="setup_face_nn">原版</string>
     <string name="setup_face_picture">你的图片</string>
     <string name="setup_face_note">背景透明的 PNG 或 WebP 效果最好。它会显示在气泡上和 NN 的回复旁边。</string>
     <string name="setup_face_change">选择其他图片</string>

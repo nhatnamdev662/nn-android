@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Indonesian (Bahasa Indonesia). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">Asisten NN</string>
@@ -1134,7 +1134,7 @@
     <!-- "Warm" and "Black" are options of the Surface picker: use the same words as those options. -->
     <string name="setup_surface_note">Hangat adalah nuansa asli NN. Hitam (hitam pekat) hanya berlaku dalam mode gelap.</string>
     <string name="setup_face">Tampilan NN</string>
-    <string name="setup_face_buddy">Asli</string>
+    <string name="setup_face_nn">Asli</string>
     <string name="setup_face_picture">Gambar Anda</string>
     <string name="setup_face_note">PNG atau WebP dengan latar transparan paling cocok. Gambar muncul di balon dan di samping balasan NN.</string>
     <string name="setup_face_change">Pilih gambar lain</string>

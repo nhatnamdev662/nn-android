@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Ukrainian translation of NN's UI. Source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">Помічник NN</string>
@@ -1161,7 +1161,7 @@
     <!-- "Warm" and "Black" are options of the Surface picker: use the same words as those options. -->
     <string name="setup_surface_note">«Теплий» — оригінальний тон NN. «Чорний» (справжній чорний) діє лише в темній темі.</string>
     <string name="setup_face">Вигляд NN</string>
-    <string name="setup_face_buddy">Оригінал</string>
+    <string name="setup_face_nn">Оригінал</string>
     <string name="setup_face_picture">Своє зображення</string>
     <string name="setup_face_note">Найкраще підійде PNG або WebP із прозорим фоном. Воно з\'явиться на бульбашці та поруч із відповідями NN.</string>
     <string name="setup_face_change">Вибрати інше зображення</string>

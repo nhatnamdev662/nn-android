@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Italian (tu). Source: res/values/strings.xml (English, with translator comments). -->
 <resources>
     <string name="service_label">Assistente NN</string>
@@ -1143,7 +1143,7 @@
     <!-- "Warm" and "Black" are options of the Surface picker: use the same words as those options. -->
     <string name="setup_surface_note">Caldo è il tono originale di NN. Nero (nero puro) vale solo con il tema scuro.</string>
     <string name="setup_face">Aspetto di NN</string>
-    <string name="setup_face_buddy">Originale</string>
+    <string name="setup_face_nn">Originale</string>
     <string name="setup_face_picture">La tua immagine</string>
     <string name="setup_face_note">Funziona meglio un PNG o WebP con sfondo trasparente. Appare sulla bolla e accanto alle risposte di NN.</string>
     <string name="setup_face_change">Scegli un\'altra immagine</string>

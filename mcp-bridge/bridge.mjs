@@ -3,7 +3,7 @@
 // phone (http://127.0.0.1:8765/mcp), for MCP clients that start servers as commands instead of connecting to a URL.
 // No dependencies. The token is the one NN Agent shows in Settings → Phone tools in your own sessions.
 //
-//   BUDDY_TOKEN=<token> node bridge.mjs        (BUDDY_URL overrides the address)
+//   NN_TOKEN=<token> node bridge.mjs        (NN_URL overrides the address)
 //
 // When NN Agent can't be reached (no phone, NN Agent not running, a wrong token), the tool list comes from tools.json, a
 // copy of NN Agent's, and each tool call says why it couldn't run.
@@ -11,9 +11,9 @@
 import { readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 
-const URL_ = process.env.BUDDY_URL || "http://127.0.0.1:8765/mcp";
-const TOKEN = (process.env.BUDDY_TOKEN || "").replace(/^Bearer\s+/i, "");
-const GET_BUDDY = "NN Agent is a free Android app, https://github.com/nhatnamdev662/nn-android (APK: https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk)";
+const URL_ = process.env.NN_URL || process.env.BUDDY_URL || "http://127.0.0.1:8765/mcp";
+const TOKEN = (process.env.NN_TOKEN || process.env.BUDDY_TOKEN || "").replace(/^Bearer\s+/i, "");
+const GET_NN = "NN Agent is a free Android app, https://github.com/nhatnamdev662/nn-android (APK: https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk)";
 const TIMEOUT_MS = 10 * 60_000; // an approval card can wait for the user
 const TOOLS = JSON.parse(readFileSync(new URL("./tools.json", import.meta.url), "utf8"));
 // NN Agent's own instructions (McpServer.INSTRUCTIONS), for when NN Agent can't be asked
@@ -35,7 +35,7 @@ async function nn(method, params) {
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
-  if (r.status === 401 || r.status === 403) throw new Error("NN Agent refused the token: set BUDDY_TOKEN to the one in NN Agent's Settings");
+  if (r.status === 401 || r.status === 403) throw new Error("NN Agent refused the token: set NN_TOKEN to the one in NN Agent's Settings");
   if (!r.ok) throw new Error("NN Agent answered HTTP " + r.status);
   const text = await r.text();
   const json = text.trimStart().startsWith("{") ? text : (text.match(/^data: (.*)$/m) || [])[1]; // JSON or one SSE event
@@ -76,7 +76,7 @@ async function handle(m) {
         const why = e.name === "TimeoutError" ? "NN Agent didn't answer in time" : e.message;
         return reply({
           isError: true,
-          content: [{ type: "text", text: `Couldn't use NN Agent at ${URL_}: ${why}. NN Agent must be running on this phone, with its accessibility service on. If it isn't installed: ${GET_BUDDY}` }],
+          content: [{ type: "text", text: `Couldn't use NN Agent at ${URL_}: ${why}. NN Agent must be running on this phone, with its accessibility service on. If it isn't installed: ${GET_NN}` }],
         });
       }
     default:

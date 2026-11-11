@@ -371,7 +371,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         fr.addView(ft, new LinearLayout.LayoutParams(dp(this, 38), dp(this, 38)));
         LinearLayout.LayoutParams fp = weight1();
         fp.setMarginStart(dp(this, 12));
-        fr.addView(segmented(this, new String[][]{{"nn", getString(R.string.setup_face_buddy)},
+        fr.addView(segmented(this, new String[][]{{"nn", getString(R.string.setup_face_nn)},
                 {"picture", getString(R.string.setup_face_picture)}}, own ? "picture" : "nn", false, v -> {
             Prefs.setFace(this, v);
             if ("picture".equals(v) && Face.picture(this) == null) { // none saved yet, or it can't be read

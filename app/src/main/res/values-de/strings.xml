@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in German (du). Source and translator notes: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN-Assistent</string>
@@ -839,7 +839,7 @@
     <string name="setup_surface">Hintergrund</string>
     <string name="setup_surface_note">Warm ist der ursprüngliche Farbton von NN. Schwarz (echtes Schwarz) gilt nur im dunklen Modus.</string>
     <string name="setup_face">NNs Aussehen</string>
-    <string name="setup_face_buddy">Original</string>
+    <string name="setup_face_nn">Original</string>
     <string name="setup_face_picture">Eigenes Bild</string>
     <string name="setup_face_note">Am besten passt ein PNG oder WebP mit transparentem Hintergrund. Es erscheint auf der Bubble und neben NNs Antworten.</string>
     <string name="setup_face_change">Anderes Bild wählen</string>

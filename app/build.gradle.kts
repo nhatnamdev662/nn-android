@@ -25,16 +25,21 @@ android {
         versionName = appVersionName
     }
 
-    // Release signing comes from environment variables (set as GitHub Actions secrets).
-    // Without them, assembleRelease produces an unsigned APK.
-    val keystorePath = System.getenv("BUDDY_KEYSTORE")
+    // Release signing: uses NN_KEYSTORE env if provided, otherwise embedded keystore/nn.jks
+    val defaultKeystore = file("../keystore/nn.jks")
+    val envKeystore = System.getenv("NN_KEYSTORE")
+    val keystoreFile = if (envKeystore != null) file(envKeystore) else if (defaultKeystore.exists()) defaultKeystore else null
+    val keystorePass = System.getenv("NN_KEYSTORE_PASSWORD") ?: "nnagent2026"
+    val keyAliasName = System.getenv("NN_KEY_ALIAS") ?: "nn"
+    val keyPass = System.getenv("NN_KEY_PASSWORD") ?: keystorePass
+
     signingConfigs {
-        if (keystorePath != null) {
+        if (keystoreFile != null && keystoreFile.exists()) {
             create("release") {
-                storeFile = file(keystorePath)
-                storePassword = System.getenv("BUDDY_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("NN_KEY_ALIAS") ?: System.getenv("BUDDY_KEY_ALIAS") ?: "nn"
-                keyPassword = System.getenv("BUDDY_KEY_PASSWORD") ?: System.getenv("BUDDY_KEYSTORE_PASSWORD")
+                storeFile = keystoreFile
+                storePassword = keystorePass
+                keyAlias = keyAliasName
+                keyPassword = keyPass
             }
         }
     }
@@ -58,7 +63,9 @@ android {
         release {
             isMinifyEnabled = false
             vcsInfo.include = false
-            if (keystorePath != null) signingConfig = signingConfigs.getByName("release")
+            if (System.getenv("NN_UNSIGNED") == null && keystoreFile != null && keystoreFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

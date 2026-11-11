@@ -1206,7 +1206,7 @@
     <!-- Setting: NN's face on the floating bubble and next to its replies. Title above two short choices. -->
     <string name="setup_face">Diện mạo của NN</string>
     <!-- Choice: NN's own drawn face. Keep it short. -->
-    <string name="setup_face_buddy">NN</string>
+    <string name="setup_face_nn">NN</string>
     <!-- Choice: a picture the user picks from the phone. Keep it short. -->
     <string name="setup_face_picture">Ảnh của bạn</string>
     <string name="setup_face_note">Ảnh PNG hoặc WebP có nền trong suốt là đẹp nhất. Ảnh hiện trên bong bóng và cạnh câu trả lời của NN.</string>

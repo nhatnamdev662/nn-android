@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Korean (해요체). Source of truth: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN 어시스턴트</string>
@@ -829,7 +829,7 @@
     <string name="setup_surface">배경 톤</string>
     <string name="setup_surface_note">‘웜’은 NN 고유의 톤이에요. ‘블랙’(완전한 검정)은 다크 모드에서만 적용돼요.</string>
     <string name="setup_face">NN 모습</string>
-    <string name="setup_face_buddy">기본</string>
+    <string name="setup_face_nn">기본</string>
     <string name="setup_face_picture">내 이미지</string>
     <string name="setup_face_note">배경이 투명한 PNG나 WebP가 가장 잘 어울려요. 버블과 NN 답장 옆에 표시돼요.</string>
     <string name="setup_face_change">다른 이미지 선택</string>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Polish translation of NN's UI. Source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">Asystent NN</string>
@@ -860,7 +860,7 @@
     <string name="setup_surface">Tło</string>
     <string name="setup_surface_note">Ciepły to oryginalny odcień NN. Czarny (czysta czerń) działa tylko w trybie ciemnym.</string>
     <string name="setup_face">Wygląd NN\'ego</string>
-    <string name="setup_face_buddy">Oryginalny</string>
+    <string name="setup_face_nn">Oryginalny</string>
     <string name="setup_face_picture">Twój obrazek</string>
     <string name="setup_face_note">Najlepiej sprawdzi się PNG lub WebP z przezroczystym tłem. Pojawia się na dymku i obok odpowiedzi NN\'ego.</string>
     <string name="setup_face_change">Wybierz inny obrazek</string>

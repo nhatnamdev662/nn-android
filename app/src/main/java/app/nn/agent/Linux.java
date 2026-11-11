@@ -95,7 +95,6 @@ final class Linux {
         // one sound card, "NN Agent microphone" (Android hides its own): programs then try to record, and
         // recording goes through NN's stand-in arecord/rec (MicServer)
         File asound = new File(root(c), "etc/nn/asound-cards");
-        if (!asound.exists()) asound = new File(root(c), "etc/buddy/asound-cards");
         if (asound.exists()) a.addAll(Arrays.asList("-b", asound.getAbsolutePath() + ":/proc/asound/cards"));
         a.addAll(Arrays.asList("-w", "/root"));
         // the phone's own fonts, for every script and emoji: the background browser shows pages in any language
@@ -103,7 +102,6 @@ final class Linux {
         if (new File("/system/fonts").isDirectory()) a.addAll(Arrays.asList("-b", "/system/fonts:/usr/share/fonts/android"));
         a.addAll(Arrays.asList("/usr/bin/env", "-i", "HOME=/root", "LANG=C.UTF-8", "TERM=xterm-256color", "COLORTERM=truecolor",
                 "NN_PORT=" + McpServer.activePort,
-                "BUDDY_PORT=" + McpServer.activePort,
                 "PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"));
         a.addAll(Arrays.asList(cmd));
         return a;
@@ -118,7 +116,6 @@ final class Linux {
         pb.environment().put("PROOT_TMP_DIR", tmp.getAbsolutePath());
         pb.environment().put("LD_LIBRARY_PATH", lib);
         pb.environment().put("NN_PORT", String.valueOf(McpServer.activePort));
-        pb.environment().put("BUDDY_PORT", String.valueOf(McpServer.activePort));
         pb.redirectErrorStream(true);
         return pb;
     }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Russian translation of NN's UI. Source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">Помощник NN</string>
@@ -1161,7 +1161,7 @@
     <!-- "Warm" and "Black" are options of the Surface picker: use the same words as those options. -->
     <string name="setup_surface_note">«Тёплый» — исходный оттенок NN. «Чёрный» (настоящий чёрный) действует только в тёмной теме.</string>
     <string name="setup_face">Внешний вид NN</string>
-    <string name="setup_face_buddy">Оригинал</string>
+    <string name="setup_face_nn">Оригинал</string>
     <string name="setup_face_picture">Своё изображение</string>
     <string name="setup_face_note">Лучше всего подойдёт PNG или WebP с прозрачным фоном. Он появится на пузырьке и рядом с ответами NN.</string>
     <string name="setup_face_change">Выбрать другое изображение</string>

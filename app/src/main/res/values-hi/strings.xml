@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- NN's UI text in Hindi. English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN असिस्टेंट</string>
@@ -834,7 +834,7 @@
     <string name="setup_surface">बैकग्राउंड</string>
     <string name="setup_surface_note">“गर्म”, NN का ओरिजनल टोन है. “काला” (बिल्कुल काला) सिर्फ़ डार्क मोड में लागू होता है.</string>
     <string name="setup_face">NN का रूप</string>
-    <string name="setup_face_buddy">मूल</string>
+    <string name="setup_face_nn">मूल</string>
     <string name="setup_face_picture">आपकी तस्वीर</string>
     <string name="setup_face_note">पारदर्शी बैकग्राउंड वाली PNG या WebP सबसे अच्छी लगती है। यह बबल पर और NN के जवाबों के पास दिखती है।</string>
     <string name="setup_face_change">दूसरी तस्वीर चुनें</string>

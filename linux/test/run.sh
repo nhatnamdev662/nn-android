@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # The helper's translation of each agent's output, tested on real recorded runs: every fixtures/<agent>/<case>_<cli
-# version>.jsonl goes through buddy-run's stream_<agent>, and its events must match <case>_<cli version>.expected.jsonl
+# version>.jsonl goes through nn-run's stream_<agent>, and its events must match <case>_<cli version>.expected.jsonl
 # (compared as sorted JSON). When an agent update changes its output, add the new version's recording next to the old
-# one rather than replacing it, as long as Buddy supports both.
+# one rather than replacing it, as long as NN Agent supports both.
 #   run.sh            run every fixture
 #   run.sh --update   rewrite the expected files from the current helper (check the diff before committing)
 set -u
 cd "$(dirname "$0")" || exit 2
 H=$(mktemp -d)
 trap 'rm -rf "$H"' EXIT
-# buddy-run sets its own PATH (Alpine's), which has $HOME/bin first: the tools it uses go there, wherever they are here
+# nn-run sets its own PATH (Alpine's), which has $HOME/bin first: the tools it uses go there, wherever they are here
 mkdir -p "$H/bin"
 for t in jq cat sed sort paste find rm mv mkdir tail head grep; do
   p=$(command -v "$t") && ln -s "$p" "$H/bin/$t"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- NN's UI text in Arabic (Modern Standard Arabic). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">مساعد NN</string>
@@ -870,7 +870,7 @@
     <string name="setup_surface">الخلفية</string>
     <string name="setup_surface_note">«دافئ» هو اللون الأصلي لـ NN. ويُطبَّق «أسود» (أسود حقيقي) في الوضع الداكن فقط.</string>
     <string name="setup_face">مظهر NN</string>
-    <string name="setup_face_buddy">الأصلي</string>
+    <string name="setup_face_nn">الأصلي</string>
     <string name="setup_face_picture">صورتك</string>
     <string name="setup_face_note">يفضَّل ملف PNG أو WebP بخلفية شفافة. تظهر الصورة على الفقاعة وبجانب ردود NN.</string>
     <string name="setup_face_change">اختر صورة أخرى</string>
