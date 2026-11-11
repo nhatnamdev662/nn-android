@@ -76,9 +76,19 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        # a release made by hand first (with its own notes) just gets the CI-built APKs attached
+        # a release made by hand first (with its own notes) just gets the CI-built APKs attached;
+        # if a leftover draft exists (e.g. from deleting/re-pushing a tag), delete it so we publish fresh
         run: |
+          if [ "$(gh release view "$GITHUB_REF_NAME" --json isDraft -q .isDraft 2>/dev/null)" = "true" ]; then
+            gh release delete "$GITHUB_REF_NAME" -y
+          fi
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            for asset in $(gh release view "$GITHUB_REF_NAME" --json assets -q '.assets[].name'); do
+              case "$asset" in
+                NN_AGENT.apk|nn-agent-fdroid.apk) ;;
+                *) gh release delete-asset "$GITHUB_REF_NAME" "$asset" -y ;;
+              esac
+            done
             gh release upload "$GITHUB_REF_NAME" dist/*.apk --clobber
           else
             gh release create "$GITHUB_REF_NAME" dist/*.apk --title "NN Agent $GITHUB_REF_NAME" --generate-notes
