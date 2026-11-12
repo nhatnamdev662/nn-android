@@ -514,8 +514,9 @@ final class Ui {
 
     /**
      * Unified modern Model & Effort bottom sheet matching the agent brand design language:
-     * sticky header with Ui.agentTile (swipe handle or tap outside to close), live context/effort selector
-     * across all 5 agents, live search filter on longer catalogs, card rows, and unclipped sticky footer.
+     * sticky header with Ui.agentTile (swipe handle or tap outside to close), compact single-row effort
+     * selector across all 5 agents, search when >8 models, grouped flat card list with checkmark only on active
+     * model, and collapsible custom model ID input (no boxy noise or permanent bottom form clutter).
      */
     static void modelEffortSheet(Activity a, String backend, String currentModel, String currentEffort,
                                  Sessions.Session ses, boolean showEffort, boolean saveDefault,
@@ -526,10 +527,10 @@ final class Ui {
         final String[] selEffort = {currentEffort == null ? "" : currentEffort};
         final Dialog[] d = new Dialog[1];
 
-        // 1. Sticky Header (swipe down on handle/header or tap outside dim to dismiss — no extra close buttons)
+        // 1. Sticky Header (swipe down on handle/header or tap outside dim to dismiss)
         LinearLayout header = row(a);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setPaddingRelative(0, 0, 0, dp(a, 12));
+        header.setPaddingRelative(0, 0, 0, dp(a, 14));
         header.addView(agentTile(a, backend, 40));
         LinearLayout titleCol = column(a);
         titleCol.setPaddingRelative(dp(a, 12), 0, 0, 0);
@@ -540,8 +541,9 @@ final class Ui {
 
         final Runnable updateSub = () -> {
             String ml = Models.label(backend, selModel[0]);
-            if (showEffort && !selEffort[0].isEmpty()) {
-                sub.setText(ml + " · " + a.getString(R.string.models_chip_effort, Models.effortLabel(selEffort[0])));
+            boolean hasEff = showEffort && Models.supportsEffort(backend, selModel[0]);
+            if (hasEff && !selEffort[0].isEmpty()) {
+                sub.setText(ml + " · " + Models.effortLabel(selEffort[0]));
             } else {
                 sub.setText(ml);
             }
@@ -552,50 +554,49 @@ final class Ui {
         LinearLayout c = column(a);
         int ctx = ses != null ? Models.contextPercent(ses) : -1;
         if (ctx >= 0) {
-            LinearLayout ctxCard = column(a);
-            ctxCard.setPaddingRelative(dp(a, 14), dp(a, 12), dp(a, 14), dp(a, 12));
-            ctxCard.setBackground(outlined(a, BG, 14, OUTLINE, 1));
-            ctxCard.addView(sectionLabelInline(a, a.getString(R.string.chat_context)));
-            TextView cu = text(a, a.getString(R.string.chat_context_used, Models.tokens(ses.ctxUsed),
-                    Models.tokens(ses.ctxWindow), ctx), 13, TEXT);
-            cu.setPaddingRelative(0, dp(a, 4), 0, dp(a, 2));
-            ctxCard.addView(cu);
-            ctxCard.addView(text(a, a.getString(R.string.chat_context_help, ses.brainName()), 12, MUTED));
+            LinearLayout ctxRow = row(a);
+            ctxRow.setGravity(Gravity.CENTER_VERTICAL);
+            ctxRow.setPaddingRelative(dp(a, 12), dp(a, 10), dp(a, 10), dp(a, 10));
+            ctxRow.setBackground(rounded(a, BG, 12));
+            LinearLayout ct = column(a);
+            ct.addView(text(a, a.getString(R.string.chat_context_used, Models.tokens(ses.ctxUsed),
+                    Models.tokens(ses.ctxWindow), ctx), 13, TEXT));
+            ct.addView(text(a, a.getString(R.string.chat_context_help, ses.brainName()), 11, MUTED));
+            ctxRow.addView(ct, weight1());
             if ("claude".equals(backend) && !ses.running) {
                 Button compact = button(a, a.getString(R.string.chat_context_compact), false);
+                compact.setMinHeight(0);
+                compact.setMinimumHeight(0);
                 compact.setOnClickListener(v -> {
                     d[0].dismiss();
                     String err = ChatHub.get(a).send(ses, "/compact");
                     if (err != null) android.widget.Toast.makeText(a, err, android.widget.Toast.LENGTH_LONG).show();
                 });
                 LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, dp(a, 40));
-                cbp.topMargin = dp(a, 8);
-                ctxCard.addView(compact, cbp);
+                        LinearLayout.LayoutParams.WRAP_CONTENT, dp(a, 36));
+                cbp.setMarginStart(dp(a, 8));
+                ctxRow.addView(compact, cbp);
             }
             LinearLayout.LayoutParams ccp = full();
-            ccp.bottomMargin = dp(a, 10);
-            c.addView(ctxCard, ccp);
+            ccp.bottomMargin = dp(a, 12);
+            c.addView(ctxRow, ccp);
         }
 
+        final LinearLayout effortWrap = column(a);
         final FrameLayout effortSlot = new FrameLayout(a);
         final TextView effortBadge = monoText(a, Models.effortLabel(selEffort[0]), 12, ACCENT_TEXT);
         if (showEffort) {
-            LinearLayout eCard = column(a);
-            eCard.setPaddingRelative(dp(a, 14), dp(a, 12), dp(a, 14), dp(a, 12));
-            eCard.setBackground(outlined(a, BG, 14, OUTLINE, 1));
             LinearLayout eTop = row(a);
             eTop.setGravity(Gravity.CENTER_VERTICAL);
+            eTop.setPaddingRelative(dp(a, 2), 0, dp(a, 2), dp(a, 6));
             eTop.addView(sectionLabelInline(a, a.getString(R.string.chat_effort)), weight1());
             eTop.addView(effortBadge);
-            eCard.addView(eTop, full());
-            TextView es = text(a, a.getString(R.string.chat_effort_help), 12, MUTED);
-            es.setPaddingRelative(0, dp(a, 4), 0, dp(a, 8));
-            eCard.addView(es);
-            eCard.addView(effortSlot, full());
-            LinearLayout.LayoutParams ecp = full();
-            ecp.bottomMargin = dp(a, 10);
-            c.addView(eCard, ecp);
+            effortWrap.addView(eTop, full());
+
+            LinearLayout.LayoutParams esp = full();
+            esp.bottomMargin = dp(a, 14);
+            effortWrap.addView(effortSlot, esp);
+            c.addView(effortWrap, full());
         }
 
         final Runnable[] renderModels = new Runnable[1];
@@ -604,6 +605,11 @@ final class Ui {
             drawSeg[0] = () -> {
                 effortSlot.removeAllViews();
                 String[][] efforts = Models.efforts(backend, selModel[0]);
+                if (efforts == null) {
+                    effortWrap.setVisibility(View.GONE);
+                    return;
+                }
+                effortWrap.setVisibility(View.VISIBLE);
                 effortBadge.setText(Models.effortLabel(selEffort[0]));
                 effortSlot.addView(segmented(a, efforts, selEffort[0], false, v -> {
                     selEffort[0] = v;
@@ -621,11 +627,11 @@ final class Ui {
         for (String[] o : opts) if (o[0] != null) realCount++;
 
         final String[] query = {""};
-        if (realCount > 5) {
+        if (realCount > 8) {
             LinearLayout searchBox = row(a);
             searchBox.setGravity(Gravity.CENTER_VERTICAL);
             searchBox.setPaddingRelative(dp(a, 12), dp(a, 4), dp(a, 8), dp(a, 4));
-            searchBox.setBackground(outlined(a, BG, 14, OUTLINE, 1));
+            searchBox.setBackground(rounded(a, BG, 12));
             final android.widget.EditText se = new android.widget.EditText(a);
             se.setHint(R.string.models_search_hint);
             se.setHintTextColor(MUTED);
@@ -651,7 +657,7 @@ final class Ui {
                 }
             });
             LinearLayout.LayoutParams sbp = full();
-            sbp.bottomMargin = dp(a, 10);
+            sbp.bottomMargin = dp(a, 12);
             c.addView(searchBox, sbp);
         }
 
@@ -664,11 +670,13 @@ final class Ui {
             known[0] = false;
             String q = query[0];
             String pendingHeader = null;
+            LinearLayout group = null;
             int shownRows = 0;
 
             for (final String[] o : opts) {
                 if (o[0] == null) {
                     pendingHeader = o[1];
+                    group = null;
                     continue;
                 }
                 if (!q.isEmpty()) {
@@ -678,76 +686,120 @@ final class Ui {
                 }
                 if (pendingHeader != null) {
                     TextView sl = sectionLabel(a, pendingHeader);
-                    sl.setPaddingRelative(dp(a, 2), dp(a, 10), 0, dp(a, 6));
+                    sl.setPaddingRelative(dp(a, 2), dp(a, 12), 0, dp(a, 6));
                     listBox.addView(sl);
                     pendingHeader = null;
+                    group = null;
                 }
+                if (group == null) {
+                    group = column(a);
+                    group.setPaddingRelative(dp(a, 6), dp(a, 6), dp(a, 6), dp(a, 6));
+                    group.setBackground(rounded(a, BG, 16));
+                    LinearLayout.LayoutParams gp = full();
+                    gp.bottomMargin = dp(a, 8);
+                    listBox.addView(group, gp);
+                } else {
+                    View line = new View(a);
+                    line.setBackgroundColor(LINE);
+                    LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT, dp(a, 1));
+                    dlp.setMargins(dp(a, 10), dp(a, 2), dp(a, 10), dp(a, 2));
+                    group.addView(line, dlp);
+                }
+
                 boolean on = o[0].equals(selModel[0]);
                 known[0] |= on;
 
-                LinearLayout cardRow = row(a);
-                cardRow.setGravity(Gravity.CENTER_VERTICAL);
-                cardRow.setPaddingRelative(dp(a, 14), dp(a, 12), dp(a, 12), dp(a, 12));
-                cardRow.setBackground(outlined(a, on ? ACCENT_SOFT : BG, 14, on ? ACCENT : OUTLINE, 1));
-                cardRow.setForeground(a.getDrawable(ripple(a, false)));
-                cardRow.addView(checkBadge(a, on));
+                LinearLayout row = row(a);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPaddingRelative(dp(a, 12), dp(a, 11), dp(a, 12), dp(a, 11));
+                row.setBackground(on ? rounded(a, ACCENT_SOFT, 12) : null);
+                row.setForeground(a.getDrawable(ripple(a, false)));
 
                 LinearLayout t = column(a);
-                t.setPaddingRelative(dp(a, 12), 0, 0, 0);
-                t.addView(single(title(a, o[1], 15)));
+                t.setPaddingRelative(0, 0, dp(a, 10), 0);
+                TextView titleView = single(title(a, o[1], 15));
+                if (on) titleView.setTextColor(ACCENT_TEXT);
+                t.addView(titleView);
                 String detail = Models.detail(backend, o[0], "");
                 if (!detail.isEmpty()) t.addView(single(monoText(a, detail, 12, MUTED)));
-                cardRow.addView(t, weight1());
-                cardRow.setOnClickListener(v -> {
+                row.addView(t, weight1());
+                if (on) row.addView(icon(a, R.drawable.ms_check, ACCENT_TEXT, 18));
+
+                row.setOnClickListener(v -> {
                     selModel[0] = o[0];
+                    if (ses != null && !Models.supportsEffort(backend, o[0])) ses.effort = "";
                     if (saveDefault) Prefs.setAgentDefault(a, backend, o[0]);
                     listener.onPickModel(o[0]);
                     d[0].dismiss();
                 });
-                LinearLayout.LayoutParams rlp = full();
-                rlp.bottomMargin = dp(a, 8);
-                listBox.addView(cardRow, rlp);
+                group.addView(row, full());
                 shownRows++;
             }
             if (shownRows == 0 && !q.isEmpty()) {
                 TextView empty = text(a, a.getString(R.string.models_empty_search, query[0]), 14, MUTED);
                 empty.setGravity(Gravity.CENTER);
-                empty.setPaddingRelative(dp(a, 12), dp(a, 20), dp(a, 12), dp(a, 12));
+                empty.setPaddingRelative(dp(a, 12), dp(a, 16), dp(a, 12), dp(a, 12));
                 listBox.addView(empty, full());
             }
         };
         renderModels[0].run();
 
-        // 3. Sticky Footer (never clipped behind nav bar or keyboard)
-        LinearLayout other = row(a);
-        other.setGravity(Gravity.CENTER_VERTICAL);
-        other.setPaddingRelative(0, dp(a, 10), 0, 0);
-        final android.widget.EditText et = new android.widget.EditText(a);
-        et.setHint(a.getString(R.string.chat_model_other_hint, "claude".equals(backend) ? "claude-opus-5-5"
+        // Subtle collapsible custom model ID link (no permanent dev form clutter)
+        String sampleHint = a.getString(R.string.chat_model_other_hint, "claude".equals(backend) ? "claude-opus-5-5"
                 : "opencode".equals(backend) ? "anthropic/claude-sonnet-5-5" : "agy".equals(backend) ? "gemini-3.8-flash-high"
-                : "grok".equals(backend) ? "grok-4.7" : "gpt-6.1-sol"));
+                : "grok".equals(backend) ? "grok-4.7" : "gpt-6.1-sol");
+        final boolean showCustomInit = !known[0] && !selModel[0].isEmpty();
+        final LinearLayout customToggle = row(a);
+        customToggle.setGravity(Gravity.CENTER_VERTICAL);
+        customToggle.setPaddingRelative(dp(a, 8), dp(a, 10), dp(a, 8), dp(a, 6));
+        customToggle.setBackgroundResource(ripple(a, false));
+        customToggle.addView(icon(a, R.drawable.ms_code, MUTED, 18));
+        TextView ctLabel = text(a, sampleHint, 13, MUTED);
+        ctLabel.setPaddingRelative(dp(a, 10), 0, 0, 0);
+        customToggle.addView(ctLabel, weight1());
+        customToggle.setVisibility(showCustomInit ? View.GONE : View.VISIBLE);
+        c.addView(customToggle, full());
+
+        final LinearLayout other = row(a);
+        other.setGravity(Gravity.CENTER_VERTICAL);
+        other.setPaddingRelative(0, dp(a, 6), 0, dp(a, 4));
+        final android.widget.EditText et = new android.widget.EditText(a);
+        et.setHint(sampleHint);
         et.setHintTextColor(MUTED);
         et.setTextColor(TEXT);
         et.setTextSize(14);
         et.setTypeface(mono(a, 400));
         et.setSingleLine(true);
-        if (!known[0] && !selModel[0].isEmpty()) et.setText(selModel[0]);
+        if (showCustomInit) et.setText(selModel[0]);
         et.setPaddingRelative(dp(a, 12), dp(a, 10), dp(a, 12), dp(a, 10));
-        et.setBackground(outlined(a, BG, 12, OUTLINE, 1));
+        et.setBackground(rounded(a, BG, 12));
         other.addView(et, weight1());
         Button use = button(a, a.getString(R.string.chat_model_use), true);
-        LinearLayout.LayoutParams up = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(a, 44));
+        LinearLayout.LayoutParams up = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(a, 42));
         up.setMarginStart(dp(a, 8));
         other.addView(use, up);
+        other.setVisibility(showCustomInit ? View.VISIBLE : View.GONE);
+        c.addView(other, full());
+
+        customToggle.setOnClickListener(v -> {
+            customToggle.setVisibility(View.GONE);
+            other.setVisibility(View.VISIBLE);
+            et.requestFocus();
+            android.view.inputmethod.InputMethodManager imm = a.getSystemService(
+                    android.view.inputmethod.InputMethodManager.class);
+            if (imm != null) imm.showSoftInput(et, 0);
+        });
         use.setOnClickListener(v -> {
             String custom = et.getText().toString().trim();
             if (custom.isEmpty()) return;
+            if (ses != null && !Models.supportsEffort(backend, custom)) ses.effort = "";
             if (saveDefault) Prefs.setAgentDefault(a, backend, custom);
             listener.onPickModel(custom);
             d[0].dismiss();
         });
 
-        d[0] = bottomSheet(a, header, c, other);
+        d[0] = bottomSheet(a, header, c, null);
         d[0].show();
     }
 

@@ -204,18 +204,43 @@ final class Models {
         return efforts(s.backend, effective(s));
     }
 
-    /** Effort levels accepted for an agent backend and model ref ([value, label]; "" is Auto). */
+    /**
+     * Effort levels accepted for an agent backend and model ref ([value, label]; "" is Auto),
+     * or null when effort is NOT an independent setting (e.g. Antigravity bakes effort into each
+     * model variant ID like gemini-3.8-flash-high, or OpenCode/Grok models without declared levels).
+     */
     static String[][] efforts(String backend, String ref) {
-        String[][] all = agentEfforts(backend);
+        if (backend == null || "agy".equals(backend)) return null;
         Providers.P p = Providers.of(ref);
-        org.json.JSONObject m = p == null ? null : p.modelInfo(Providers.model(ref));
-        org.json.JSONArray e = m == null ? null : m.optJSONArray("efforts");
-        if (e == null || e.length() == 0) return all;
-        java.util.Set<String> has = new java.util.HashSet<>();
-        for (int j = 0; j < e.length(); j++) has.add(e.optString(j));
-        java.util.List<String[]> out = new java.util.ArrayList<>();
-        for (String[] x : all) if (x[0].isEmpty() || has.contains(x[0])) out.add(x);
-        return out.toArray(new String[0][]);
+        if (p != null) {
+            org.json.JSONObject m = p.modelInfo(Providers.model(ref));
+            org.json.JSONArray e = m == null ? null : m.optJSONArray("efforts");
+            if (e != null && e.length() > 0) {
+                java.util.List<String[]> out = new java.util.ArrayList<>();
+                out.add(new String[]{"", NnApp.str(R.string.models_effort_auto)});
+                for (int j = 0; j < e.length(); j++) {
+                    String lv = e.optString(j);
+                    if (!lv.isEmpty()) out.add(new String[]{lv, effortLabel(lv)});
+                }
+                return out.size() > 1 ? out.toArray(new String[0][]) : null;
+            }
+            return agentEfforts(backend);
+        }
+        if (hasBakedEffort(ref)) return null;
+        return agentEfforts(backend);
+    }
+
+    /** True when selecting Effort is genuinely independent from selecting Model. */
+    static boolean supportsEffort(String backend, String ref) {
+        return efforts(backend, ref) != null;
+    }
+
+    private static boolean hasBakedEffort(String ref) {
+        if (ref == null || ref.isEmpty()) return false;
+        String lower = ref.toLowerCase(java.util.Locale.ROOT);
+        return lower.endsWith("-low") || lower.endsWith("-medium") || lower.endsWith("-high")
+                || lower.endsWith("-xhigh") || lower.endsWith("-max") || lower.endsWith("-minimal")
+                || lower.contains("(low)") || lower.contains("(medium)") || lower.contains("(high)");
     }
 
     private static String[][] agentEfforts(String backend) {
@@ -223,9 +248,10 @@ final class Models {
                 {"low", NnApp.str(R.string.models_effort_low)}, {"medium", NnApp.str(R.string.models_effort_medium)},
                 {"high", NnApp.str(R.string.models_effort_high)}, {"xhigh", NnApp.str(R.string.models_effort_xhigh)},
                 {"max", NnApp.str(R.string.models_effort_max)}};
-        return new String[][]{{"", NnApp.str(R.string.models_effort_auto)},
+        if ("codex".equals(backend)) return new String[][]{{"", NnApp.str(R.string.models_effort_auto)},
                 {"low", NnApp.str(R.string.models_effort_low)}, {"medium", NnApp.str(R.string.models_effort_medium)},
                 {"high", NnApp.str(R.string.models_effort_high)}};
+        return null;
     }
 
     /** Human label for a reasoning effort level. */
@@ -244,7 +270,7 @@ final class Models {
     /** "agent · model · effort" for a chat's chip. */
     static String summary(Sessions.Session s) {
         int ctx = contextPercent(s); // only once it matters: past half full
-        String eff = s.effort.isEmpty() ? ""
+        String eff = (s.effort == null || s.effort.isEmpty() || !supportsEffort(s.backend, effective(s))) ? ""
                 : NnApp.str(R.string.models_chip_effort, effortLabel(s.effort).toLowerCase(Ui.locale(NnApp.context())));
         return s.brainName() + " · " + shownModel(s)
                 + (eff.isEmpty() ? "" : " · " + eff)

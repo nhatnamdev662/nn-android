@@ -180,7 +180,7 @@ final class Sessions {
         Session s = new Session(UUID.randomUUID().toString().replace("-", "").substring(0, 12), backend);
         s.dev = dev;
         s.model = Models.agentDefault(backend);
-        s.effort = Prefs.agentEffort(app, backend);
+        s.effort = Models.supportsEffort(backend, s.model) ? Prefs.agentEffort(app, backend) : "";
         all.add(0, s);
         if (select || current == null || !all.contains(current)) current = s;
         save(s);

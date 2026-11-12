@@ -265,8 +265,9 @@ final class ChatHub {
         if (svc != null && prompt == null) svc.allowControl();
         try {
             // a rule's run works for someone else's message: no shell, files or web, even with Linux tools on
+            String eff = Models.supportsEffort(ses.backend, Models.effective(ses)) ? ses.effort : "";
             Helper.run(app, "ask", ses.id, ses.backend, rule ? "rule" : devArg(ses), forAgent,
-                    model(ses), hasFiles ? android.text.TextUtils.join(",", files) : "", ses.effort);
+                    model(ses), hasFiles ? android.text.TextUtils.join(",", files) : "", eff);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -712,8 +713,9 @@ final class ChatHub {
     /** A note that arrived too late for the run: becomes the next message (already shown in the chat). */
     private void sendNoteAsMessage(Sessions.Session ses, String text) {
         try {
+            String eff = Models.supportsEffort(ses.backend, Models.effective(ses)) ? ses.effort : "";
             Helper.run(app, "ask", ses.id, ses.backend, devArg(ses),
-                    "(Added while you were working:) " + text, model(ses), "", ses.effort);
+                    "(Added while you were working:) " + text, model(ses), "", eff);
         } catch (Exception e) {
             add(ses, Bubble.Kind.ERROR, e.getMessage());
             return;

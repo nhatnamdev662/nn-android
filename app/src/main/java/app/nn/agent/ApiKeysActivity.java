@@ -113,7 +113,10 @@ public class ApiKeysActivity extends Screen {
         t.addView(title(this, Account.nameOf(agent), 15));
         String d = Models.agentDefault(agent);
         String eff = Prefs.agentEffort(this, agent);
-        t.addView(single(monoText(this, Models.label(agent, d) + " · " + Models.effortLabel(eff), 12, MUTED)));
+        String defLine = Models.supportsEffort(agent, d)
+                ? Models.label(agent, d) + " · " + Models.effortLabel(eff)
+                : Models.label(agent, d);
+        t.addView(single(monoText(this, defLine, 12, MUTED)));
         r.addView(t, weight1());
         r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
         r.setOnClickListener(v -> pickDefault(agent));

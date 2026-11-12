@@ -1586,17 +1586,21 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         if (ready) {
             LinearLayout def = row(this);
             def.setGravity(Gravity.CENTER_VERTICAL);
-            def.setPaddingRelative(dp(this, 10), dp(this, 7), dp(this, 10), dp(this, 7));
-            def.setBackground(outlined(this, BG, 10, OUTLINE, 1));
+            def.setPaddingRelative(dp(this, 12), dp(this, 9), dp(this, 10), dp(this, 9));
+            def.setBackground(rounded(this, BG, 12));
             def.setForeground(getDrawable(ripple(this, false)));
-            def.addView(icon(this, R.drawable.ms_tune, ACCENT_TEXT, 16));
-            String curM = Models.label(agent, Models.agentDefault(agent));
-            String curE = Models.effortLabel(Prefs.agentEffort(this, agent));
-            TextView dl = single(monoText(this,
-                    getString(R.string.setup_agent_defaults) + ": " + curM + " · " + curE, 11, TEXT));
-            dl.setPaddingRelative(dp(this, 8), 0, dp(this, 6), 0);
-            def.addView(dl, weight1());
-            def.addView(icon(this, R.drawable.ms_expand_more, MUTED, 16));
+            def.addView(icon(this, R.drawable.ms_tune, ACCENT_TEXT, 18));
+            String defId = Models.agentDefault(agent);
+            String curM = Models.label(agent, defId);
+            String defSum = Models.supportsEffort(agent, defId)
+                    ? curM + " · " + Models.effortLabel(Prefs.agentEffort(this, agent))
+                    : curM;
+            LinearLayout dt = column(this);
+            dt.setPaddingRelative(dp(this, 10), 0, dp(this, 6), 0);
+            dt.addView(single(text(this, getString(R.string.setup_agent_defaults), 12, MUTED)));
+            dt.addView(single(monoText(this, defSum, 12, TEXT)));
+            def.addView(dt, weight1());
+            def.addView(icon(this, R.drawable.ms_expand_more, MUTED, 18));
             def.setOnClickListener(v -> modelEffortSheet(this, agent, Prefs.agentDefault(this, agent),
                     Prefs.agentEffort(this, agent), null, true, true, true, new Ui.ModelPickListener() {
                         @Override
