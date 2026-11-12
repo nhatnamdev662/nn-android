@@ -2070,4 +2070,7 @@
     <string name="chat_starter_search">检索主题并总结核心要点</string>
     <string name="chat_starter_apps">打开应用或快速执行手机任务</string>
     <string name="chat_starter_linux">在 Linux 工作区编写或运行快捷脚本</string>
+    <string name="models_search_hint">搜索模型…</string>
+    <string name="models_empty_search">没有匹配“%1$s”的模型</string>
+    <string name="setup_agent_defaults">默认模型与思考强度</string>
 </resources>

@@ -222,7 +222,8 @@ final class Account {
                             + "if readlink -f \"$(command -v opencode)\" | grep -q /@opencode/cli/; then echo OC_V2; "
                             + "timeout 45 opencode auth list --standalone --format json 2>/dev/null | jq -r '[.[].name] | join(\", \")'; "
                             + "else jq -r 'keys | join(\", \")' /root/.local/share/opencode/auth.json 2>/dev/null; fi; echo OC_OK; "
-                            + "echo VER=$(timeout 45 opencode --version 2>/dev/null)", 120);
+                            + "echo VER=$(timeout 45 opencode --version 2>/dev/null); "
+                            + "echo OC_DEF=$(jq -r '.model // empty' /root/.config/opencode/opencode.json /root/.config/opencode/config.json 2>/dev/null | head -1)", 120);
                     if (out.contains("NOTINSTALLED")) {
                         set(Step.NEED_INSTALL, "");
                     } else {
@@ -234,17 +235,30 @@ final class Account {
                         email = "";
                         plan = providers.isEmpty() ? "free models" : providers;
                         set(Step.SIGNED_IN, "");
+                        String ocDef = "";
+                        Matcher dm = Pattern.compile("OC_DEF=(\\S+)").matcher(out);
+                        if (dm.find()) ocDef = dm.group(1).trim();
                         // its model list (free ones plus connected providers), for the model picker
                         String list = Linux.exec(app, "timeout 60 opencode models" + (opencode2 ? " --standalone" : "")
                                 + " 2>/dev/null", 70);
                         org.json.JSONArray a = new org.json.JSONArray();
+                        boolean hasBigPickle = false;
                         for (String line : list.split("\n")) {
                             String m = line.trim();
-                            if (m.matches("[A-Za-z0-9._-]+/\\S+")) a.put(new org.json.JSONArray().put(m).put(m.substring(m.indexOf('/') + 1)));
+                            if (m.matches("[A-Za-z0-9._-]+/\\S+")) {
+                                a.put(new org.json.JSONArray().put(m).put(m.substring(m.indexOf('/') + 1)));
+                                if ("opencode/big-pickle".equals(m)) hasBigPickle = true;
+                            }
                         }
                         if (a.length() > 0) {
                             Prefs.setOpencodeModels(app, a.toString());
                             Models.setOpencode(a.toString());
+                            String chosenDef = !ocDef.isEmpty() ? ocDef
+                                    : hasBigPickle ? "opencode/big-pickle"
+                                    : a.optJSONArray(0).optString(0);
+                            if (!chosenDef.isEmpty()) Prefs.setCliDefaultModel(app, "opencode", chosenDef);
+                        } else if (!ocDef.isEmpty()) {
+                            Prefs.setCliDefaultModel(app, "opencode", ocDef);
                         }
                     }
                 } else if (agy()) {
@@ -278,6 +292,8 @@ final class Account {
                             agyModelsAt = now;
                             Prefs.setAgyModels(app, a.toString());
                             Models.setAgy(a.toString());
+                            String firstAgy = a.optJSONArray(0).optString(0);
+                            if (!firstAgy.isEmpty()) Prefs.setCliDefaultModel(app, "agy", firstAgy);
                         }
                     } else {
                         set(Step.SIGNED_OUT, "");
@@ -307,14 +323,21 @@ final class Account {
                             grokModelsBusy = false;
                         }
                         org.json.JSONArray a = new org.json.JSONArray();
+                        String grokDef = "";
                         for (String line : list.split("\n")) {
-                            Matcher m = Pattern.compile("^\\s*[*-]\\s+([A-Za-z0-9._-]+)").matcher(line);
-                            if (m.find()) a.put(new org.json.JSONArray().put(m.group(1)).put(m.group(1)));
+                            Matcher m = Pattern.compile("^\\s*([*-])\\s+([A-Za-z0-9._-]+)").matcher(line);
+                            if (m.find()) {
+                                String id = m.group(2);
+                                a.put(new org.json.JSONArray().put(id).put(id));
+                                if ("*".equals(m.group(1)) && grokDef.isEmpty()) grokDef = id;
+                            }
                         }
                         if (a.length() > 0) {
                             grokModelsAt = now;
                             Prefs.setGrokModels(app, a.toString());
                             Models.setGrok(a.toString());
+                            if (grokDef.isEmpty()) grokDef = a.optJSONArray(0).optString(0);
+                            if (!grokDef.isEmpty()) Prefs.setCliDefaultModel(app, "grok", grokDef);
                         }
                     } else {
                         set(Step.SIGNED_OUT, "");

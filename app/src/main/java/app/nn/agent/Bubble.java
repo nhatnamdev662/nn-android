@@ -15,8 +15,10 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -45,6 +47,8 @@ import android.window.OnBackInvokedDispatcher;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Locale;
 
 /** The floating NN Agent bubble and its mini chat panel, drawn as an accessibility overlay. */
 final class Bubble implements ChatHub.Listener, Browser.Listener {
@@ -1999,60 +2003,174 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
 
     private void renderModelPicker() {
         final Sessions.Session ses = sessions.current;
-        TextView note = Ui.text(svc, svc.getString(R.string.bubble_model_note), 13, Ui.MUTED);
-        note.setPaddingRelative(dp(8), dp(4), dp(8), dp(10));
-        sessionList.addView(note);
-        String[][] efforts = Models.efforts(ses);
-        if (efforts != null) {
-            TextView el = Ui.sectionLabel(svc, svc.getString(R.string.bubble_effort));
-            el.setPaddingRelative(dp(8), dp(4), 0, dp(2));
-            sessionList.addView(el);
-            TextView es = Ui.text(svc, svc.getString(R.string.bubble_effort_note), 13, Ui.MUTED);
-            es.setPaddingRelative(dp(8), 0, dp(8), dp(8));
-            sessionList.addView(es);
-            LinearLayout seg = Ui.segmented(svc, efforts, ses.effort, false, v -> {
-                hub.setEffort(ses, v);
-                closePicker();
-            });
-            LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            sp.leftMargin = sp.rightMargin = dp(4);
-            sessionList.addView(seg, sp);
-        }
-        TextView ml = Ui.sectionLabel(svc, svc.getString(R.string.bubble_model));
-        ml.setPaddingRelative(dp(8), dp(16), 0, dp(4));
-        sessionList.addView(ml);
+        if (ses == null) return;
         Models.refresh(svc);
-        for (final String[] o : Models.options(ses.backend, true)) {
-            if (o[0] == null) { // an API key service's models
-                TextView sl = Ui.sectionLabel(svc, o[1]);
-                sl.setPaddingRelative(dp(8), dp(14), 0, dp(2));
-                sessionList.addView(sl);
-                continue;
-            }
-            boolean on = o[0].equals(ses.model);
-            LinearLayout r = Ui.listRow(svc);
-            r.setGravity(Gravity.CENTER_VERTICAL);
-            r.setPaddingRelative(dp(8), dp(10), dp(8), dp(10));
-            FrameLayout radio = new FrameLayout(svc);
-            radio.setBackground(rounded(0x00000000, 11, on ? Ui.ACCENT : Ui.MUTED, 2));
-            if (on) {
-                View in = new View(svc);
-                in.setBackground(Ui.oval(Ui.ACCENT));
-                radio.addView(in, new FrameLayout.LayoutParams(dp(10), dp(10), Gravity.CENTER));
-            }
-            r.addView(radio, new LinearLayout.LayoutParams(dp(22), dp(22)));
-            LinearLayout t = new LinearLayout(svc);
-            t.setOrientation(LinearLayout.VERTICAL);
-            t.setPaddingRelative(dp(14), 0, 0, 0);
-            t.addView(Ui.title(svc, o[1], 15));
-            t.addView(Ui.single(Ui.monoText(svc, Models.detail(ses.backend, o[0], Models.defaultHint(ses)), 12, Ui.MUTED)));
-            r.addView(t, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-            r.setOnClickListener(v -> {
-                if (!o[0].equals(ses.model)) hub.setModel(ses, o[0]);
-                closePicker();
+
+        // Agent header card
+        LinearLayout head = new LinearLayout(svc);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPaddingRelative(dp(6), dp(4), dp(6), dp(10));
+        head.addView(Ui.agentTile(svc, ses.backend, 34));
+        LinearLayout hText = new LinearLayout(svc);
+        hText.setOrientation(LinearLayout.VERTICAL);
+        hText.setPaddingRelative(dp(10), 0, 0, 0);
+        hText.addView(Ui.title(svc, svc.getString(R.string.chat_model_title, ses.brainName()), 16));
+        final TextView activeSub = Ui.single(Ui.monoText(svc, "", 11, Ui.ACCENT_TEXT));
+        hText.addView(activeSub);
+        head.addView(hText, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        sessionList.addView(head, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        final String curModel = Models.effective(ses);
+        final String[] selEffort = {ses.effort == null ? "" : ses.effort};
+        final Runnable updateSub = () -> {
+            String ml = Models.label(ses.backend, curModel);
+            activeSub.setText(selEffort[0].isEmpty() ? ml
+                    : ml + " · " + svc.getString(R.string.models_chip_effort, Models.effortLabel(selEffort[0])));
+        };
+        updateSub.run();
+
+        // Interactive Effort card (enabled for all 5 agents)
+        LinearLayout eCard = new LinearLayout(svc);
+        eCard.setOrientation(LinearLayout.VERTICAL);
+        eCard.setBackground(rounded(Ui.CARD, 14, Ui.OUTLINE, 1));
+        eCard.setPaddingRelative(dp(12), dp(10), dp(12), dp(10));
+        LinearLayout eHead = new LinearLayout(svc);
+        eHead.setOrientation(LinearLayout.HORIZONTAL);
+        eHead.setGravity(Gravity.CENTER_VERTICAL);
+        TextView el = Ui.sectionLabel(svc, svc.getString(R.string.bubble_effort));
+        el.setPaddingRelative(0, 0, 0, 0);
+        eHead.addView(el, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        final TextView eVal = Ui.monoText(svc, Models.effortLabel(selEffort[0]), 11, Ui.ACCENT_TEXT);
+        eHead.addView(eVal);
+        eCard.addView(eHead);
+        TextView es = Ui.text(svc, svc.getString(R.string.bubble_effort_note), 12, Ui.MUTED);
+        es.setPaddingRelative(0, dp(2), 0, dp(8));
+        eCard.addView(es);
+        final FrameLayout segSlot = new FrameLayout(svc);
+        eCard.addView(segSlot);
+        LinearLayout.LayoutParams ecp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ecp.leftMargin = ecp.rightMargin = dp(4);
+        ecp.bottomMargin = dp(8);
+        sessionList.addView(eCard, ecp);
+
+        final Runnable[] paintSeg = new Runnable[1];
+        paintSeg[0] = () -> {
+            segSlot.removeAllViews();
+            String[][] efforts = Models.efforts(ses.backend, curModel);
+            eVal.setText(Models.effortLabel(selEffort[0]));
+            segSlot.addView(Ui.segmented(svc, efforts, selEffort[0], false, v -> {
+                selEffort[0] = v;
+                hub.setEffort(ses, v);
+                Prefs.setAgentEffort(svc, ses.backend, v);
+                updateSub.run();
+                paintSeg[0].run();
+            }));
+        };
+        paintSeg[0].run();
+
+        final Runnable[] renderCards = new Runnable[1];
+        final java.util.List<String[]> opts = Models.options(ses.backend, true);
+        int realCount = 0;
+        for (String[] o : opts) if (o[0] != null) realCount++;
+        final String[] query = {""};
+        if (realCount > 5) {
+            LinearLayout sBox = new LinearLayout(svc);
+            sBox.setOrientation(LinearLayout.HORIZONTAL);
+            sBox.setGravity(Gravity.CENTER_VERTICAL);
+            sBox.setBackground(rounded(Ui.BG, 12, Ui.OUTLINE, 1));
+            sBox.setPaddingRelative(dp(10), dp(2), dp(6), dp(2));
+            final EditText se = new EditText(svc);
+            se.setHint(R.string.models_search_hint);
+            se.setHintTextColor(Ui.MUTED);
+            se.setTextColor(Ui.TEXT);
+            se.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            se.setSingleLine(true);
+            se.setBackground(null);
+            sBox.addView(se, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            se.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+                @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
+                @Override public void afterTextChanged(Editable s) {
+                    query[0] = s != null ? s.toString().trim().toLowerCase(Locale.ROOT) : "";
+                    if (renderCards[0] != null) renderCards[0].run();
+                }
             });
-            sessionList.addView(r, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            LinearLayout.LayoutParams sbp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            sbp.leftMargin = sbp.rightMargin = dp(4);
+            sbp.bottomMargin = dp(8);
+            sessionList.addView(sBox, sbp);
         }
+
+        final LinearLayout listBox = new LinearLayout(svc);
+        listBox.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lbp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lbp.leftMargin = lbp.rightMargin = dp(4);
+        sessionList.addView(listBox, lbp);
+
+        renderCards[0] = () -> {
+            listBox.removeAllViews();
+            String q = query[0];
+            String pendingHeader = null;
+            int shown = 0;
+            for (final String[] o : opts) {
+                if (o[0] == null) {
+                    pendingHeader = o[1];
+                    continue;
+                }
+                if (!q.isEmpty() && !o[1].toLowerCase(Locale.ROOT).contains(q)
+                        && !o[0].toLowerCase(Locale.ROOT).contains(q)) continue;
+                if (pendingHeader != null) {
+                    TextView sl = Ui.sectionLabel(svc, pendingHeader);
+                    sl.setPaddingRelative(dp(4), dp(10), 0, dp(4));
+                    listBox.addView(sl);
+                    pendingHeader = null;
+                }
+                boolean on = o[0].equals(curModel);
+                LinearLayout r = new LinearLayout(svc);
+                r.setOrientation(LinearLayout.HORIZONTAL);
+                r.setGravity(Gravity.CENTER_VERTICAL);
+                r.setPaddingRelative(dp(12), dp(10), dp(10), dp(10));
+                r.setBackground(rounded(on ? Ui.ACCENT_SOFT : Ui.BG, 14, on ? Ui.ACCENT : Ui.OUTLINE, 1));
+                FrameLayout badge = new FrameLayout(svc);
+                if (on) {
+                    badge.setBackground(Ui.oval(Ui.ACCENT));
+                    ImageView ck = Ui.icon(svc, R.drawable.ms_check, Ui.ON_ACCENT, 12);
+                    badge.addView(ck, new FrameLayout.LayoutParams(dp(12), dp(12), Gravity.CENTER));
+                } else {
+                    badge.setBackground(rounded(0x00000000, 10, Ui.MUTED, 2));
+                }
+                r.addView(badge, new LinearLayout.LayoutParams(dp(18), dp(18)));
+                LinearLayout t = new LinearLayout(svc);
+                t.setOrientation(LinearLayout.VERTICAL);
+                t.setPaddingRelative(dp(10), 0, 0, 0);
+                t.addView(Ui.single(Ui.title(svc, o[1], 14)));
+                String det = Models.detail(ses.backend, o[0], "");
+                if (!det.isEmpty()) t.addView(Ui.single(Ui.monoText(svc, det, 11, Ui.MUTED)));
+                r.addView(t, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+                r.setOnClickListener(v -> {
+                    if (!o[0].equals(ses.model)) hub.setModel(ses, o[0]);
+                    Prefs.setAgentDefault(svc, ses.backend, o[0]);
+                    closePicker();
+                });
+                LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                rp.bottomMargin = dp(6);
+                listBox.addView(r, rp);
+                shown++;
+            }
+            if (shown == 0 && !q.isEmpty()) {
+                TextView emp = Ui.text(svc, svc.getString(R.string.models_empty_search, query[0]), 13, Ui.MUTED);
+                emp.setGravity(Gravity.CENTER);
+                emp.setPaddingRelative(dp(8), dp(14), dp(8), dp(10));
+                listBox.addView(emp);
+            }
+        };
+        renderCards[0].run();
     }
 
     private void showNewChat() {
@@ -2344,7 +2462,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
             return;
         }
         if (ses.messages.isEmpty()) {
-            TextView hint = Ui.text(svc, svc.getString(R.string.bubble_empty_chat, ses.brainName()), 14, Ui.MUTED);
+            TextView hint = Ui.text(svc, svc.getString(R.string.bubble_empty_chat, "NN"), 14, Ui.MUTED);
             hint.setGravity(Gravity.CENTER);
             hint.setPaddingRelative(dp(24), dp(32), dp(24), 0);
             hint.setTag("hint"); // removed by the first message
@@ -2353,7 +2471,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
         }
         for (Sessions.Msg m : ses.messages) showMessage(m);
         if (log != null && !ses.running) log.finish();
-        input.setHint(svc.getString(R.string.bubble_input_hint, ses.brainName()));
+        input.setHint(svc.getString(R.string.bubble_input_hint, "NN"));
         updateViewing();
         refreshStatus();
         updateTypingIndicator();
@@ -2427,7 +2545,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                 String suffix = (st.endsWith("…") || st.endsWith("...")) ? "" : "…";
                 input.setHint(st + suffix);
             } else {
-                input.setHint(svc.getString(R.string.bubble_input_hint, ses.brainName()));
+                input.setHint(svc.getString(R.string.bubble_input_hint, "NN"));
             }
             paintSend();
         }

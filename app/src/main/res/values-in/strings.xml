@@ -2071,4 +2071,7 @@
     <string name="chat_starter_search">Cari topik dan rangkum poin-poin pentingnya</string>
     <string name="chat_starter_apps">Buka aplikasi atau jalankan tugas cepat di ponsel</string>
     <string name="chat_starter_linux">Tulis atau jalankan skrip cepat di ruang Linux</string>
+    <string name="models_search_hint">Cari model…</string>
+    <string name="models_empty_search">Tidak ada model yang cocok dengan “%1$s”</string>
+    <string name="setup_agent_defaults">Model &amp; upaya default</string>
 </resources>

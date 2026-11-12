@@ -409,13 +409,33 @@ final class Prefs {
         sp(c).edit().putString("providers", json).apply();
     }
 
-    /** What a chat on Default uses with this agent: "" (the agent's own default, on its plan) or "@service/model". */
+    /** What a chat on Default uses with this agent: a real model ID, "@service/model", or "". */
     static String agentDefault(Context c, String agent) {
         return sp(c).getString("agent_default_" + agent, "");
     }
 
     static void setAgentDefault(Context c, String agent, String ref) {
         sp(c).edit().putString("agent_default_" + agent, ref).apply();
+    }
+
+    /** Real default model reported by this agent's CLI (config / `models` list). */
+    static String cliDefaultModel(Context c, String agent) {
+        return sp(c).getString("cli_default_model_" + agent, "");
+    }
+
+    static void setCliDefaultModel(Context c, String agent, String model) {
+        if (model == null) model = "";
+        sp(c).edit().putString("cli_default_model_" + agent, model.trim()).apply();
+    }
+
+    /** Default reasoning effort pinned by the user for new chats on this agent ("" = Auto). */
+    static String agentEffort(Context c, String agent) {
+        return sp(c).getString("agent_default_effort_" + agent, "");
+    }
+
+    static void setAgentEffort(Context c, String agent, String effort) {
+        if (effort == null) effort = "";
+        sp(c).edit().putString("agent_default_effort_" + agent, effort.trim()).apply();
     }
 
     /** Earlier builds' model list for an agent's API key: only cleared now (see Providers.migrate). */

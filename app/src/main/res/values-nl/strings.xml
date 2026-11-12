@@ -1636,4 +1636,7 @@
     <string name="chat_starter_search">Zoek een onderwerp op en vat de hoofdpunten samen</string>
     <string name="chat_starter_apps">Open een app of automatiseer een snelle taak</string>
     <string name="chat_starter_linux">Schrijf of voer een snel script uit in de Linux-werkruimte</string>
+    <string name="models_search_hint">Modellen zoeken…</string>
+    <string name="models_empty_search">Geen modellen gevonden voor “%1$s”</string>
+    <string name="setup_agent_defaults">Standaardmodel &amp; effort</string>
 </resources>

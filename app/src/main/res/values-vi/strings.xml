@@ -2238,4 +2238,7 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="chat_starter_search">Tra cứu nhanh một chủ đề và tóm tắt ý chính</string>
     <string name="chat_starter_apps">Mở ứng dụng hoặc thao tác nhanh trên điện thoại</string>
     <string name="chat_starter_linux">Viết hoặc chạy nhanh một script trong Linux</string>
+    <string name="models_search_hint">Tìm kiếm mô hình…</string>
+    <string name="models_empty_search">Không tìm thấy mô hình khớp “%1$s”</string>
+    <string name="setup_agent_defaults">Mô hình &amp; Effort mặc định</string>
 </resources>

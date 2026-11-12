@@ -763,102 +763,22 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
     }
 
-    /** Pick this chat's model; the conversation continues with the new one. */
+    /** Pick this chat's model & effort (automatically saved as the agent's active default for new chats). */
     private void chooseModel() {
-        Models.refresh(this);
-        LinearLayout c = column(this);
-        TextView h = title(this, getString(R.string.chat_model_title, ses.brainName()), 18);
-        c.addView(h);
-        TextView sub = text(this, getString(R.string.chat_model_subtitle), 13, MUTED);
-        sub.setPaddingRelative(0, dp(this, 2), 0, dp(this, 10));
-        c.addView(sub);
-        final Dialog[] d = new Dialog[1];
-        int ctx = Models.contextPercent(ses);
-        if (ctx >= 0) { // how full the conversation is; Claude Code can also compact it on request
-            c.addView(sectionLabel(this, getString(R.string.chat_context)));
-            TextView cu = text(this, getString(R.string.chat_context_used, Models.tokens(ses.ctxUsed),
-                    Models.tokens(ses.ctxWindow), ctx), 14, TEXT);
-            cu.setPaddingRelative(0, dp(this, 2), 0, 0);
-            c.addView(cu);
-            TextView ch = text(this, getString(R.string.chat_context_help, ses.brainName()), 13, MUTED);
-            ch.setPaddingRelative(0, dp(this, 2), 0, dp(this, 8));
-            c.addView(ch);
-            if ("claude".equals(ses.backend) && !ses.running) {
-                Button compact = button(this, getString(R.string.chat_context_compact), false);
-                compact.setOnClickListener(v -> {
-                    d[0].dismiss();
-                    String err = hub.send(ses, "/compact");
-                    if (err != null) Toast.makeText(this, err, Toast.LENGTH_LONG).show();
+        modelEffortSheet(this, ses.backend, ses.model, ses.effort, ses, true, true, true,
+                new Ui.ModelPickListener() {
+                    @Override
+                    public void onPickModel(String model) {
+                        if (!model.equals(ses.model)) hub.setModel(ses, model);
+                        else refresh();
+                    }
+
+                    @Override
+                    public void onPickEffort(String effort) {
+                        if (!effort.equals(ses.effort)) hub.setEffort(ses, effort);
+                        else refresh();
+                    }
                 });
-                c.addView(compact, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 44)));
-            }
-            c.addView(new View(this), new LinearLayout.LayoutParams(1, dp(this, 12)));
-        }
-        String[][] efforts = Models.efforts(ses);
-        if (efforts != null) {
-            c.addView(sectionLabel(this, getString(R.string.chat_effort)));
-            TextView es = text(this, getString(R.string.chat_effort_help), 13, MUTED);
-            es.setPaddingRelative(0, dp(this, 2), 0, dp(this, 8));
-            c.addView(es);
-            c.addView(segmented(this, efforts, ses.effort, false, v -> {
-                d[0].dismiss();
-                hub.setEffort(ses, v);
-            }), full());
-            TextView ml = sectionLabel(this, getString(R.string.chat_model));
-            ml.setPaddingRelative(0, dp(this, 16), 0, dp(this, 4));
-            c.addView(ml);
-        }
-        boolean known = false;
-        for (final String[] o : Models.options(ses.backend, true)) {
-            if (o[0] == null) { // an API key service's models
-                TextView sl = sectionLabel(this, o[1]);
-                sl.setPaddingRelative(0, dp(this, 14), 0, dp(this, 2));
-                c.addView(sl);
-                continue;
-            }
-            boolean on = o[0].equals(ses.model);
-            known |= on;
-            LinearLayout r = row(this);
-            r.setPaddingRelative(dp(this, 4), dp(this, 10), dp(this, 4), dp(this, 10));
-            r.setBackgroundResource(ripple(this, false));
-            r.addView(radio(on));
-            LinearLayout t = column(this);
-            t.setPaddingRelative(dp(this, 14), 0, 0, 0);
-            t.addView(title(this, o[1], 15));
-            t.addView(single(monoText(this, Models.detail(ses.backend, o[0], Models.defaultHint(ses)), 12, MUTED)));
-            r.addView(t, weight1());
-            r.setOnClickListener(v -> {
-                d[0].dismiss();
-                if (!o[0].equals(ses.model)) hub.setModel(ses, o[0]);
-            });
-            c.addView(r, full());
-        }
-        LinearLayout other = row(this);
-        other.setPaddingRelative(0, dp(this, 10), 0, 0);
-        final EditText et = new EditText(this);
-        et.setHint(getString(R.string.chat_model_other_hint, "claude".equals(ses.backend) ? "claude-opus-5-5"
-                : "opencode".equals(ses.backend) ? "anthropic/claude-sonnet-5-5" : "agy".equals(ses.backend) ? "gemini-3.8-flash-high"
-                : "grok".equals(ses.backend) ? "grok-4.7" : "gpt-6.1-sol"));
-        et.setHintTextColor(MUTED);
-        et.setTextColor(TEXT);
-        et.setTextSize(14);
-        et.setTypeface(mono(this, 400));
-        et.setSingleLine(true);
-        if (!known) et.setText(ses.model);
-        et.setPaddingRelative(dp(this, 12), dp(this, 10), dp(this, 12), dp(this, 10));
-        et.setBackground(outlined(this, BG, 12, OUTLINE, 1));
-        other.addView(et, weight1());
-        Button use = button(this, getString(R.string.chat_model_use), true);
-        LinearLayout.LayoutParams up = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 44));
-        up.setMarginStart(dp(this, 8));
-        other.addView(use, up);
-        use.setOnClickListener(v -> {
-            d[0].dismiss();
-            hub.setModel(ses, et.getText().toString().trim());
-        });
-        c.addView(other, full());
-        d[0] = bottomSheet(this, c);
-        d[0].show();
     }
 
     /**

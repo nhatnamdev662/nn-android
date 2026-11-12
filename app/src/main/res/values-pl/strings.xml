@@ -1664,4 +1664,7 @@
     <string name="chat_starter_search">Wyszukaj temat i podsumuj najważniejsze punkty</string>
     <string name="chat_starter_apps">Otwórz aplikację lub wykonaj szybkie zadanie na telefonie</string>
     <string name="chat_starter_linux">Napisz lub uruchom szybki skrypt w obszarze Linux</string>
+    <string name="models_search_hint">Szukaj modeli…</string>
+    <string name="models_empty_search">Brak modeli pasujących do „%1$s”</string>
+    <string name="setup_agent_defaults">Domyślny model i poziom wysiłku</string>
 </resources>

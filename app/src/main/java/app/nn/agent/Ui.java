@@ -13,10 +13,15 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -482,48 +487,240 @@ final class Ui {
         return f;
     }
 
-    /**
-     * Pick a model for an agent: its list ("" first, described by defaultHint) or any model name typed in. The pick goes
-     * to l; nothing happens if the sheet is closed.
-     */
+    interface ModelPickListener {
+        void onPickModel(String model);
+        void onPickEffort(String effort);
+    }
+
+    /** Pick a model for an agent (no synthetic "Default" row); delegates to the modern card/search picker. */
     static void modelSheet(Activity a, String backend, String current, String defaultHint, Pick l) {
         modelSheet(a, backend, current, defaultHint, true, l);
     }
 
     /** services: also the API key services' models (not for runs outside a chat, like the reviewer's). */
     static void modelSheet(Activity a, String backend, String current, String defaultHint, boolean services, Pick l) {
-        Models.refresh(a);
-        LinearLayout c = column(a);
-        TextView h = title(a, a.getString(R.string.chat_model_title, Account.nameOf(backend)), 18);
-        h.setPaddingRelative(0, 0, 0, dp(a, 8));
-        c.addView(h);
-        final Dialog[] d = new Dialog[1];
-        boolean known = false;
-        for (final String[] o : Models.options(backend, services)) {
-            if (o[0] == null) { // an API key service's models
-                TextView sl = sectionLabel(a, o[1]);
-                sl.setPaddingRelative(0, dp(a, 14), 0, dp(a, 2));
-                c.addView(sl);
-                continue;
+        String activeModel = (current == null || current.isEmpty()) ? Models.agentDefault(backend) : current;
+        modelEffortSheet(a, backend, activeModel, "", null, false, false, services, new ModelPickListener() {
+            @Override
+            public void onPickModel(String model) {
+                l.onPick(model);
             }
-            boolean on = o[0].equals(current);
-            known |= on;
-            LinearLayout r = row(a);
-            r.setPaddingRelative(dp(a, 4), dp(a, 10), dp(a, 4), dp(a, 10));
-            r.setBackgroundResource(ripple(a, false));
-            r.addView(radio(a, on));
-            LinearLayout t = column(a);
-            t.setPaddingRelative(dp(a, 14), 0, 0, 0);
-            t.addView(title(a, o[1], 15));
-            t.addView(single(monoText(a, Models.detail(backend, o[0], defaultHint), 12, MUTED)));
-            r.addView(t, weight1());
-            r.setOnClickListener(v -> {
-                d[0].dismiss();
-                l.onPick(o[0]);
-            });
-            c.addView(r, full());
+
+            @Override
+            public void onPickEffort(String effort) {
+            }
+        });
+    }
+
+    /**
+     * Unified modern Model & Effort bottom sheet matching the agent brand design language:
+     * sticky header with Ui.agentTile (swipe handle or tap outside to close), live context/effort selector
+     * across all 5 agents, live search filter on longer catalogs, card rows, and unclipped sticky footer.
+     */
+    static void modelEffortSheet(Activity a, String backend, String currentModel, String currentEffort,
+                                 Sessions.Session ses, boolean showEffort, boolean saveDefault,
+                                 boolean services, ModelPickListener listener) {
+        Models.refresh(a);
+        final String[] selModel = {(currentModel == null || currentModel.isEmpty())
+                ? Models.agentDefault(backend) : currentModel};
+        final String[] selEffort = {currentEffort == null ? "" : currentEffort};
+        final Dialog[] d = new Dialog[1];
+
+        // 1. Sticky Header (swipe down on handle/header or tap outside dim to dismiss — no extra close buttons)
+        LinearLayout header = row(a);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPaddingRelative(0, 0, 0, dp(a, 12));
+        header.addView(agentTile(a, backend, 40));
+        LinearLayout titleCol = column(a);
+        titleCol.setPaddingRelative(dp(a, 12), 0, 0, 0);
+        titleCol.addView(single(title(a, a.getString(R.string.chat_model_title, Account.nameOf(backend)), 18)));
+        final TextView sub = single(monoText(a, "", 12, ACCENT_TEXT));
+        titleCol.addView(sub);
+        header.addView(titleCol, weight1());
+
+        final Runnable updateSub = () -> {
+            String ml = Models.label(backend, selModel[0]);
+            if (showEffort && !selEffort[0].isEmpty()) {
+                sub.setText(ml + " · " + a.getString(R.string.models_chip_effort, Models.effortLabel(selEffort[0])));
+            } else {
+                sub.setText(ml);
+            }
+        };
+        updateSub.run();
+
+        // 2. Scrollable Middle Content
+        LinearLayout c = column(a);
+        int ctx = ses != null ? Models.contextPercent(ses) : -1;
+        if (ctx >= 0) {
+            LinearLayout ctxCard = column(a);
+            ctxCard.setPaddingRelative(dp(a, 14), dp(a, 12), dp(a, 14), dp(a, 12));
+            ctxCard.setBackground(outlined(a, BG, 14, OUTLINE, 1));
+            ctxCard.addView(sectionLabelInline(a, a.getString(R.string.chat_context)));
+            TextView cu = text(a, a.getString(R.string.chat_context_used, Models.tokens(ses.ctxUsed),
+                    Models.tokens(ses.ctxWindow), ctx), 13, TEXT);
+            cu.setPaddingRelative(0, dp(a, 4), 0, dp(a, 2));
+            ctxCard.addView(cu);
+            ctxCard.addView(text(a, a.getString(R.string.chat_context_help, ses.brainName()), 12, MUTED));
+            if ("claude".equals(backend) && !ses.running) {
+                Button compact = button(a, a.getString(R.string.chat_context_compact), false);
+                compact.setOnClickListener(v -> {
+                    d[0].dismiss();
+                    String err = ChatHub.get(a).send(ses, "/compact");
+                    if (err != null) android.widget.Toast.makeText(a, err, android.widget.Toast.LENGTH_LONG).show();
+                });
+                LinearLayout.LayoutParams cbp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, dp(a, 40));
+                cbp.topMargin = dp(a, 8);
+                ctxCard.addView(compact, cbp);
+            }
+            LinearLayout.LayoutParams ccp = full();
+            ccp.bottomMargin = dp(a, 10);
+            c.addView(ctxCard, ccp);
         }
+
+        final FrameLayout effortSlot = new FrameLayout(a);
+        final TextView effortBadge = monoText(a, Models.effortLabel(selEffort[0]), 12, ACCENT_TEXT);
+        if (showEffort) {
+            LinearLayout eCard = column(a);
+            eCard.setPaddingRelative(dp(a, 14), dp(a, 12), dp(a, 14), dp(a, 12));
+            eCard.setBackground(outlined(a, BG, 14, OUTLINE, 1));
+            LinearLayout eTop = row(a);
+            eTop.setGravity(Gravity.CENTER_VERTICAL);
+            eTop.addView(sectionLabelInline(a, a.getString(R.string.chat_effort)), weight1());
+            eTop.addView(effortBadge);
+            eCard.addView(eTop, full());
+            TextView es = text(a, a.getString(R.string.chat_effort_help), 12, MUTED);
+            es.setPaddingRelative(0, dp(a, 4), 0, dp(a, 8));
+            eCard.addView(es);
+            eCard.addView(effortSlot, full());
+            LinearLayout.LayoutParams ecp = full();
+            ecp.bottomMargin = dp(a, 10);
+            c.addView(eCard, ecp);
+        }
+
+        final Runnable[] renderModels = new Runnable[1];
+        if (showEffort) {
+            final Runnable[] drawSeg = new Runnable[1];
+            drawSeg[0] = () -> {
+                effortSlot.removeAllViews();
+                String[][] efforts = Models.efforts(backend, selModel[0]);
+                effortBadge.setText(Models.effortLabel(selEffort[0]));
+                effortSlot.addView(segmented(a, efforts, selEffort[0], false, v -> {
+                    selEffort[0] = v;
+                    updateSub.run();
+                    if (saveDefault) Prefs.setAgentEffort(a, backend, v);
+                    listener.onPickEffort(v);
+                    drawSeg[0].run();
+                }), full());
+            };
+            drawSeg[0].run();
+        }
+
+        final java.util.List<String[]> opts = Models.options(backend, services);
+        int realCount = 0;
+        for (String[] o : opts) if (o[0] != null) realCount++;
+
+        final String[] query = {""};
+        if (realCount > 5) {
+            LinearLayout searchBox = row(a);
+            searchBox.setGravity(Gravity.CENTER_VERTICAL);
+            searchBox.setPaddingRelative(dp(a, 12), dp(a, 4), dp(a, 8), dp(a, 4));
+            searchBox.setBackground(outlined(a, BG, 14, OUTLINE, 1));
+            final android.widget.EditText se = new android.widget.EditText(a);
+            se.setHint(R.string.models_search_hint);
+            se.setHintTextColor(MUTED);
+            se.setTextColor(TEXT);
+            se.setTextSize(14);
+            se.setTypeface(sans(a, 400));
+            se.setSingleLine(true);
+            se.setBackground(null);
+            se.setPaddingRelative(dp(a, 2), dp(a, 6), dp(a, 6), dp(a, 6));
+            searchBox.addView(se, weight1());
+            final ImageButton clearSearch = iconButton(a, R.drawable.ms_close, a.getString(R.string.bubble_close), MUTED);
+            clearSearch.setLayoutParams(new LinearLayout.LayoutParams(dp(a, 32), dp(a, 32)));
+            clearSearch.setVisibility(View.GONE);
+            clearSearch.setOnClickListener(v -> se.setText(""));
+            searchBox.addView(clearSearch);
+            se.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override public void afterTextChanged(android.text.Editable s) {
+                    query[0] = s != null ? s.toString().trim().toLowerCase(java.util.Locale.ROOT) : "";
+                    clearSearch.setVisibility(query[0].isEmpty() ? View.GONE : View.VISIBLE);
+                    if (renderModels[0] != null) renderModels[0].run();
+                }
+            });
+            LinearLayout.LayoutParams sbp = full();
+            sbp.bottomMargin = dp(a, 10);
+            c.addView(searchBox, sbp);
+        }
+
+        final LinearLayout listBox = column(a);
+        c.addView(listBox, full());
+
+        final boolean[] known = {false};
+        renderModels[0] = () -> {
+            listBox.removeAllViews();
+            known[0] = false;
+            String q = query[0];
+            String pendingHeader = null;
+            int shownRows = 0;
+
+            for (final String[] o : opts) {
+                if (o[0] == null) {
+                    pendingHeader = o[1];
+                    continue;
+                }
+                if (!q.isEmpty()) {
+                    String nLow = o[1].toLowerCase(java.util.Locale.ROOT);
+                    String idLow = o[0].toLowerCase(java.util.Locale.ROOT);
+                    if (!nLow.contains(q) && !idLow.contains(q)) continue;
+                }
+                if (pendingHeader != null) {
+                    TextView sl = sectionLabel(a, pendingHeader);
+                    sl.setPaddingRelative(dp(a, 2), dp(a, 10), 0, dp(a, 6));
+                    listBox.addView(sl);
+                    pendingHeader = null;
+                }
+                boolean on = o[0].equals(selModel[0]);
+                known[0] |= on;
+
+                LinearLayout cardRow = row(a);
+                cardRow.setGravity(Gravity.CENTER_VERTICAL);
+                cardRow.setPaddingRelative(dp(a, 14), dp(a, 12), dp(a, 12), dp(a, 12));
+                cardRow.setBackground(outlined(a, on ? ACCENT_SOFT : BG, 14, on ? ACCENT : OUTLINE, 1));
+                cardRow.setForeground(a.getDrawable(ripple(a, false)));
+                cardRow.addView(checkBadge(a, on));
+
+                LinearLayout t = column(a);
+                t.setPaddingRelative(dp(a, 12), 0, 0, 0);
+                t.addView(single(title(a, o[1], 15)));
+                String detail = Models.detail(backend, o[0], "");
+                if (!detail.isEmpty()) t.addView(single(monoText(a, detail, 12, MUTED)));
+                cardRow.addView(t, weight1());
+                cardRow.setOnClickListener(v -> {
+                    selModel[0] = o[0];
+                    if (saveDefault) Prefs.setAgentDefault(a, backend, o[0]);
+                    listener.onPickModel(o[0]);
+                    d[0].dismiss();
+                });
+                LinearLayout.LayoutParams rlp = full();
+                rlp.bottomMargin = dp(a, 8);
+                listBox.addView(cardRow, rlp);
+                shownRows++;
+            }
+            if (shownRows == 0 && !q.isEmpty()) {
+                TextView empty = text(a, a.getString(R.string.models_empty_search, query[0]), 14, MUTED);
+                empty.setGravity(Gravity.CENTER);
+                empty.setPaddingRelative(dp(a, 12), dp(a, 20), dp(a, 12), dp(a, 12));
+                listBox.addView(empty, full());
+            }
+        };
+        renderModels[0].run();
+
+        // 3. Sticky Footer (never clipped behind nav bar or keyboard)
         LinearLayout other = row(a);
+        other.setGravity(Gravity.CENTER_VERTICAL);
         other.setPaddingRelative(0, dp(a, 10), 0, 0);
         final android.widget.EditText et = new android.widget.EditText(a);
         et.setHint(a.getString(R.string.chat_model_other_hint, "claude".equals(backend) ? "claude-opus-5-5"
@@ -534,7 +731,7 @@ final class Ui {
         et.setTextSize(14);
         et.setTypeface(mono(a, 400));
         et.setSingleLine(true);
-        if (!known) et.setText(current);
+        if (!known[0] && !selModel[0].isEmpty()) et.setText(selModel[0]);
         et.setPaddingRelative(dp(a, 12), dp(a, 10), dp(a, 12), dp(a, 10));
         et.setBackground(outlined(a, BG, 12, OUTLINE, 1));
         other.addView(et, weight1());
@@ -543,12 +740,34 @@ final class Ui {
         up.setMarginStart(dp(a, 8));
         other.addView(use, up);
         use.setOnClickListener(v -> {
+            String custom = et.getText().toString().trim();
+            if (custom.isEmpty()) return;
+            if (saveDefault) Prefs.setAgentDefault(a, backend, custom);
+            listener.onPickModel(custom);
             d[0].dismiss();
-            l.onPick(et.getText().toString().trim());
         });
-        c.addView(other, full());
-        d[0] = bottomSheet(a, c);
+
+        d[0] = bottomSheet(a, header, c, other);
         d[0].show();
+    }
+
+    private static TextView sectionLabelInline(Context c, String s) {
+        TextView t = monoText(c, s.toUpperCase(locale(c)), 11, MUTED);
+        t.setLetterSpacing(0.1f);
+        return t;
+    }
+
+    private static View checkBadge(Context c, boolean on) {
+        FrameLayout f = new FrameLayout(c);
+        if (on) {
+            f.setBackground(oval(ACCENT));
+            ImageView iv = icon(c, R.drawable.ms_check, ON_ACCENT, 13);
+            f.addView(iv, new FrameLayout.LayoutParams(dp(c, 13), dp(c, 13), Gravity.CENTER));
+        } else {
+            f.setBackground(outlined(c, 0x00000000, 10, MUTED, 2));
+        }
+        f.setLayoutParams(new LinearLayout.LayoutParams(dp(c, 20), dp(c, 20)));
+        return f;
     }
 
     /** Terminal-style block with an accent "$ " prompt. */
@@ -930,26 +1149,202 @@ final class Ui {
 
     // --------------------------------------------------------------- bottom sheet
 
-    /** A bottom sheet dialog: CARD, top radius 28, a handle, and the given content (scrolls when tall). */
+    /** Interactive bottom sheet dialog: swipe down from handle/header/top-of-scroll, inset-safe & height-capped. */
     static Dialog bottomSheet(Activity a, View content) {
-        Dialog d = new Dialog(a);
+        return bottomSheet(a, null, content, null);
+    }
+
+    /** Interactive bottom sheet with optional sticky header above scroll and sticky footer below scroll. */
+    static Dialog bottomSheet(Activity a, View header, View content, View footer) {
+        final Dialog d = new Dialog(a);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        LinearLayout box = column(a);
-        box.setPaddingRelative(dp(a, 20), dp(a, 10), dp(a, 20), dp(a, 32));
-        box.setBackground(corners(a, CARD, 28, 28, 0, 0));
-        View handle = new View(a);
-        handle.setBackground(rounded(a, OUTLINE, 2));
-        LinearLayout.LayoutParams hp = new LinearLayout.LayoutParams(dp(a, 32), dp(a, 4));
-        hp.gravity = Gravity.CENTER_HORIZONTAL;
-        hp.bottomMargin = dp(a, 14);
-        box.addView(handle, hp);
-        // Long content (e.g. many models) scrolls instead of running off the screen.
-        ScrollView scroll = new ScrollView(a);
+
+        final int baseH = dp(a, 20);
+        final int[] scrollCap = { (int) (a.getResources().getDisplayMetrics().heightPixels * 0.84f) };
+        final ScrollView scroll = new ScrollView(a) {
+            @Override
+            protected void onMeasure(int w, int h) {
+                super.onMeasure(w, h);
+                if (getMeasuredHeight() > scrollCap[0]) {
+                    super.onMeasure(w, MeasureSpec.makeMeasureSpec(scrollCap[0], MeasureSpec.AT_MOST));
+                }
+            }
+        };
         scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         scroll.setVerticalScrollBarEnabled(false);
-        scroll.addView(content, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        final FrameLayout handleWrap = new FrameLayout(a);
+        handleWrap.setPaddingRelative(0, dp(a, 10), 0, dp(a, 12));
+        View handle = new View(a);
+        handle.setBackground(rounded(a, OUTLINE, 2));
+        handleWrap.addView(handle, new FrameLayout.LayoutParams(dp(a, 40), dp(a, 4), Gravity.CENTER));
+
+        final class SheetLayout extends LinearLayout {
+            private float downX, downY;
+            private boolean dragging, touchOnTopChrome, dismissing;
+            private VelocityTracker vt;
+            private final int slop = ViewConfiguration.get(a).getScaledTouchSlop();
+
+            SheetLayout() {
+                super(a);
+                setOrientation(VERTICAL);
+            }
+
+            @Override
+            protected void onMeasure(int w, int h) {
+                int screenH = getResources().getDisplayMetrics().heightPixels;
+                int maxTotal = (int) (screenH * 0.88f);
+                if (MeasureSpec.getMode(h) != MeasureSpec.UNSPECIFIED) {
+                    maxTotal = Math.min(maxTotal, MeasureSpec.getSize(h));
+                }
+                int widthMode = MeasureSpec.getMode(w);
+                int widthSize = MeasureSpec.getSize(w);
+                int innerW = Math.max(0, widthSize - getPaddingLeft() - getPaddingRight());
+                int childW = widthMode == MeasureSpec.UNSPECIFIED ? w
+                        : MeasureSpec.makeMeasureSpec(innerW, MeasureSpec.EXACTLY);
+                int unspec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+
+                int chrome = getPaddingTop() + getPaddingBottom();
+                handleWrap.measure(childW, unspec);
+                chrome += handleWrap.getMeasuredHeight();
+                if (header != null && header.getVisibility() != GONE) {
+                    header.measure(childW, unspec);
+                    chrome += header.getMeasuredHeight();
+                }
+                if (footer != null && footer.getVisibility() != GONE) {
+                    footer.measure(childW, unspec);
+                    chrome += footer.getMeasuredHeight();
+                }
+                scrollCap[0] = Math.max(dp(a, 100), maxTotal - chrome);
+                super.onMeasure(w, MeasureSpec.makeMeasureSpec(maxTotal, MeasureSpec.AT_MOST));
+            }
+
+            @Override
+            public boolean onInterceptTouchEvent(MotionEvent ev) {
+                if (dismissing) return true;
+                switch (ev.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        downX = ev.getRawX();
+                        downY = ev.getRawY();
+                        dragging = false;
+                        int chromeBottom = getPaddingTop() + handleWrap.getHeight()
+                                + (header != null && header.getVisibility() != GONE ? header.getHeight() : 0);
+                        touchOnTopChrome = ev.getY() <= chromeBottom;
+                        if (vt != null) vt.recycle();
+                        vt = VelocityTracker.obtain();
+                        vt.addMovement(ev);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (vt != null) vt.addMovement(ev);
+                        float dy = ev.getRawY() - downY;
+                        float dx = ev.getRawX() - downX;
+                        if (!dragging && dy > slop && dy > Math.abs(dx) * 1.15f) {
+                            if (touchOnTopChrome || !scroll.canScrollVertically(-1)) {
+                                dragging = true;
+                                return true;
+                            }
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        dragging = false;
+                        if (vt != null) {
+                            vt.recycle();
+                            vt = null;
+                        }
+                        break;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onTouchEvent(MotionEvent ev) {
+                if (dismissing) return true;
+                if (vt == null) vt = VelocityTracker.obtain();
+                vt.addMovement(ev);
+                Window win = d.getWindow();
+                switch (ev.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        downX = ev.getRawX();
+                        downY = ev.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float dy = Math.max(0f, ev.getRawY() - downY);
+                        if (dy > slop) dragging = true;
+                        setTranslationY(dy);
+                        if (win != null && getHeight() > 0) {
+                            win.setDimAmount(0.55f * Math.max(0.08f, 1f - dy / getHeight()));
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        vt.computeCurrentVelocity(1000);
+                        float vy = vt.getYVelocity();
+                        vt.recycle();
+                        vt = null;
+                        float cur = getTranslationY();
+                        float thresh = Math.min(dp(a, 100), Math.max(dp(a, 60), getHeight() * 0.24f));
+                        if (cur > thresh || (vy > dp(a, 750) && cur > dp(a, 16))) {
+                            dismissing = true;
+                            animate().translationY(Math.max(getHeight(), dp(a, 240)))
+                                    .setDuration(170)
+                                    .setInterpolator(new DecelerateInterpolator())
+                                    .withEndAction(() -> {
+                                        if (win != null) win.setWindowAnimations(0);
+                                        if (d.isShowing()) d.dismiss();
+                                    }).start();
+                        } else if (cur > 0) {
+                            animate().translationY(0f).setDuration(160)
+                                    .setInterpolator(new DecelerateInterpolator()).start();
+                            if (win != null) win.setDimAmount(0.55f);
+                        }
+                        dragging = false;
+                        return true;
+                }
+                return super.onTouchEvent(ev);
+            }
+        }
+
+        int navInit = 0;
+        if (Build.VERSION.SDK_INT >= 23) {
+            WindowInsets actInsets = a.getWindow().getDecorView().getRootWindowInsets();
+            if (actInsets != null) {
+                navInit = Build.VERSION.SDK_INT >= 30
+                        ? actInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+                        : actInsets.getSystemWindowInsetBottom();
+            }
+        }
+        final SheetLayout box = new SheetLayout();
+        box.setPaddingRelative(dp(a, 20), 0, dp(a, 20), Math.max(baseH, navInit + dp(a, 12)));
+        box.setBackground(corners(a, CARD, 28, 28, 0, 0));
+        box.addView(handleWrap, full());
+        if (header != null) box.addView(header, full());
+        scroll.addView(content, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         box.addView(scroll, full());
+        if (footer != null) box.addView(footer, full());
+
+        box.setOnApplyWindowInsetsListener((v, insets) -> {
+            int bottomInset = 0;
+            if (Build.VERSION.SDK_INT >= 30) {
+                bottomInset = insets.getInsets(WindowInsets.Type.navigationBars() | WindowInsets.Type.ime()).bottom;
+            } else {
+                bottomInset = insets.getSystemWindowInsetBottom();
+            }
+            if (bottomInset == 0 && Build.VERSION.SDK_INT >= 23) {
+                WindowInsets actInsets = a.getWindow().getDecorView().getRootWindowInsets();
+                if (actInsets != null) {
+                    bottomInset = Build.VERSION.SDK_INT >= 30
+                            ? actInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+                            : actInsets.getSystemWindowInsetBottom();
+                }
+            }
+            v.setPaddingRelative(dp(a, 20), 0, dp(a, 20), Math.max(baseH, bottomInset + dp(a, 12)));
+            return insets;
+        });
+
         d.setContentView(box);
+        d.setCanceledOnTouchOutside(true);
         Window w = d.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(0x00000000));
@@ -957,6 +1352,7 @@ final class Ui {
             w.setGravity(Gravity.BOTTOM);
             w.setDimAmount(0.55f);
             w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             w.setWindowAnimations(android.R.style.Animation_InputMethod);
         }
         return d;

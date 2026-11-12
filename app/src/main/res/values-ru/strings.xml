@@ -2109,4 +2109,7 @@
     <string name="chat_starter_search">Найди тему и кратко резюмируй главное</string>
     <string name="chat_starter_apps">Открой приложение или выполни быструю задачу</string>
     <string name="chat_starter_linux">Напиши или запусти быстрый скрипт в Linux-среде</string>
+    <string name="models_search_hint">Поиск моделей…</string>
+    <string name="models_empty_search">Нет моделей по запросу «%1$s»</string>
+    <string name="setup_agent_defaults">Модель и усилие по умолчанию</string>
 </resources>

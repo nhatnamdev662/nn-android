@@ -472,6 +472,13 @@ public class NnService extends AccessibilityService implements McpServer.Handler
                 Prefs.setGrokModels(this, gm.toString());
                 Models.setGrok(gm.toString());
             }
+            org.json.JSONObject df = event.optJSONObject("cli_defaults");
+            if (df != null) {
+                for (String a : new String[]{"claude", "codex", "opencode", "agy", "grok"}) {
+                    String dm = df.optString(a, "").trim();
+                    if (!dm.isEmpty()) Prefs.setCliDefaultModel(this, a, dm);
+                }
+            }
             return;
         }
         if ("buddy_procs".equals(t) || "nn_procs".equals(t)

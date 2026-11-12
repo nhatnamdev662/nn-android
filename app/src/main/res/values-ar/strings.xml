@@ -1682,4 +1682,7 @@
     <string name="chat_starter_search">ابحث عن موضوع ولخّص النقاط الرئيسية</string>
     <string name="chat_starter_apps">افتح تطبيقاً أو نفّذ مهمة سريعة على الهاتف</string>
     <string name="chat_starter_linux">اكتب أو شغّل نصاً برمجياً سريعاً في مساحة Linux</string>
+    <string name="models_search_hint">ابحث عن نموذج…</string>
+    <string name="models_empty_search">لا توجد نماذج مطابقة لـ “%1$s”</string>
+    <string name="setup_agent_defaults">النموذج والجهد الافتراضي</string>
 </resources>

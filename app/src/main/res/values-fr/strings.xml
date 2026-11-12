@@ -2070,4 +2070,7 @@
     <string name="chat_starter_search">Recherche un sujet et résume l\'essentiel</string>
     <string name="chat_starter_apps">Ouvre une appli ou automatise une tâche sur le téléphone</string>
     <string name="chat_starter_linux">Écris ou exécute un script rapide dans Linux</string>
+    <string name="models_search_hint">Rechercher un modèle…</string>
+    <string name="models_empty_search">Aucun modèle ne correspond à « %1$s »</string>
+    <string name="setup_agent_defaults">Modèle et effort par défaut</string>
 </resources>

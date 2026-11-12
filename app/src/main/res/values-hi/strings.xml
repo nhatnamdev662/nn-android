@@ -1630,4 +1630,7 @@
     <string name="chat_starter_search">किसी विषय को खोजें और मुख्य बिंदु संक्षेप में बताएं</string>
     <string name="chat_starter_apps">कोई ऐप खोलें या फ़ोन पर कोई काम पूरा करें</string>
     <string name="chat_starter_linux">Linux वर्कस्पेस में एक त्वरित स्क्रिप्ट लिखें या चलाएं</string>
+    <string name="models_search_hint">मॉडल खोजें…</string>
+    <string name="models_empty_search">“%1$s” से मेल खाने वाला कोई मॉडल नहीं</string>
+    <string name="setup_agent_defaults">डिफ़ॉल्ट मॉडल और प्रयास</string>
 </resources>

@@ -1,9 +1,8 @@
 package app.nn.agent;
 
-/** Models offered per agent. "" means the agent's own default. */
+/** Models offered per agent. Concrete real models only; each agent resolves its real default cleanly. */
 final class Models {
     static final String[][] CLAUDE = {
-            {"", "Default"},
             {"claude-opus-5-5", "Opus 5.5"},
             {"claude-sonnet-5-5", "Sonnet 5.5"},
             {"claude-haiku-5-5", "Haiku 5.5"},
@@ -12,26 +11,22 @@ final class Models {
     };
     /** Used until the helper reports Codex's own model list. */
     static final String[][] CODEX = {
-            {"", "Default"},
             {"gpt-6.1-sol", "GPT-6.1-Sol"},
             {"gpt-6-astra", "GPT-6-Astra"},
             {"gpt-6-luna", "GPT-6-Luna"},
     };
     /** Used until OpenCode reports its own list (`opencode models`, which includes the free ones). */
     static final String[][] OPENCODE = {
-            {"", "Default"},
             {"opencode/big-pickle", "opencode/big-pickle"},
     };
     /** Used until Antigravity reports its own list (`agy models`, which depends on the plan). */
     static final String[][] AGY = {
-            {"", "Default"},
             {"gemini-3.8-flash-high", "Gemini 3.8 Flash (High)"},
             {"gemini-3.8-flash-medium", "Gemini 3.8 Flash (Medium)"},
             {"gemini-3.8-flash-low", "Gemini 3.8 Flash (Low)"},
     };
     /** Used until Grok reports its own list (`grok models`). */
     static final String[][] GROK = {
-            {"", "Default"},
             {"grok-4.7", "grok-4.7"},
     };
     private static String[][] codexLive, opencodeLive, agyLive, grokLive;
@@ -54,25 +49,27 @@ final class Models {
         }
     }
 
-    /** The agent's own models (its plan's, or OpenCode's), "" (its default) first. */
+    /** The agent's own real models (no synthetic "Default" row). */
     static String[][] forBackend(String backend) {
-        if ("opencode".equals(backend)) return withDefault(opencodeLive != null ? opencodeLive : OPENCODE);
-        if ("agy".equals(backend)) return withDefault(agyLive != null ? agyLive : AGY);
-        if ("grok".equals(backend)) return withDefault(grokLive != null ? grokLive : GROK);
-        if (!"codex".equals(backend)) return withDefault(CLAUDE);
-        return withDefault(codexLive != null ? codexLive : CODEX);
+        if ("opencode".equals(backend)) return opencodeLive != null ? opencodeLive : OPENCODE;
+        if ("agy".equals(backend)) return agyLive != null ? agyLive : AGY;
+        if ("grok".equals(backend)) return grokLive != null ? grokLive : GROK;
+        if ("codex".equals(backend)) return codexLive != null ? codexLive : CODEX;
+        return CLAUDE;
     }
 
     /**
-     * Everything a model picker offers for this agent: Default, its plan's models (when it's signed in to a plan, or
-     * OpenCode's own), then each API key service it can use, under the service's name: rows {id, name}, a heading
+     * Everything a model picker offers for this agent: its real plan/CLI models (when signed in to a plan, or
+     * OpenCode's own), then each API key service it can use, under the service's name: rows {id, name}, heading
      * {null, service name}. Service models are "@service/model".
      */
     static java.util.List<String[]> options(String backend, boolean services) {
         java.util.List<String[]> out = new java.util.ArrayList<>();
         String[][] own = forBackend(backend);
         boolean plan = !("claude".equals(backend) || "codex".equals(backend)) || SetupState.planSignedIn(NnApp.context(), backend);
-        for (String[] m : own) if (m[0].isEmpty() || plan) out.add(m);
+        if (plan) {
+            java.util.Collections.addAll(out, own);
+        }
         if (!services) return out;
         for (Providers.P p : Providers.forAgent(backend)) {
             org.json.JSONArray models = p.offered();
@@ -86,18 +83,46 @@ final class Models {
         return out;
     }
 
-    /** What a chat on Default uses with this agent: "" (its plan's default) or "@service/model". */
-    static String agentDefault(String backend) {
-        String d = Prefs.agentDefault(NnApp.context(), backend);
-        Providers.P p = Providers.of(d);
-        if (p == null || !p.fits(backend)) return "";
-        String m = Providers.model(d);
-        return Providers.ref(p, m.isEmpty() ? p.defaultModel() : m);
+    /** Concrete CLI default model reported for this agent, falling back to its primary native model. */
+    static String cliDefaultModel(String backend) {
+        String cli = Prefs.cliDefaultModel(NnApp.context(), backend);
+        if (!cli.isEmpty()) return cli;
+        String[][] own = forBackend(backend);
+        if ("claude".equals(backend)) return "claude-sonnet-5-5";
+        if ("opencode".equals(backend)) {
+            for (String[] m : own) if ("opencode/big-pickle".equals(m[0])) return m[0];
+        }
+        return own.length > 0 ? own[0][0] : "";
     }
 
-    /** The chat's model as it will run: the one picked, or the agent's default. */
+    /** What new chats on this agent start on: user-pinned default model, API service fallback, or CLI default. */
+    static String agentDefault(String backend) {
+        android.content.Context c = NnApp.context();
+        String d = Prefs.agentDefault(c, backend);
+        if (!d.isEmpty()) {
+            Providers.P p = Providers.of(d);
+            if (p != null) {
+                if (p.fits(backend)) {
+                    String m = Providers.model(d);
+                    return Providers.ref(p, m.isEmpty() ? p.defaultModel() : m);
+                }
+            } else {
+                return d;
+            }
+        }
+        if (("claude".equals(backend) || "codex".equals(backend)) && !SetupState.planSignedIn(c, backend)) {
+            java.util.List<Providers.P> svcs = Providers.forAgent(backend);
+            if (!svcs.isEmpty()) {
+                Providers.P first = svcs.get(0);
+                return Providers.ref(first, first.defaultModel());
+            }
+        }
+        return cliDefaultModel(backend);
+    }
+
+    /** The chat's model as it will run: explicit chat pick, or resolved real agent default. */
     static String effective(Sessions.Session s) {
-        return s.model.isEmpty() ? agentDefault(s.backend) : s.model;
+        return (s.model == null || s.model.isEmpty()) ? agentDefault(s.backend) : s.model;
     }
 
     /** A service model's context size in tokens as its service said, or 0 when not known. */
@@ -133,13 +158,6 @@ final class Models {
         return (int) Math.min(100, Math.round(s.ctxUsed * 100.0 / s.ctxWindow));
     }
 
-    /** A copy of a list with its "" row (the agent's default) labeled in the user's language; the lists keep "Default". */
-    private static String[][] withDefault(String[][] list) {
-        String[][] m = list.clone();
-        for (int i = 0; i < m.length; i++) if (m[i][0].isEmpty()) m[i] = new String[]{"", NnApp.str(R.string.models_default)};
-        return m;
-    }
-
     /** OpenCode's models as JSON [[id, name], …] ("provider/model" for both). */
     static void setOpencode(String json) {
         String[][] m = parse(json);
@@ -168,11 +186,10 @@ final class Models {
         try {
             org.json.JSONArray a = new org.json.JSONArray(json);
             if (a.length() == 0) return null;
-            String[][] m = new String[a.length() + 1][];
-            m[0] = new String[]{"", "Default"};
+            String[][] m = new String[a.length()][];
             for (int i = 0; i < a.length(); i++) {
                 org.json.JSONArray e = a.getJSONArray(i);
-                m[i + 1] = new String[]{e.getString(0), e.getString(1)};
+                m[i] = new String[]{e.getString(0), e.getString(1)};
             }
             return m;
         } catch (Exception ignored) {
@@ -181,16 +198,19 @@ final class Models {
     }
 
     /**
-     * Effort levels the chat's agent accepts ([value, label]; "" is the agent's default), or null if NN Agent can't set it.
-     * A service model that lists its levels (DeepSeek: low, high, max) keeps only those, besides Auto.
+     * Effort levels accepted for a chat's agent & active model ([value, label]; "" is Auto).
      */
     static String[][] efforts(Sessions.Session s) {
-        String[][] all = agentEfforts(s.backend);
-        String ref = effective(s);
+        return efforts(s.backend, effective(s));
+    }
+
+    /** Effort levels accepted for an agent backend and model ref ([value, label]; "" is Auto). */
+    static String[][] efforts(String backend, String ref) {
+        String[][] all = agentEfforts(backend);
         Providers.P p = Providers.of(ref);
         org.json.JSONObject m = p == null ? null : p.modelInfo(Providers.model(ref));
         org.json.JSONArray e = m == null ? null : m.optJSONArray("efforts");
-        if (all == null || e == null || e.length() == 0) return all;
+        if (e == null || e.length() == 0) return all;
         java.util.Set<String> has = new java.util.HashSet<>();
         for (int j = 0; j < e.length(); j++) has.add(e.optString(j));
         java.util.List<String[]> out = new java.util.ArrayList<>();
@@ -203,19 +223,31 @@ final class Models {
                 {"low", NnApp.str(R.string.models_effort_low)}, {"medium", NnApp.str(R.string.models_effort_medium)},
                 {"high", NnApp.str(R.string.models_effort_high)}, {"xhigh", NnApp.str(R.string.models_effort_xhigh)},
                 {"max", NnApp.str(R.string.models_effort_max)}};
-        if ("codex".equals(backend)) return new String[][]{{"", NnApp.str(R.string.models_effort_auto)},
+        return new String[][]{{"", NnApp.str(R.string.models_effort_auto)},
                 {"low", NnApp.str(R.string.models_effort_low)}, {"medium", NnApp.str(R.string.models_effort_medium)},
                 {"high", NnApp.str(R.string.models_effort_high)}};
-        // OpenCode: effort ("variants") depends on the model; Antigravity's model ids include it; Grok's depends on the
-        // model too (it lists no levels)
-        return null;
+    }
+
+    /** Human label for a reasoning effort level. */
+    static String effortLabel(String effort) {
+        if (effort == null || effort.isEmpty()) return NnApp.str(R.string.models_effort_auto);
+        switch (effort) {
+            case "low": return NnApp.str(R.string.models_effort_low);
+            case "medium": return NnApp.str(R.string.models_effort_medium);
+            case "high": return NnApp.str(R.string.models_effort_high);
+            case "xhigh": return NnApp.str(R.string.models_effort_xhigh);
+            case "max": return NnApp.str(R.string.models_effort_max);
+            default: return effort;
+        }
     }
 
     /** "agent · model · effort" for a chat's chip. */
     static String summary(Sessions.Session s) {
         int ctx = contextPercent(s); // only once it matters: past half full
+        String eff = s.effort.isEmpty() ? ""
+                : NnApp.str(R.string.models_chip_effort, effortLabel(s.effort).toLowerCase(Ui.locale(NnApp.context())));
         return s.brainName() + " · " + shownModel(s)
-                + (s.effort.isEmpty() ? "" : " · " + NnApp.str(R.string.models_chip_effort, s.effort))
+                + (eff.isEmpty() ? "" : " · " + eff)
                 + (ctx >= 50 ? " · " + NnApp.str(R.string.models_chip_context, ctx) : "");
     }
 
@@ -225,14 +257,14 @@ final class Models {
         return p == null ? null : p.name;
     }
 
-    /** The chat's model for display: the one picked, or what "Default" really is when the agent told us. */
+    /** The chat's concrete active model name for display (resolving legacy empty choices cleanly). */
     static String shownModel(Sessions.Session s) {
         String eff = effective(s);
         Providers.P p = Providers.of(eff);
         if (p != null) return NnApp.str(R.string.models_via, serviceModelName(p, Providers.model(eff)), p.name);
         if (!s.model.isEmpty()) return label(s.backend, s.model);
-        if (!s.actualModel.isEmpty()) return NnApp.str(R.string.models_name_default, nameOf(s.backend, s.actualModel));
-        return NnApp.str(R.string.models_default_model);
+        if (!s.actualModel.isEmpty()) return nameOf(s.backend, s.actualModel);
+        return label(s.backend, eff);
     }
 
     private static String serviceModelName(Providers.P p, String model) {
@@ -240,22 +272,14 @@ final class Models {
         return m == null || m.optString("name").isEmpty() ? model : m.optString("name");
     }
 
-    /** What "Default" means for this chat, for the pickers. */
+    /** What the agent's default model is for display in hints. */
     static String defaultHint(Sessions.Session s) {
-        String d = agentDefault(s.backend);
-        Providers.P p = Providers.of(d);
-        if (p != null) return NnApp.str(R.string.models_via, Providers.model(d), p.name);
-        if (!s.actualModel.isEmpty()) return NnApp.str(R.string.models_default_now, nameOf(s.backend, s.actualModel));
-        return defaultHint(s.backend);
+        return detail(s.backend, agentDefault(s.backend), "");
     }
 
-    /** What the agent's own default is, before it has said. */
+    /** What the agent's own default is. */
     static String defaultHint(String backend) {
-        if ("claude".equals(backend)) return NnApp.str(R.string.models_default_claude);
-        if ("codex".equals(backend)) return NnApp.str(R.string.models_default_codex);
-        if ("agy".equals(backend)) return NnApp.str(R.string.models_default_agy);
-        if ("grok".equals(backend)) return NnApp.str(R.string.models_default_grok);
-        return NnApp.str(R.string.models_default_opencode);
+        return detail(backend, agentDefault(backend), "");
     }
 
     /** A model id the agent reported, by its name in the model list if it's there. */
@@ -273,10 +297,12 @@ final class Models {
     }
 
     static String label(String backend, String model) {
-        if (model == null || model.isEmpty()) return NnApp.str(R.string.models_default);
+        if (model == null || model.isEmpty()) model = agentDefault(backend);
+        if (model.isEmpty()) return NnApp.str(R.string.models_default_model);
         Providers.P p = Providers.of(model);
         if (p != null) return NnApp.str(R.string.models_via, serviceModelName(p, Providers.model(model)), p.name);
         for (String[] m : forBackend(backend)) if (m[0].equals(model)) return m[1];
-        return model;
+        String pName = pretty(model);
+        return pName.equals(model) ? model : pName;
     }
 }

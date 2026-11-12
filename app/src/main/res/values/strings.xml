@@ -2256,4 +2256,7 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="chat_starter_search">Look up a topic and summarize key points</string>
     <string name="chat_starter_apps">Open an app or automate a quick phone task</string>
     <string name="chat_starter_linux">Write or run a quick script in Linux workspace</string>
+    <string name="models_search_hint">Search models…</string>
+    <string name="models_empty_search">No models match “%1$s”</string>
+    <string name="setup_agent_defaults">Default model &amp; effort</string>
 </resources>

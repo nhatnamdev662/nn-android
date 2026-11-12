@@ -1637,4 +1637,7 @@
     <string name="chat_starter_search">Thema nachschlagen und Wichtigstes zusammenfassen</string>
     <string name="chat_starter_apps">App öffnen oder schnelle Aufgabe am Handy erledigen</string>
     <string name="chat_starter_linux">Schnelles Skript im Linux-Workspace schreiben</string>
+    <string name="models_search_hint">Modelle durchsuchen…</string>
+    <string name="models_empty_search">Keine Modelle passen zu „%1$s“</string>
+    <string name="setup_agent_defaults">Standardmodell &amp; Effort</string>
 </resources>

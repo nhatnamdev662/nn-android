@@ -106,7 +106,7 @@ public class AppPermissionsActivity extends Screen {
             r.setPaddingRelative(0, dp(this, 10), 0, dp(this, 10));
             r.setBackgroundResource(ripple(this, false));
             r.addView(title(this, getString(R.string.chat_model_title, Account.nameOf(h)), 15), weight1());
-            r.addView(single(monoText(this, m.isEmpty() ? ("claude".equals(h) ? "Haiku" : getString(R.string.models_default))
+            r.addView(single(monoText(this, m.isEmpty() && "claude".equals(h) ? "Haiku"
                     : Models.label(h, m), 13, MUTED)));
             r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 20));
             r.setOnClickListener(v -> modelSheet(this, h, m, getString("claude".equals(h) ? R.string.reviewer_default_claude

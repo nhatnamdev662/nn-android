@@ -1621,4 +1621,7 @@
     <string name="chat_starter_search">주제를 찾아 핵심 내용을 요약해 줘</string>
     <string name="chat_starter_apps">앱을 열거나 휴대폰 작업을 빠르게 처리해 줘</string>
     <string name="chat_starter_linux">Linux 작업 공간에서 간단한 스크립트 작성 및 실행</string>
+    <string name="models_search_hint">모델 검색…</string>
+    <string name="models_empty_search">“%1$s”와(과) 일치하는 모델 없음</string>
+    <string name="setup_agent_defaults">기본 모델 및 추론 강도</string>
 </resources>

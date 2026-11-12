@@ -114,7 +114,7 @@ final class Sessions {
         }
 
         String label() {
-            return title.isEmpty() ? NnApp.str(R.string.session_new_chat, brainName()) : title;
+            return title.isEmpty() ? NnApp.str(R.string.session_new_chat, "NN") : title;
         }
     }
 
@@ -179,6 +179,8 @@ final class Sessions {
     Session create(String backend, boolean select, boolean dev) {
         Session s = new Session(UUID.randomUUID().toString().replace("-", "").substring(0, 12), backend);
         s.dev = dev;
+        s.model = Models.agentDefault(backend);
+        s.effort = Prefs.agentEffort(app, backend);
         all.add(0, s);
         if (select || current == null || !all.contains(current)) current = s;
         save(s);

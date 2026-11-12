@@ -1580,7 +1580,45 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         r.addView(t, weight1());
         r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
         r.setOnClickListener(v -> openAgent(agent));
-        return r;
+        LinearLayout wrap = column(this);
+        wrap.addView(r, full());
+        boolean ready = "SIGNED_IN".equals(st) && !busy;
+        if (ready) {
+            LinearLayout def = row(this);
+            def.setGravity(Gravity.CENTER_VERTICAL);
+            def.setPaddingRelative(dp(this, 10), dp(this, 7), dp(this, 10), dp(this, 7));
+            def.setBackground(outlined(this, BG, 10, OUTLINE, 1));
+            def.setForeground(getDrawable(ripple(this, false)));
+            def.addView(icon(this, R.drawable.ms_tune, ACCENT_TEXT, 16));
+            String curM = Models.label(agent, Models.agentDefault(agent));
+            String curE = Models.effortLabel(Prefs.agentEffort(this, agent));
+            TextView dl = single(monoText(this,
+                    getString(R.string.setup_agent_defaults) + ": " + curM + " · " + curE, 11, TEXT));
+            dl.setPaddingRelative(dp(this, 8), 0, dp(this, 6), 0);
+            def.addView(dl, weight1());
+            def.addView(icon(this, R.drawable.ms_expand_more, MUTED, 16));
+            def.setOnClickListener(v -> modelEffortSheet(this, agent, Prefs.agentDefault(this, agent),
+                    Prefs.agentEffort(this, agent), null, true, true, true, new Ui.ModelPickListener() {
+                        @Override
+                        public void onPickModel(String model) {
+                            Prefs.setAgentDefault(SetupActivity.this, agent, model);
+                            ChatHub.get(SetupActivity.this).changed();
+                            render();
+                        }
+
+                        @Override
+                        public void onPickEffort(String effort) {
+                            Prefs.setAgentEffort(SetupActivity.this, agent, effort);
+                            ChatHub.get(SetupActivity.this).changed();
+                            render();
+                        }
+                    }));
+            LinearLayout.LayoutParams dlp = full();
+            dlp.setMarginStart(dp(this, 52));
+            dlp.bottomMargin = dp(this, 6);
+            wrap.addView(def, dlp);
+        }
+        return wrap;
     }
 
     /** Settings → API keys: other services' models for Claude Code, Codex and OpenCode. */

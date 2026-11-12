@@ -14,7 +14,7 @@
 #   nn-run <token> transcript <claude|codex> <file>   last messages of a session (nn_transcript)
 #   nn-run <token> adopt <session> <claude|codex> <agent-session-id>  continue that session as a NN chat
 # Every event sent to the bubble carries "nn_session" so the app can route it.
-HELPER_VERSION=28
+HELPER_VERSION=29
 set -u
 export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The claude launcher sets BUN_OPTIONS with a path relative to its folder; never inherit a stale one.
@@ -95,9 +95,22 @@ case "$CMD" in
     fi
     gm=$(jq -Rsc 'split("\n") | map(capture("^\\s*[*-]\\s+(?<id>[A-Za-z0-9._-]+)") | [.id, .id])' "$D/grok-models" 2>/dev/null)
     om=$(jq -Rsc 'split("\n") | map(select(test("^[A-Za-z0-9._-]+/\\S+$"))) | map([., (split("/") | .[1:] | join("/"))])' "$D/opencode-models" 2>/dev/null)
+    cd_m=$(jq -r '.model // empty' "$HOME/.claude/settings.json" 2>/dev/null)
+    xd_m=$(sed -n 's/^[[:space:]]*model[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$HOME/.codex/config.toml" 2>/dev/null | head -1)
+    [ -z "$xd_m" ] && xd_m=$(jq -r '.[0][0] // empty' <<<"${cm:-[]}" 2>/dev/null)
+    od_m=$(jq -r '.model // empty' "$HOME/.config/opencode/opencode.json" "$HOME/.config/opencode/config.json" 2>/dev/null | head -1)
+    if [ -z "$od_m" ]; then
+      if grep -qx 'opencode/big-pickle' "$D/opencode-models" 2>/dev/null; then od_m=opencode/big-pickle
+      else od_m=$(jq -r '.[0][0] // empty' <<<"${om:-[]}" 2>/dev/null); fi
+    fi
+    ad_m=$(jq -r '.[0][0] // empty' <<<"${am:-[]}" 2>/dev/null)
+    gd_m=$(sed -n 's/^[[:space:]]*\*[[:space:]]*\([A-Za-z0-9._-]*\).*/\1/p' "$D/grok-models" 2>/dev/null | head -1)
+    [ -z "$gd_m" ] && gd_m=$(jq -r '.[0][0] // empty' <<<"${gm:-[]}" 2>/dev/null)
+    def_json=$(jq -cn --arg cl "$cd_m" --arg cx "$xd_m" --arg oc "$od_m" --arg ag "$ad_m" --arg gk "$gd_m" \
+      '{claude:$cl,codex:$cx,opencode:$oc,agy:$ag,grok:$gk}')
     jq -cn --arg s "${agents:-none}" --arg g "${signed:-none}" --argjson v "$HELPER_VERSION" --argjson cm "${cm:-[]}" \
-      --argjson om "${om:-[]}" --argjson am "${am:-[]}" --argjson gm "${gm:-[]}" \
-      '{type:"nn_pong",text:$s,signed:$g,helper:$v,codex_models:$cm,opencode_models:$om,agy_models:$am,grok_models:$gm}' | post
+      --argjson om "${om:-[]}" --argjson am "${am:-[]}" --argjson gm "${gm:-[]}" --argjson df "${def_json:-{}}" \
+      '{type:"nn_pong",text:$s,signed:$g,helper:$v,codex_models:$cm,opencode_models:$om,agy_models:$am,grok_models:$gm,cli_defaults:$df}' | post
     exit 0 ;;
   procs)
     # map every process started by a NN chat to that chat
@@ -562,6 +575,15 @@ phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browse
   fi
   [ -n "$SVC" ] && MODEL="nn-$SVC/$SVCM"
   [ -n "${MODEL:-}" ] && args+=(-m "$MODEL")
+  if [ -n "${EFFORT:-}" ]; then
+    local ohelp
+    ohelp=$(opencode run --help 2>/dev/null || true)
+    if printf '%s' "$ohelp" | grep -q -- '--variant'; then
+      args+=(--variant "$EFFORT")
+    elif printf '%s' "$ohelp" | grep -q -- '--effort'; then
+      args+=(--effort "$EFFORT")
+    fi
+  fi
   local f
   for f in "${ATT[@]}"; do args+=(-f "$f"); done
   cd "$W" && OPENCODE_CONFIG_CONTENT=$cfg opencode "${args[@]}" -- "$oc_msg" </dev/null 2>"$S/last-error.log"

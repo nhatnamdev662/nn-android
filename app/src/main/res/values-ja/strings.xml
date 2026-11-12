@@ -1622,4 +1622,7 @@
     <string name="chat_starter_search">トピックを調べて要点をまとめて</string>
     <string name="chat_starter_apps">アプリを開くかスマホの作業を自動化して</string>
     <string name="chat_starter_linux">Linux ワークスペースで簡単なスクリプトを作成・実行</string>
+    <string name="models_search_hint">モデルを検索…</string>
+    <string name="models_empty_search">“%1$s” に一致するモデルがありません</string>
+    <string name="setup_agent_defaults">デフォルトモデルと思考強度</string>
 </resources>

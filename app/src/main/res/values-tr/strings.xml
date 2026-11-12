@@ -1638,4 +1638,7 @@
     <string name="chat_starter_search">Bir konuyu araştır ve önemli noktaları özetle</string>
     <string name="chat_starter_apps">Bir uygulama aç veya telefonda hızlı bir görev yap</string>
     <string name="chat_starter_linux">Linux alanında hızlı bir betik yaz veya çalıştır</string>
+    <string name="models_search_hint">Modellerde ara…</string>
+    <string name="models_empty_search">“%1$s” ile eşleşen model yok</string>
+    <string name="setup_agent_defaults">Varsayılan model ve efor</string>
 </resources>

@@ -112,56 +112,30 @@ public class ApiKeysActivity extends Screen {
         t.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
         t.addView(title(this, Account.nameOf(agent), 15));
         String d = Models.agentDefault(agent);
-        t.addView(single(monoText(this, d.isEmpty() ? getString(R.string.api_keys_own_default) : Models.label(agent, d), 12, MUTED)));
+        String eff = Prefs.agentEffort(this, agent);
+        t.addView(single(monoText(this, Models.label(agent, d) + " · " + Models.effortLabel(eff), 12, MUTED)));
         r.addView(t, weight1());
         r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
         r.setOnClickListener(v -> pickDefault(agent));
         return r;
     }
 
-    /** The agent's own default, or one of its services' models. */
+    /** Pick the real default model & effort for an agent using the unified Model & Effort sheet. */
     private void pickDefault(String agent) {
-        LinearLayout c = column(this);
-        TextView h = title(this, getString(R.string.chat_model_title, Account.nameOf(agent)), 18);
-        h.setPaddingRelative(0, 0, 0, dp(this, 8));
-        c.addView(h);
-        final Dialog[] d = new Dialog[1];
-        String now = Models.agentDefault(agent);
-        c.addView(pickRow(getString(R.string.api_keys_own_default), Models.defaultHint(agent), now.isEmpty(), () -> {
-            d[0].dismiss();
-            setDefault(agent, "");
-        }), full());
-        for (Providers.P p : Providers.forAgent(agent)) {
-            TextView sl = sectionLabel(this, p.name);
-            sl.setPaddingRelative(0, dp(this, 14), 0, dp(this, 2));
-            c.addView(sl);
-            org.json.JSONArray models = p.offered();
-            for (int i = 0; i < models.length(); i++) {
-                String id = models.optJSONObject(i).optString("id");
-                String ref = Providers.ref(p, id);
-                c.addView(pickRow(models.optJSONObject(i).optString("name"), Models.detail(agent, ref, ""),
-                        ref.equals(now), () -> {
-                            d[0].dismiss();
-                            setDefault(agent, ref);
-                        }), full());
-            }
-        }
-        d[0] = bottomSheet(this, c);
-        d[0].show();
-    }
+        modelEffortSheet(this, agent, Models.agentDefault(agent), Prefs.agentEffort(this, agent),
+                null, true, true, true, new Ui.ModelPickListener() {
+                    @Override
+                    public void onPickModel(String model) {
+                        setDefault(agent, model);
+                    }
 
-    private LinearLayout pickRow(String name, String sub, boolean on, Runnable l) {
-        LinearLayout r = row(this);
-        r.setPaddingRelative(dp(this, 4), dp(this, 10), dp(this, 4), dp(this, 10));
-        r.setBackgroundResource(ripple(this, false));
-        r.addView(radio(this, on));
-        LinearLayout t = column(this);
-        t.setPaddingRelative(dp(this, 14), 0, 0, 0);
-        t.addView(title(this, name, 15));
-        if (!sub.isEmpty()) t.addView(single(monoText(this, sub, 12, MUTED)));
-        r.addView(t, weight1());
-        r.setOnClickListener(v -> l.run());
-        return r;
+                    @Override
+                    public void onPickEffort(String effort) {
+                        Prefs.setAgentEffort(ApiKeysActivity.this, agent, effort);
+                        ChatHub.get(ApiKeysActivity.this).changed();
+                        render();
+                    }
+                });
     }
 
     private void setDefault(String agent, String ref) {
