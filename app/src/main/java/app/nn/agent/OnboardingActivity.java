@@ -350,12 +350,15 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             r.setBackground(outlined(this, CARD, 16, on ? ACCENT : OUTLINE, on ? 2 : 1));
             if ("both".equals(o[0])) {
                 LinearLayout two = row(this);
-                TextView a = agentTile(this, "claude");
-                a.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 28), dp(this, 40)));
+                two.setGravity(Gravity.CENTER_VERTICAL);
+                View a = agentTile(this, "claude");
+                a.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 30), dp(this, 30)));
+                a.setPaddingRelative(dp(this, 5), dp(this, 5), dp(this, 5), dp(this, 5));
                 two.addView(a);
-                TextView b = agentTile(this, "codex");
-                LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(dp(this, 28), dp(this, 40));
-                bp.setMarginStart(dp(this, 2));
+                View b = agentTile(this, "codex");
+                LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(dp(this, 30), dp(this, 30));
+                bp.setMarginStart(dp(this, 4));
+                b.setPaddingRelative(dp(this, 5), dp(this, 5), dp(this, 5), dp(this, 5));
                 two.addView(b, bp);
                 r.addView(two);
             } else {

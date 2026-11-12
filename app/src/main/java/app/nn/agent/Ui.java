@@ -251,18 +251,48 @@ final class Ui {
         return t;
     }
 
-    /** 40×40 tile with "CC" (Claude Code), "CX" (Codex), "OC" (OpenCode), "AG" (Antigravity) or "GK" (Grok). */
-    static TextView agentTile(Context c, String backend) {
-        boolean claude = !"codex".equals(backend) && !"opencode".equals(backend) && !"agy".equals(backend)
-                && !"grok".equals(backend);
-        TextView t = monoText(c, "codex".equals(backend) ? "CX" : "opencode".equals(backend) ? "OC"
-                : "agy".equals(backend) ? "AG" : "grok".equals(backend) ? "GK" : "CC", 12,
-                claude ? ACCENT_TEXT : TEXT);
-        t.setTypeface(mono(c, 600));
-        t.setGravity(Gravity.CENTER);
-        t.setBackground(rounded(c, claude ? ACCENT_SOFT : CARD2, 12));
-        t.setLayoutParams(new LinearLayout.LayoutParams(dp(c, 40), dp(c, 40)));
-        return t;
+    /** 40×40 brand avatar tile for Claude Code, Codex, OpenCode, Antigravity or Grok. */
+    static View agentTile(Context c, String backend) {
+        FrameLayout box = new FrameLayout(c);
+        int bg, border, res;
+        boolean tintMono = false;
+        if ("codex".equals(backend)) {
+            bg = 0x2210A37F;
+            border = 0x4410A37F;
+            res = R.drawable.agent_codex;
+        } else if ("opencode".equals(backend)) {
+            bg = CARD2;
+            border = OUTLINE;
+            res = R.drawable.agent_opencode;
+            tintMono = true;
+        } else if ("agy".equals(backend)) {
+            bg = 0x1F4285F4;
+            border = 0x444285F4;
+            res = R.drawable.agent_antigravity;
+        } else if ("grok".equals(backend)) {
+            bg = CARD2;
+            border = OUTLINE;
+            res = R.drawable.agent_grok;
+            tintMono = true;
+        } else {
+            bg = 0x26D97757;
+            border = 0x44D97757;
+            res = R.drawable.agent_claude;
+        }
+        box.setBackground(outlined(c, bg, 12, border, 1));
+        int pad = dp(c, 8);
+        box.setPaddingRelative(pad, pad, pad, pad);
+        ImageView iv = new ImageView(c);
+        iv.setImageResource(res);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        if (tintMono) {
+            iv.setImageTintList(ColorStateList.valueOf(TEXT));
+        }
+        box.addView(iv, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+        box.setLayoutParams(new LinearLayout.LayoutParams(dp(c, 40), dp(c, 40)));
+        box.setContentDescription(Account.nameOf(backend));
+        return box;
     }
 
     /** Outlined mono chip with a trailing expand icon. */
