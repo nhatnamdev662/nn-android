@@ -1615,4 +1615,11 @@
     <string name="setup_step_install_agy">NN は独自の小さな Linux と Google の %1$s をダウンロードします（約 200 MB）。</string>
     <string name="setup_step_signin_agy">Google アカウントを使用します。ブラウザが開いたら承認してください。NN がコードを自動取得します。</string>
     <string name="onboarding_brain_pick_hint">先に上からエージェントを選択してください</string>
+    <string name="chat_read_aloud_info">返信のたびに自動で音声読み上げします。</string>
+    <string name="chat_slash_description">クイックコマンドとスキル</string>
+    <string name="chat_tool_step_running">実行中: %1$s</string>
+    <string name="chat_starter_screen">画面を確認して開いている作業を手伝って</string>
+    <string name="chat_starter_search">トピックを調べて要点をまとめて</string>
+    <string name="chat_starter_apps">アプリを開くかスマホの作業を自動化して</string>
+    <string name="chat_starter_linux">Linux ワークスペースで簡単なスクリプトを作成・実行</string>
 </resources>

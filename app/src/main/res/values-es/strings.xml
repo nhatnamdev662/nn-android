@@ -2062,4 +2062,11 @@
     <string name="setup_step_install_agy">NN descarga su propio pequeño Linux y %1$s desde Google (unos 200 MB).</string>
     <string name="setup_step_signin_agy">Con tu cuenta de Google. Se abrirá el navegador; aprueba allí y NN recogerá el código automáticamente.</string>
     <string name="onboarding_brain_pick_hint">Primero selecciona un agente arriba</string>
+    <string name="chat_read_aloud_info">Leer respuestas en voz alta automáticamente.</string>
+    <string name="chat_slash_description">Comandos rápidos y skills</string>
+    <string name="chat_tool_step_running">Ejecutando: %1$s</string>
+    <string name="chat_starter_screen">Revisa mi pantalla y ayúdame con lo que tengo abierto</string>
+    <string name="chat_starter_search">Busca un tema y resume los puntos clave</string>
+    <string name="chat_starter_apps">Abre una app o automatiza una tarea en el teléfono</string>
+    <string name="chat_starter_linux">Crea o ejecuta un script rápido en Linux</string>
 </resources>

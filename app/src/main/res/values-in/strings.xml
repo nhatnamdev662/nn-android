@@ -2064,4 +2064,11 @@
     <string name="setup_step_install_agy">NN mengunduh Linux kecilnya sendiri dan %1$s dari Google (sekitar 200 MB).</string>
     <string name="setup_step_signin_agy">Dengan akun Google Anda. Browser akan terbuka; setujui di sana dan NN otomatis mengambil kodenya.</string>
     <string name="onboarding_brain_pick_hint">Pilih agen di atas terlebih dahulu</string>
+    <string name="chat_read_aloud_info">Bacakan balasan secara otomatis setiap selesai merespons.</string>
+    <string name="chat_slash_description">Perintah cepat &amp; skill</string>
+    <string name="chat_tool_step_running">Menjalankan: %1$s</string>
+    <string name="chat_starter_screen">Periksa layar saya dan bantu apa yang sedang terbuka</string>
+    <string name="chat_starter_search">Cari topik dan rangkum poin-poin pentingnya</string>
+    <string name="chat_starter_apps">Buka aplikasi atau jalankan tugas cepat di ponsel</string>
+    <string name="chat_starter_linux">Tulis atau jalankan skrip cepat di ruang Linux</string>
 </resources>

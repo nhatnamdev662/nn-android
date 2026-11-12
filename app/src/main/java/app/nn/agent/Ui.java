@@ -253,6 +253,11 @@ final class Ui {
 
     /** 40×40 brand avatar tile for Claude Code, Codex, OpenCode, Antigravity or Grok. */
     static View agentTile(Context c, String backend) {
+        return agentTile(c, backend, 40);
+    }
+
+    /** Sized brand avatar tile for Claude Code, Codex, OpenCode, Antigravity or Grok. */
+    static View agentTile(Context c, String backend, int sizeDp) {
         FrameLayout box = new FrameLayout(c);
         int bg, border, res;
         boolean tintMono = false;
@@ -279,8 +284,9 @@ final class Ui {
             border = 0x44D97757;
             res = R.drawable.agent_claude;
         }
-        box.setBackground(outlined(c, bg, 12, border, 1));
-        int pad = dp(c, 8);
+        int radius = sizeDp >= 48 ? 16 : sizeDp >= 34 ? 12 : Math.max(6, sizeDp / 3);
+        box.setBackground(outlined(c, bg, radius, border, 1));
+        int pad = dp(c, Math.max(4, sizeDp / 5));
         box.setPaddingRelative(pad, pad, pad, pad);
         ImageView iv = new ImageView(c);
         iv.setImageResource(res);
@@ -290,7 +296,7 @@ final class Ui {
         }
         box.addView(iv, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
-        box.setLayoutParams(new LinearLayout.LayoutParams(dp(c, 40), dp(c, 40)));
+        box.setLayoutParams(new LinearLayout.LayoutParams(dp(c, sizeDp), dp(c, sizeDp)));
         box.setContentDescription(Account.nameOf(backend));
         return box;
     }

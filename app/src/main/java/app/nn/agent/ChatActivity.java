@@ -37,11 +37,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private ScrollView scroll;
     private TextView title, chipText, stripText;
     private UsageGauge usage;
-    /** The Linux tools chip beside the model chip. */
+    /** The Linux tools chip inside the composer toolbar (protected from agent taps). */
     private LinearLayout linux;
-    /** The empty-chat hint, while the chat has no messages. */
-    private TextView hint;
+    /** Empty-state brand hero, starter cards box, and contextual subtitle/model pill. */
+    private LinearLayout emptyHero, startersBox;
+    private TextView hint, heroModelText;
     private Button mic;
+    private TextView slashBtn;
     private LinearLayout pill;
     private LinearLayout lockedComposer;
     private TextView lockedText;
@@ -51,7 +53,11 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     /** Starts live voice (Codex chats); the one-time hint about it above the composer. */
     private ImageButton live;
     private TextView liveHint;
-    private ImageButton speaker, send;
+    private ImageButton send;
+    /** Tracks the latest inline AI action bar and whether the active AI turn already rendered its header. */
+    private View lastAgentActions;
+    private Sessions.Msg latestAgentMsg;
+    private boolean turnHeaderShown;
     /** Chat options: long-task mode, the schedule and "Allowed without asking"; accent while any is on. */
     private ImageButton options;
     /** The messages the agent scheduled for itself in this chat (schedule_message), each with Cancel. */
@@ -95,33 +101,23 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         LinearLayout root = column(this);
         root.setBackgroundColor(BG);
 
-        // app bar
+        // app bar (clean editorial header: Back · Title/Model · [Browser] · Usage · Options)
         LinearLayout top = row(this);
-        top.setPaddingRelative(dp(this, 4), dp(this, 4), dp(this, 4), dp(this, 4));
+        top.setPaddingRelative(dp(this, 4), dp(this, 4), dp(this, 6), dp(this, 4));
         ImageButton back = iconButton(this, R.drawable.ms_arrow_back, getString(R.string.chat_back));
         back.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 44), dp(this, 44)));
         back.setOnClickListener(v -> finish());
         top.addView(back);
         LinearLayout titles = column(this);
-        titles.setPaddingRelative(dp(this, 4), 0, dp(this, 4), 0);
+        titles.setPaddingRelative(dp(this, 4), 0, dp(this, 6), 0);
         title = single(title(this, ses.label(), 16));
         titles.addView(title);
-        // the model chip, then Linux tools: in a row only as wide as its chips, the weight just lets the model chip
-        // shrink (its text cut short) when a narrow screen has no room for both
-        LinearLayout chips = row(this);
         LinearLayout chip = chip(this, "");
         chipText = (TextView) chip.getChildAt(0);
         chip.setOnClickListener(v -> chooseModel());
-        chips.addView(chip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-        linux = protect(linuxChip(this)); // agents never switch it, even when they may tap NN's screens
-        linux.setOnClickListener(v -> switchLinuxTools());
-        LinearLayout.LayoutParams lp = wrap();
-        lp.setMarginStart(dp(this, 6));
-        chips.addView(linux, lp);
         LinearLayout.LayoutParams cp = wrap();
         cp.topMargin = dp(this, 3);
-        titles.addView(chips, cp);
+        titles.addView(chip, cp);
         top.addView(titles, weight1());
         browserBtn = iconButton(this, R.drawable.ms_public, getString(R.string.browser_show_bar), MUTED);
         browserBtn.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 40), dp(this, 44)));
@@ -145,21 +141,11 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             if (full != null) Toast.makeText(this, full, Toast.LENGTH_LONG).show();
         });
         top.addView(usage);
-        // agents never change these, even when they may tap NN's screens
+        // agents never change these, even when they may tap NN's screens (includes Read Aloud toggle)
         options = protect(iconButton(this, R.drawable.ms_tune, getString(R.string.chat_options), MUTED));
         options.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 44), dp(this, 44)));
         options.setOnClickListener(v -> chatOptions());
         top.addView(options);
-        speaker = iconButton(this, R.drawable.ms_volume_off, getString(R.string.chat_read_aloud), MUTED);
-        speaker.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 44), dp(this, 44)));
-        speaker.setOnClickListener(v -> {
-            Prefs.setSpeakReplies(this, !Prefs.speakReplies(this));
-            if (!Prefs.speakReplies(this)) Voice.stopSpeaking();
-            Toast.makeText(this, Prefs.speakReplies(this) ? R.string.chat_read_aloud_on : R.string.chat_read_aloud_off,
-                    Toast.LENGTH_SHORT).show();
-            refresh();
-        });
-        top.addView(speaker);
         root.addView(top, full());
         root.addView(divider(), new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(this, 1)));
 
@@ -200,8 +186,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         scroll = new ScrollView(this);
         scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
         scroll.setVerticalScrollBarEnabled(false);
+        scroll.setClipToPadding(false);
         messages = column(this);
-        messages.setPaddingRelative(dp(this, 16), dp(this, 8), dp(this, 16), dp(this, 12));
+        messages.setPaddingRelative(dp(this, 18), dp(this, 10), dp(this, 18), dp(this, 16));
         scroll.addView(messages);
         scroll.setOnScrollChangeListener((v, sx, sy, osx, osy) -> updateScrollBottomBtn());
         messages.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> updateScrollBottomBtn());
@@ -274,13 +261,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         trayScroll.setVisibility(View.GONE);
         root.addView(trayScroll, full());
 
-        pill = row(this);
-        pill.setPaddingRelative(dp(this, 4), dp(this, 4), dp(this, 4), dp(this, 4));
-        ImageButton attach = iconButton(this, R.drawable.ms_attach_file, getString(R.string.chat_attach_description), MUTED);
-        attach.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40)));
-        attach.setOnClickListener(v -> attachSheet());
-        pill.addView(attach);
-        pill.setBackground(outlined(this, CARD, 26, OUTLINE, 1));
+        // two-tier composer: full-width multiline input above, tools dock (+ / Linux on left, Live/Mic/Send on right)
+        pill = column(this);
+        pill.setPaddingRelative(dp(this, 14), dp(this, 6), dp(this, 8), dp(this, 8));
+        pill.setBackground(outlined(this, CARD, 22, OUTLINE, 1));
         RichEditText field = new RichEditText(this);
         field.onImages(this::addFiles); // pasted, or from the keyboard's clipboard (issue #6)
         input = field;
@@ -289,25 +273,74 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         input.setTextColor(TEXT);
         input.setTextSize(15);
         input.setTypeface(sans(this, 400));
+        input.setMinHeight(dp(this, 38));
         input.setMaxLines(6);
+        input.setGravity(Gravity.TOP | Gravity.START);
         input.setBackground(null);
-        input.setPaddingRelative(0, dp(this, 10), 0, dp(this, 10));
+        input.setPaddingRelative(dp(this, 2), dp(this, 6), dp(this, 6), dp(this, 6));
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
-        pill.addView(input, weight1());
+        pill.addView(input, full());
+
+        LinearLayout composerBar = row(this);
+        composerBar.setGravity(Gravity.CENTER_VERTICAL);
+        composerBar.setPaddingRelative(0, dp(this, 4), 0, 0);
+
+        LinearLayout leftTools = row(this);
+        leftTools.setGravity(Gravity.CENTER_VERTICAL);
+        ImageButton attach = iconButton(this, R.drawable.ms_add, getString(R.string.chat_attach_description), TEXT);
+        attach.setBackground(rounded(this, CARD2, 17));
+        attach.setForeground(getDrawable(ripple(this, false)));
+        attach.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 34), dp(this, 34)));
+        attach.setOnClickListener(v -> attachSheet());
+        leftTools.addView(attach);
+
+        slashBtn = monoText(this, "/", 15, TEXT);
+        slashBtn.setGravity(Gravity.CENTER);
+        slashBtn.setTypeface(mono(this, 600));
+        slashBtn.setBackground(rounded(this, CARD2, 17));
+        slashBtn.setForeground(getDrawable(ripple(this, false)));
+        slashBtn.setContentDescription(getString(R.string.chat_slash_description));
+        slashBtn.setVisibility(Linux.installed(this) ? View.VISIBLE : View.GONE);
+        slashBtn.setOnClickListener(v -> {
+            String cur = input.getText() != null ? input.getText().toString() : "";
+            if (cur.startsWith("/") && slashList.getVisibility() == View.VISIBLE) {
+                input.setText("");
+            } else {
+                input.setText("/");
+                input.setSelection(1);
+                input.requestFocus();
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
+            }
+        });
+        LinearLayout.LayoutParams slpBtn = new LinearLayout.LayoutParams(dp(this, 34), dp(this, 34));
+        slpBtn.setMarginStart(dp(this, 6));
+        leftTools.addView(slashBtn, slpBtn);
+
+        linux = protect(linuxChip(this)); // agents never switch it, even when they may tap NN's screens
+        ((TextView) linux.getChildAt(1)).setMaxWidth(dp(this, 118));
+        linux.setOnClickListener(v -> switchLinuxTools());
+        LinearLayout.LayoutParams lxp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 34));
+        lxp.setMarginStart(dp(this, 6));
+        leftTools.addView(linux, lxp);
+        composerBar.addView(leftTools, weight1());
+
         live = iconButton(this, R.drawable.ms_graphic_eq, getString(R.string.live_option), MUTED);
-        live.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40)));
+        live.setLayoutParams(new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36)));
         live.setOnClickListener(v -> startLive());
         live.setVisibility(CodexLive.available(this, ses) ? View.VISIBLE : View.GONE);
-        pill.addView(live);
+        composerBar.addView(live);
         mic = button(this, "", false);
+        mic.setMinHeight(0);
+        mic.setMinimumHeight(0);
         mic.setContentDescription(getString(R.string.chat_talk));
         mic.setOnClickListener(v -> toggleMic());
         mic.setOnLongClickListener(v -> {
             languageSheet();
             return true;
         });
-        pill.addView(mic, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 40)));
+        composerBar.addView(mic, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 36)));
         micIdle();
         send = new ImageButton(this);
         send.setImageResource(R.drawable.ms_arrow_upward);
@@ -322,9 +355,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 send();
             }
         });
-        LinearLayout.LayoutParams snp = new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40));
+        LinearLayout.LayoutParams snp = new LinearLayout.LayoutParams(dp(this, 36), dp(this, 36));
         snp.setMarginStart(dp(this, 4));
-        pill.addView(send, snp);
+        composerBar.addView(send, snp);
+        pill.addView(composerBar, full());
         input.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int a, int b, int c) {
@@ -451,16 +485,96 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         messages.removeAllViews();
         log = null;
         hint = null;
+        emptyHero = null;
+        startersBox = null;
+        heroModelText = null;
+        lastAgentActions = null;
+        turnHeaderShown = false;
+        latestAgentMsg = null;
+        for (int i = ses.messages.size() - 1; i >= 0; i--) {
+            Sessions.Msg item = ses.messages.get(i);
+            if (item.kind == Bubble.Kind.NN || item.kind == Bubble.Kind.BUDDY) {
+                latestAgentMsg = item;
+                break;
+            }
+        }
         if (ses.messages.isEmpty()) {
-            hint = text(this, hintText(), 14, MUTED);
-            hint.setGravity(Gravity.CENTER);
-            hint.setPaddingRelative(dp(this, 24), dp(this, 40), dp(this, 24), 0);
-            messages.addView(hint, full());
+            messages.addView(buildEmptyHero(), full());
         }
         for (Sessions.Msg m : ses.messages) show(m);
+        latestAgentMsg = null;
         if (log != null && !ses.running) log.finish();
         lastShown = lastMsg();
         updateTypingIndicator();
+    }
+
+    /** Centered editorial brand hero + quick-start prompt cards when the chat is empty. */
+    private View buildEmptyHero() {
+        emptyHero = column(this);
+        emptyHero.setGravity(Gravity.CENTER_HORIZONTAL);
+        emptyHero.setPaddingRelative(dp(this, 6), dp(this, 24), dp(this, 6), dp(this, 12));
+
+        emptyHero.addView(agentTile(this, ses.backend, 56));
+
+        TextView heroTitle = title(this, ses.brainName(), 20);
+        heroTitle.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams tp = wrap();
+        tp.topMargin = dp(this, 12);
+        emptyHero.addView(heroTitle, tp);
+
+        heroModelText = single(monoText(this, Models.summary(ses), 12, MUTED));
+        heroModelText.setPaddingRelative(dp(this, 10), dp(this, 4), dp(this, 10), dp(this, 4));
+        heroModelText.setBackground(outlined(this, CARD, 10, OUTLINE, 1));
+        heroModelText.setForeground(getDrawable(ripple(this, false)));
+        heroModelText.setOnClickListener(v -> chooseModel());
+        LinearLayout.LayoutParams mp = wrap();
+        mp.topMargin = dp(this, 6);
+        emptyHero.addView(heroModelText, mp);
+
+        hint = text(this, hintText(), 14, MUTED);
+        hint.setGravity(Gravity.CENTER);
+        hint.setLineSpacing(dp(this, 2), 1.25f);
+        hint.setMaxWidth(dp(this, 320));
+        LinearLayout.LayoutParams hp = wrap();
+        hp.topMargin = dp(this, 10);
+        emptyHero.addView(hint, hp);
+
+        startersBox = column(this);
+        startersBox.addView(starterCard(R.drawable.ms_auto_awesome, getString(R.string.chat_starter_screen)));
+        startersBox.addView(starterCard(R.drawable.ms_public, getString(R.string.chat_starter_search)));
+        startersBox.addView(starterCard(R.drawable.ms_schedule, getString(R.string.chat_starter_apps)));
+        if (Linux.installed(this)) {
+            startersBox.addView(starterCard(R.drawable.ms_terminal, getString(R.string.chat_starter_linux)));
+        }
+        startersBox.setVisibility(SetupState.signedIn(this, ses.backend) ? View.VISIBLE : View.GONE);
+        LinearLayout.LayoutParams sp = full();
+        sp.topMargin = dp(this, 20);
+        emptyHero.addView(startersBox, sp);
+        return emptyHero;
+    }
+
+    private View starterCard(int iconRes, String prompt) {
+        LinearLayout r = row(this);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 12), dp(this, 12));
+        r.setBackground(outlined(this, CARD, 14, OUTLINE, 1));
+        r.setForeground(getDrawable(ripple(this, false)));
+        r.addView(icon(this, iconRes, ACCENT_TEXT, 18));
+        TextView tv = text(this, prompt, 13, TEXT);
+        tv.setLineSpacing(dp(this, 1), 1.2f);
+        tv.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
+        r.addView(tv, weight1());
+        r.addView(icon(this, R.drawable.ms_arrow_forward, MUTED, 16));
+        r.setOnClickListener(v -> {
+            input.setText(prompt);
+            input.setSelection(prompt.length());
+            input.requestFocus();
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
+        });
+        LinearLayout.LayoutParams lp = full();
+        lp.bottomMargin = dp(this, 8);
+        r.setLayoutParams(lp);
+        return r;
     }
 
     /** The empty-chat hint mentions Linux tools when the chat has them. */
@@ -632,9 +746,12 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     @Override
     public void onMessage(Sessions.Session s, Sessions.Msg msg) {
         if (s == ses) {
-            if (ses.messages.size() == 1) { // drop the empty-chat hint
+            if (ses.messages.size() == 1 || emptyHero != null) { // drop the empty-chat hero & starters
                 messages.removeAllViews();
                 hint = null;
+                emptyHero = null;
+                startersBox = null;
+                heroModelText = null;
             }
             if (typing != null && typing.getParent() != null) {
                 messages.removeView(typing);
@@ -796,6 +913,16 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 ses.incognito, on -> hub.setIncognito(ses, on));
         inc.setPaddingRelative(dp(this, 4), dp(this, 12), dp(this, 4), dp(this, 12));
         c.addView(inc, full());
+        LinearLayout spk = switchRow(this, getString(R.string.chat_read_aloud), getString(R.string.chat_read_aloud_info),
+                Prefs.speakReplies(this), on -> {
+                    Prefs.setSpeakReplies(this, on);
+                    if (!on) Voice.stopSpeaking();
+                    Toast.makeText(this, on ? R.string.chat_read_aloud_on : R.string.chat_read_aloud_off,
+                            Toast.LENGTH_SHORT).show();
+                    refresh();
+                });
+        spk.setPaddingRelative(dp(this, 4), dp(this, 12), dp(this, 4), dp(this, 12));
+        c.addView(spk, full());
         final Dialog[] sheet = new Dialog[1];
         TextView sl = sectionLabel(this, getString(R.string.schedule_title));
         sl.setPaddingRelative(0, dp(this, 12), 0, dp(this, 4));
@@ -1530,18 +1657,21 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     }
 
     private void refresh() {
-        boolean speak = Prefs.speakReplies(this);
-        speaker.setImageResource(speak ? R.drawable.ms_volume_up : R.drawable.ms_volume_off);
-        speaker.setImageTintList(ColorStateList.valueOf(speak ? ACCENT : MUTED));
         title.setText(ses.label());
-        chipText.setText(Models.summary(ses));
+        String modelSummary = Models.summary(ses);
+        chipText.setText(modelSummary);
+        if (heroModelText != null) heroModelText.setText(modelSummary);
         int used = Usage.peak(this, ses.backend);
         usage.set(used);
         usage.setContentDescription(Usage.shortLine(this, ses.backend));
         usage.setVisibility(used < 0 ? View.GONE : View.VISIBLE);
         if (linux != null) paintLinuxChip(this, linux, ses.dev);
+        if (slashBtn != null) slashBtn.setVisibility(Linux.installed(this) ? View.VISIBLE : View.GONE);
         options.setImageTintList(ColorStateList.valueOf(ses.awake || ses.schedule != null || !ses.allowed.isEmpty() ? ACCENT : MUTED));
         if (hint != null) hint.setText(hintText());
+        if (startersBox != null) {
+            startersBox.setVisibility(SetupState.signedIn(this, ses.backend) ? View.VISIBLE : View.GONE);
+        }
         strip.setVisibility(View.GONE);
         String st = ses.status.isEmpty() ? getString(R.string.chat_working) : ses.status;
         String suffix = (st.endsWith("…") || st.endsWith("...")) ? "" : "…";
@@ -1843,8 +1973,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 log.finish();
                 log = null;
             }
+            turnHeaderShown = false;
             LinearLayout col = column(this);
             col.setGravity(Gravity.END);
+            col.setOnLongClickListener(v -> {
+                showMessageActions(m, true);
+                return true;
+            });
             for (String id : m.files) {
                 LinearLayout.LayoutParams fp = wrap();
                 fp.gravity = Gravity.END;
@@ -1865,9 +2000,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 tp.gravity = Gravity.END;
                 col.addView(tv, tp);
             }
-            col.addView(userActionRow(m), wrap());
             LinearLayout.LayoutParams p = full();
-            p.topMargin = dp(this, 12);
+            p.topMargin = dp(this, 16);
             messages.addView(col, p);
             return;
         }
@@ -1875,8 +2009,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         if (m.kind == Bubble.Kind.NN || m.kind == Bubble.Kind.BUDDY) { // pictures the reply names (see ChatHub.pictures), under it
             for (String id : m.files) {
                 LinearLayout.LayoutParams fp = wrap();
-                fp.setMarginStart(dp(this, 32));
-                fp.topMargin = dp(this, 6);
+                fp.topMargin = dp(this, 8);
                 messages.addView(attachmentView(id, true), fp);
             }
         }
@@ -2118,12 +2251,25 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
     }
 
+    private LinearLayout buildTurnHeader() {
+        LinearLayout header = row(this);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPaddingRelative(0, 0, 0, dp(this, 6));
+        header.addView(agentTile(this, ses.backend, 22));
+        TextView name = title(this, ses.brainName(), 13);
+        name.setPaddingRelative(dp(this, 8), 0, 0, 0);
+        header.addView(name);
+        return header;
+    }
+
     private void show(final Sessions.Msg m, Bubble.Kind kind, final String text) {
         if (kind == Bubble.Kind.STEP) {
             if (log == null) {
-                log = new ToolLog();
+                boolean withHeader = !turnHeaderShown;
+                turnHeaderShown = true;
+                log = new ToolLog(withHeader);
                 LinearLayout.LayoutParams lp = full();
-                lp.topMargin = dp(this, 12);
+                lp.topMargin = dp(this, withHeader ? 16 : 8);
                 messages.addView(log.view, lp);
             }
             log.add(text);
@@ -2137,73 +2283,72 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.topMargin = dp(this, 12);
+        p.topMargin = dp(this, 14);
         View v;
         switch (kind) {
             case USER: {
-                LinearLayout container = column(this);
-                container.setGravity(Gravity.END);
+                turnHeaderShown = false;
                 TextView tv = text(this, text, 15, TEXT);
                 links(tv);
                 tv.setMaxWidth(maxBubble);
-                tv.setBackground(corners(this, USER, 18, 18, 4, 18));
+                tv.setBackground(corners(this, USER, 20, 20, 6, 20));
                 tv.setLineSpacing(dp(this, 2), 1.22f);
                 tv.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
                 tv.setOnLongClickListener(x -> {
                     showMessageActions(m, true);
                     return true;
                 });
-                container.addView(tv, wrap());
-                container.addView(userActionRow(m), wrap());
                 p.gravity = Gravity.END;
-                v = container;
+                p.topMargin = dp(this, 16);
+                v = tv;
                 break;
             }
             case NN:
             case BUDDY: {
                 LinearLayout container = column(this);
-                LinearLayout r = row(this);
-                r.setGravity(Gravity.BOTTOM);
-                FrameLayout av = new FrameLayout(this);
-                av.setBackground(oval(ACCENT_SOFT));
-                ImageView face = new ImageView(this);
-                Face.set(face, R.drawable.bubble_face);
-                int fs = dp(this, Face.size(this, 20, 24));
-                av.addView(face, new FrameLayout.LayoutParams(fs, fs, Gravity.CENTER));
-                LinearLayout.LayoutParams avp = new LinearLayout.LayoutParams(dp(this, 24), dp(this, 24));
-                avp.setMarginEnd(dp(this, 8));
-                r.addView(av, avp);
+                boolean connected = turnHeaderShown;
+                if (!turnHeaderShown) {
+                    container.addView(buildTurnHeader());
+                    turnHeaderShown = true;
+                }
                 TextView tv = text(this, text, 15, TEXT);
                 tv.setTextIsSelectable(true);
                 tv.setText(Ui.markdown(text, null)); // **bold**, lists, `code`, [text](url) as a link…
                 Ui.linkifySelectable(tv);
                 Ui.copyWithLinks(tv);
-                tv.setLineSpacing(dp(this, 3), 1.25f);
-                tv.setMaxWidth(maxBubble - dp(this, 32));
-                tv.setBackground(corners(this, CARD, 18, 18, 18, 6));
-                tv.setPaddingRelative(dp(this, 15), dp(this, 12), dp(this, 15), dp(this, 12));
+                tv.setLineSpacing(dp(this, 3), 1.32f);
+                tv.setPaddingRelative(0, dp(this, 2), 0, dp(this, 4));
                 tv.setOnLongClickListener(x -> {
                     showMessageActions(m, false);
                     return true;
                 });
-                r.addView(tv);
-                container.addView(r, wrap());
-                LinearLayout.LayoutParams ap = wrap();
-                ap.setMarginStart(dp(this, 32));
-                ap.topMargin = dp(this, 4);
-                container.addView(agentActionRow(m), ap);
+                container.addView(tv, full());
+                if (m != null && (latestAgentMsg == null || m == latestAgentMsg)) {
+                    if (lastAgentActions != null) lastAgentActions.setVisibility(View.GONE);
+                    LinearLayout act = agentActionRow(m);
+                    lastAgentActions = act;
+                    LinearLayout.LayoutParams ap = wrap();
+                    ap.topMargin = dp(this, 4);
+                    container.addView(act, ap);
+                }
+                p.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                p.topMargin = dp(this, connected ? 6 : 18);
                 v = container;
                 break;
             }
             default: { // ERROR
+                turnHeaderShown = false;
                 LinearLayout r = row(this);
                 r.setGravity(Gravity.TOP);
+                r.setBackground(outlined(this, ERR_SOFT, 14, Theme.withAlpha(ERR, 0x44), 1));
+                r.setPaddingRelative(dp(this, 12), dp(this, 10), dp(this, 12), dp(this, 10));
                 r.addView(icon(this, R.drawable.ms_error, ERR, 18));
                 TextView tv = text(this, text, 13, ERR);
                 tv.setPaddingRelative(dp(this, 8), 0, 0, 0);
                 r.addView(tv, weight1());
                 copyOnLongPress(r, text);
                 p.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                p.topMargin = dp(this, 14);
                 v = r;
             }
         }
@@ -2224,17 +2369,6 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             Toast.makeText(this, R.string.chat_copied, Toast.LENGTH_SHORT).show();
             return true;
         });
-    }
-
-    private LinearLayout userActionRow(final Sessions.Msg m) {
-        LinearLayout row = row(this);
-        row.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-        row.setPaddingRelative(0, dp(this, 3), dp(this, 2), 0);
-        row.addView(miniActionIcon(R.drawable.ms_content_copy, getString(R.string.chat_action_copy), v -> copyText(m != null ? m.text : "")));
-        if (m != null) {
-            row.addView(miniActionIcon(R.drawable.ms_edit, getString(R.string.chat_action_edit), v -> editMessage(m)));
-        }
-        return row;
     }
 
     private LinearLayout agentActionRow(final Sessions.Msg m) {
@@ -2492,24 +2626,31 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         }
     }
 
-    /** Consecutive tool steps, grouped into one collapsible log. */
+    /** Consecutive tool steps embedded in the editorial AI turn with live step preview. */
     private final class ToolLog {
         final LinearLayout view = column(ChatActivity.this);
+        final LinearLayout box = column(ChatActivity.this);
         final LinearLayout rows = column(ChatActivity.this);
+        final FrameLayout headIcon = new FrameLayout(ChatActivity.this);
         final TextView count;
         final ImageView chevron;
         int n;
         boolean open, live, userToggled;
+        String lastStepShort = "";
         View lastMark;
 
-        ToolLog() {
-            view.setBackground(outlined(ChatActivity.this, 0x00000000, 14, LINE, 1));
+        ToolLog(boolean withTurnHeader) {
+            if (withTurnHeader) {
+                view.addView(buildTurnHeader());
+            }
+            box.setBackground(outlined(ChatActivity.this, CARD, 14, OUTLINE, 1));
             LinearLayout head = row(ChatActivity.this);
-            head.setPaddingRelative(dp(ChatActivity.this, 12), dp(ChatActivity.this, 10), dp(ChatActivity.this, 8), dp(ChatActivity.this, 10));
+            head.setGravity(Gravity.CENTER_VERTICAL);
+            head.setPaddingRelative(dp(ChatActivity.this, 12), dp(ChatActivity.this, 9), dp(ChatActivity.this, 8), dp(ChatActivity.this, 9));
             head.setBackgroundResource(ripple(ChatActivity.this, false));
-            head.addView(icon(ChatActivity.this, R.drawable.ms_terminal, MUTED, 16));
-            count = monoText(ChatActivity.this, "", 12, MUTED);
-            count.setPaddingRelative(dp(ChatActivity.this, 8), 0, 0, 0);
+            head.addView(headIcon, new LinearLayout.LayoutParams(dp(ChatActivity.this, 16), dp(ChatActivity.this, 16)));
+            count = single(monoText(ChatActivity.this, "", 12, MUTED));
+            count.setPaddingRelative(dp(ChatActivity.this, 8), 0, dp(ChatActivity.this, 4), 0);
             head.addView(count, weight1());
             // "View steps": what each action did, with a picture of the screen after it (see StepLog)
             TextView steps = monoText(ChatActivity.this, getString(R.string.steps_view), 12, ACCENT_TEXT);
@@ -2523,18 +2664,21 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 userToggled = true;
                 setOpen(!open);
             });
-            view.addView(head, full());
+            box.addView(head, full());
             rows.setPaddingRelative(dp(ChatActivity.this, 12), 0, dp(ChatActivity.this, 12), dp(ChatActivity.this, 10));
-            view.addView(rows, full());
+            box.addView(rows, full());
+            view.addView(box, full());
+            paintHead();
             setOpen(false);
         }
 
         void add(String step) {
             n++;
-            count.setText(getResources().getQuantityString(R.plurals.chat_tool_calls, n, n));
             if (lastMark != null) swapToCheck(lastMark);
             String s = step.trim();
             if (s.startsWith("✓ ")) s = s.substring(2); // the row gets its own check mark
+            String oneLine = s.replace('\n', ' ').trim();
+            lastStepShort = oneLine.length() > 44 ? oneLine.substring(0, 41) + "…" : oneLine;
             int cut = -1;
             for (int i = 0; i < s.length(); i++) {
                 char ch = s.charAt(i);
@@ -2562,6 +2706,25 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             rows.addView(r, full());
             lastMark = mark;
             paintLast();
+            paintHead();
+        }
+
+        private void paintHead() {
+            headIcon.removeAllViews();
+            if (live) {
+                headIcon.addView(spinner(ChatActivity.this, 14),
+                        new FrameLayout.LayoutParams(dp(ChatActivity.this, 14), dp(ChatActivity.this, 14), Gravity.CENTER));
+                count.setText(lastStepShort.isEmpty()
+                        ? getResources().getQuantityString(R.plurals.chat_tool_calls, n, n)
+                        : getString(R.string.chat_tool_step_running, lastStepShort));
+                count.setTextColor(ACCENT_TEXT);
+            } else {
+                ImageView ic = icon(ChatActivity.this, n > 0 ? R.drawable.ms_check : R.drawable.ms_terminal,
+                        n > 0 ? OK : MUTED, 15);
+                headIcon.addView(ic, new FrameLayout.LayoutParams(dp(ChatActivity.this, 15), dp(ChatActivity.this, 15), Gravity.CENTER));
+                count.setText(getResources().getQuantityString(R.plurals.chat_tool_calls, n, n));
+                count.setTextColor(MUTED);
+            }
         }
 
         private void swapToCheck(View mark) {
@@ -2587,12 +2750,14 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             if (live == on) return;
             live = on;
             paintLast();
+            paintHead();
             if (!userToggled) setOpen(on);
         }
 
         void finish() {
             setLive(false);
             if (!userToggled) setOpen(false);
+            paintHead();
         }
 
         void setOpen(boolean o) {

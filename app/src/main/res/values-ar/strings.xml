@@ -1675,4 +1675,11 @@
     <string name="setup_step_install_agy">يقوم NN بتنزيل Linux المصغّر الخاص به و%1$s من Google (حوالي 200 ميجابايت).</string>
     <string name="setup_step_signin_agy">باستخدام حساب Google الخاص بك. سيفتح المتصفح؛ وافق هناك وسيعود NN تلقائياً.</string>
     <string name="onboarding_brain_pick_hint">اختر وكيلاً من الأعلى أولاً</string>
+    <string name="chat_read_aloud_info">نطق الردود تلقائياً بعد كل إجابة.</string>
+    <string name="chat_slash_description">الأوامر السريعة والمهارات</string>
+    <string name="chat_tool_step_running">جارٍ التشغيل: %1$s</string>
+    <string name="chat_starter_screen">افحص شاشتي وساعدني فيما هو مفتوح</string>
+    <string name="chat_starter_search">ابحث عن موضوع ولخّص النقاط الرئيسية</string>
+    <string name="chat_starter_apps">افتح تطبيقاً أو نفّذ مهمة سريعة على الهاتف</string>
+    <string name="chat_starter_linux">اكتب أو شغّل نصاً برمجياً سريعاً في مساحة Linux</string>
 </resources>

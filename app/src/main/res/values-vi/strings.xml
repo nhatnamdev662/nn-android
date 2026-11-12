@@ -2231,4 +2231,11 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="setup_step_install_agy">NN tải về Linux nhỏ của riêng nó và %1$s từ Google (khoảng 200 MB).</string>
     <string name="setup_step_signin_agy">Bằng tài khoản Google của bạn. Trình duyệt sẽ mở; hãy chấp thuận ở đó và NN tự lấy mã quay lại.</string>
     <string name="onboarding_brain_pick_hint">Vui lòng chọn một Agent ở trên trước</string>
+    <string name="chat_read_aloud_info">Tự động đọc to câu trả lời ngay khi hoàn tất.</string>
+    <string name="chat_slash_description">Lệnh nhanh &amp; kỹ năng</string>
+    <string name="chat_tool_step_running">Đang chạy: %1$s</string>
+    <string name="chat_starter_screen">Xem màn hình hiện tại và hỗ trợ việc đang mở</string>
+    <string name="chat_starter_search">Tra cứu nhanh một chủ đề và tóm tắt ý chính</string>
+    <string name="chat_starter_apps">Mở ứng dụng hoặc thao tác nhanh trên điện thoại</string>
+    <string name="chat_starter_linux">Viết hoặc chạy nhanh một script trong Linux</string>
 </resources>

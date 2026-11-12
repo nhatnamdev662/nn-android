@@ -2249,4 +2249,11 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="setup_step_install_agy">NN downloads its own small Linux and %1$s from Google (about 200 MB).</string>
     <string name="setup_step_signin_agy">With your Google account. Your browser opens; approve there and NN picks up the code automatically.</string>
     <string name="onboarding_brain_pick_hint">Select an agent above first</string>
+    <string name="chat_read_aloud_info">Speak replies automatically after each response.</string>
+    <string name="chat_slash_description">Quick commands &amp; skills</string>
+    <string name="chat_tool_step_running">Running: %1$s</string>
+    <string name="chat_starter_screen">Check my screen and help with what\'s open</string>
+    <string name="chat_starter_search">Look up a topic and summarize key points</string>
+    <string name="chat_starter_apps">Open an app or automate a quick phone task</string>
+    <string name="chat_starter_linux">Write or run a quick script in Linux workspace</string>
 </resources>

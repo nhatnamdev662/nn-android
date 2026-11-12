@@ -2102,4 +2102,11 @@
     <string name="setup_step_install_agy">NN скачивает собственный компактный Linux и %1$s от Google (около 200 МБ).</string>
     <string name="setup_step_signin_agy">С вашим аккаунтом Google. Откроется браузер; подтвердите вход, и NN сам подхватит код.</string>
     <string name="onboarding_brain_pick_hint">Сначала выберите агента выше</string>
+    <string name="chat_read_aloud_info">Автоматически озвучивать каждый новый ответ.</string>
+    <string name="chat_slash_description">Быстрые команды и навыки</string>
+    <string name="chat_tool_step_running">Выполняется: %1$s</string>
+    <string name="chat_starter_screen">Посмотри мой экран и помоги с тем, что открыто</string>
+    <string name="chat_starter_search">Найди тему и кратко резюмируй главное</string>
+    <string name="chat_starter_apps">Открой приложение или выполни быструю задачу</string>
+    <string name="chat_starter_linux">Напиши или запусти быстрый скрипт в Linux-среде</string>
 </resources>

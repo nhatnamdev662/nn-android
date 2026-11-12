@@ -1631,4 +1631,11 @@
     <string name="setup_step_install_agy">NN kendi küçük Linux sistemini ve Google\'dan %1$s sürümünü indirir (yaklaşık 200 MB).</string>
     <string name="setup_step_signin_agy">Google hesabınızla. Tarayıcınız açılır; oradan onaylayın, NN kodu otomatik alır.</string>
     <string name="onboarding_brain_pick_hint">Önce yukarıdan bir ajan seçin</string>
+    <string name="chat_read_aloud_info">Her yanıttan sonra cevapları otomatik sesli oku.</string>
+    <string name="chat_slash_description">Hızlı komutlar ve yetenekler</string>
+    <string name="chat_tool_step_running">Çalışıyor: %1$s</string>
+    <string name="chat_starter_screen">Ekranımı kontrol et ve açık olanla ilgili yardım et</string>
+    <string name="chat_starter_search">Bir konuyu araştır ve önemli noktaları özetle</string>
+    <string name="chat_starter_apps">Bir uygulama aç veya telefonda hızlı bir görev yap</string>
+    <string name="chat_starter_linux">Linux alanında hızlı bir betik yaz veya çalıştır</string>
 </resources>

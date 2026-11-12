@@ -3289,12 +3289,9 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                 container.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout r = new LinearLayout(svc);
                 r.setGravity(Gravity.BOTTOM);
-                FrameLayout av = new FrameLayout(svc);
-                av.setBackground(Ui.oval(Ui.ACCENT_SOFT));
-                ImageView f = new ImageView(svc);
-                Face.set(f, R.drawable.bubble_face);
-                int fs = dp(Face.size(svc, 20, 24));
-                av.addView(f, new FrameLayout.LayoutParams(fs, fs, Gravity.CENTER));
+                String backend = sessions != null && sessions.current != null
+                        ? sessions.current.backend : Prefs.activeBackend(svc);
+                View av = Ui.agentTile(svc, backend, 24);
                 LinearLayout.LayoutParams avp = new LinearLayout.LayoutParams(dp(24), dp(24));
                 avp.setMarginEnd(dp(8));
                 r.addView(av, avp);

@@ -1614,4 +1614,11 @@
     <string name="setup_step_install_agy">NN은 자체 소형 Linux와 Google의 %1$s을(를) 다운로드합니다(약 200MB).</string>
     <string name="setup_step_signin_agy">Google 계정을 사용합니다. 브라우저가 열리면 승인해 주세요. NN이 코드를 자동으로 가져옵니다.</string>
     <string name="onboarding_brain_pick_hint">먼저 위에서 에이전트를 선택하세요</string>
+    <string name="chat_read_aloud_info">답변이 끝날 때마다 자동으로 소리 내어 읽습니다.</string>
+    <string name="chat_slash_description">빠른 명령 및 스킬</string>
+    <string name="chat_tool_step_running">실행 중: %1$s</string>
+    <string name="chat_starter_screen">내 화면을 보고 지금 열린 작업을 도와줘</string>
+    <string name="chat_starter_search">주제를 찾아 핵심 내용을 요약해 줘</string>
+    <string name="chat_starter_apps">앱을 열거나 휴대폰 작업을 빠르게 처리해 줘</string>
+    <string name="chat_starter_linux">Linux 작업 공간에서 간단한 스크립트 작성 및 실행</string>
 </resources>

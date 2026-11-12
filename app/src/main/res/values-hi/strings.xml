@@ -1623,4 +1623,11 @@
     <string name="setup_step_install_agy">NN अपना छोटा Linux और Google से %1$s डाउनलोड करता है (लगभग 200 MB)।</string>
     <string name="setup_step_signin_agy">अपने Google खाते से। ब्राउज़र खुलेगा; वहाँ अनुमति दें और NN कोड अपने आप ले लेगा।</string>
     <string name="onboarding_brain_pick_hint">पहले ऊपर से एक एजेंट चुनें</string>
+    <string name="chat_read_aloud_info">हर जवाब के बाद उत्तर अपने आप बोलकर सुनाएं।</string>
+    <string name="chat_slash_description">त्वरित कमांड और स्किल्स</string>
+    <string name="chat_tool_step_running">चल रहा है: %1$s</string>
+    <string name="chat_starter_screen">मेरी स्क्रीन देखें और खुले ऐप में मदद करें</string>
+    <string name="chat_starter_search">किसी विषय को खोजें और मुख्य बिंदु संक्षेप में बताएं</string>
+    <string name="chat_starter_apps">कोई ऐप खोलें या फ़ोन पर कोई काम पूरा करें</string>
+    <string name="chat_starter_linux">Linux वर्कस्पेस में एक त्वरित स्क्रिप्ट लिखें या चलाएं</string>
 </resources>

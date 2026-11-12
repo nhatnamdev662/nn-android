@@ -2063,4 +2063,11 @@
     <string name="setup_step_install_agy">NN 会下载自带的精简 Linux 及来自 Google 的 %1$s（约 200 MB）。</string>
     <string name="setup_step_signin_agy">使用你的 Google 账号。浏览器将打开；在其中授权即可，NN 会自动获取代码。</string>
     <string name="onboarding_brain_pick_hint">请先在上方选择一个 Agent</string>
+    <string name="chat_read_aloud_info">每次回复结束后自动朗读内容。</string>
+    <string name="chat_slash_description">快捷命令与技能</string>
+    <string name="chat_tool_step_running">正在运行: %1$s</string>
+    <string name="chat_starter_screen">查看当前屏幕并协助处理打开的内容</string>
+    <string name="chat_starter_search">检索主题并总结核心要点</string>
+    <string name="chat_starter_apps">打开应用或快速执行手机任务</string>
+    <string name="chat_starter_linux">在 Linux 工作区编写或运行快捷脚本</string>
 </resources>

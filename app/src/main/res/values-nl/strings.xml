@@ -1629,4 +1629,11 @@
     <string name="setup_step_install_agy">NN downloadt zijn eigen kleine Linux en %1$s van Google (ongeveer 200 MB).</string>
     <string name="setup_step_signin_agy">Met je Google-account. Je browser wordt geopend; keur daar goed en NN haalt de code vanzelf op.</string>
     <string name="onboarding_brain_pick_hint">Selecteer hierboven eerst een agent</string>
+    <string name="chat_read_aloud_info">Antwoorden automatisch hardop voorlezen na elke reactie.</string>
+    <string name="chat_slash_description">Snelle opdrachten &amp; skills</string>
+    <string name="chat_tool_step_running">Uitvoeren: %1$s</string>
+    <string name="chat_starter_screen">Bekijk mijn scherm en help met wat er openstaat</string>
+    <string name="chat_starter_search">Zoek een onderwerp op en vat de hoofdpunten samen</string>
+    <string name="chat_starter_apps">Open een app of automatiseer een snelle taak</string>
+    <string name="chat_starter_linux">Schrijf of voer een snel script uit in de Linux-werkruimte</string>
 </resources>
