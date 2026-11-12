@@ -1666,4 +1666,13 @@
     <string name="setup_lock_guide">فتح دليل الإعداد</string>
     <string name="bubble_locked_subtitle">يلزم الإعداد</string>
     <string name="chat_agent_locked">%1$s غير مثبّت أو غير مسجّل الدخول بعد.</string>
+    <string name="setup_step_install_choose_title">اختر وكيلاً وثبّته</string>
+    <string name="setup_step_install_choose_body">اختر الوكيل الذي تريد تثبيته داخل NN (Claude Code أو Codex أو OpenCode أو Antigravity أو Grok).</string>
+    <string name="setup_step_signin_choose_body">بعد اختيار وتثبيت الوكيل في الخطوة 2، سجّل الدخول إليه هنا.</string>
+    <string name="setup_choose_install_btn">اختر وكيلاً</string>
+    <string name="setup_change_agent_btn">تغيير الوكيل</string>
+    <string name="setup_switch_agent_title">اختر وكيلك</string>
+    <string name="setup_step_install_agy">يقوم NN بتنزيل Linux المصغّر الخاص به و%1$s من Google (حوالي 200 ميجابايت).</string>
+    <string name="setup_step_signin_agy">باستخدام حساب Google الخاص بك. سيفتح المتصفح؛ وافق هناك وسيعود NN تلقائياً.</string>
+    <string name="onboarding_brain_pick_hint">اختر وكيلاً من الأعلى أولاً</string>
 </resources>

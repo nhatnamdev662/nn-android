@@ -184,16 +184,23 @@ public class CheckActivity extends Screen {
         r.add(new Result(getString(R.string.check_server), server, server ? null : getString(R.string.check_server_bad, McpServer.PORT),
                 getString(R.string.check_open_settings), () -> Ui.openAccessibilitySettings(this)));
 
-        String agent = Prefs.backend(this);
-        Account acc = Account.of(agent);
-        boolean installed = SetupState.installed(this, agent), signed = SetupState.signedIn(this, agent);
-        r.add(new Result(acc.name(), signed, !installed ? getString(R.string.setup_agent_not_installed)
-                : !signed ? getString(R.string.setup_agent_not_signed_in)
-                : acc.version.isEmpty() ? null : getString(R.string.check_agent_version, acc.version),
-                getString(R.string.check_fix), () -> startActivity(new Intent(this, SignInActivity.class).putExtra("agent", agent))));
+        String target = Prefs.targetBackend(this);
+        if (target == null) {
+            r.add(new Result(getString(R.string.setup_lock_title), false, getString(R.string.setup_step_install_choose_body),
+                    getString(R.string.setup_choose_install_btn), () -> startActivity(new Intent(this, SetupActivity.class))));
+        } else {
+            final String agent = target;
+            Account acc = Account.of(agent);
+            boolean installed = SetupState.installed(this, agent), signed = SetupState.signedIn(this, agent);
+            r.add(new Result(acc.name(), signed, !installed ? getString(R.string.setup_agent_not_installed)
+                    : !signed ? getString(R.string.setup_agent_not_signed_in)
+                    : acc.version.isEmpty() ? null : getString(R.string.check_agent_version, acc.version),
+                    getString(R.string.check_fix), () -> startActivity(new Intent(this, SignInActivity.class).putExtra("agent", agent))));
+        }
 
         String host = null;
-        for (String h : new String[]{"github.com", agentHost(agent)}) {
+        String checkAgent = target != null ? target : "claude";
+        for (String h : new String[]{"github.com", agentHost(checkAgent)}) {
             try {
                 InetAddress.getByName(h);
             } catch (Exception e) {
@@ -330,8 +337,10 @@ public class CheckActivity extends Screen {
 
     /** Plain text, no personal content: versions, the phone, the default agent and the results. */
     private String report() {
+        String tb = Prefs.targetBackend(this);
+        String agentLabel = tb != null ? Account.nameOf(tb) : "none";
         StringBuilder b = new StringBuilder("NN AGENT " + nnVersion() + "\n" + phone() + "\nDefault agent: "
-                + Account.nameOf(Prefs.backend(this)) + "\nAgents: " + agents() + "\n\n");
+                + agentLabel + "\nAgents: " + agents() + "\n\n");
         for (Result r : results) {
             b.append(r.ok ? "OK    " : "FAIL  ").append(r.name).append(r.detail == null ? "" : ": " + r.detail).append('\n');
         }
@@ -340,14 +349,16 @@ public class CheckActivity extends Screen {
 
     /** A new GitHub issue with the form's fields filled in, after showing exactly what goes in them. */
     private void reportBug() {
-        String extra = "Default agent: " + Account.nameOf(Prefs.backend(this)) + "\nAgents: " + agents()
+        String tb = Prefs.targetBackend(this);
+        String agentLabel = tb != null ? Account.nameOf(tb) : "none";
+        String extra = "Default agent: " + agentLabel + "\nAgents: " + agents()
                 + "\n\nCheck NN Agent:\n" + failures();
         String shown = getString(R.string.check_report_text) + "\n\n" + phone() + "\nNN Agent " + nnVersion() + "\n" + extra;
         confirmSheet(this, getString(R.string.check_report_title), shown, getString(R.string.check_report_open), false, () -> {
             Uri u = Uri.parse(ISSUES).buildUpon()
                     .appendQueryParameter("phone", phone())
                     .appendQueryParameter("nn", nnVersion())
-                    .appendQueryParameter("agent", Account.nameOf(Prefs.backend(this))) // a dropdown may not take it: in extra too
+                    .appendQueryParameter("agent", agentLabel) // a dropdown may not take it: in extra too
                     .appendQueryParameter("extra", extra)
                     .build();
             try {

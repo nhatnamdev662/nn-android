@@ -2054,4 +2054,13 @@
     <string name="setup_lock_guide">Apri guida alla configurazione</string>
     <string name="bubble_locked_subtitle">Configurazione richiesta</string>
     <string name="chat_agent_locked">%1$s non è ancora installato o connesso.</string>
+    <string name="setup_step_install_choose_title">Scegli e installa un agente</string>
+    <string name="setup_step_install_choose_body">Scegli quale agente installare in NN (Claude Code, Codex, OpenCode, Antigravity o Grok).</string>
+    <string name="setup_step_signin_choose_body">Dopo aver scelto e installato un agente al punto 2, accedi qui.</string>
+    <string name="setup_choose_install_btn">Scegli agente</string>
+    <string name="setup_change_agent_btn">Cambia agente</string>
+    <string name="setup_switch_agent_title">Scegli il tuo agente</string>
+    <string name="setup_step_install_agy">NN scarica il proprio piccolo Linux e %1$s da Google (circa 200 MB).</string>
+    <string name="setup_step_signin_agy">Con il tuo account Google. Il browser si apre; approva lì e NN recupera il codice da solo.</string>
+    <string name="onboarding_brain_pick_hint">Seleziona prima un agente qui sopra</string>
 </resources>

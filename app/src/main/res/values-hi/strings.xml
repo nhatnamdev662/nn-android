@@ -1614,4 +1614,13 @@
     <string name="setup_lock_guide">सेटअप गाइड खोलें</string>
     <string name="bubble_locked_subtitle">सेटअप आवश्यक</string>
     <string name="chat_agent_locked">%1$s अभी इंस्टॉल या साइन इन नहीं है।</string>
+    <string name="setup_step_install_choose_title">एजेंट चुनें और इंस्टॉल करें</string>
+    <string name="setup_step_install_choose_body">NN में इंस्टॉल करने के लिए कोई एक एजेंट चुनें (Claude Code, Codex, OpenCode, Antigravity या Grok)।</string>
+    <string name="setup_step_signin_choose_body">चरण 2 में एजेंट चुनने और इंस्टॉल करने के बाद यहाँ साइन इन करें।</string>
+    <string name="setup_choose_install_btn">एजेंट चुनें</string>
+    <string name="setup_change_agent_btn">एजेंट बदलें</string>
+    <string name="setup_switch_agent_title">अपना एजेंट चुनें</string>
+    <string name="setup_step_install_agy">NN अपना छोटा Linux और Google से %1$s डाउनलोड करता है (लगभग 200 MB)।</string>
+    <string name="setup_step_signin_agy">अपने Google खाते से। ब्राउज़र खुलेगा; वहाँ अनुमति दें और NN कोड अपने आप ले लेगा।</string>
+    <string name="onboarding_brain_pick_hint">पहले ऊपर से एक एजेंट चुनें</string>
 </resources>

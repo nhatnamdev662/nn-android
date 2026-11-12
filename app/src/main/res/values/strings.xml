@@ -2240,4 +2240,13 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="setup_lock_guide">Open setup guide</string>
     <string name="bubble_locked_subtitle">Setup required</string>
     <string name="chat_agent_locked">%1$s is not installed or signed in yet.</string>
+    <string name="setup_step_install_choose_title">Choose &amp; install an agent</string>
+    <string name="setup_step_install_choose_body">Pick an agent to install inside NN (Claude Code, Codex, OpenCode, Antigravity or Grok).</string>
+    <string name="setup_step_signin_choose_body">After choosing and installing an agent in step 2, sign in to it here.</string>
+    <string name="setup_choose_install_btn">Choose agent</string>
+    <string name="setup_change_agent_btn">Change agent</string>
+    <string name="setup_switch_agent_title">Choose your agent</string>
+    <string name="setup_step_install_agy">NN downloads its own small Linux and %1$s from Google (about 200 MB).</string>
+    <string name="setup_step_signin_agy">With your Google account. Your browser opens; approve there and NN picks up the code automatically.</string>
+    <string name="onboarding_brain_pick_hint">Select an agent above first</string>
 </resources>

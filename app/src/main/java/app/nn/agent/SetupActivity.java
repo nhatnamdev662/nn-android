@@ -284,8 +284,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         // ---------------------------------------------------------------- setup
         boolean a11y = SetupState.accessibilityEnabled(this);
         String activeBackend = Prefs.activeBackend(this);
-        String backend = activeBackend != null ? activeBackend : Prefs.backend(this);
-        Account acc = Account.of(backend);
+        String targetBackend = Prefs.targetBackend(this);
         Step[] steps = new Step[5];
 
         String a11yText = getString(R.string.setup_step_a11y_body);
@@ -297,65 +296,90 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                 a11y || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ? null : getString(R.string.setup_app_info),
                 v -> openAppInfo(getPackageName()));
 
-        boolean installed = SetupState.installed(this, backend);
-        steps[1] = step(getString(R.string.setup_step_install_title, acc.name()),
-                installed ? getString(R.string.setup_step_install_done, acc.name())
-                        : acc.step == Account.Step.INSTALLING ? acc.detail
-                        : Ui.downloadNote(this, getString(acc.claude() ? R.string.setup_step_install_claude : acc.opencode()
-                        ? R.string.setup_step_install_opencode : acc.grok() ? R.string.setup_step_install_grok
-                        : R.string.setup_step_install_codex, acc.name())),
-                installed, installed || acc.step == Account.Step.INSTALLING ? null : getString(R.string.setup_install),
-                v -> openAgent(backend), null, null);
+        boolean signed;
+        if (targetBackend == null) {
+            signed = false;
+            steps[1] = step(getString(R.string.setup_step_install_choose_title),
+                    getString(R.string.setup_step_install_choose_body),
+                    false, getString(R.string.setup_choose_install_btn),
+                    v -> chooseAgentSheet(), null, null);
+            steps[2] = step(getString(R.string.setup_step_signin_title),
+                    getString(R.string.setup_step_signin_choose_body),
+                    null, null, null, null, null);
+        } else {
+            final String backend = targetBackend;
+            Account acc = Account.of(backend);
+            boolean installed = SetupState.installed(this, backend);
+            int installBodyRes = acc.claude() ? R.string.setup_step_install_claude
+                    : acc.opencode() ? R.string.setup_step_install_opencode
+                    : acc.agy() ? R.string.setup_step_install_agy
+                    : acc.grok() ? R.string.setup_step_install_grok
+                    : R.string.setup_step_install_codex;
+            steps[1] = step(getString(R.string.setup_step_install_title, acc.name()),
+                    installed ? getString(R.string.setup_step_install_done, acc.name())
+                            : acc.step == Account.Step.INSTALLING ? acc.detail
+                            : Ui.downloadNote(this, getString(installBodyRes, acc.name())),
+                    installed, installed || acc.step == Account.Step.INSTALLING ? null : getString(R.string.setup_install),
+                    v -> openAgent(backend),
+                    !installed && acc.step != Account.Step.INSTALLING ? getString(R.string.setup_change_agent_btn) : null,
+                    v -> chooseAgentSheet());
 
-        boolean signed = SetupState.signedIn(this, backend);
-        String signText = acc.opencode()
-                ? getString(signed ? R.string.setup_step_signin_opencode_done : R.string.setup_step_signin_opencode)
-                : signed ? (acc.email.isEmpty() ? getString(R.string.setup_step_signin_done)
-                : getString(R.string.setup_step_signin_done_email, acc.email))
-                : getString(acc.claude() ? R.string.setup_step_signin_claude : acc.grok() ? R.string.setup_step_signin_grok
-                : R.string.setup_step_signin_codex);
-        // Claude Code and Codex also take an API key (on their sign-in screen)
-        // a saved key this agent can't use: say so, and offer the agent that can
-        Providers.P misfit = !signed && (acc.claude() || "codex".equals(backend)) ? Providers.mismatch(backend) : null;
-        java.util.List<String> keyAgents = new java.util.ArrayList<>();
-        if (misfit != null) {
-            java.util.List<String> keys = new java.util.ArrayList<>(), fit = new java.util.ArrayList<>();
-            for (Providers.P k : Providers.all()) keys.add(k.name);
-            for (Account a : Account.ALL) {
-                if (!Providers.forAgent(a.agent).isEmpty()) {
-                    keyAgents.add(a.agent);
-                    fit.add(a.name());
+            signed = SetupState.signedIn(this, backend);
+            int signBodyRes = acc.claude() ? R.string.setup_step_signin_claude
+                    : acc.agy() ? R.string.setup_step_signin_agy
+                    : acc.grok() ? R.string.setup_step_signin_grok
+                    : R.string.setup_step_signin_codex;
+            String signText = acc.opencode()
+                    ? getString(signed ? R.string.setup_step_signin_opencode_done : R.string.setup_step_signin_opencode)
+                    : signed ? (acc.email.isEmpty() ? getString(R.string.setup_step_signin_done)
+                    : getString(R.string.setup_step_signin_done_email, acc.email))
+                    : getString(signBodyRes);
+            // Claude Code and Codex also take an API key (on their sign-in screen)
+            // a saved key this agent can't use: say so, and offer the agent that can
+            Providers.P misfit = !signed && (acc.claude() || "codex".equals(backend)) ? Providers.mismatch(backend) : null;
+            java.util.List<String> keyAgents = new java.util.ArrayList<>();
+            if (misfit != null) {
+                java.util.List<String> keys = new java.util.ArrayList<>(), fit = new java.util.ArrayList<>();
+                for (Providers.P k : Providers.all()) keys.add(k.name);
+                for (Account a : Account.ALL) {
+                    if (!Providers.forAgent(a.agent).isEmpty()) {
+                        keyAgents.add(a.agent);
+                        fit.add(a.name());
+                    }
                 }
+                signText += "\n\n" + getString(R.string.setup_step_signin_key_mismatch, acc.name(),
+                        android.text.TextUtils.join(", ", keys), android.text.TextUtils.join(", ", fit));
+            } else if (!signed && (acc.claude() || "codex".equals(backend))) {
+                signText += "\n\n" + getString(R.string.setup_step_signin_api_key);
             }
-            signText += "\n\n" + getString(R.string.setup_step_signin_key_mismatch, acc.name(),
-                    android.text.TextUtils.join(", ", keys), android.text.TextUtils.join(", ", fit));
-        } else if (!signed && (acc.claude() || "codex".equals(backend))) {
-            signText += "\n\n" + getString(R.string.setup_step_signin_api_key);
+            // the default agent isn't signed in, but others are: making one of them the default is enough
+            java.util.List<String> ready = new java.util.ArrayList<>();
+            for (Account a : Account.ALL) if (!a.agent.equals(backend) && SetupState.signedIn(this, a.agent)) ready.add(a.agent);
+            if (!signed && !ready.isEmpty() && misfit == null) {
+                java.util.List<String> names = new java.util.ArrayList<>();
+                for (String r : ready) names.add(Account.nameOf(r));
+                signText += "\n\n" + getString(R.string.setup_step_signin_others, acc.name(), android.text.TextUtils.join(", ", names));
+            }
+            // no key and no other agent ready: OpenCode's free models need no account at all
+            boolean offerFree = !signed && misfit == null && ready.isEmpty() && !acc.opencode();
+            if (offerFree) signText += "\n\n" + getString(R.string.setup_step_signin_free);
+            // what can answer instead: the agents already ready, and those that can use the saved key
+            java.util.List<String> choices = new java.util.ArrayList<>(signed ? new java.util.ArrayList<String>() : ready);
+            for (String a : keyAgents) if (!choices.contains(a)) choices.add(a);
+            String step3Act2 = !choices.isEmpty()
+                    ? (choices.size() == 1 ? getString(R.string.setup_use_agent, Account.nameOf(choices.get(0)))
+                    : getString(R.string.setup_switch_default))
+                    : (!signed ? getString(R.string.setup_change_agent_btn) : null);
+            steps[2] = step(getString(R.string.setup_step_signin_title), signText,
+                    installed ? signed : null, installed && !signed ? getString(R.string.setup_sign_in) : null,
+                    v -> openAgent(backend),
+                    step3Act2,
+                    v -> {
+                        if (choices.isEmpty()) chooseAgentSheet();
+                        else if (choices.size() == 1) useInstead(choices.get(0), misfit);
+                        else switchDefaultSheet(choices, misfit);
+                    });
         }
-        // the default agent isn't signed in, but others are: making one of them the default is enough
-        java.util.List<String> ready = new java.util.ArrayList<>();
-        for (Account a : Account.ALL) if (!a.agent.equals(backend) && SetupState.signedIn(this, a.agent)) ready.add(a.agent);
-        if (!signed && !ready.isEmpty() && misfit == null) {
-            java.util.List<String> names = new java.util.ArrayList<>();
-            for (String r : ready) names.add(Account.nameOf(r));
-            signText += "\n\n" + getString(R.string.setup_step_signin_others, acc.name(), android.text.TextUtils.join(", ", names));
-        }
-        // no key and no other agent ready: OpenCode's free models need no account at all
-        boolean offerFree = !signed && misfit == null && ready.isEmpty() && !acc.opencode();
-        if (offerFree) signText += "\n\n" + getString(R.string.setup_step_signin_free);
-        // what can answer instead: the agents already ready, and those that can use the saved key
-        java.util.List<String> choices = new java.util.ArrayList<>(signed ? new java.util.ArrayList<String>() : ready);
-        for (String a : keyAgents) if (!choices.contains(a)) choices.add(a);
-        if (offerFree) choices.add("opencode");
-        steps[2] = step(getString(R.string.setup_step_signin_title), signText,
-                installed ? signed : null, installed && !signed ? getString(R.string.setup_sign_in) : null,
-                v -> openAgent(backend),
-                choices.isEmpty() ? null : choices.size() == 1 ? getString(R.string.setup_use_agent, Account.nameOf(choices.get(0)))
-                        : getString(R.string.setup_switch_default),
-                v -> {
-                    if (choices.size() == 1) useInstead(choices.get(0), misfit);
-                    else switchDefaultSheet(choices, misfit);
-                });
 
         PowerManager pm = getSystemService(PowerManager.class);
         boolean nnBg = pm.isIgnoringBatteryOptimizations(getPackageName());
@@ -1445,6 +1469,60 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         }
         Toast.makeText(this, getString(R.string.setup_default_brain_set, Account.nameOf(agent)), Toast.LENGTH_LONG).show();
         render();
+    }
+
+    /** Choose or switch to any of the 5 supported agents directly from Setup steps 2-3. */
+    private void chooseAgentSheet() {
+        LinearLayout c = column(this);
+        TextView h = title(this, getString(R.string.setup_switch_agent_title), 18);
+        h.setPaddingRelative(0, 0, 0, dp(this, 8));
+        c.addView(h);
+        final android.app.Dialog[] d = new android.app.Dialog[1];
+        for (Account a : Account.ALL) {
+            boolean isReady = SetupState.signedIn(this, a.agent);
+            boolean isInst = SetupState.installed(this, a.agent);
+            LinearLayout r = row(this);
+            r.setGravity(Gravity.CENTER_VERTICAL);
+            r.setPaddingRelative(dp(this, 4), dp(this, 12), dp(this, 4), dp(this, 12));
+            r.setBackgroundResource(ripple(this, false));
+            r.addView(agentTile(this, a.agent));
+            LinearLayout t = column(this);
+            t.setPaddingRelative(dp(this, 14), 0, dp(this, 8), 0);
+            LinearLayout tr = row(this);
+            tr.setGravity(Gravity.CENTER_VERTICAL);
+            tr.addView(title(this, a.name(), 15));
+            if (a.freeTier()) {
+                LinearLayout.LayoutParams tp = wrap();
+                tp.setMarginStart(dp(this, 8));
+                tr.addView(freeTag(this), tp);
+            }
+            t.addView(tr);
+            String stLabel = isReady ? getString(R.string.setup_agent_signed_in)
+                    : a.step == Account.Step.INSTALLING ? getString(R.string.setup_agent_installing)
+                    : isInst ? getString(R.string.setup_agent_not_signed_in)
+                    : a.tagline();
+            t.addView(text(this, stLabel, 13, isReady ? OK : MUTED));
+            r.addView(t, weight1());
+            r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
+            r.setOnClickListener(v -> {
+                d[0].dismiss();
+                Prefs.setBackend(this, a.agent);
+                if (!"both".equals(Prefs.chosenAgents(this))) {
+                    Prefs.setAgents(this, a.agent);
+                }
+                if (isReady) {
+                    ChatHub.get(this).changed();
+                    Toast.makeText(this, getString(R.string.setup_default_brain_set, a.name()), Toast.LENGTH_LONG).show();
+                    render();
+                } else {
+                    openAgent(a.agent);
+                    render();
+                }
+            });
+            c.addView(r, full());
+        }
+        d[0] = bottomSheet(this, c);
+        d[0].show();
     }
 
     /** Pick another agent that's ready as the default brain (the setup card, when the default one isn't signed in). */

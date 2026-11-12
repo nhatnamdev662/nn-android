@@ -1620,4 +1620,13 @@
     <string name="setup_lock_guide">Configuratiegids openen</string>
     <string name="bubble_locked_subtitle">Instellen vereist</string>
     <string name="chat_agent_locked">%1$s is nog niet geïnstalleerd of aangemeld.</string>
+    <string name="setup_step_install_choose_title">Agent kiezen &amp; installeren</string>
+    <string name="setup_step_install_choose_body">Kies welke agent je in NN wilt installeren (Claude Code, Codex, OpenCode, Antigravity of Grok).</string>
+    <string name="setup_step_signin_choose_body">Nadat je in stap 2 een agent hebt gekozen en geïnstalleerd, log je hier in.</string>
+    <string name="setup_choose_install_btn">Agent kiezen</string>
+    <string name="setup_change_agent_btn">Agent wisselen</string>
+    <string name="setup_switch_agent_title">Kies je agent</string>
+    <string name="setup_step_install_agy">NN downloadt zijn eigen kleine Linux en %1$s van Google (ongeveer 200 MB).</string>
+    <string name="setup_step_signin_agy">Met je Google-account. Je browser wordt geopend; keur daar goed en NN haalt de code vanzelf op.</string>
+    <string name="onboarding_brain_pick_hint">Selecteer hierboven eerst een agent</string>
 </resources>

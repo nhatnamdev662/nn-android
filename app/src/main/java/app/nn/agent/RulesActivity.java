@@ -58,7 +58,10 @@ public class RulesActivity extends Screen {
             Rules.Rule r = edit.isEmpty() ? null : Rules.find(this, edit);
             isNew = r == null;
             draft = r == null ? new Rules.Rule() : r;
-            if (isNew) draft.backend = Account.of(Prefs.backend(this)).runsRules() ? Prefs.backend(this) : "claude";
+            if (isNew) {
+                String def = Prefs.activeBackend(this);
+                draft.backend = (def != null && Account.of(def).runsRules()) ? def : "claude";
+            }
         }
         LinearLayout root = column(this);
         root.setBackgroundColor(BG);

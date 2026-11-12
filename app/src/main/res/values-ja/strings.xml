@@ -1606,4 +1606,13 @@
     <string name="setup_lock_guide">セットアップガイドを開く</string>
     <string name="bubble_locked_subtitle">設定が必要です</string>
     <string name="chat_agent_locked">%1$s はまだインストールまたはサインインされていません。</string>
+    <string name="setup_step_install_choose_title">エージェントを選択してインストール</string>
+    <string name="setup_step_install_choose_body">NN 内にインストールするエージェントを選択してください（Claude Code、Codex、OpenCode、Antigravity、Grok）。</string>
+    <string name="setup_step_signin_choose_body">ステップ 2 でエージェントを選択してインストールした後、ここでサインインします。</string>
+    <string name="setup_choose_install_btn">エージェントを選択</string>
+    <string name="setup_change_agent_btn">エージェントを変更</string>
+    <string name="setup_switch_agent_title">エージェントを選択</string>
+    <string name="setup_step_install_agy">NN は独自の小さな Linux と Google の %1$s をダウンロードします（約 200 MB）。</string>
+    <string name="setup_step_signin_agy">Google アカウントを使用します。ブラウザが開いたら承認してください。NN がコードを自動取得します。</string>
+    <string name="onboarding_brain_pick_hint">先に上からエージェントを選択してください</string>
 </resources>

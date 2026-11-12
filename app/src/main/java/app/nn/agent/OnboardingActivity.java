@@ -106,6 +106,7 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     }
 
     private int firstUnfinishedStep() {
+        if (!Prefs.hasAgentsChoice(this) && !SetupState.anySignedIn(this)) return BRAIN;
         int[] checkable = {ACCESS, AGENTS, BACKGROUND, ADB};
         for (int s : checkable) {
             if (!done(this, s)) return s;
@@ -176,7 +177,9 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             case ACCESS:
                 return SetupState.accessibilityEnabled(c);
             case AGENTS:
-                for (String a : wanted(c)) if (!SetupState.signedIn(c, a)) return false;
+                String[] w = wanted(c);
+                if (w.length == 0) return SetupState.anySignedIn(c);
+                for (String a : w) if (!SetupState.signedIn(c, a)) return false;
                 return true;
             case BACKGROUND:
                 PowerManager pm = c.getSystemService(PowerManager.class);
@@ -193,9 +196,13 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     }
 
     static String[] wanted(Context c) {
-        String a = Prefs.agents(c);
+        String a = Prefs.chosenAgents(c);
         if ("both".equals(a)) return new String[]{"claude", "codex"};
-        return new String[]{Account.known(a) ? a : "claude"};
+        if (Account.known(a)) return new String[]{a};
+        String ready = SetupState.firstSignedIn(c);
+        if (ready != null) return new String[]{ready};
+        String target = Prefs.targetBackend(c);
+        return target != null ? new String[]{target} : new String[0];
     }
 
     private void go(int s) {
@@ -327,7 +334,7 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     private void brain() {
         header(R.drawable.ms_forum, getString(R.string.onboarding_brain_title),
                 getString(R.string.onboarding_brain_text), false, BADGE_NONE);
-        String cur = Prefs.agents(this);
+        String cur = Prefs.chosenAgents(this);
         String[][] opts = {
                 {"claude", "Claude Code", getString(R.string.onboarding_brain_claude)},
                 {"codex", "Codex", getString(R.string.onboarding_brain_codex)},
@@ -358,14 +365,6 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             t.setPaddingRelative(dp(this, 14), 0, dp(this, 8), 0);
             LinearLayout tr = row(this);
             tr.addView(title(this, o[1], 16));
-            if ("claude".equals(o[0])) {
-                TextView tag = monoText(this, getString(R.string.onboarding_recommended), 11, ACCENT_TEXT);
-                tag.setPaddingRelative(dp(this, 6), dp(this, 1), dp(this, 6), dp(this, 1));
-                tag.setBackground(rounded(this, ACCENT_SOFT, 6));
-                LinearLayout.LayoutParams tp = wrap();
-                tp.setMarginStart(dp(this, 8));
-                tr.addView(tag, tp);
-            }
             if (Account.known(o[0]) && Account.of(o[0]).freeTier()) {
                 LinearLayout.LayoutParams tp = wrap();
                 tp.setMarginStart(dp(this, 8));
@@ -384,7 +383,16 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             p.topMargin = dp(this, 10);
             body.addView(r, p);
         }
-        primary(getString(R.string.onboarding_continue), v -> go(ACCESS));
+        Button cont = button(this, getString(R.string.onboarding_continue), true);
+        cont.setAlpha(cur.isEmpty() ? 0.45f : 1f);
+        cont.setOnClickListener(v -> {
+            if (Prefs.chosenAgents(this).isEmpty()) {
+                android.widget.Toast.makeText(this, R.string.onboarding_brain_pick_hint, android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+            go(ACCESS);
+        });
+        bottom.addView(cont, bigButton());
         footerNav(WELCOME, null, null);
     }
 
@@ -400,8 +408,8 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
             footerNav(BRAIN, null, null);
             return;
         }
-        String agents = Prefs.agents(this);
-        note("opencode".equals(agents) ? getString(R.string.onboarding_access_privacy_opencode, agentNames())
+        String agents = Prefs.chosenAgents(this);
+        note(agents.isEmpty() || "opencode".equals(agents) ? getString(R.string.onboarding_access_privacy_opencode, agentNames())
                 : "both".equals(agents) ? getString(R.string.onboarding_access_privacy_both)
                 : getString(R.string.onboarding_access_privacy, agentNames(),
                 "codex".equals(agents) ? "OpenAI" : "agy".equals(agents) ? "Google" : "grok".equals(agents) ? "xAI"
@@ -432,8 +440,26 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
                 ok && "both".equals(Prefs.agents(this)) ? getString(R.string.onboarding_agents_done_both)
                         : getString(ok ? R.string.onboarding_agents_done : R.string.onboarding_agents_text, agentNames()),
                 ok, BADGE_REQUIRED);
+        String[] chosen = wanted(this);
+        if (chosen.length == 0 && !ok) {
+            LinearLayout card = column(this);
+            card.setPaddingRelative(dp(this, 16), dp(this, 16), dp(this, 16), dp(this, 16));
+            card.setBackground(rounded(this, CARD, 16));
+            card.addView(title(this, getString(R.string.setup_switch_agent_title), 16));
+            TextView noteView = text(this, getString(R.string.setup_step_install_choose_body), 14, MUTED);
+            noteView.setPaddingRelative(0, dp(this, 6), 0, dp(this, 14));
+            card.addView(noteView);
+            Button pick = button(this, getString(R.string.setup_choose_install_btn), true);
+            pick.setOnClickListener(v -> go(BRAIN));
+            card.addView(pick, wrap());
+            LinearLayout.LayoutParams cp = full();
+            cp.topMargin = dp(this, 14);
+            body.addView(card, cp);
+            footerNav(ACCESS, getString(R.string.onboarding_do_later), v -> go(BACKGROUND));
+            return;
+        }
         boolean first = true;
-        for (String a : wanted(this)) {
+        for (String a : chosen) {
             Account acc = Account.of(a);
             boolean installed = SetupState.installed(this, a), signed = SetupState.signedIn(this, a);
             boolean installing = acc.step == Account.Step.INSTALLING;
@@ -835,8 +861,11 @@ public class OnboardingActivity extends Screen implements Account.Listener, AdbM
     }
 
     private String agentNames() {
-        String a = Prefs.agents(this);
-        return "both".equals(a) ? getString(R.string.onboarding_agent_names_both) : Account.nameOf(a);
+        String a = Prefs.chosenAgents(this);
+        if ("both".equals(a)) return getString(R.string.onboarding_agent_names_both);
+        if (Account.known(a)) return Account.nameOf(a);
+        String target = Prefs.targetBackend(this);
+        return target != null ? Account.nameOf(target) : getString(R.string.app_name);
     }
 
     private void openAppInfo(String pkg) {

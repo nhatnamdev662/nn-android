@@ -2055,4 +2055,13 @@
     <string name="setup_lock_guide">Buka panduan pengaturan</string>
     <string name="bubble_locked_subtitle">Perlu pengaturan</string>
     <string name="chat_agent_locked">%1$s belum terpasang atau masuk.</string>
+    <string name="setup_step_install_choose_title">Pilih &amp; pasang agen</string>
+    <string name="setup_step_install_choose_body">Pilih agen yang ingin dipasang di NN (Claude Code, Codex, OpenCode, Antigravity, atau Grok).</string>
+    <string name="setup_step_signin_choose_body">Setelah memilih dan memasang agen di langkah 2, masuk di sini.</string>
+    <string name="setup_choose_install_btn">Pilih agen</string>
+    <string name="setup_change_agent_btn">Ganti agen</string>
+    <string name="setup_switch_agent_title">Pilih agen Anda</string>
+    <string name="setup_step_install_agy">NN mengunduh Linux kecilnya sendiri dan %1$s dari Google (sekitar 200 MB).</string>
+    <string name="setup_step_signin_agy">Dengan akun Google Anda. Browser akan terbuka; setujui di sana dan NN otomatis mengambil kodenya.</string>
+    <string name="onboarding_brain_pick_hint">Pilih agen di atas terlebih dahulu</string>
 </resources>

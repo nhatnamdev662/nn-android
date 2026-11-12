@@ -1605,4 +1605,13 @@
     <string name="setup_lock_guide">설정 가이드 열기</string>
     <string name="bubble_locked_subtitle">설정 필요</string>
     <string name="chat_agent_locked">%1$s이(가) 아직 설치되거나 로그인되지 않았습니다.</string>
+    <string name="setup_step_install_choose_title">에이전트 선택 및 설치</string>
+    <string name="setup_step_install_choose_body">NN 안에 설치할 에이전트를 선택하세요(Claude Code, Codex, OpenCode, Antigravity 또는 Grok).</string>
+    <string name="setup_step_signin_choose_body">2단계에서 에이전트를 선택하고 설치한 뒤 여기에서 로그인하세요.</string>
+    <string name="setup_choose_install_btn">에이전트 선택</string>
+    <string name="setup_change_agent_btn">에이전트 변경</string>
+    <string name="setup_switch_agent_title">에이전트 선택</string>
+    <string name="setup_step_install_agy">NN은 자체 소형 Linux와 Google의 %1$s을(를) 다운로드합니다(약 200MB).</string>
+    <string name="setup_step_signin_agy">Google 계정을 사용합니다. 브라우저가 열리면 승인해 주세요. NN이 코드를 자동으로 가져옵니다.</string>
+    <string name="onboarding_brain_pick_hint">먼저 위에서 에이전트를 선택하세요</string>
 </resources>

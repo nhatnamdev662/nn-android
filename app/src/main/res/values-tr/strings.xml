@@ -1622,4 +1622,13 @@
     <string name="setup_lock_guide">Kurulum rehberini aç</string>
     <string name="bubble_locked_subtitle">Kurulum gerekli</string>
     <string name="chat_agent_locked">%1$s henüz kurulmadı veya oturum açılmadı.</string>
+    <string name="setup_step_install_choose_title">Bir ajan seçin ve kurun</string>
+    <string name="setup_step_install_choose_body">NN içine kurulacak ajanı seçin (Claude Code, Codex, OpenCode, Antigravity veya Grok).</string>
+    <string name="setup_step_signin_choose_body">2. adımda ajanı seçip kurduktan sonra buradan oturum açın.</string>
+    <string name="setup_choose_install_btn">Ajan seç</string>
+    <string name="setup_change_agent_btn">Ajanı değiştir</string>
+    <string name="setup_switch_agent_title">Ajanınızı seçin</string>
+    <string name="setup_step_install_agy">NN kendi küçük Linux sistemini ve Google\'dan %1$s sürümünü indirir (yaklaşık 200 MB).</string>
+    <string name="setup_step_signin_agy">Google hesabınızla. Tarayıcınız açılır; oradan onaylayın, NN kodu otomatik alır.</string>
+    <string name="onboarding_brain_pick_hint">Önce yukarıdan bir ajan seçin</string>
 </resources>

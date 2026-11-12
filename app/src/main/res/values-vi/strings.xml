@@ -2222,4 +2222,13 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="setup_lock_guide">Mở hướng dẫn thiết lập</string>
     <string name="bubble_locked_subtitle">Cần thiết lập Agent</string>
     <string name="chat_agent_locked">%1$s chưa được cài đặt hoặc đăng nhập.</string>
+    <string name="setup_step_install_choose_title">Chọn &amp; cài đặt một Agent</string>
+    <string name="setup_step_install_choose_body">Chọn một Agent bạn muốn dùng (Claude Code, Codex, OpenCode, Antigravity hoặc Grok) để NN cài đặt trong máy.</string>
+    <string name="setup_step_signin_choose_body">Sau khi chọn và cài Agent ở bước 2, bạn sẽ đăng nhập tại đây.</string>
+    <string name="setup_choose_install_btn">Chọn Agent</string>
+    <string name="setup_change_agent_btn">Đổi Agent</string>
+    <string name="setup_switch_agent_title">Chọn Agent của bạn</string>
+    <string name="setup_step_install_agy">NN tải về Linux nhỏ của riêng nó và %1$s từ Google (khoảng 200 MB).</string>
+    <string name="setup_step_signin_agy">Bằng tài khoản Google của bạn. Trình duyệt sẽ mở; hãy chấp thuận ở đó và NN tự lấy mã quay lại.</string>
+    <string name="onboarding_brain_pick_hint">Vui lòng chọn một Agent ở trên trước</string>
 </resources>

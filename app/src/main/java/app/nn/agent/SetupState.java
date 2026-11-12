@@ -22,10 +22,10 @@ final class SetupState {
     final boolean[] done = new boolean[5];
 
     SetupState(Context c) {
-        String agent = Prefs.backend(c);
+        String agent = Prefs.targetBackend(c);
         done[0] = accessibilityEnabled(c);
-        done[1] = installed(c, agent);
-        done[2] = signedIn(c, agent);
+        done[1] = agent != null ? installed(c, agent) : anyInstalled(c);
+        done[2] = agent != null ? signedIn(c, agent) : anySignedIn(c);
         done[3] = c.getSystemService(PowerManager.class).isIgnoringBatteryOptimizations(c.getPackageName());
         done[4] = Prefs.hadReply(c);
     }
@@ -33,6 +33,19 @@ final class SetupState {
     static boolean installed(Context c, String agent) {
         String s = Prefs.agentState(c, agent);
         return Linux.installed(c) && s != null && !"NEED_INSTALL".equals(s);
+    }
+
+    /** True if at least one AI agent binary is installed in Linux. */
+    static boolean anyInstalled(Context c) {
+        return firstInstalled(c) != null;
+    }
+
+    /** First agent ID installed in Linux, or null if none have been installed yet. */
+    static String firstInstalled(Context c) {
+        for (Account a : Account.ALL) {
+            if (installed(c, a.agent)) return a.agent;
+        }
+        return null;
     }
 
     static boolean signedIn(Context c, String agent) {

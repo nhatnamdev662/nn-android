@@ -2054,4 +2054,13 @@
     <string name="setup_lock_guide">打开设置向导</string>
     <string name="bubble_locked_subtitle">需要先完成设置</string>
     <string name="chat_agent_locked">%1$s 尚未安装或登录。</string>
+    <string name="setup_step_install_choose_title">选择并安装 Agent</string>
+    <string name="setup_step_install_choose_body">选择要在 NN 中安装的 Agent（Claude Code、Codex、OpenCode、Antigravity 或 Grok）。</string>
+    <string name="setup_step_signin_choose_body">在第 2 步选择并安装 Agent 后，在此处登录。</string>
+    <string name="setup_choose_install_btn">选择 Agent</string>
+    <string name="setup_change_agent_btn">更换 Agent</string>
+    <string name="setup_switch_agent_title">选择你的 Agent</string>
+    <string name="setup_step_install_agy">NN 会下载自带的精简 Linux 及来自 Google 的 %1$s（约 200 MB）。</string>
+    <string name="setup_step_signin_agy">使用你的 Google 账号。浏览器将打开；在其中授权即可，NN 会自动获取代码。</string>
+    <string name="onboarding_brain_pick_hint">请先在上方选择一个 Agent</string>
 </resources>

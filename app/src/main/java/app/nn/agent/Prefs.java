@@ -81,6 +81,19 @@ final class Prefs {
         return SetupState.firstSignedIn(c);
     }
 
+    static boolean hasBackendChoice(Context c) {
+        return sp(c).contains("backend");
+    }
+
+    /** Target agent for setup/onboarding: signed-in default, explicit user choice, first installed, or null. */
+    static String targetBackend(Context c) {
+        String active = activeBackend(c);
+        if (active != null) return active;
+        String chosen = sp(c).getString("backend", null);
+        if (chosen != null) return chosen;
+        return SetupState.firstInstalled(c);
+    }
+
     /**
      * Agents (any MCP client, e.g. Claude Code testing NN Agent) may tap and type in NN's own screens, except the
      * bubble, approval cards, App permissions and the developer switches. Off by default.
@@ -345,6 +358,14 @@ final class Prefs {
     /** Which agents the user wants: "claude", "codex", "opencode", "agy", "grok" or "both" (Claude Code and Codex). */
     static String agents(Context c) {
         return sp(c).getString("agents", "claude");
+    }
+
+    static boolean hasAgentsChoice(Context c) {
+        return sp(c).contains("agents");
+    }
+
+    static String chosenAgents(Context c) {
+        return sp(c).getString("agents", "");
     }
 
     static void setAgents(Context c, String a) {
