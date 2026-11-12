@@ -251,6 +251,20 @@ final class Ui {
         return t;
     }
 
+    /** Circular Buddy mascot avatar (drawn NN face, or custom photo picked in Settings). */
+    static View buddyAvatar(Context c, int sizeDp) {
+        FrameLayout av = new FrameLayout(c);
+        av.setBackground(oval(ACCENT_SOFT));
+        ImageView face = new ImageView(c);
+        Face.set(face, R.drawable.bubble_face);
+        int nnDp = Math.max(12, Math.round(sizeDp * 0.82f));
+        int fs = dp(c, Face.size(c, nnDp, sizeDp));
+        av.addView(face, new FrameLayout.LayoutParams(fs, fs, Gravity.CENTER));
+        av.setLayoutParams(new LinearLayout.LayoutParams(dp(c, sizeDp), dp(c, sizeDp)));
+        av.setContentDescription("NN");
+        return av;
+    }
+
     /** 40×40 brand avatar tile for Claude Code, Codex, OpenCode, Antigravity or Grok. */
     static View agentTile(Context c, String backend) {
         return agentTile(c, backend, 40);

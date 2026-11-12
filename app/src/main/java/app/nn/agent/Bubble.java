@@ -3289,9 +3289,7 @@ final class Bubble implements ChatHub.Listener, Browser.Listener {
                 container.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout r = new LinearLayout(svc);
                 r.setGravity(Gravity.BOTTOM);
-                String backend = sessions != null && sessions.current != null
-                        ? sessions.current.backend : Prefs.activeBackend(svc);
-                View av = Ui.agentTile(svc, backend, 24);
+                View av = Ui.buddyAvatar(svc, 24);
                 LinearLayout.LayoutParams avp = new LinearLayout.LayoutParams(dp(24), dp(24));
                 avp.setMarginEnd(dp(8));
                 r.addView(av, avp);

@@ -268,7 +268,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         RichEditText field = new RichEditText(this);
         field.onImages(this::addFiles); // pasted, or from the keyboard's clipboard (issue #6)
         input = field;
-        input.setHint(getString(R.string.chat_input_hint, ses.brainName()));
+        input.setHint(getString(R.string.chat_input_hint, "NN"));
         input.setHintTextColor(MUTED);
         input.setTextColor(TEXT);
         input.setTextSize(15);
@@ -514,9 +514,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         emptyHero.setGravity(Gravity.CENTER_HORIZONTAL);
         emptyHero.setPaddingRelative(dp(this, 6), dp(this, 24), dp(this, 6), dp(this, 12));
 
-        emptyHero.addView(agentTile(this, ses.backend, 56));
+        emptyHero.addView(buddyAvatar(this, 56));
 
-        TextView heroTitle = title(this, ses.brainName(), 20);
+        TextView heroTitle = title(this, "NN", 20);
         heroTitle.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams tp = wrap();
         tp.topMargin = dp(this, 12);
@@ -581,7 +581,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private String hintText() {
         if (!SetupState.anySignedIn(this)) return getString(R.string.setup_lock_body);
         if (!SetupState.signedIn(this, ses.backend)) return getString(R.string.chat_agent_locked, ses.brainName());
-        return getString(ses.dev ? R.string.chat_empty_hint_dev : R.string.chat_empty_hint, ses.brainName());
+        return getString(ses.dev ? R.string.chat_empty_hint_dev : R.string.chat_empty_hint, "NN");
     }
 
     /** The last message shown here: if the chat moved on while this screen was hidden, it's redrawn on return. */
@@ -1583,7 +1583,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             mic.setCompoundDrawablePadding(dp(this, 2));
             mic.setPaddingRelative(dp(this, 6), 0, dp(this, 8), 0);
             mic.setBackgroundResource(ripple(this, true));
-            input.setHint(getString(R.string.chat_input_hint, ses.brainName()));
+            input.setHint(getString(R.string.chat_input_hint, "NN"));
             return;
         }
         mic.setText("");
@@ -1592,7 +1592,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         mic.setCompoundDrawablePadding(0);
         mic.setPaddingRelative(dp(this, 8), 0, dp(this, 8), 0);
         mic.setBackgroundResource(ripple(this, true));
-        input.setHint(getString(R.string.chat_input_hint, ses.brainName()));
+        input.setHint(getString(R.string.chat_input_hint, "NN"));
     }
 
     private static String join(String a, String b) {
@@ -1675,7 +1675,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         strip.setVisibility(View.GONE);
         String st = ses.status.isEmpty() ? getString(R.string.chat_working) : ses.status;
         String suffix = (st.endsWith("…") || st.endsWith("...")) ? "" : "…";
-        String targetHint = ses.running ? (st + suffix) : getString(R.string.chat_input_hint, ses.brainName());
+        String targetHint = ses.running ? (st + suffix) : getString(R.string.chat_input_hint, "NN");
         if (input != null && !targetHint.equals(input.getHint())) {
             input.setHint(targetHint);
         }
@@ -2255,8 +2255,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         LinearLayout header = row(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.setPaddingRelative(0, 0, 0, dp(this, 6));
-        header.addView(agentTile(this, ses.backend, 22));
-        TextView name = title(this, ses.brainName(), 13);
+        header.addView(buddyAvatar(this, 22));
+        TextView name = title(this, "NN", 13);
         name.setPaddingRelative(dp(this, 8), 0, 0, 0);
         header.addView(name);
         return header;
@@ -2419,7 +2419,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         LinearLayout c = column(this);
         c.setPaddingRelative(dp(this, 16), dp(this, 16), dp(this, 16), dp(this, 20));
         TextView header = title(this, isUser ? getString(R.string.bubble_chat_row_you, ChatHub.clip(m.text, 30))
-                : ses.brainName(), 16);
+                : "NN", 16);
         header.setPaddingRelative(0, 0, 0, dp(this, 12));
         c.addView(header);
 
