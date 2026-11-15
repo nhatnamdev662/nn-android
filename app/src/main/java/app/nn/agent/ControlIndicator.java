@@ -20,8 +20,8 @@ import android.os.SystemClock;
 final class ControlIndicator {
     static final String CHANNEL = "control", ACTION_STOP = "app.nn.agent.STOP_CONTROL";
     private static final int NOTIFICATION_ID = 7;
-    /** Idle time before it hides when no NN Agent chat is running (e.g. a terminal session using the tools). */
-    private static final long IDLE_EXTERNAL_MS = 15_000, IDLE_NN_MS = 4_000, TICK_MS = 1_000;
+    /** Responsive timeout: 4s after screen interaction stops when no background chat is running. */
+    static final long IDLE_MUTATION_MS = 4_000L;
 
     private final NnService svc;
     private boolean active;
@@ -37,35 +37,38 @@ final class ControlIndicator {
 
     /** A phone tool was used within the last ms (main thread). */
     boolean recent(long ms) {
-        return active && SystemClock.elapsedRealtime() - lastActivity < ms;
+        return lastActivity > 0 && SystemClock.elapsedRealtime() - lastActivity < ms;
     }
 
     /** A phone tool is being used (main thread). */
     void onActivity() {
         lastActivity = SystemClock.elapsedRealtime();
+        svc.mainHandler().removeCallbacks(tick);
+        svc.mainHandler().postDelayed(tick, IDLE_MUTATION_MS);
         if (active) return;
         active = true;
+        TouchEffectOverlay te = svc.touchEffect();
+        if (te != null) te.startBorderGlow();
         Bubble b = svc.bubble();
         if (b != null) b.setControlling(true);
-        notifyChip();
+        KeepAliveService.updateState(svc, KeepAliveService.State.CONTROLLING, null);
         svc.autoPauser().start(); // the user taking the phone back pauses it
-        svc.mainHandler().postDelayed(tick, TICK_MS);
     }
 
     private final Runnable tick = new Runnable() {
         @Override
         public void run() {
             if (!active) return;
+            // While any agent chat session is still working on the task, keep control & border glow active!
+            if (svc.hasRunningChats()) {
+                svc.mainHandler().postDelayed(this, 1000L);
+                return;
+            }
             long idle = SystemClock.elapsedRealtime() - lastActivity;
-            ChatHub hub = ChatHub.get(svc);
-            // A NN Agent chat keeps it on while it thinks between actions; once the run ends it goes away.
-            // Sessions outside NN Agent (e.g. a terminal) only show their activity, so it times out.
-            boolean runEnded = hub.runningCount() == 0 && hub.lastRunEndedAt() >= lastActivity;
-            boolean nnRunning = hub.runningCount() > 0;
-            if ((runEnded && idle > IDLE_NN_MS) || (!nnRunning && idle > IDLE_EXTERNAL_MS)) {
+            if (idle >= IDLE_MUTATION_MS) {
                 end();
             } else {
-                svc.mainHandler().postDelayed(this, TICK_MS);
+                svc.mainHandler().postDelayed(this, Math.max(50L, IDLE_MUTATION_MS - idle));
             }
         }
     };
@@ -73,11 +76,17 @@ final class ControlIndicator {
     void end() {
         if (!active) return;
         active = false;
+        TouchEffectOverlay te = svc.touchEffect();
+        if (te != null) te.stopBorderGlow();
         svc.mainHandler().removeCallbacks(tick);
         svc.autoPauser().stop();
         Bubble b = svc.bubble();
         if (b != null) b.setControlling(false);
-        svc.getSystemService(NotificationManager.class).cancel(NOTIFICATION_ID);
+        try {
+            svc.getSystemService(NotificationManager.class).cancel(NOTIFICATION_ID);
+        } catch (Exception ignored) {
+        }
+        KeepAliveService.updateState(svc, svc.hasRunningChats() ? KeepAliveService.State.THINKING : KeepAliveService.State.IDLE, null);
     }
 
     // ------------------------------------------------------- notification
@@ -93,32 +102,10 @@ final class ControlIndicator {
     }
 
     private void notifyChip() {
-        NotificationManager nm = svc.getSystemService(NotificationManager.class);
-        channel(svc);
-        PendingIntent stop = PendingIntent.getBroadcast(svc, 2,
-                new Intent(svc, HiddenNotice.class).setAction(ACTION_STOP),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent open = PendingIntent.getActivity(svc, 3,
-                new Intent(svc, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Bundle extras = new Bundle();
-        // Android 16 Live Update: shows as a chip in the status bar (Notification.EXTRA_REQUEST_PROMOTED_ONGOING)
-        extras.putBoolean("android.requestPromotedOngoing", true);
-        Notification.Builder b = new Notification.Builder(svc, CHANNEL)
-                .setSmallIcon(R.drawable.ic_launcher_monochrome)
-                .setContentTitle(svc.getString(R.string.control_title))
-                .setContentText(svc.getString(R.string.control_text))
-                .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setCategory(Notification.CATEGORY_PROGRESS)
-                .setContentIntent(open)
-                .addExtras(extras)
-                .addAction(new Notification.Action.Builder(null, svc.getString(R.string.control_stop), stop).build());
-        if (android.os.Build.VERSION.SDK_INT >= 36) b.setShortCriticalText("NN");
+        KeepAliveService.updateState(svc, KeepAliveService.State.CONTROLLING, null);
         try {
-            nm.notify(NOTIFICATION_ID, b.build());
-        } catch (SecurityException ignored) {
-            // notifications off: the bubble still shows it
+            svc.getSystemService(NotificationManager.class).cancel(NOTIFICATION_ID);
+        } catch (Exception ignored) {
         }
     }
 }

@@ -38,12 +38,12 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private TextView title, chipText, stripText;
     private UsageGauge usage;
     /** The Linux tools chip inside the composer toolbar (protected from agent taps). */
-    private LinearLayout linux;
+    private LinearLayout linux, exec;
     /** Empty-state brand hero, starter cards box, and contextual subtitle/model pill. */
     private LinearLayout emptyHero, startersBox;
     private TextView hint, heroModelText;
     private Button mic;
-    private TextView slashBtn;
+    private HorizontalScrollView quickChipsScroll;
     private LinearLayout pill;
     private LinearLayout lockedComposer;
     private TextView lockedText;
@@ -295,28 +295,6 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         attach.setOnClickListener(v -> attachSheet());
         leftTools.addView(attach);
 
-        slashBtn = monoText(this, "/", 15, TEXT);
-        slashBtn.setGravity(Gravity.CENTER);
-        slashBtn.setTypeface(mono(this, 600));
-        slashBtn.setBackground(rounded(this, CARD2, 17));
-        slashBtn.setForeground(getDrawable(ripple(this, false)));
-        slashBtn.setContentDescription(getString(R.string.chat_slash_description));
-        slashBtn.setVisibility(Linux.installed(this) ? View.VISIBLE : View.GONE);
-        slashBtn.setOnClickListener(v -> {
-            String cur = input.getText() != null ? input.getText().toString() : "";
-            if (cur.startsWith("/") && slashList.getVisibility() == View.VISIBLE) {
-                input.setText("");
-            } else {
-                input.setText("/");
-                input.setSelection(1);
-                input.requestFocus();
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(input, 0);
-            }
-        });
-        LinearLayout.LayoutParams slpBtn = new LinearLayout.LayoutParams(dp(this, 34), dp(this, 34));
-        slpBtn.setMarginStart(dp(this, 6));
-        leftTools.addView(slashBtn, slpBtn);
-
         linux = protect(linuxChip(this)); // agents never switch it, even when they may tap NN's screens
         ((TextView) linux.getChildAt(1)).setMaxWidth(dp(this, 118));
         linux.setOnClickListener(v -> switchLinuxTools());
@@ -324,6 +302,15 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 34));
         lxp.setMarginStart(dp(this, 6));
         leftTools.addView(linux, lxp);
+
+        exec = protect(execChip(this));
+        ((TextView) exec.getChildAt(1)).setMaxWidth(dp(this, 90));
+        exec.setOnClickListener(v -> switchExecMode());
+        LinearLayout.LayoutParams exp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 34));
+        exp.setMarginStart(dp(this, 6));
+        leftTools.addView(exec, exp);
+
         composerBar.addView(leftTools, weight1());
 
         live = iconButton(this, R.drawable.ms_graphic_eq, getString(R.string.live_option), MUTED);
@@ -375,6 +362,54 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             }
         });
         paintSend();
+
+        // Quick Context Chips row
+        quickChipsScroll = new HorizontalScrollView(this);
+        quickChipsScroll.setHorizontalScrollBarEnabled(false);
+        quickChipsScroll.setVisibility(ses.messages.isEmpty() ? View.VISIBLE : View.GONE);
+        final LinearLayout quickChips = row(this);
+        quickChips.setPaddingRelative(dp(this, 12), 0, dp(this, 12), dp(this, 4));
+
+        String[][] chipsData = {
+                {getString(R.string.chip_clean_ram), "Kiểm tra và dọn dẹp RAM giúp mình nhé! ✨"},
+                {getString(R.string.chip_check_battery), "Báo cáo tình trạng pin và nhiệt độ máy hiện tại 🔋"},
+                {getString(R.string.chip_screenshot), "Chụp màn hình hiện tại và phân tích giúp mình 📸"},
+                {getString(R.string.chip_linux_shell), "Liệt kê các lệnh Linux cơ bản hữu ích trên máy 🐧"}
+        };
+
+        for (String[] cd : chipsData) {
+            TextView chipView = text(this, cd[0], 12, TEXT);
+            chipView.setTypeface(sans(this, 500));
+            chipView.setPaddingRelative(dp(this, 12), dp(this, 6), dp(this, 12), dp(this, 6));
+            chipView.setBackground(outlined(this, CARD, 14, OUTLINE, 1));
+            final String prompt = cd[1];
+            chipView.setOnClickListener(v -> {
+                input.setText(prompt);
+                input.setSelection(prompt.length());
+                send();
+            });
+            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            clp.setMarginEnd(dp(this, 8));
+            quickChips.addView(chipView, clp);
+        }
+        quickChipsScroll.addView(quickChips);
+
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override
+            public void onTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override
+            public void afterTextChanged(Editable e) {
+                if (quickChipsScroll != null) {
+                    quickChipsScroll.setVisibility(ses.messages.isEmpty() && (e == null || e.length() == 0) ? View.VISIBLE : View.GONE);
+                }
+            }
+        });
+
+        root.addView(quickChipsScroll, full());
+
         LinearLayout.LayoutParams pp = full();
         pp.leftMargin = pp.rightMargin = dp(this, 12);
         pp.bottomMargin = dp(this, 10);
@@ -506,6 +541,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         if (log != null && !ses.running) log.finish();
         lastShown = lastMsg();
         updateTypingIndicator();
+        if (quickChipsScroll != null) {
+            quickChipsScroll.setVisibility(ses.messages.isEmpty() && (input == null || input.getText().length() == 0) ? View.VISIBLE : View.GONE);
+        }
     }
 
     /** Centered editorial brand hero + quick-start prompt cards when the chat is empty. */
@@ -514,7 +552,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         emptyHero.setGravity(Gravity.CENTER_HORIZONTAL);
         emptyHero.setPaddingRelative(dp(this, 6), dp(this, 24), dp(this, 6), dp(this, 12));
 
-        emptyHero.addView(buddyAvatar(this, 56));
+        emptyHero.addView(nnAvatar(this, 56));
 
         TextView heroTitle = title(this, "NN", 20);
         heroTitle.setGravity(Gravity.CENTER);
@@ -542,7 +580,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         startersBox = column(this);
         startersBox.addView(starterCard(R.drawable.ms_auto_awesome, getString(R.string.chat_starter_screen)));
         startersBox.addView(starterCard(R.drawable.ms_public, getString(R.string.chat_starter_search)));
-        startersBox.addView(starterCard(R.drawable.ms_schedule, getString(R.string.chat_starter_apps)));
+        startersBox.addView(starterCard(R.drawable.ms_notifications, getString(R.string.chat_starter_notifications)));
+        startersBox.addView(starterCard(R.drawable.ms_build_circle, getString(R.string.chat_starter_device)));
+        startersBox.addView(starterCard(R.drawable.ms_schedule, getString(R.string.chat_starter_alarm)));
+        startersBox.addView(starterCard(R.drawable.ms_description, getString(R.string.chat_starter_reminder)));
         if (Linux.installed(this)) {
             startersBox.addView(starterCard(R.drawable.ms_terminal, getString(R.string.chat_starter_linux)));
         }
@@ -595,6 +636,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     protected void onResume() {
         super.onResume();
         if (ses == null || isFinishing()) return;
+        NnService ns = NnService.get();
+        if (ns != null && ns.bubble() != null) {
+            ns.bubble().restoreBubble();
+        }
         hub.addListener(this);
         resumed = true;
         Browser.addListener(this);
@@ -732,6 +777,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         pending.clear();
         renderTray();
         updateTypingIndicator();
+        if (quickChipsScroll != null) {
+            quickChipsScroll.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -746,6 +794,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     @Override
     public void onMessage(Sessions.Session s, Sessions.Msg msg) {
         if (s == ses) {
+            if (quickChipsScroll != null) {
+                quickChipsScroll.setVisibility(View.GONE);
+            }
             if (ses.messages.size() == 1 || emptyHero != null) { // drop the empty-chat hero & starters
                 messages.removeAllViews();
                 hint = null;
@@ -779,6 +830,14 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                         else refresh();
                     }
                 });
+    }
+
+    private void switchExecMode() {
+        if (ses == null) return;
+        Ui.showExecModeSheet(this, ses, () -> {
+            hub.sessions.save(ses);
+            if (exec != null) paintExecChip(this, exec, ses.autoExec);
+        });
     }
 
     /**
@@ -1586,7 +1645,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         usage.setContentDescription(Usage.shortLine(this, ses.backend));
         usage.setVisibility(used < 0 ? View.GONE : View.VISIBLE);
         if (linux != null) paintLinuxChip(this, linux, ses.dev);
-        if (slashBtn != null) slashBtn.setVisibility(Linux.installed(this) ? View.VISIBLE : View.GONE);
+        if (exec != null) paintExecChip(this, exec, ses.autoExec);
+        if (quickChipsScroll != null) {
+            quickChipsScroll.setVisibility(ses.messages.isEmpty() && (input == null || input.getText().length() == 0) ? View.VISIBLE : View.GONE);
+        }
         options.setImageTintList(ColorStateList.valueOf(ses.awake || ses.schedule != null || !ses.allowed.isEmpty() ? ACCENT : MUTED));
         if (hint != null) hint.setText(hintText());
         if (startersBox != null) {
@@ -1695,8 +1757,10 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         lab.setPaddingRelative(dp(this, 8), 0, 0, 0);
         hr.addView(lab);
         card.addView(hr);
-        TextView well = text(this, ask, 14, TEXT);
-        well.setPaddingRelative(dp(this, 12), dp(this, 10), dp(this, 12), dp(this, 10));
+        TextView well = text(this, "", 14, TEXT);
+        well.setText(markdown(ask, null));
+        well.setLineSpacing(dp(this, 3), 1.25f);
+        well.setPaddingRelative(dp(this, 14), dp(this, 12), dp(this, 14), dp(this, 12));
         // long texts scroll inside the card, so its buttons always stay on screen
         final int maxH = (int) (getResources().getDisplayMetrics().heightPixels * 0.3f);
         ScrollView ws = new ScrollView(this) {
@@ -1705,7 +1769,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                 super.onMeasure(w, MeasureSpec.makeMeasureSpec(maxH, MeasureSpec.AT_MOST));
             }
         };
-        ws.setBackground(rounded(this, BG, 12));
+        ws.setBackground(outlined(this, CARD2, 12, 0x1FFFFFFF, 1));
         ws.addView(well);
         LinearLayout.LayoutParams wp = full();
         wp.topMargin = dp(this, 10);
@@ -1720,9 +1784,16 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         LinearLayout btns = row(this);
         Button deny = button(this, getString(R.string.chat_deny), false);
         deny.setTextColor(ERR);
+        deny.setTypeface(sans(this, 600));
         deny.setBackground(rounded(this, ERR_SOFT, 12));
         Button change = button(this, getString(R.string.chat_change), false);
+        change.setTextColor(TEXT);
+        change.setTypeface(sans(this, 600));
+        change.setBackground(outlined(this, CARD2, 12, 0x33FFFFFF, 1));
         Button ok = button(this, getString(R.string.chat_approve), true);
+        ok.setTextColor(0xFF111114);
+        ok.setTypeface(sans(this, 700));
+        ok.setBackground(rounded(this, ACCENT, 12));
         btns.addView(deny, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(0, dp(this, 44), 1);
         cp.setMarginStart(dp(this, 10));
@@ -1741,9 +1812,11 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
     private void renderQuestion(LinearLayout card, java.util.List<String> options) {
         LinearLayout opts = column(this);
         for (String o : options) {
-            Button b = button(this, o, false);
+            Button b = button(this, "", false);
+            b.setText(markdown(o, null));
             b.setSingleLine(false);
             b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            b.setPaddingRelative(dp(this, 14), dp(this, 10), dp(this, 14), dp(this, 10));
             b.setBackground(outlined(this, CARD2, 12, Theme.withAlpha(ACCENT, 0x40), 1));
             b.setOnClickListener(v -> {
                 NnService svc = NnService.get();
@@ -1757,7 +1830,9 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         card.addView(opts, full());
         LinearLayout btns = row(this);
         Button skip = button(this, getString(R.string.chat_skip), false);
+        skip.setBackground(rounded(this, 0x1FFFFFFF, 12));
         Button own = button(this, getString(R.string.chat_type_own_answer), false);
+        own.setBackground(outlined(this, CARD2, 12, 0x33FFFFFF, 1));
         btns.addView(skip, new LinearLayout.LayoutParams(0, dp(this, 44), 1));
         LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(0, dp(this, 44), 2);
         op.setMarginStart(dp(this, 10));
@@ -1944,8 +2019,8 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         c.addView(h);
         final Dialog[] d = new Dialog[1];
         Object[][] opts = {
-                {R.drawable.ms_photo_camera, getString(R.string.chat_attach_camera), getString(R.string.chat_attach_camera_sub)},
-                {R.drawable.ms_image, getString(R.string.chat_attach_photos), getString(R.string.chat_attach_photos_sub)},
+                {R.drawable.ms_photo_camera, getString(R.string.attach_screenshot), getString(R.string.chat_attach_camera_sub)},
+                {R.drawable.ms_image, getString(R.string.attach_gallery), getString(R.string.chat_attach_photos_sub)},
                 {R.drawable.ms_description, getString(R.string.chat_attach_files), getString(R.string.chat_attach_files_sub)},
         };
         for (int i = 0; i < opts.length; i++) {
@@ -2175,7 +2250,7 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
         LinearLayout header = row(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.setPaddingRelative(0, 0, 0, dp(this, 6));
-        header.addView(buddyAvatar(this, 22));
+        header.addView(nnAvatar(this, 22));
         TextView name = title(this, "NN", 13);
         name.setPaddingRelative(dp(this, 8), 0, 0, 0);
         header.addView(name);
@@ -2231,18 +2306,11 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
                     container.addView(buildTurnHeader());
                     turnHeaderShown = true;
                 }
-                TextView tv = text(this, text, 15, TEXT);
-                tv.setTextIsSelectable(true);
-                tv.setText(Ui.markdown(text, null)); // **bold**, lists, `code`, [text](url) as a link…
-                Ui.linkifySelectable(tv);
-                Ui.copyWithLinks(tv);
-                tv.setLineSpacing(dp(this, 3), 1.32f);
-                tv.setPaddingRelative(0, dp(this, 2), 0, dp(this, 4));
-                tv.setOnLongClickListener(x -> {
+                Ui.renderMarkdownWithCodeCards(this, container, text, null);
+                container.setOnLongClickListener(x -> {
                     showMessageActions(m, false);
                     return true;
                 });
-                container.addView(tv, full());
                 if (m != null && (latestAgentMsg == null || m == latestAgentMsg)) {
                     if (lastAgentActions != null) lastAgentActions.setVisibility(View.GONE);
                     LinearLayout act = agentActionRow(m);
@@ -2596,7 +2664,13 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             n++;
             if (lastMark != null) swapToCheck(lastMark);
             String s = step.trim();
-            if (s.startsWith("✓ ")) s = s.substring(2); // the row gets its own check mark
+            if (s.startsWith("✓ ") || s.startsWith("\u2713 ")) s = s.substring(2).trim();
+            while (s.toLowerCase().startsWith("đang chạy: ")) {
+                s = s.substring(11).trim();
+            }
+            while (s.toLowerCase().startsWith("running: ")) {
+                s = s.substring(9).trim();
+            }
             String oneLine = s.replace('\n', ' ').trim();
             lastStepShort = oneLine.length() > 44 ? oneLine.substring(0, 41) + "…" : oneLine;
             int cut = -1;
@@ -2622,6 +2696,12 @@ public class ChatActivity extends Screen implements ChatHub.Listener, Browser.Li
             t.setEllipsize(android.text.TextUtils.TruncateAt.END);
             t.setPaddingRelative(dp(ChatActivity.this, 8), 0, 0, 0);
             r.addView(t, weight1());
+            final boolean[] expanded = new boolean[]{false};
+            r.setOnClickListener(v -> {
+                expanded[0] = !expanded[0];
+                t.setMaxLines(expanded[0] ? Integer.MAX_VALUE : 3);
+                t.setEllipsize(expanded[0] ? null : android.text.TextUtils.TruncateAt.END);
+            });
             copyOnLongPress(r, step);
             rows.addView(r, full());
             lastMark = mark;

@@ -699,7 +699,7 @@ final class CodexLive {
                             "the connection failed".equals(why) ? app.getString(R.string.dictation_connection_failed) : why));
                 });
             }
-        }, "NN Agent");
+        }, "NnAgent");
         web.loadDataWithBaseURL("https://nn.local/", PAGE, "text/html", "utf-8", null);
     }
 
@@ -808,18 +808,18 @@ final class CodexLive {
     /**
      * The phone side of the call: the microphone with the WebView's own echo cancellation (it knows what it plays,
      * so the user can talk over the voice), or NN's recording when the WebView can't open it; the voice plays aloud.
-     * It logs its states and the data channel's events through NN Agent.log.
+     * It logs its states and the data channel's events through NnAgent.log.
      */
     private static final String PAGE = "<!doctype html><html><body><audio id=out autoplay></audio><script>\n"
             + "let pc, ctx, mic, timer, stats;\n"
-            + "const L = s => { try { NN Agent.log(s); } catch (e) {} };\n"
+            + "const L = s => { try { NnAgent.log(s); } catch (e) {} };\n"
             + "function meter(stream) {\n"
             + "  const an = ctx.createAnalyser(); an.fftSize = 1024; ctx.createMediaStreamSource(stream).connect(an);\n"
             + "  const buf = new Float32Array(an.fftSize);\n"
             + "  return () => { an.getFloatTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v)); return m; };\n"
             + "}\n"
             + "async function ownTrack() {\n" // NN's recording played into the call, resampled to the page's rate
-            + "  if (!NN Agent.ownMic()) throw new Error('microphone');\n"
+            + "  if (!NnAgent.ownMic()) throw new Error('microphone');\n"
             + "  const ratio = 16000 / ctx.sampleRate;\n"
             + "  L('fallback: page rate ' + ctx.sampleRate);\n"
             + "  const proc = ctx.createScriptProcessor(1024, 1, 1), dest = ctx.createMediaStreamDestination();\n"
@@ -827,7 +827,7 @@ final class CodexLive {
             + "  let fifo = new Float32Array(0), pos = 0;\n"
             + "  proc.onaudioprocess = e => {\n"
             + "    const out = e.outputBuffer.getChannelData(0); out.fill(0);\n"
-            + "    const bin = atob(NN Agent.pull(6400));\n"
+            + "    const bin = atob(NnAgent.pull(6400));\n"
             + "    if (bin.length > 1) {\n"
             + "      const add = new Float32Array(bin.length >> 1);\n"
             + "      for (let i = 0; i < add.length; i++) { let v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v > 32767) v -= 65536; add[i] = v / 32768; }\n"
@@ -858,7 +858,7 @@ final class CodexLive {
             + "    pc = new RTCPeerConnection();\n"
             + "    pc.addTrack(stream.getAudioTracks()[0], stream);\n"
             + "    const dc = pc.createDataChannel('oai-events');\n"
-            + "    dc.onopen = () => { L('data channel open'); NN Agent.connected(); }; dc.onclose = () => L('data channel closed');\n"
+            + "    dc.onopen = () => { L('data channel open'); NnAgent.connected(); }; dc.onclose = () => L('data channel closed');\n"
             + "    dc.onmessage = m => { try { const j = JSON.parse(m.data), ty = j.type || '?';\n"
             + "      if (/delta|transcript\\.added|audio/.test(ty) && !/error/.test(ty)) return;\n"
             + "      let more = '';\n"
@@ -877,7 +877,7 @@ final class CodexLive {
             + "      said = meter(s);\n"
             + "    };\n"
             + "    timer = setInterval(() => { const h = heard(), v = said(), voice = v > 0.02;\n"
-            + "      NN Agent.level(Math.min(1, Math.max(h, v) * 3), voice); }, 70);\n"
+            + "      NnAgent.level(Math.min(1, Math.max(h, v) * 3), voice); }, 70);\n"
             + "    let lastIn = 0, lastOut = 0;\n"
             + "    stats = setInterval(async () => { if (!pc) return; let a = '', b = '';\n"
             + "      (await pc.getStats()).forEach(r => { if (r.type === 'outbound-rtp' && r.kind === 'audio') a = 'sent ' + (r.bytesSent - lastOut) + ' B', lastOut = r.bytesSent;\n"
@@ -885,18 +885,18 @@ final class CodexLive {
             + "      L('rtp 10 s: ' + a + '; ' + b + '; mic peak ' + heard().toFixed(3)); }, 10000);\n"
             + "    pc.oniceconnectionstatechange = () => { L('ice ' + pc.iceConnectionState);\n"
             // some WebViews never report connectionState 'connected': the network connection or the data channel says it too
-            + "      if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') NN Agent.connected(); };\n"
+            + "      if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') NnAgent.connected(); };\n"
             + "    pc.onconnectionstatechange = () => {\n"
             + "      L('connection ' + pc.connectionState);\n"
-            + "      if (pc.connectionState === 'connected') NN Agent.connected();\n"
-            + "      else if (pc.connectionState === 'failed') NN Agent.failed('the connection failed');\n"
+            + "      if (pc.connectionState === 'connected') NnAgent.connected();\n"
+            + "      else if (pc.connectionState === 'failed') NnAgent.failed('the connection failed');\n"
             + "    };\n"
             + "    await pc.setLocalDescription(await pc.createOffer());\n"
             + "    await new Promise(r => { if (pc.iceGatheringState === 'complete') r(); else { pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; setTimeout(r, 1500); } });\n"
-            + "    NN Agent.offer(pc.localDescription.sdp);\n"
-            + "  } catch (e) { NN Agent.failed(String(e && e.message || e)); }\n"
+            + "    NnAgent.offer(pc.localDescription.sdp);\n"
+            + "  } catch (e) { NnAgent.failed(String(e && e.message || e)); }\n"
             + "}\n"
-            + "function answer(sdp) { L('answer received'); pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NN Agent.failed(String(e.message || e))); }\n"
+            + "function answer(sdp) { L('answer received'); pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NnAgent.failed(String(e.message || e))); }\n"
             + "function hangUp() {\n"
             + "  L('hang up');\n"
             + "  clearInterval(timer); clearInterval(stats);\n"

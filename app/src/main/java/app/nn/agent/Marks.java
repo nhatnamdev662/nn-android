@@ -6,7 +6,10 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -48,6 +51,12 @@ final class Marks {
         float ax1, ay1, ax2, ay2;
         boolean arrow;
         String text = "";
+        int step;
+        boolean isSwipe;
+        String direction;
+        float sx1, sy1, sx2, sy2;
+        boolean hasCustomEnd;
+        int x2, y2;
 
         Mark(AccessibilityNodeInfo node, AccessibilityNodeInfo toggle, Rect at, String label) {
             this.node = node;
@@ -56,7 +65,7 @@ final class Marks {
             this.label = label == null ? "" : label.trim();
             field = node != null && toggle == null && node.isEditable();
             wasOn = toggle != null && toggle.isChecked();
-            startText = field ? typed(node) : null;
+            startText = (field || (node != null && node.getText() != null)) ? typed(node) : null;
         }
 
         /** NN Agent can tell when the user has done this one (it's on an element, not a bare point). */
@@ -97,21 +106,36 @@ final class Marks {
     private java.util.function.Consumer<String> onEnd;
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG), halo = new Paint(Paint.ANTI_ALIAS_FLAG),
             line = new Paint(Paint.ANTI_ALIAS_FLAG), aura = new Paint(Paint.ANTI_ALIAS_FLAG),
-            labelBg = new Paint(Paint.ANTI_ALIAS_FLAG), labelEdge = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+            labelBg = new Paint(Paint.ANTI_ALIAS_FLAG), labelEdge = new Paint(Paint.ANTI_ALIAS_FLAG),
+            ripplePaint = new Paint(Paint.ANTI_ALIAS_FLAG), badgeBg = new Paint(Paint.ANTI_ALIAS_FLAG),
+            badgeHalo = new Paint(Paint.ANTI_ALIAS_FLAG), trailLine = new Paint(Paint.ANTI_ALIAS_FLAG),
+            fingerAura = new Paint(Paint.ANTI_ALIAS_FLAG), fingerHalo = new Paint(Paint.ANTI_ALIAS_FLAG),
+            fingerCore = new Paint(Paint.ANTI_ALIAS_FLAG), fingerDot = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG),
+            badgeText = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
     Marks(NnService svc) {
         this.svc = svc;
         this.wm = svc.getSystemService(WindowManager.class);
         this.d = svc.getResources().getDisplayMetrics().density;
-        for (Paint p : new Paint[]{halo, line, aura, labelEdge}) {
+        for (Paint p : new Paint[]{halo, line, aura, labelEdge, ripplePaint, trailLine}) {
             p.setStyle(Paint.Style.STROKE);
             p.setStrokeCap(Paint.Cap.ROUND);
             p.setStrokeJoin(Paint.Join.ROUND);
         }
+        badgeBg.setStyle(Paint.Style.FILL);
+        badgeHalo.setStyle(Paint.Style.FILL);
+        fingerAura.setStyle(Paint.Style.FILL);
+        fingerHalo.setStyle(Paint.Style.STROKE);
+        fingerCore.setStyle(Paint.Style.FILL);
+        fingerDot.setStyle(Paint.Style.FILL);
         textPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14,
                 svc.getResources().getDisplayMetrics()));
         textPaint.setTypeface(Ui.sans(svc, 600));
+        badgeText.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
+                svc.getResources().getDisplayMetrics()));
+        badgeText.setTypeface(Ui.sans(svc, 700));
+        badgeText.setTextAlign(Paint.Align.CENTER);
     }
 
     /**
@@ -125,12 +149,17 @@ final class Marks {
         until = ms > 0 ? SystemClock.uptimeMillis() + ms : Long.MAX_VALUE;
         halo.setColor(Theme.withAlpha(Ui.BG, 0xB0));
         labelEdge.setColor(Ui.BG);
+        badgeHalo.setColor(Theme.withAlpha(Ui.BG, 0xD0));
         textPaint.setColor(Ui.ON_ACCENT);
+        badgeText.setColor(Ui.ON_ACCENT);
         boolean taps = false;
+        int stepIdx = 1;
+        boolean multi = list.size() > 1;
         for (Mark m : list) {
+            if (multi) m.step = stepIdx++;
             if (add(m)) {
                 shown.add(m);
-                taps |= m.byTap();
+                taps |= m.byTap() || m.isSwipe;
             }
         }
         if (marks.isEmpty()) {
@@ -147,6 +176,7 @@ final class Marks {
             for (Mark m : marks) m.view.invalidate();
         });
         pulse.start();
+        vibrate(VibrationEffect.EFFECT_TICK);
         svc.mainHandler().postDelayed(follow, FOLLOW_MS);
     }
 
@@ -183,8 +213,18 @@ final class Marks {
     void onClicked(AccessibilityNodeInfo src, long uptime) {
         if (src == null || svc.autoPauser().own(uptime)) return; // NN's own tap isn't the user doing it
         for (Mark m : new ArrayList<>(marks)) {
-            if (m.byTap() && !m.done && (within(src, m.node) || within(m.node, src))) {
-                markDone(m, "tapped “" + m.name() + "”");
+            if (!m.done && (m.byTap() || m.isSwipe) && (within(src, m.node) || within(m.node, src))) {
+                markDone(m, (m.isSwipe ? "swiped “" : "tapped “") + m.name() + "”");
+            }
+        }
+    }
+
+    /** The screen or a container was scrolled/swiped (an accessibility event; main thread). */
+    void onScrolled(AccessibilityNodeInfo src, long uptime) {
+        if (svc.autoPauser().own(uptime)) return;
+        for (Mark m : new ArrayList<>(marks)) {
+            if (m.isSwipe && !m.done) {
+                markDone(m, "swiped “" + m.name() + "”");
             }
         }
     }
@@ -265,6 +305,7 @@ final class Marks {
         if (m.done || m.gone) return;
         m.done = true;
         m.did = did;
+        vibrate(VibrationEffect.EFFECT_CLICK);
         layout(m); // the label gets its check
         frame(m);
         try {
@@ -275,6 +316,20 @@ final class Marks {
         m.view.animate().alpha(0f).setStartDelay(DONE_SHOWN_MS - 400).setDuration(400).start();
         svc.mainHandler().postDelayed(() -> remove(m), DONE_SHOWN_MS);
         settle();
+    }
+
+    private void vibrate(int effectId) {
+        try {
+            Vibrator vib = svc.getSystemService(Vibrator.class);
+            if (vib != null && vib.hasVibrator()) {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    vib.vibrate(VibrationEffect.createPredefined(effectId));
+                } else {
+                    vib.vibrate(20);
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     /** Every mark NN Agent can watch is done or gone: tell the waiter. */
@@ -315,9 +370,13 @@ final class Marks {
             Rect r = new Rect();
             for (Mark m : new ArrayList<>(marks)) {
                 if (m.node == null || m.done) continue;
-                if (!m.node.refresh()) {
-                    m.gone = true;
-                    remove(m);
+                if (!m.node.refresh() || !m.node.isVisibleToUser()) {
+                    if (m.isSwipe) {
+                        markDone(m, "swiped “" + m.name() + "”");
+                    } else {
+                        m.gone = true;
+                        remove(m);
+                    }
                     continue;
                 }
                 if (m.toggle != null && m.toggle.refresh() && m.toggle.isChecked() != m.wasOn) {
@@ -328,9 +387,20 @@ final class Marks {
                     markDone(m, "filled in “" + m.name() + "”");
                     continue;
                 }
+                if (m.isSwipe && m.startText != null) {
+                    String cur = typed(m.node);
+                    if (!cur.isEmpty() && !cur.equals(m.startText)) {
+                        markDone(m, "swiped “" + m.name() + "”");
+                        continue;
+                    }
+                }
                 m.node.getBoundsInScreen(r);
                 m.onScreen = m.node.isVisibleToUser() && !r.isEmpty();
                 if (m.onScreen && !r.equals(m.at)) {
+                    if (m.isSwipe && (Math.abs(r.centerX() - m.at.centerX()) > 30 * d || Math.abs(r.centerY() - m.at.centerY()) > 30 * d)) {
+                        markDone(m, "swiped “" + m.name() + "”");
+                        continue;
+                    }
                     m.at.set(r);
                     layout(m);
                     frame(m);
@@ -379,18 +449,72 @@ final class Marks {
         m.ay2 = above ? t.top + ("arrow".equals(style) ? 4 * d : -3 * d) : t.bottom - ("arrow".equals(style) ? 4 * d : -3 * d);
         m.ax1 = lw > 0 ? Math.max(lx + 16 * d, Math.min(tipX, lx + lw - 16 * d)) : tipX;
         m.ay1 = lw > 0 ? (above ? ly + lh : ly) : (above ? m.ay2 - gap : m.ay2 + gap);
+
+        boolean swipe = "swipe".equals(style) || m.isSwipe;
+        if (!swipe && m.label != null) {
+            String lower = m.label.toLowerCase();
+            if (lower.contains("vuốt") || lower.contains("swipe") || lower.contains("trượt")) {
+                swipe = true;
+            }
+        }
+        m.isSwipe = swipe;
+        if (m.isSwipe) {
+            if (m.hasCustomEnd) {
+                m.sx1 = t.centerX();
+                m.sy1 = t.centerY();
+                m.sx2 = m.x2;
+                m.sy2 = m.y2;
+            } else {
+                String dir = m.direction;
+                if (dir == null || dir.isEmpty()) {
+                    String lower = m.label != null ? m.label.toLowerCase() : "";
+                    if (lower.contains("phải") || lower.contains("right")) dir = "right";
+                    else if (lower.contains("lên") || lower.contains("up")) dir = "up";
+                    else if (lower.contains("xuống") || lower.contains("down")) dir = "down";
+                    else dir = "left";
+                }
+                float spanH = Math.max(90 * d, Math.min(t.width() * 0.9f, 220 * d));
+                float spanV = Math.max(90 * d, Math.min(t.height() * 0.9f, 220 * d));
+                if ("right".equals(dir)) {
+                    m.sx1 = t.centerX() - spanH / 2;
+                    m.sy1 = t.centerY();
+                    m.sx2 = t.centerX() + spanH / 2;
+                    m.sy2 = t.centerY();
+                } else if ("up".equals(dir)) {
+                    m.sx1 = t.centerX();
+                    m.sy1 = t.centerY() + spanV / 2;
+                    m.sx2 = t.centerX();
+                    m.sy2 = t.centerY() - spanV / 2;
+                } else if ("down".equals(dir)) {
+                    m.sx1 = t.centerX();
+                    m.sy1 = t.centerY() - spanV / 2;
+                    m.sx2 = t.centerX();
+                    m.sy2 = t.centerY() + spanV / 2;
+                } else { // "left"
+                    m.sx1 = t.centerX() + spanH / 2;
+                    m.sy1 = t.centerY();
+                    m.sx2 = t.centerX() - spanH / 2;
+                    m.sy2 = t.centerY();
+                }
+            }
+        }
     }
 
-    /** The mark's window: just around what it draws (plus room for the glow). */
+    /** The mark's window: just around what it draws (plus room for the glow and ripple). */
     private void frame(Mark m) {
         RectF f = new RectF(m.shape);
-        if (!"arrow".equals(style)) f.inset(-12 * d, -12 * d);
+        if (!"arrow".equals(style)) f.inset(-18 * d, -18 * d);
         if (m.labelBox.width() > 0) f.union(m.labelBox);
         if (m.arrow) {
             f.union(m.ax1, m.ay1);
             f.union(m.ax2, m.ay2);
         }
-        f.inset(-12 * d, -12 * d);
+        if (m.isSwipe) {
+            f.union(m.sx1, m.sy1);
+            f.union(m.sx2, m.sy2);
+            f.inset(-26 * d, -26 * d);
+        }
+        f.inset(-14 * d, -14 * d);
         m.lp.x = Math.round(f.left);
         m.lp.y = Math.round(f.top);
         m.lp.width = Math.max(1, Math.round(f.width()));
@@ -407,11 +531,60 @@ final class Marks {
         line.setColor(color);
         fill.setColor(Theme.withAlpha(color, 0x1A));
         labelBg.setColor(color);
+        badgeBg.setColor(color);
         float r = 14 * d;
         aura.setColor(Theme.withAlpha(color, (int) (0x22 + 0x44 * g)));
         aura.setStrokeWidth((8 + 6 * g) * d);
         halo.setStrokeWidth(7 * d);
         line.setStrokeWidth(3 * d);
+
+        // Animated Swipe Gesture & Touch Trail
+        if (m.isSwipe && !m.done) {
+            trailLine.setStrokeWidth(3.5f * d);
+            trailLine.setColor(Theme.withAlpha(color, 0x66));
+            c.drawLine(m.sx1, m.sy1, m.sx2, m.sy2, trailLine);
+
+            arrow(c, m.sx1, m.sy1, m.sx2, m.sy2, halo, 7 * d);
+            arrow(c, m.sx1, m.sy1, m.sx2, m.sy2, line, 3.5f * d);
+
+            long now = SystemClock.uptimeMillis();
+            float phase = (now % 1400) / 1400f; // 0..1 over 1.4s
+            float progress = (float) (Math.sin((phase - 0.5f) * Math.PI) * 0.5f + 0.5f);
+            float fx = m.sx1 + (m.sx2 - m.sx1) * progress;
+            float fy = m.sy1 + (m.sy2 - m.sy1) * progress;
+
+            float touchAlpha = phase < 0.15f ? (phase / 0.15f) : (phase > 0.85f ? (1f - (phase - 0.85f) / 0.15f) : 1f);
+            int pointAlpha = Math.max(0, Math.min(255, (int) (255 * touchAlpha)));
+
+            fingerAura.setColor(Theme.withAlpha(color, (int) (0x33 * touchAlpha)));
+            c.drawCircle(fx, fy, 22 * d, fingerAura);
+
+            fingerHalo.setStrokeWidth(3 * d);
+            fingerHalo.setColor(Theme.withAlpha(Ui.BG, (int) (0xB0 * touchAlpha)));
+            c.drawCircle(fx, fy, 13 * d, fingerHalo);
+
+            fingerCore.setColor(Theme.withAlpha(color, pointAlpha));
+            c.drawCircle(fx, fy, 12 * d, fingerCore);
+
+            fingerDot.setColor(Theme.withAlpha(Ui.ON_ACCENT, (int) (0xCC * touchAlpha)));
+            c.drawCircle(fx, fy, 4 * d, fingerDot);
+        }
+
+        // Radar Beacon Ripple Wave: radiates outward with fading alpha
+        if (!m.done && !"arrow".equals(style)) {
+            float expand = (4 + 14 * g) * d;
+            int rippleAlpha = Math.max(0, (int) (0x77 * (1f - g)));
+            ripplePaint.setColor(Theme.withAlpha(color, rippleAlpha));
+            ripplePaint.setStrokeWidth(2.5f * d);
+            RectF rippleRect = new RectF(m.shape);
+            rippleRect.inset(-expand, -expand);
+            if ("circle".equals(style)) {
+                c.drawOval(rippleRect, ripplePaint);
+            } else {
+                c.drawRoundRect(rippleRect, r + expand, r + expand, ripplePaint);
+            }
+        }
+
         if ("circle".equals(style)) {
             c.drawOval(m.shape, fill);
             c.drawOval(m.shape, aura);
@@ -436,13 +609,28 @@ final class Marks {
             float base = m.labelBox.centerY() - (fm.ascent + fm.descent) / 2;
             c.drawText(m.text, m.labelBox.left + 12 * d, base, textPaint);
         }
+        // Step Badge (① ② ③) on top-left corner if multi-step
+        if (m.step > 0 && !"arrow".equals(style)) {
+            float bx = m.shape.left + 6 * d;
+            float by = m.shape.top + 6 * d;
+            float br = 10 * d;
+            c.drawCircle(bx, by, br + 2 * d, badgeHalo);
+            c.drawCircle(bx, by, br, badgeBg);
+            Paint.FontMetrics bfm = badgeText.getFontMetrics();
+            float bbase = by - (bfm.ascent + bfm.descent) / 2;
+            c.drawText(m.done ? "✓" : String.valueOf(m.step), bx, bbase, badgeText);
+        }
     }
 
     private void arrow(Canvas c, Mark m, Paint p, float width) {
+        arrow(c, m.ax1, m.ay1, m.ax2, m.ay2, p, width);
+    }
+
+    private void arrow(Canvas c, float x1, float y1, float x2, float y2, Paint p, float width) {
         p.setStrokeWidth(width);
-        c.drawLine(m.ax1, m.ay1, m.ax2, m.ay2, p);
-        double a = Math.atan2(m.ay2 - m.ay1, m.ax2 - m.ax1), head = 11 * d, spread = Math.toRadians(30);
-        c.drawLine(m.ax2, m.ay2, (float) (m.ax2 - head * Math.cos(a - spread)), (float) (m.ay2 - head * Math.sin(a - spread)), p);
-        c.drawLine(m.ax2, m.ay2, (float) (m.ax2 - head * Math.cos(a + spread)), (float) (m.ay2 - head * Math.sin(a + spread)), p);
+        c.drawLine(x1, y1, x2, y2, p);
+        double a = Math.atan2(y2 - y1, x2 - x1), head = 11 * d, spread = Math.toRadians(30);
+        c.drawLine(x2, y2, (float) (x2 - head * Math.cos(a - spread)), (float) (y2 - head * Math.sin(a - spread)), p);
+        c.drawLine(x2, y2, (float) (x2 - head * Math.cos(a + spread)), (float) (y2 - head * Math.sin(a + spread)), p);
     }
 }

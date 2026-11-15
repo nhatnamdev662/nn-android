@@ -48,7 +48,7 @@ final class GitHub {
 
     static void refresh(Context c, boolean force) {
         long now = System.currentTimeMillis();
-        if (!force && lastRefreshAt > 0 && (now - lastRefreshAt < REFRESH_TTL_MS)) {
+        if (!force && login != null && lastRefreshAt > 0 && (now - lastRefreshAt < REFRESH_TTL_MS)) {
             return;
         }
         lastRefreshAt = now;
@@ -110,7 +110,7 @@ final class GitHub {
                         + "git config --global user.name \"$n\"; git config --global user.email \"$i+$l@users.noreply.github.com\"; "
                         + "git config --global init.defaultBranch main", 60);
                 step = Step.IDLE;
-                refresh(app);
+                refresh(app, true);
             } catch (Exception e) {
                 if (step == Step.IDLE) return;
                 error = String.valueOf(e.getMessage());
@@ -138,7 +138,7 @@ final class GitHub {
                         + "git config --global --unset credential.https://gist.github.com.helper; true", 40);
             } catch (Exception ignored) {
             }
-            refresh(app);
+            refresh(app, true);
         }, "github").start();
     }
 

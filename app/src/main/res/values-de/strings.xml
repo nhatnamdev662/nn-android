@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in German (du). Source and translator notes: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN-Assistent</string>
@@ -1137,6 +1137,7 @@
     <string name="tools_card_open_url">Link öffnen: %1$s</string>
     <string name="tools_card_clipboard">Darf der Agent lesen, was du zuletzt kopiert hast?</string>
     <string name="tools_card_location">Den Standort dieses Handys mit dem Agenten teilen?</string>
+    <string name="tools_card_adb_shell">ADB-Befehl ausführen:\n%1$s</string>
     <string name="tools_photo_why">Mach ein Foto: %1$s</string>
     <string name="rules_service_label">NN-Benachrichtigungsregeln</string>
     <string name="rules_title">Benachrichtigungsregeln</string>
@@ -1551,12 +1552,18 @@
     <string name="check_adb_connected">Verbunden über 127.0.0.1:%1$d.</string>
     <string name="check_adb_disconnected">Nicht verbunden. In den Einstellungen koppeln und aktivieren.</string>
     <string name="chat_action_copy">Kopieren</string>
+    <string name="chat_action_run">Ausführen</string>
+    <string name="chat_action_running">Wird ausgeführt…</string>
+    <string name="chat_table_label">Tabelle</string>
+    <string name="chat_table_copied">Tabelle kopiert</string>
     <string name="chat_action_edit">Bearbeiten</string>
     <string name="chat_action_retry">Wiederholen</string>
     <string name="chat_action_speak">Vorlesen</string>
     <string name="chat_action_stop_speak">Vorlesen stoppen</string>
     <string name="chat_action_copy_code">Code kopieren</string>
     <string name="chat_code_copied">Code kopiert</string>
+    <string name="chat_code_expand">Erweitern</string>
+    <string name="chat_code_collapse">Einklappen</string>
     <string name="chat_editing_bar">Bearbeiten: %1$s</string>
     <string name="chat_edit_cancel">Bearbeitung abbrechen</string>
     <string name="chat_retry_title">Ab hier wiederholen?</string>
@@ -1637,7 +1644,48 @@
     <string name="chat_starter_search">Thema nachschlagen und Wichtigstes zusammenfassen</string>
     <string name="chat_starter_apps">App öffnen oder schnelle Aufgabe am Handy erledigen</string>
     <string name="chat_starter_linux">Schnelles Skript im Linux-Workspace schreiben</string>
+    <string name="chat_starter_notifications">Kürzliche Benachrichtigungen prüfen und zusammenfassen</string>
+    <string name="chat_starter_device">Akku, Speicher und Systemstatus prüfen</string>
+    <string name="chat_starter_alarm">Wecker oder Countdown-Timer stellen</string>
+    <string name="chat_starter_reminder">Erinnere mich morgen früh an eine Aufgabe</string>
     <string name="models_search_hint">Modelle durchsuchen…</string>
     <string name="models_empty_search">Keine Modelle passen zu „%1$s“</string>
     <string name="setup_agent_defaults">Standardmodell &amp; Effort</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">Code wird ausgeführt…</string>
+    <string name="status_done">Fertig</string>
+    <string name="approval_channel_name">Aktionsgenehmigung</string>
+    <string name="approval_channel_desc">Benachrichtigungen, die Ihre Zustimmung für vertrauliche Aktionen erfordern</string>
+    <string name="notification_approval_title">Genehmigung erforderlich</string>
+    <string name="notice_restore_bubble">Bubble wiederherstellen</string>
+
+    <string name="setup_touch_effects">Visuelle Effekte bei KI-Bildschirmsteuerung</string>
+    <string name="setup_touch_effects_info">Randleuchten und Berührungswellen anzeigen, wenn NN Agent den Bildschirm steuert</string>
+    <string name="touch_overlay_controlling">● NN STEUERT</string>
+    <string name="touch_overlay_tap">TIPPEN</string>
+    <string name="touch_overlay_hold">HALTEN</string>
+    <string name="touch_overlay_swipe_down">WISCHEN ↓</string>
+    <string name="touch_overlay_swipe_up">WISCHEN ↑</string>
+    <string name="touch_overlay_swipe_right">WISCHEN →</string>
+    <string name="touch_overlay_swipe_left">WISCHEN ←</string>
+    <string name="chip_clean_ram">⚡ RAM bereinigen</string>
+    <string name="chip_check_battery">🔋 Akku &amp; Laden</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">Erst fragen</string>
+    <string name="chat_exec_auto">Auto</string>
+    <string name="chat_exec_sheet_title">Ausführungsmodus</string>
+    <string name="chat_exec_sheet_desc">Steuern, wie der Agent Systembefehle und Telefonaktionen ausführt</string>
+    <string name="chat_exec_mode_ask_title">🛡️ Erst fragen (Standard)</string>
+    <string name="chat_exec_mode_ask_desc">Vor dem Ausführen von ADB-, Shell- oder sensiblen Aktionen immer um Bestätigung bitten.</string>
+    <string name="chat_exec_mode_auto_title">⚡ Automatische Ausführung (Vollzugriff)</string>
+    <string name="chat_exec_mode_auto_desc">Führt Shell-, ADB- und Telefonaktionen automatisch ohne Nachfrage aus.</string>
+    <string name="chat_exec_warn_title">Vollzugriff aktivieren?</string>
+    <string name="chat_exec_warn_msg">In diesem Modus führt die KI Befehle automatisch aus.\n\nZerstörerische Befehle bleiben streng verboten.</string>
+    <string name="chat_exec_warn_enable">Aktivieren</string>
+    <string name="chat_exec_warn_cancel">Abbrechen</string>
+    <string name="grant_perm_success">%1$s für %2$s erfolgreich erteilt ✨</string>
+    <string name="grant_perm_fail">%1$s für %2$s konnte nicht erteilt werden: %3$s</string>
+
 </resources>

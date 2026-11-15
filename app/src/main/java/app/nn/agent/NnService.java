@@ -30,6 +30,7 @@ public class NnService extends AccessibilityService implements McpServer.Handler
     private final Handler main = new Handler(Looper.getMainLooper());
     private Bubble bubble;
     private ControlIndicator control;
+    private TouchEffectOverlay touchEffect;
     /** After the user taps Stop on the control indicator, phone actions are refused until then (elapsedRealtime). */
     private volatile long revokedUntil;
     /**
@@ -94,6 +95,7 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         marks = new Marks(this);
         bubble = new Bubble(this);
         control = new ControlIndicator(this);
+        touchEffect = new TouchEffectOverlay(this);
         bubble.show();
         KeepAliveService.start(this);
         server = new McpServer(Prefs.token(this), this);
@@ -131,9 +133,16 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         public void onReceive(Context c, Intent i) {
             keepAwake.update(); // locked: the screen may sleep; unlocked: a long task keeps it on again
             if (bubble == null) return;
-            if (Intent.ACTION_USER_PRESENT.equals(i.getAction())) bubble.setLocked(false);
-            else if (Intent.ACTION_SCREEN_OFF.equals(i.getAction())) bubble.setLocked(true);
-            else bubble.setLocked(getSystemService(KeyguardManager.class).isKeyguardLocked());
+            if (Intent.ACTION_USER_PRESENT.equals(i.getAction())) {
+                bubble.setLocked(false);
+                bubble.onUserPresent();
+            } else if (Intent.ACTION_SCREEN_OFF.equals(i.getAction())) {
+                bubble.setLocked(true);
+            } else {
+                boolean keyguard = getSystemService(KeyguardManager.class).isKeyguardLocked();
+                bubble.setLocked(keyguard);
+                if (!keyguard) bubble.onUserPresent();
+            }
         }
     };
 
@@ -147,6 +156,10 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         }
         if (type == AccessibilityEvent.TYPE_VIEW_CLICKED) { // only while a mark waits for a tap (listenForClicks)
             marks.onClicked(event.getSource(), event.getEventTime());
+            return;
+        }
+        if (type == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            marks.onScrolled(event.getSource(), event.getEventTime());
             return;
         }
         if (type != AccessibilityEvent.TYPE_WINDOWS_CHANGED && type != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
@@ -257,6 +270,7 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         if (marks != null) marks.clear();
         if (bubble != null) bubble.remove();
         if (control != null) control.end();
+        if (touchEffect != null) touchEffect.destroy();
         KeepAliveService.stop(this);
         instance = null;
         super.onDestroy();
@@ -392,8 +406,12 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         return null;
     }
 
-    Bubble bubble() {
+    public Bubble bubble() {
         return bubble;
+    }
+
+    public boolean hasRunningChats() {
+        return ChatHub.get(this).runningCount() > 0;
     }
 
     KeepAwake keepAwake() {
@@ -409,6 +427,11 @@ public class NnService extends AccessibilityService implements McpServer.Handler
         return marks;
     }
 
+    /** Visual touch and gesture overlay (main thread). */
+    TouchEffectOverlay touchEffect() {
+        return touchEffect;
+    }
+
     /**
      * Hear about taps on the screen (main thread): only while a mark waits for the user to tap it, so the rest of the
      * time NN Agent gets no such events.
@@ -416,8 +439,8 @@ public class NnService extends AccessibilityService implements McpServer.Handler
     void listenForClicks(boolean on) {
         android.accessibilityservice.AccessibilityServiceInfo info = getServiceInfo();
         if (info == null) return;
-        int types = on ? info.eventTypes | AccessibilityEvent.TYPE_VIEW_CLICKED
-                : info.eventTypes & ~AccessibilityEvent.TYPE_VIEW_CLICKED;
+        int mask = AccessibilityEvent.TYPE_VIEW_CLICKED | AccessibilityEvent.TYPE_VIEW_SCROLLED;
+        int types = on ? (info.eventTypes | mask) : (info.eventTypes & ~mask);
         if (types == info.eventTypes) return;
         info.eventTypes = types;
         setServiceInfo(info);
@@ -426,6 +449,7 @@ public class NnService extends AccessibilityService implements McpServer.Handler
     /** The user did something on the screen the agent asked for: the agent re-reads it before acting. */
     void screenChangedByUser() {
         rereadNeeded = true;
+        if (tools != null) tools.invalidateScreenCache();
     }
 
     // ------------------------------------------------------- MCP handler
@@ -495,19 +519,35 @@ public class NnService extends AccessibilityService implements McpServer.Handler
     void onToolActivity(final String tool) {
         main.post(() -> {
             bubble.onToolActivity(tool);
-            // asking for approval, asking a question, posting a note, pointing something out or answering in a
-            // notification isn't operating the phone
-            // nor is waiting or listing apps
-            if (!"confirm".equals(tool) && !"ask".equals(tool) && !"notify".equals(tool) && !"reply_notification".equals(tool)
-                    && !"point_out".equals(tool) && !"wait".equals(tool) && !"list_apps".equals(tool)
-                    && !Tools.SCHEDULING.contains(tool)
-                    // installing: Android's installer asks the user, the agent doesn't touch the screen
-                    && !"update_nn".equals(tool) && !"update_agent".equals(tool) && !"update_buddy".equals(tool)
-                    && !"install_apk".equals(tool) && !"wait_for_install".equals(tool)
-                    && !tool.startsWith("browser_")) { // the background browser isn't the phone
+            if (Tools.isScreenMutating(tool) || "read_screen".equals(tool) || "screenshot".equals(tool)) {
                 control.onActivity();
+            } else if (Tools.isCodingTool(tool)) {
+                String coding = getCodingStatusText();
+                showActivity(coding, null);
+                showStatus(coding);
+                KeepAliveService.updateState(this, KeepAliveService.State.CODING, coding);
             }
         });
+    }
+
+    void onToolFinished(final String tool) {
+        main.post(() -> {
+            if (bubble != null) bubble.onToolFinished(tool);
+            if (Tools.isCodingTool(tool) || !Tools.isScreenMutating(tool)) {
+                showStatus(getString(R.string.hub_thinking));
+                if (KeepAliveService.getState() == KeepAliveService.State.CODING) {
+                    KeepAliveService.updateState(this, hasRunningChats() ? KeepAliveService.State.THINKING : KeepAliveService.State.IDLE, null);
+                }
+            }
+        });
+    }
+
+    public static String getCodingStatusText() {
+        NnService s = instance;
+        if (s != null) {
+            return s.getString(R.string.status_coding);
+        }
+        return "vi".equalsIgnoreCase(java.util.Locale.getDefault().getLanguage()) ? "Đang chạy code…" : "Running code…";
     }
 
     /** Null if phone actions are allowed, else why not (the user took back control). */
@@ -634,6 +674,12 @@ public class NnService extends AccessibilityService implements McpServer.Handler
 
     /** No NN Agent chat is running anymore (main thread): a pause nothing waits in has nothing left to hold. */
     void onRunsEnded() {
+        if (control != null) control.end();
+        if (KeepAliveService.getState() != KeepAliveService.State.BUBBLE_HIDDEN &&
+            KeepAliveService.getState() != KeepAliveService.State.WAITING_APPROVAL &&
+            KeepAliveService.getState() != KeepAliveService.State.CONTROLLING) {
+            KeepAliveService.updateState(this, KeepAliveService.State.IDLE, null);
+        }
         if (!paused) return;
         synchronized (pauseLock) {
             if (waiters > 0) return;
@@ -740,7 +786,9 @@ public class NnService extends AccessibilityService implements McpServer.Handler
     }
 
     void showStatus(final String text) {
-        main.post(() -> bubble.setStatus(text));
+        main.post(() -> {
+            if (bubble != null) bubble.setStatus(text);
+        });
     }
 
     void setBubblePassThrough(final boolean on) {
@@ -799,6 +847,13 @@ public class NnService extends AccessibilityService implements McpServer.Handler
     static final String STALE = "STALE";
     private static final String TIMED_OUT = "\u0000timed out";
 
+    public boolean isCallerAutoExec() {
+        String chat = McpServer.CALLER_CHAT.get();
+        if (chat == null) return false;
+        Sessions.Session s = bubble != null ? bubble.findSession(chat) : null;
+        return s != null && s.autoExec;
+    }
+
     /**
      * As above. canAuto: the card may approve itself when its chat is a notification rule's run with a countdown
      * (sending a message may; paying, buying or deleting never does). In a rule's run the card waits a minute at most
@@ -806,6 +861,9 @@ public class NnService extends AccessibilityService implements McpServer.Handler
      */
     String askConfirm(final String summary, boolean canAuto) throws InterruptedException {
         final String chat = McpServer.CALLER_CHAT.get();
+        if (isCallerAutoExec()) {
+            return "APPROVED automatically (Full Access)";
+        }
         boolean rule = Triggers.ruleRun(chat);
         int cd = canAuto ? Triggers.countdown(chat) : 0;
         String shown = summary;

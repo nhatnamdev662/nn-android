@@ -42,8 +42,19 @@ final class Tools {
     private final NnService svc;
     private final Object lock = new Object();
     private final List<AccessibilityNodeInfo> lastNodes = new ArrayList<>();
+    private String lastReadScreenResult = null;
+    private long lastReadScreenTime = 0;
+    private int lastReadScreenWindowsHash = 0;
     private final BrowserTools browser;
     private final PhoneTools phone;
+
+    void invalidateScreenCache() {
+        synchronized (lock) {
+            lastReadScreenResult = null;
+            lastReadScreenTime = 0;
+            lastReadScreenWindowsHash = 0;
+        }
+    }
 
     Tools(NnService svc) {
         this.svc = svc;
@@ -98,7 +109,7 @@ final class Tools {
                         + "read_screen to see the result.",
                 props().put("x1", intProp("Start X in screen pixels")).put("y1", intProp("Start Y in screen pixels"))
                         .put("x2", intProp("End X in screen pixels")).put("y2", intProp("End Y in screen pixels"))
-                        .put("duration_ms", intProp("How long the drag takes, 50 to 3000 ms (default 300); slower is "
+                        .put("duration_ms", intProp("How long the drag takes, 50 to 3000 ms (default 220); slower is "
                                 + "more like dragging, faster like flinging")),
                 "x1", "y1", "x2", "y2"));
         t.put(tool("press",
@@ -210,17 +221,18 @@ final class Tools {
                                 + "sign-in, a captcha, their details). NN Agent opens the browser full screen with them "
                                 + "marked, and closes it once the user answers."));
         t.put(tool("point_out",
-                "Show the user where to look or what to do on the screen: a box, circle or arrow with a short label "
-                        + "around up to 6 elements, drawn over the app without blocking their touches. When the user does "
-                        + "what a mark points at (taps that button, flips that switch, fills in that field and moves on), "
-                        + "it turns green and goes. With wait=true the call returns only then (DONE: what they did) or "
-                        + "when they don't (GONE, LEFT, NOT DONE): use it to guide the user step by step through "
-                        + "something they want to learn to do themselves, one step per call, instead of doing it for "
-                        + "them. Marks follow their element as the screen scrolls, and go when it's gone, when the app "
+                "Show the user where to look or what to do on the screen: a box, circle, arrow, or animated swipe gesture "
+                        + "with a short label around up to 6 elements, drawn over the app without blocking their touches. "
+                        + "When style is \"swipe\" (or when demonstrating a drag gesture), an animated touch trail glides "
+                        + "from start to finish showing the user which way to swipe. When the user does what a mark points at "
+                        + "(taps that button, flips that switch, fills in that field and moves on), it turns green and goes. "
+                        + "With wait=true the call returns only then (DONE: what they did) or when they don't (GONE, LEFT, NOT DONE): "
+                        + "use it to guide the user step by step through something they want to learn to do themselves, one step per call, "
+                        + "instead of doing it for them. Marks follow their element as the screen scrolls, and go when it's gone, when the app "
                         + "changes, when you use another phone action, or after seconds. Call with no marks to remove them.",
                 props().put("marks", marksProp("What to point out, e.g. [{\"element\": 12, \"label\": \"First name\"}, "
-                                + "{\"element\": 14, \"label\": \"Last name\"}]"))
-                        .put("style", enumProp("box", "circle", "arrow"))
+                                + "{\"element\": 14, \"label\": \"Vuốt sang trái\", \"direction\": \"left\"}]"))
+                        .put("style", enumProp("box", "circle", "arrow", "swipe"))
                         .put("wait", boolProp("Wait until the user has done what the marks point at, or until they can't anymore"))
                         .put("seconds", intProp("How long the marks stay at most: default 60 (180 with wait), max 300")),
                 "marks"));
@@ -232,6 +244,11 @@ final class Tools {
                         + "field. NN Agent shows the user an approval card with the text first, unless you called confirm "
                         + "with it just before.",
                 props().put("text", strProp("The reply, exactly as it should be sent")), "text"));
+        t.put(tool("control_bubble",
+                "Show, hide, or check the status of NN's floating bubble on the phone screen. "
+                        + "When the user asks why the bubble is missing, or asks to show or bring back the bubble, "
+                        + "call with action: \"show\".",
+                props().put("action", enumProp("show", "hide", "status")), "action"));
         t.put(tool("schedule_message",
                 "Schedule a message to yourself in this chat, sent once at a later time: to check something again, "
                         + "remind the user, or go on with a task later (\"check the price again tomorrow at 9\"). At its time "
@@ -323,7 +340,10 @@ final class Tools {
                 .put("element", intProp("Element id from the last read_screen"))
                 .put("x", intProp("Or a point in screen pixels, when read_screen can't see it (from screenshot)"))
                 .put("y", intProp("With x"))
-                .put("label", strProp("A few words shown next to it, e.g. \"Your first name\"")));
+                .put("x2", intProp("Optional swipe end X in screen pixels"))
+                .put("y2", intProp("Optional swipe end Y in screen pixels"))
+                .put("direction", enumProp("left", "right", "up", "down"))
+                .put("label", strProp("A few words shown next to it, e.g. \"Vuốt sang trái\"")));
         return new JSONObject().put("type", "array").put("maxItems", 6).put("items", mark).put("description", d);
     }
 
@@ -336,7 +356,12 @@ final class Tools {
             "find", "take_photo", "set_alarm", "set_timer", "share", "save_to_downloads", "add_calendar_event", "media"));
 
     JSONObject call(String name, JSONObject a) throws Exception {
-        JSONObject r = call0(name, a);
+        JSONObject r;
+        try {
+            r = call0(name, a);
+        } finally {
+            svc.onToolFinished(name);
+        }
         if (STEPPED.contains(name)) {
             JSONArray content = r.optJSONArray("content");
             JSONObject first = content == null ? null : content.optJSONObject(0);
@@ -374,17 +399,20 @@ final class Tools {
                     : "Phone is locked: only notification replies work until the user unlocks. Tell the user to unlock "
                     + "the phone, or stop here.");
         }
-        // asking the user, posting a note, pointing something out and answering in a notification go on while paused;
+        // asking the user, posting a note, pointing something out, controlling the bubble and answering in a notification go on while paused;
         // operating the phone waits
         if (!"confirm".equals(name) && !"ask".equals(name) && !"notify".equals(name) && !"reply_notification".equals(name)
-                && !"point_out".equals(name) && !SCHEDULING.contains(name)) {
+                && !"point_out".equals(name) && !"control_bubble".equals(name) && !SCHEDULING.contains(name)) {
             String held = svc.awaitResume(name);
             if (held != null) return text(held);
         }
         svc.onToolActivity(name);
         String step = activity(name, a);
         if (step != null) svc.showActivity(step, null);
-        if (ACTIONS.contains(name)) svc.runOnMain(() -> svc.marks().clear()); // the screen is about to change
+        if (ACTIONS.contains(name)) {
+            svc.runOnMain(() -> svc.marks().clear()); // the screen is about to change
+            invalidateScreenCache();
+        }
         if (PhoneTools.NAMES.contains(name)) return phone.call(name, a, ruleRun());
         switch (name) {
             case "read_screen": return text(readScreen());
@@ -479,8 +507,33 @@ final class Tools {
             }
             case "reply_notification":
                 return text(replyNotification(a.getString("text")));
+            case "control_bubble":
+                return text(controlBubble(a));
             default:
                 throw new IllegalArgumentException("Unknown tool " + name);
+        }
+    }
+
+    private String controlBubble(JSONObject a) {
+        String action = a.optString("action", "show");
+        Bubble b = svc.bubble();
+        if ("show".equals(action)) {
+            Prefs.setBubbleEnabled(svc, true);
+            svc.runOnMain(() -> {
+                if (b != null) b.restoreBubble();
+                svc.applyBubbleSetting();
+                KeepAliveService.updateState(svc, KeepAliveService.State.IDLE, null);
+            });
+            return "Floating bubble is now visible on the phone screen.";
+        } else if ("hide".equals(action)) {
+            svc.runOnMain(() -> {
+                if (b != null) b.minimize();
+            });
+            return "Floating bubble is now temporarily minimized.";
+        } else {
+            boolean visible = b != null && b.isShowing();
+            boolean enabled = Prefs.bubbleEnabled(svc);
+            return "Floating bubble status: " + (visible ? "visible" : "hidden") + " (setting: " + (enabled ? "enabled" : "disabled") + ").";
         }
     }
 
@@ -562,7 +615,7 @@ final class Tools {
     private String pointOut(JSONObject a) throws JSONException, InterruptedException {
         List<Marks.Mark> marks = marks(a.optJSONArray("marks"));
         String style = a.optString("style", "box");
-        final String shape = "circle".equals(style) || "arrow".equals(style) ? style : "box";
+        final String shape = "circle".equals(style) || "arrow".equals(style) || "swipe".equals(style) ? style : "box";
         long ms = Math.max(1, Math.min(300, a.optInt("seconds", a.optBoolean("wait") ? 180 : 60))) * 1000L;
         if (marks.isEmpty()) {
             svc.runOnMain(() -> svc.marks().clear());
@@ -616,6 +669,24 @@ final class Tools {
             return;
         }
         for (int i = 0; depth > 0 && i < n.getChildCount(); i++) findCheckable(n.getChild(i), depth - 1, out);
+    }
+
+    /** Whitelist of screen-mutating tool names that actually take physical control of the phone's screen. */
+    public static final java.util.Set<String> SCREEN_MUTATING = java.util.Collections.unmodifiableSet(
+            new java.util.HashSet<>(java.util.Arrays.asList(
+                    "tap", "long_press", "type_text", "scroll", "swipe", "press", "open_app", "do_steps")));
+
+    public static boolean isScreenMutating(String toolName) {
+        return toolName != null && SCREEN_MUTATING.contains(toolName);
+    }
+
+    /** Whitelist of coding / Linux shell tools. */
+    public static final java.util.Set<String> CODING_TOOLS = java.util.Collections.unmodifiableSet(
+            new java.util.HashSet<>(java.util.Arrays.asList(
+                    "Bash", "bash", "sh", "terminal", "Edit", "Write", "Read", "execute", "adb_shell", "run_command")));
+
+    public static boolean isCodingTool(String toolName) {
+        return toolName != null && CODING_TOOLS.contains(toolName);
     }
 
     /** Tools that need the screen: they can't work while the phone is locked or its screen is off. */
@@ -688,17 +759,29 @@ final class Tools {
                     : v instanceof Number ? new JSONObject().put("element", ((Number) v).intValue()) : null;
             if (o == null) continue;
             String label = o.optString("label", "");
+            Marks.Mark m;
             if (o.has("element")) {
                 AccessibilityNodeInfo n = node(o); // says so when it's unknown or gone
                 Rect r = new Rect();
                 n.getBoundsInScreen(r);
-                out.add(new Marks.Mark(n, toggleOf(n), r, label));
+                m = new Marks.Mark(n, toggleOf(n), r, label);
             } else if (o.has("x") && o.has("y")) {
                 int x = o.getInt("x"), y = o.getInt("y"), s = Ui.dp(svc, 22);
-                out.add(new Marks.Mark(null, null, new Rect(x - s, y - s, x + s, y + s), label));
+                m = new Marks.Mark(null, null, new Rect(x - s, y - s, x + s, y + s), label);
             } else {
                 throw new IllegalArgumentException("Each mark needs an element id, or x and y.");
             }
+            if (o.has("direction")) {
+                m.direction = o.getString("direction");
+                m.isSwipe = true;
+            }
+            if (o.has("x2") && o.has("y2")) {
+                m.hasCustomEnd = true;
+                m.x2 = o.getInt("x2");
+                m.y2 = o.getInt("y2");
+                m.isSwipe = true;
+            }
+            out.add(m);
         }
         return out;
     }
@@ -788,16 +871,77 @@ final class Tools {
 
     // ---------------------------------------------------------- read_screen
 
+    private boolean autoUnblockPermissionDialog(List<AccessibilityWindowInfo> windows) {
+        if (!svc.isCallerAutoExec()) return false;
+        for (AccessibilityWindowInfo w : windows) {
+            AccessibilityNodeInfo root = w.getRoot();
+            if (root != null) {
+                try {
+                    CharSequence pkg = root.getPackageName();
+                    if (pkg != null && (pkg.toString().contains("permissioncontroller") || pkg.toString().contains("packageinstaller"))) {
+                        List<AccessibilityNodeInfo> targets = root.findAccessibilityNodeInfosByViewId("com.android.permissioncontroller:id/permission_allow_foreground_only_button");
+                        if (targets == null || targets.isEmpty()) {
+                            targets = root.findAccessibilityNodeInfosByViewId("com.android.permissioncontroller:id/permission_allow_button");
+                        }
+                        if (targets == null || targets.isEmpty()) {
+                            targets = root.findAccessibilityNodeInfosByText("While using the app");
+                        }
+                        if (targets == null || targets.isEmpty()) {
+                            targets = root.findAccessibilityNodeInfosByText("Trong khi dùng ứng dụng");
+                        }
+                        if (targets == null || targets.isEmpty()) {
+                            targets = root.findAccessibilityNodeInfosByText("Allow");
+                        }
+                        if (targets == null || targets.isEmpty()) {
+                            targets = root.findAccessibilityNodeInfosByText("Cho phép");
+                        }
+                        if (targets != null) {
+                            for (AccessibilityNodeInfo t : targets) {
+                                if (t.isClickable() && t.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                                    invalidateScreenCache();
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                } catch (Throwable ignored) {
+                } finally {
+                    root.recycle();
+                }
+            }
+        }
+        return false;
+    }
+
     private String readScreen() {
         DisplayMetrics dm = svc.getResources().getDisplayMetrics();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Screen ").append(dm.widthPixels).append('x').append(dm.heightPixels).append(" px\n");
+        long now = android.os.SystemClock.elapsedRealtime();
         synchronized (lock) {
+            List<AccessibilityWindowInfo> windows = svc.getWindows();
+            if (autoUnblockPermissionDialog(windows)) {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException ignored) {}
+                windows = svc.getWindows();
+            }
+            int currentWindowsHash = 1;
+            for (AccessibilityWindowInfo w : windows) {
+                currentWindowsHash = 31 * currentWindowsHash + w.getId();
+                currentWindowsHash = 31 * currentWindowsHash + w.getLayer();
+                currentWindowsHash = 31 * currentWindowsHash + w.getType();
+                currentWindowsHash = 31 * currentWindowsHash + (w.isActive() ? 1 : 0);
+            }
+            if (lastReadScreenResult != null && (now - lastReadScreenTime < 150) && currentWindowsHash == lastReadScreenWindowsHash) {
+                return lastReadScreenResult;
+            }
+
             for (AccessibilityNodeInfo n : lastNodes) n.recycle();
             lastNodes.clear();
-            List<AccessibilityWindowInfo> windows = svc.getWindows();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Screen ").append(dm.widthPixels).append('x').append(dm.heightPixels).append(" px\n");
             boolean keyboard = false;
             String app = null; // the app in front, for its tips
+            int appWindows = 0;
             for (AccessibilityWindowInfo w : windows) {
                 if (w.getType() == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY) continue;
                 if (w.getType() == AccessibilityWindowInfo.TYPE_INPUT_METHOD) {
@@ -818,6 +962,9 @@ final class Tools {
                     }
                     continue;
                 }
+                if (w.getType() == AccessibilityWindowInfo.TYPE_APPLICATION) {
+                    appWindows++;
+                }
                 sb.append("\n## ").append(windowType(w.getType()))
                         .append(" window").append(root.getPackageName() != null ? " [" + root.getPackageName() + "]" : "")
                         .append(title != null ? " \"" + title + "\"" : "")
@@ -829,13 +976,20 @@ final class Tools {
                 walk(root, sb, 0);
                 covers = Collections.emptyList();
             }
+            if (appWindows > 0 && lastNodes.isEmpty()) {
+                sb.append("\n(Notice: The active application window contains no accessible UI elements. It may be drawn with a custom Canvas, Flutter, or game engine. Use screenshot to inspect or tap coordinates directly.)\n");
+            }
             if (keyboard) sb.append("\n(The on-screen keyboard is open.)\n");
             if (lastNodes.size() >= MAX_NODES) sb.append("\n(Truncated at ").append(MAX_NODES).append(" elements; scroll for more.)\n");
             String toast = svc.takeToast(TOAST_FRESH_MS);
             if (toast != null) sb.append("\n(A toast just showed: \"").append(clip(toast)).append("\")\n");
             sb.append(Tips.once(svc, McpServer.CALLER_CHAT.get(), app));
+
+            lastReadScreenResult = sb.toString();
+            lastReadScreenTime = android.os.SystemClock.elapsedRealtime();
+            lastReadScreenWindowsHash = currentWindowsHash;
+            return lastReadScreenResult;
         }
-        return sb.toString();
     }
 
     private void walk(AccessibilityNodeInfo n, StringBuilder sb, int depth) {
@@ -1116,6 +1270,7 @@ final class Tools {
             JSONObject st = steps.getJSONObject(i);
             String action = st.optString("action");
             String tool = "type".equals(action) ? "type_text" : action;
+            if (isScreenMutating(tool)) svc.onToolActivity(tool);
             String before = svc.foregroundPkg();
             String held = svc.awaitResume(tool);
             if (held != null) {
@@ -1339,6 +1494,8 @@ final class Tools {
         p.moveTo(x, y);
         String note = otherButtonNote(n, hit);
         String before = beforeAction();
+        TouchEffectOverlay te = svc.touchEffect();
+        if (te != null) te.showTap(x, y, longPress);
         boolean ok = gesture(p, longPress ? 700 : 60);
         boolean viaAdb = false;
         if (!ok && !svc.paused() && ensureAdbReady()) {
@@ -1548,7 +1705,7 @@ final class Tools {
         AccessibilityNodeInfo target = node(a);
         if (target == null) target = findFocusedInput();
         if (target == null) {
-            if (!a.has("element") && isImeVisible() && !foregroundIsOffLimits() && tryAdbType(null, null, text, true)) {
+            if (!a.has("element") && isImeVisible() && !foregroundIsOffLimits(svc) && tryAdbType(null, null, text, true)) {
                 String res = "Typed " + text.length() + " characters via ADB.";
                 if (a.optBoolean("submit")) {
                     res = maybeSubmitViaAdb(null, text, res);
@@ -1684,6 +1841,29 @@ final class Tools {
         for (int i = 0; i < n.getChildCount(); i++) collectEditable(n.getChild(i), out);
     }
 
+    static Path naturalSwipePath(int x1, int y1, int x2, int y2) {
+        Path p = new Path();
+        p.moveTo(x1, y1);
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float dist = (float) Math.hypot(dx, dy);
+        if (dist < 10f) {
+            p.lineTo(x2, y2);
+            return p;
+        }
+        // Small perpendicular deflection to simulate human finger arc (~3.5% of stroke length)
+        float arc = Math.min(25f, Math.max(-25f, dist * 0.035f));
+        float nx = -dy / dist * arc;
+        float ny = dx / dist * arc;
+        // Cubic Bezier with natural acceleration/fling deceleration
+        float cp1x = x1 + dx * 0.25f + nx;
+        float cp1y = y1 + dy * 0.25f + ny;
+        float cp2x = x1 + dx * 0.70f + (nx * 0.5f);
+        float cp2y = y1 + dy * 0.70f + (ny * 0.5f);
+        p.cubicTo(cp1x, cp1y, cp2x, cp2y, x2, y2);
+        return p;
+    }
+
     private String scroll(JSONObject a) throws Exception {
         String dir = a.getString("direction").toLowerCase(Locale.ROOT);
         AccessibilityNodeInfo n = node(a);
@@ -1706,14 +1886,14 @@ final class Tools {
         }
         String blocked = guardStroke(n, xy);
         if (blocked != null) return blocked;
-        Path p = new Path();
-        p.moveTo(xy[0], xy[1]);
-        p.lineTo(xy[2], xy[3]);
+        Path p = naturalSwipePath(xy[0], xy[1], xy[2], xy[3]);
         String before = beforeAction();
-        boolean ok = gesture(p, 350);
+        TouchEffectOverlay te = svc.touchEffect();
+        if (te != null) te.showSwipe(xy[0], xy[1], xy[2], xy[3], 240);
+        boolean ok = gesture(p, 240);
         boolean viaAdb = false;
         if (!ok && !svc.paused() && ensureAdbReady()) {
-            String adbCmd = "input swipe " + xy[0] + " " + xy[1] + " " + xy[2] + " " + xy[3] + " 350";
+            String adbCmd = "input swipe " + xy[0] + " " + xy[1] + " " + xy[2] + " " + xy[3] + " 240";
             if (adbShellOk(adbCmd, 5000)) {
                 ok = true;
                 viaAdb = true;
@@ -1733,11 +1913,14 @@ final class Tools {
         boolean tap = Math.hypot(x2 - x1, y2 - y1) <= slop;
         String blocked = tap ? guard(null, Guard.nodeAt(svc.getWindows(), x1, y1)) : guardStroke(null, x1, y1, x2, y2);
         if (blocked != null) return blocked;
-        Path p = new Path();
-        p.moveTo(x1, y1);
-        p.lineTo(x2, y2);
-        long d = Math.max(50, Math.min(3000, a.optLong("duration_ms", 300)));
+        Path p = naturalSwipePath(x1, y1, x2, y2);
+        long d = Math.max(50, Math.min(3000, a.optLong("duration_ms", 220)));
         String before = beforeAction();
+        TouchEffectOverlay te = svc.touchEffect();
+        if (te != null) {
+            if (tap) te.showTap(x1, y1);
+            else te.showSwipe(x1, y1, x2, y2, d);
+        }
         boolean ok = gesture(p, d);
         boolean viaAdb = false;
         if (!ok && !svc.paused() && ensureAdbReady()) {
@@ -2129,11 +2312,17 @@ final class Tools {
         return false;
     }
 
-    private boolean foregroundIsOffLimits() {
+    static boolean foregroundIsOffLimits(NnService svc) {
         for (AccessibilityWindowInfo w : svc.getWindows()) {
             if (w.getType() == AccessibilityWindowInfo.TYPE_APPLICATION) {
                 AccessibilityNodeInfo root = w.getRoot();
-                if (root != null && Guard.offLimits(svc, root)) return true;
+                if (root != null) {
+                    try {
+                        if (Guard.offLimits(svc, root) || Guard.hasProtectedDescendant(root)) return true;
+                    } finally {
+                        root.recycle();
+                    }
+                }
             }
         }
         return svc.getPackageName().equals(svc.foregroundPkg()) && !Prefs.agentsTapNn(svc);

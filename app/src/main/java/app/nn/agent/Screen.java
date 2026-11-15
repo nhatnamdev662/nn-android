@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-/** Base for NN's screens: applies the theme and rebuilds smoothly when appearance changes. */
+/** Base for NN's screens: applies the theme and transitions smoothly between tabs and sub-screens. */
 abstract class Screen extends Activity {
     private String themeKey;
+    private boolean skipFinishTransition;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -14,7 +15,20 @@ abstract class Screen extends Activity {
         themeKey = Theme.key();
         Ui.unlockHighRefreshRate(this);
         super.onCreate(state);
-        overridePendingTransition(0, 0);
+        Intent in = getIntent();
+        boolean noAnim = in != null && ((in.getFlags() & Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0
+                || in.hasExtra("nn_tab_dir"));
+        if (noAnim || isTaskRoot()) {
+            overridePendingTransition(0, 0);
+        } else {
+            overridePendingTransition(R.anim.nn_screen_in, R.anim.nn_screen_hold_out);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 
     @Override
@@ -28,10 +42,23 @@ abstract class Screen extends Activity {
         }
     }
 
+    void finishForTabSwitch() {
+        skipFinishTransition = true;
+        finish();
+    }
+
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(0, 0);
+        if (skipFinishTransition) {
+            skipFinishTransition = false;
+            overridePendingTransition(0, 0);
+            return;
+        }
+        Intent in = getIntent();
+        boolean noAnim = in != null && (in.getFlags() & Intent.FLAG_ACTIVITY_NO_ANIMATION) != 0;
+        if (noAnim || isTaskRoot()) overridePendingTransition(0, 0);
+        else overridePendingTransition(R.anim.nn_screen_hold_in, R.anim.nn_screen_out);
     }
 
     /** Re-apply the theme in place (after a change made on this screen). */

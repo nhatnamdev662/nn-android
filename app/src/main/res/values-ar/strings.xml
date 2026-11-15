@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- NN's UI text in Arabic (Modern Standard Arabic). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">مساعد NN</string>
@@ -340,7 +340,7 @@
     <string name="chat_linux_tools">أدوات Linux</string>
     <string name="chat_linux_tools_info">الأوامر والملفات وإنشاء التطبيقات في نظام Linux في NN</string>
     <string name="chat_linux_tools_title">هل تريد تفعيل أدوات Linux؟</string>
-    <string name="chat_linux_tools_what">سيتمكن الوكيل حينها من تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &#x200E;~/.nn/work، وبالتالي إنشاء التطبيقات.</string>
+    <string name="chat_linux_tools_what">سيتمكن الوكيل حينها من تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &amp;#x200E;~/.nn/work، وبالتالي إنشاء التطبيقات.</string>
     <string name="chat_linux_tools_when">في هذه المحادثة فقط، بدءًا من رسالتك التالية.</string>
     <string name="chat_linux_tools_risk">قد تحاول رسالة أو صفحة ويب ضارة على الشاشة خداع الوكيل لتنفيذ أوامر. وتظل بطاقات الموافقة تحمي عمليات الإرسال والنشر والشراء والحذف.</string>
     <string name="chat_linux_tools_turn_on">تفعيل</string>
@@ -985,7 +985,7 @@
     <string name="setup_app_permissions">أذونات التطبيقات</string>
     <string name="setup_app_permissions_info">اختر لكل تطبيق: «موثوق» يتيح للوكيل العمل فيه دون نوافذ منبثقة، و«صارم» يعني أن NN نفسه يسألك قبل «إرسال» و«دفع» و«حذف»…</string>
     <string name="setup_dev_mode">أدوات Linux في المحادثات الجديدة</string>
-    <string name="setup_dev_mode_info">تتيح أدوات Linux للوكيل تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &#x200E;~/.nn/work، ليتمكن من إنشاء التطبيقات. تبدأ المحادثات الجديدة بهذا الإعداد، ويمكن تغييره لكل محادثة أسفل عنوانها.</string>
+    <string name="setup_dev_mode_info">تتيح أدوات Linux للوكيل تنفيذ الأوامر وتثبيت الحزم وتعديل الملفات في &amp;#x200E;~/.nn/work، ليتمكن من إنشاء التطبيقات. تبدأ المحادثات الجديدة بهذا الإعداد، ويمكن تغييره لكل محادثة أسفل عنوانها.</string>
     <string name="setup_agents_tap">السماح للوكلاء بالنقر على شاشات NN</string>
     <string name="setup_agents_tap_info">لاختبار NN باستخدام وكيل (مثل Claude Code في Termux مع أدوات الهاتف). تظل الفقاعة وبطاقات الموافقة و«أذونات التطبيقات» وهذه المفاتيح خارج نطاق الوصول.</string>
     <string name="setup_dev_mode_warning">الأفضل إبقاؤه متوقفًا وتفعيل أدوات Linux في المحادثات التي تحتاجها فقط. عند تفعيلها، قد تحاول رسالة أو صفحة ويب ضارة على الشاشة خداع الوكيل لتنفيذ أوامر. وتظل بطاقات الموافقة تحمي عمليات الإرسال والنشر والشراء والحذف.</string>
@@ -998,8 +998,8 @@
     <string name="linux_download_corrupt">ملف Alpine الذي تم تنزيله تالف (sha256 %1$s)</string>
     <string name="linux_move_failed">تعذّر نقل Alpine إلى موضعه</string>
     <string name="linux_download_failed_http">فشل التنزيل: HTTP %1$d</string>
-    <string name="linux_unsafe_path">مسار غير آمن في الأرشيف: &#x200E;%1$s</string>
-    <string name="linux_symlink_failed">تعذّر إنشاء الرابط الرمزي &#x200E;%1$s: %2$s</string>
+    <string name="linux_unsafe_path">مسار غير آمن في الأرشيف: &amp;#x200E;%1$s</string>
+    <string name="linux_symlink_failed">تعذّر إنشاء الرابط الرمزي &amp;#x200E;%1$s: %2$s</string>
     <string name="linux_truncated_archive">الأرشيف غير مكتمل</string>
 
     <!-- Terminal screen (a shell in NN's Linux, in tabs). -->
@@ -1178,6 +1178,7 @@
     <string name="tools_card_open_url">فتح %1$s</string>
     <string name="tools_card_clipboard">السماح للوكيل بقراءة آخر ما نسخته؟</string>
     <string name="tools_card_location">مشاركة موقع هذا الهاتف مع الوكيل؟</string>
+    <string name="tools_card_adb_shell">تشغيل أمر ADB:\n%1$s</string>
     <string name="tools_photo_why">التقط صورة: %1$s</string>
     <string name="rules_service_label">قواعد الإشعارات في NN</string>
     <string name="rules_title">قواعد الإشعارات</string>
@@ -1596,12 +1597,18 @@
     <string name="check_adb_connected">متصل على 127.0.0.1:%1$d.</string>
     <string name="check_adb_disconnected">غير متصل. قم بالإقران والتفعيل في الإعدادات.</string>
     <string name="chat_action_copy">نسخ</string>
+    <string name="chat_action_run">تشغيل</string>
+    <string name="chat_action_running">قيد التشغيل…</string>
+    <string name="chat_table_label">جدول</string>
+    <string name="chat_table_copied">تم نسخ الجدول</string>
     <string name="chat_action_edit">تعديل</string>
     <string name="chat_action_retry">إعادة المحاولة</string>
     <string name="chat_action_speak">قراءة بصوت عالٍ</string>
     <string name="chat_action_stop_speak">إيقاف القراءة</string>
     <string name="chat_action_copy_code">نسخ الكود</string>
     <string name="chat_code_copied">تم نسخ الكود</string>
+    <string name="chat_code_expand">توسيع</string>
+    <string name="chat_code_collapse">طي</string>
     <string name="chat_editing_bar">تعديل: %1$s</string>
     <string name="chat_edit_cancel">إلغاء التعديل</string>
     <string name="chat_retry_title">إعادة المحاولة من هنا؟</string>
@@ -1682,7 +1689,48 @@
     <string name="chat_starter_search">ابحث عن موضوع ولخّص النقاط الرئيسية</string>
     <string name="chat_starter_apps">افتح تطبيقاً أو نفّذ مهمة سريعة على الهاتف</string>
     <string name="chat_starter_linux">اكتب أو شغّل نصاً برمجياً سريعاً في مساحة Linux</string>
+    <string name="chat_starter_notifications">التحقق من الإشعارات الأخيرة وتلخيصها</string>
+    <string name="chat_starter_device">فحص البطارية والتخزين وحالة النظام</string>
+    <string name="chat_starter_alarm">ضبط منبه أو مؤقت للعد التنازلي</string>
+    <string name="chat_starter_reminder">تذكيري بشيء لأفعله صباح الغد</string>
     <string name="models_search_hint">ابحث عن نموذج…</string>
     <string name="models_empty_search">لا توجد نماذج مطابقة لـ “%1$s”</string>
     <string name="setup_agent_defaults">النموذج والجهد الافتراضي</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">تشغيل الكود…</string>
+    <string name="status_done">تم</string>
+    <string name="approval_channel_name">الموافقة على الإجراء</string>
+    <string name="approval_channel_desc">إشعارات تطلب موافقتك على الإجراءات الحساسة</string>
+    <string name="notification_approval_title">مطلوب الموافقة</string>
+    <string name="notice_restore_bubble">إظهار الفقاعة</string>
+
+    <string name="setup_touch_effects">تأثيرات مرئية أثناء تشغيل الذكاء الاصطناعي للشاشة</string>
+    <string name="setup_touch_effects_info">إظهار توهج الحدود وتموجات اللمس عندما يعمل NN Agent على الشاشة</string>
+    <string name="touch_overlay_controlling">● NN قيد التحكم</string>
+    <string name="touch_overlay_tap">نقرة</string>
+    <string name="touch_overlay_hold">ضغط مطول</string>
+    <string name="touch_overlay_swipe_down">سحب ↓</string>
+    <string name="touch_overlay_swipe_up">سحب ↑</string>
+    <string name="touch_overlay_swipe_right">سحب →</string>
+    <string name="touch_overlay_swipe_left">سحب ←</string>
+    <string name="chip_clean_ram">⚡ تنظيف الذاكرة</string>
+    <string name="chip_check_battery">🔋 البطارية والشحن</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">اسأل أولاً</string>
+    <string name="chat_exec_auto">تلقائي</string>
+    <string name="chat_exec_sheet_title">وضع التنفيذ</string>
+    <string name="chat_exec_sheet_desc">التحكم في كيفية تنفيذ الوكيل لأوامر النظام وإجراءات الهاتف</string>
+    <string name="chat_exec_mode_ask_title">🛡️ اسأل أولاً (افتراضي)</string>
+    <string name="chat_exec_mode_ask_desc">طلب التأكيد دائمًا قبل تشغيل أوامر ADB أو Shell أو الإجراءات الحساسة.</string>
+    <string name="chat_exec_mode_auto_title">⚡ تنفيذ تلقائي (وصول كامل)</string>
+    <string name="chat_exec_mode_auto_desc">تشغيل أوامر Shell وADB وإجراءات الهاتف تلقائيًا دون مطالبات.</string>
+    <string name="chat_exec_warn_title">تمكين الوصول الكامل؟</string>
+    <string name="chat_exec_warn_msg">في هذا الوضع، سيقوم الذكاء الاصطناعي بتشغيل الأوامر تلقائيًا.\n\nتظل الأوامر المدمرة محظورة تمامًا.</string>
+    <string name="chat_exec_warn_enable">تمكين</string>
+    <string name="chat_exec_warn_cancel">إلغاء</string>
+    <string name="grant_perm_success">تم منح %1$s لـ %2$s بنجاح ✨</string>
+    <string name="grant_perm_fail">فشل منح %1$s لـ %2$s: %3$s</string>
+
 </resources>

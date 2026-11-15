@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Dutch (je). Source and translator notes: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN-assistent</string>
@@ -1137,6 +1137,7 @@
     <string name="tools_card_open_url">%1$s openen</string>
     <string name="tools_card_clipboard">Mag de agent lezen wat je het laatst hebt gekopieerd?</string>
     <string name="tools_card_location">De locatie van deze telefoon met de agent delen?</string>
+    <string name="tools_card_adb_shell">ADB-opdracht uitvoeren:\n%1$s</string>
     <string name="tools_photo_why">Maak een foto: %1$s</string>
     <string name="rules_service_label">NN-meldingsregels</string>
     <string name="rules_title">Meldingsregels</string>
@@ -1550,12 +1551,18 @@
     <string name="check_adb_connected">Verbonden via 127.0.0.1:%1$d.</string>
     <string name="check_adb_disconnected">Niet verbonden. Koppel en schakel in bij Instellingen.</string>
     <string name="chat_action_copy">Kopiëren</string>
+    <string name="chat_action_run">Uitvoeren</string>
+    <string name="chat_action_running">Uitvoeren…</string>
+    <string name="chat_table_label">Tabel</string>
+    <string name="chat_table_copied">Tabel gekopieerd</string>
     <string name="chat_action_edit">Bewerken</string>
     <string name="chat_action_retry">Opnieuw</string>
     <string name="chat_action_speak">Voorlezen</string>
     <string name="chat_action_stop_speak">Stoppen met lezen</string>
     <string name="chat_action_copy_code">Code kopiëren</string>
     <string name="chat_code_copied">Code gekopieerd</string>
+    <string name="chat_code_expand">Uitvouwen</string>
+    <string name="chat_code_collapse">Samenvouwen</string>
     <string name="chat_editing_bar">Bewerken: %1$s</string>
     <string name="chat_edit_cancel">Bewerken annuleren</string>
     <string name="chat_retry_title">Vanaf hier opnieuw proberen?</string>
@@ -1636,7 +1643,48 @@
     <string name="chat_starter_search">Zoek een onderwerp op en vat de hoofdpunten samen</string>
     <string name="chat_starter_apps">Open een app of automatiseer een snelle taak</string>
     <string name="chat_starter_linux">Schrijf of voer een snel script uit in de Linux-werkruimte</string>
+    <string name="chat_starter_notifications">Recente meldingen controleren en samenvatten</string>
+    <string name="chat_starter_device">Batterij, opslag en systeemstatus controleren</string>
+    <string name="chat_starter_alarm">Een wekker of timer instellen</string>
+    <string name="chat_starter_reminder">Herinner me eraan om morgenochtend iets te doen</string>
     <string name="models_search_hint">Modellen zoeken…</string>
     <string name="models_empty_search">Geen modellen gevonden voor “%1$s”</string>
     <string name="setup_agent_defaults">Standaardmodel &amp; effort</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">Code uitvoeren…</string>
+    <string name="status_done">Gereed</string>
+    <string name="approval_channel_name">Goedkeuring van acties</string>
+    <string name="approval_channel_desc">Meldingen die uw goedkeuring vereisen voor gevoelige acties</string>
+    <string name="notification_approval_title">Goedkeuring vereist</string>
+    <string name="notice_restore_bubble">Herstel bubbel</string>
+
+    <string name="setup_touch_effects">Visuele effecten tijdens AI-schermbediening</string>
+    <string name="setup_touch_effects_info">Randgloed en aanraakrimpels tonen wanneer NN Agent het scherm bedient</string>
+    <string name="touch_overlay_controlling">● NN BEDIENING</string>
+    <string name="touch_overlay_tap">TIK</string>
+    <string name="touch_overlay_hold">VASTHOUDEN</string>
+    <string name="touch_overlay_swipe_down">VEEG ↓</string>
+    <string name="touch_overlay_swipe_up">VEEG ↑</string>
+    <string name="touch_overlay_swipe_right">VEEG →</string>
+    <string name="touch_overlay_swipe_left">VEEG ←</string>
+    <string name="chip_clean_ram">⚡ RAM opschonen</string>
+    <string name="chip_check_battery">🔋 Batterij &amp; Laden</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">Eerst vragen</string>
+    <string name="chat_exec_auto">Automatisch</string>
+    <string name="chat_exec_sheet_title">Uitvoeringsmodus</string>
+    <string name="chat_exec_sheet_desc">Bepaal hoe de Agent systeemopdrachten en telefoonacties uitvoert</string>
+    <string name="chat_exec_mode_ask_title">🛡️ Eerst vragen (Standaard)</string>
+    <string name="chat_exec_mode_ask_desc">Altijd bevestiging vragen voor het uitvoeren van ADB-, Shell- of gevoelige acties.</string>
+    <string name="chat_exec_mode_auto_title">⚡ Automatische uitvoering (Volledige toegang)</string>
+    <string name="chat_exec_mode_auto_desc">Voert Shell-, ADB- en telefoonacties automatisch uit zonder vragen.</string>
+    <string name="chat_exec_warn_title">Volledige toegang inschakelen?</string>
+    <string name="chat_exec_warn_msg">In deze modus voert AI opdrachten automatisch uit.\n\nDestructieve opdrachten blijven strikt verboden.</string>
+    <string name="chat_exec_warn_enable">Inschakelen</string>
+    <string name="chat_exec_warn_cancel">Annuleren</string>
+    <string name="grant_perm_success">%1$s succesvol verleend aan %2$s ✨</string>
+    <string name="grant_perm_fail">Kan %1$s niet verlenen aan %2$s: %3$s</string>
+
 </resources>

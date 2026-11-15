@@ -72,7 +72,7 @@ The app has three tabs: **Chats**, **Sessions** and **Settings**.
 
 ### Phone tools in your own sessions
 
-NN Agent's phone tools are a regular MCP server on the phone (`http://127.0.0.1:8765/mcp`, with a per-install token). Settings → **Phone tools in your own sessions** shows a ready-made command for **Claude Code** (`claude mcp add-json …`), **Codex** (`codex mcp add …`), **OpenCode** (an `OPENCODE_CONFIG_CONTENT` line for `~/.bashrc`) **Antigravity** (`agy mcp add …`) and **Grok** (`grok mcp add …`), with a Copy button. All but Antigravity's set a 10-minute tool timeout, so an approval card can wait for you (the agents' default is a minute). Run it once in any terminal on the phone (Termux, for example), and every session of that agent gets the `phone` tools, even without the bubble. The token is masked on screen. For MCP clients that can only start a server as a command, [mcp-bridge](../mcp-bridge) passes stdio on to NN Agent.
+NN Agent's phone tools are a regular MCP server on the phone (`http://127.0.0.1:8767/mcp`, with a per-install token). Settings → **Phone tools in your own sessions** shows a ready-made command for **Claude Code** (`claude mcp add-json …`), **Codex** (`codex mcp add …`), **OpenCode** (an `OPENCODE_CONFIG_CONTENT` line for `~/.bashrc`) **Antigravity** (`agy mcp add …`) and **Grok** (`grok mcp add …`), with a Copy button. All but Antigravity's set a 10-minute tool timeout, so an approval card can wait for you (the agents' default is a minute). Run it once in any terminal on the phone (Termux, for example), and every session of that agent gets the `phone` tools, even without the bubble. The token is masked on screen. For MCP clients that can only start a server as a command, [mcp-bridge](../mcp-bridge) passes stdio on to NN Agent.
 
 ### Remote Control: a Claude Code session in your Claude app
 
@@ -84,7 +84,7 @@ Settings → **Remote Control → Codex session** keeps Codex's app-server with 
 
 ### SSH from Termux
 
-Settings → **Remote Control → SSH from Termux** runs an SSH server (OpenSSH) inside NN Agent's Linux, so you can work in it from Termux: `ssh nn`, `scp`, `sftp`, port forwarding. It listens on `127.0.0.1:8767` only, so only apps on this phone can reach it (from a computer, go through `adb forward tcp:8767 tcp:8767`), and it takes keys only, no passwords. **Copy command** gives a Termux command that makes a key if Termux has none, sends it to NN Agent with a one-time code (it works once, within 10 minutes) and adds `Host nn` to `~/.ssh/config`. Run it once; from then on, `ssh nn` in Termux opens NN Agent's Linux. NN Agent keeps the server running, also after an update, until you switch it off.
+Settings → **Remote Control → SSH from Termux** runs an SSH server (OpenSSH) inside NN Agent's Linux, so you can work in it from Termux: `ssh nn`, `scp`, `sftp`, port forwarding. It listens on `127.0.0.1:8772` only, so only apps on this phone can reach it (from a computer, go through `adb forward tcp:8772 tcp:8772`), and it takes keys only, no passwords. **Copy command** gives a Termux command that makes a key if Termux has none, sends it to NN Agent with a one-time code (it works once, within 10 minutes) and adds `Host nn` to `~/.ssh/config`. Run it once; from then on, `ssh nn` in Termux opens NN Agent's Linux. NN Agent keeps the server running, also after an update, until you switch it off.
 
 ### When an agent is using your phone
 
@@ -131,8 +131,20 @@ Turn them on only in the chats that need them: with Linux tools on, text on scre
 
 ## Security in detail
 
+- **Execution Modes (Ask vs Full Access).** Each chat or session supports two execution modes:
+  - **Ask (Default):** Sensitive actions (payments, dangerous commands, permissions) trigger interactive approval cards.
+  - **Full Access (Auto):** Autonomous execution mode where interactive confirmations are auto-approved, permission dialogs are automatically unblocked via ADB or accessibility service, and workflows proceed without manual friction.
+  - **Security Guardrails:** Even in Full Access mode, dangerous system destruction commands are permanently intercepted and blocked:
+    1. `pm uninstall` / `pm clear` for system packages
+    2. `rm -rf /` or recursive root deletions
+    3. Disk format commands (`format`, `mkfs`, `dd of=/dev/block`)
+    4. Device power/bootloader operations (`reboot`, `reboot recovery`, `reboot bootloader`, `fastboot`)
+    5. Security downgrade commands (`setenforce 0`, disable SELinux)
+- **Script Execution & Linux Permissions.** Scripts and executables in Linux environment are automatically given executable permissions (`chmod +x`) before execution. If a script is executed from Android external storage (`/sdcard/` or `/storage/emulated/0/`), which is mounted with kernel `noexec`, NN Agent automatically executes it via shell interpreter (`/bin/sh` or `python3`) transparently without permission denied failures.
+- **Autonomous Android OS Permissions (`grant_permission`).** The agent can grant runtime Android permissions directly via ADB using the `grant_permission` tool (`camera`, `mic`, `location`, `storage`, `notifications`, `battery`, etc.), or automatically unblock OS permission dialogs when in Full Access mode.
 - **Local only.** The MCP server listens on `127.0.0.1` and requires a random per-install token. Nothing is reachable from the network.
-- **Approval gate.** The agent is instructed to call `confirm` before sending messages, posting, buying, deleting or changing settings. You see the exact action with **Approve / Change / Deny**. When the agent needs you to choose (which reply, which item), it can call `ask` instead: a card with 2–4 answers and your own typed answer. When there's a step only you can do (a password or code, your details in a form, a file picker, a captcha), `ask` can mark the fields or buttons on the screen and wait next to the bubble while you do it; `point_out` shows where something is. The marks (a box, circle or arrow with a short label) are drawn over the app without blocking your touches, and turn green and go once you do what they point at (tap that button, flip that switch, fill in that field). Ask "show me how to…" and the agent guides you one step at a time, waiting for each tap instead of doing it for you.
+- **Approval gate.** The agent is instructed to call `confirm` before sending messages, posting, buying, deleting or changing settings. You see the exact action with **Approve / Change / Deny**. When the agent needs you to choose (which reply, which item), it can call `ask` instead: a card with 2–4 answers and your own typed answer. When there's a step only you can do (a password or code, your details in a form, a file picker, a captcha), `ask` can mark the fields or buttons on the screen and wait next to the bubble while you do it; `point_out` shows where something is. The marks (a box, circle, arrow, or animated swipe trail with a short label) are drawn over the app without blocking your touches, and turn green and go once you do what they point at (tap that button, flip that switch, fill in that field, or follow the swipe). Ask "show me how to…" and the agent guides you one step at a time, waiting for each tap or swipe instead of doing it for you.
+- **Computer Use Visual Feedback.** When an agent controls the phone directly (`tap`, `long_press`, `scroll`, `swipe`), NN Agent renders high-visibility real-time visual feedback over the screen: a continuous neon breathing border glow with a top HUD status pill (`● NN ĐANG ĐIỀU KHIỂN` / `● NN IN CONTROL`), 3D laser touch reticles with double shockwave ripples for taps, and a deliberate gliding fingertip pointer with multi-layered neon trail and directional HUD pill (`VUỐT ↓` / `SWIPE ↓`) for swipes. For interactive tutorials, `point_out` supports `style: "swipe"` to demonstrate gestures dynamically.
 - **App permissions (enforced by NN Agent, not the agent).** Settings → Experience → App permissions, per app:
   - **Trust:** asking is left to the agent.
   - **Hard:** NN Agent itself checks every tap; buttons like Send, Pay, Delete (built-in words in all of NN Agent's languages, plus your own *always ask* / *never ask* rules, with suggestions from buttons the agent has tapped) need your OK.
@@ -152,10 +164,11 @@ NN Agent app / bubble ──► NN Agent's Linux (Alpine via proot): nn-run ─�
         ▲                                                                  │
         └────────────── streamed replies (POST /event) ◄───────────────────┤
                                                                            ▼
-NN Agent accessibility service ◄──── MCP over http://127.0.0.1:8765/mcp (phone tools)
+NN Agent accessibility service ◄──── MCP over http://127.0.0.1:8767/mcp (phone tools)
 ```
 
-- The **accessibility service** draws the bubble and runs a small local **MCP server** with the phone tools: `read_screen`, `tap`, `long_press`, `type_text`, `scroll`, `swipe`, `press`, `open_app`, `list_apps`, `open_url`, `screenshot`, `wait`, `install_apk`, `wait_for_install`, `confirm`, `ask`, `point_out`, `notify`, `reply_notification` and `update_nn`.
+- The **accessibility service** draws the bubble and runs a small local **MCP server** with the phone tools: `read_screen`, `tap`, `long_press`, `type_text`, `scroll`, `swipe`, `press`, `open_app`, `list_apps`, `open_url`, `screenshot`, `wait`, `install_apk`, `wait_for_install`, `confirm`, `ask`, `point_out`, `control_bubble`, `notify`, `reply_notification`, `update_nn` and `grant_permission`.
+- **Floating Bubble Smart Minimize.** Dragging the bubble down to (X) at the bottom or choosing Hide in the radial menu temporarily minimizes the bubble without disabling it in Settings. The bubble automatically restores when unlocking the device, opening the NN app, tapping the ongoing notification, or when the agent calls `control_bubble(action="show")`.
 - **Typing on web pages** (Chrome, apps' web views) goes in as a paste, so page editors keep it; your clipboard then holds that text.
 - **Tips per app.** When an app or site costs an agent time (a button that needs a second tap, a field that only takes a paste), it can note that in `~/.nn/tips/<app or site>.md` in NN Agent's Linux. NN Agent shows the note the first time that app or site comes up in a chat. The notes stay on your phone; delete them there if you like.
 - **NN Agent's Linux** is a small Alpine Linux that NN Agent downloads into its own storage (4 MB) and runs with [proot](https://proot-me.github.io/), which ships inside the APK. Claude Code installs there with Anthropic's official installer, Antigravity with Google's, Grok with xAI's; Codex and OpenCode from npm.

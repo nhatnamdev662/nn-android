@@ -52,7 +52,7 @@ public class GitHubActivity extends Screen {
     protected void onResume() {
         super.onResume();
         GitHub.setListener(this::render);
-        if (GitHub.step == GitHub.Step.IDLE) GitHub.refresh(this);
+        if (GitHub.step == GitHub.Step.IDLE) GitHub.refresh(this, GitHub.login == null);
         render();
     }
 

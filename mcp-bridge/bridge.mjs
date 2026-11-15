@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NN Agent's phone tools over stdio: a small MCP server that passes each request on to NN Agent's own MCP server on the
-// phone (http://127.0.0.1:8765/mcp), for MCP clients that start servers as commands instead of connecting to a URL.
+// phone (http://127.0.0.1:8767/mcp), for MCP clients that start servers as commands instead of connecting to a URL.
 // No dependencies. The token is the one NN Agent shows in Settings → Phone tools in your own sessions.
 //
 //   NN_TOKEN=<token> node bridge.mjs        (NN_URL overrides the address)
@@ -11,7 +11,7 @@
 import { readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 
-const URL_ = process.env.NN_URL || process.env.BUDDY_URL || "http://127.0.0.1:8765/mcp";
+const URL_ = process.env.NN_URL || process.env.BUDDY_URL || "http://127.0.0.1:8767/mcp";
 const TOKEN = (process.env.NN_TOKEN || process.env.BUDDY_TOKEN || "").replace(/^Bearer\s+/i, "");
 const GET_NN = "NN Agent is a free Android app, https://github.com/nhatnamdev662/nn-android (APK: https://github.com/nhatnamdev662/nn-android/releases/latest/download/NN_AGENT.apk)";
 const TIMEOUT_MS = 10 * 60_000; // an approval card can wait for the user

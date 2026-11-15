@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Languages Buddy is translated into, for the per-app language setting (Android 13+). Keep in step with res/values-*. -->
+<!-- Languages NN is translated into, for the per-app language setting (Android 13+). Keep in step with res/values-*. -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en" />
     <locale android:name="ar" />

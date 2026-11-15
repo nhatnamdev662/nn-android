@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- NN's UI text in Hindi. English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN असिस्टेंट</string>
@@ -1130,6 +1130,7 @@
     <string name="tools_card_open_url">%1$s खोलना</string>
     <string name="tools_card_clipboard">एजेंट को आपकी आख़िरी कॉपी की गई चीज़ पढ़ने दें?</string>
     <string name="tools_card_location">इस फ़ोन की लोकेशन एजेंट के साथ साझा करें?</string>
+    <string name="tools_card_adb_shell">ADB कमांड चलाएं:\n%1$s</string>
     <string name="tools_photo_why">फ़ोटो लें: %1$s</string>
     <string name="rules_service_label">NN के सूचना नियम</string>
     <string name="rules_title">सूचनाओं के नियम</string>
@@ -1544,12 +1545,18 @@
     <string name="check_adb_connected">127.0.0.1:%1$d पर कनेक्टेड।</string>
     <string name="check_adb_disconnected">कनेक्ट नहीं है। सेटिंग्स में पेयर और सक्षम करें।</string>
     <string name="chat_action_copy">कॉपी करें</string>
+    <string name="chat_action_run">चलाएं</string>
+    <string name="chat_action_running">चल रहा है…</string>
+    <string name="chat_table_label">तालिका</string>
+    <string name="chat_table_copied">तालिका कॉपी की गई</string>
     <string name="chat_action_edit">संपादित करें</string>
     <string name="chat_action_retry">पुनः प्रयास</string>
     <string name="chat_action_speak">बोलकर सुनाएं</string>
     <string name="chat_action_stop_speak">पढ़ना रोकें</string>
     <string name="chat_action_copy_code">कोड कॉपी करें</string>
     <string name="chat_code_copied">कोड कॉपी हो गया</string>
+    <string name="chat_code_expand">विस्तार करें</string>
+    <string name="chat_code_collapse">समेटें</string>
     <string name="chat_editing_bar">संपादन: %1$s</string>
     <string name="chat_edit_cancel">संपादन रद्द करें</string>
     <string name="chat_retry_title">यहाँ से पुनः प्रयास करें?</string>
@@ -1630,7 +1637,48 @@
     <string name="chat_starter_search">किसी विषय को खोजें और मुख्य बिंदु संक्षेप में बताएं</string>
     <string name="chat_starter_apps">कोई ऐप खोलें या फ़ोन पर कोई काम पूरा करें</string>
     <string name="chat_starter_linux">Linux वर्कस्पेस में एक त्वरित स्क्रिप्ट लिखें या चलाएं</string>
+    <string name="chat_starter_notifications">हाल की सूचनाएं देखें और संक्षेप करें</string>
+    <string name="chat_starter_device">बैटरी, स्टोरेज और सिस्टम स्थिति की जांच करें</string>
+    <string name="chat_starter_alarm">अलार्म या टाइमर सेट करें</string>
+    <string name="chat_starter_reminder">मुझे कल सुबह कुछ करने की याद दिलाएं</string>
     <string name="models_search_hint">मॉडल खोजें…</string>
     <string name="models_empty_search">“%1$s” से मेल खाने वाला कोई मॉडल नहीं</string>
     <string name="setup_agent_defaults">डिफ़ॉल्ट मॉडल और प्रयास</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">कोड निष्पादित हो रहा है…</string>
+    <string name="status_done">पूर्ण</string>
+    <string name="approval_channel_name">कार्रवाई स्वीकृति</string>
+    <string name="approval_channel_desc">संवेदनशील कार्रवाइयों के लिए आपकी स्वीकृति की आवश्यकता वाली सूचनाएं</string>
+    <string name="notification_approval_title">स्वीकृति आवश्यक है</string>
+    <string name="notice_restore_bubble">बबल पुनः दिखाएं</string>
+
+    <string name="setup_touch_effects">स्क्रीन पर AI नियंत्रण के दौरान दृश्य प्रभाव</string>
+    <string name="setup_touch_effects_info">जब NN Agent स्क्रीन नियंत्रित करे तो बॉर्डर ग्लो और टच रिपल दिखाएं</string>
+    <string name="touch_overlay_controlling">● NN नियंत्रण में है</string>
+    <string name="touch_overlay_tap">टैप</string>
+    <string name="touch_overlay_hold">होल्ड करें</string>
+    <string name="touch_overlay_swipe_down">स्वाइप ↓</string>
+    <string name="touch_overlay_swipe_up">स्वाइप ↑</string>
+    <string name="touch_overlay_swipe_right">स्वाइप →</string>
+    <string name="touch_overlay_swipe_left">स्वाइप ←</string>
+    <string name="chip_clean_ram">⚡ रैम साफ़ करें</string>
+    <string name="chip_check_battery">🔋 बैटरी और चार्जिंग</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">पहले पूछें</string>
+    <string name="chat_exec_auto">ऑटो</string>
+    <string name="chat_exec_sheet_title">निष्पादन मोड</string>
+    <string name="chat_exec_sheet_desc">नियंत्रित करें कि एजेंट सिस्टम कमांड और फोन क्रियाओं को कैसे निष्पादित करता है</string>
+    <string name="chat_exec_mode_ask_title">🛡️ पहले पूछें (डिफ़ॉल्ट)</string>
+    <string name="chat_exec_mode_ask_desc">ADB, शेल या संवेदनशील क्रियाओं को चलाने से पहले हमेशा पुष्टि मांगें।</string>
+    <string name="chat_exec_mode_auto_title">⚡ स्वचालित निष्पादन (पूर्ण पहुंच)</string>
+    <string name="chat_exec_mode_auto_desc">बिना संकेत के शेल, एडीबी और फोन क्रियाएं स्वचालित रूप से चलाएं।</string>
+    <string name="chat_exec_warn_title">पूर्ण पहुंच सक्षम करें?</string>
+    <string name="chat_exec_warn_msg">इस मोड में AI स्वचालित रूप से कमांड निष्पादित करेगा।\n\nविनाशकारी आदेश सख्त वर्जित हैं।</string>
+    <string name="chat_exec_warn_enable">सक्षम करें</string>
+    <string name="chat_exec_warn_cancel">रद्द करें</string>
+    <string name="grant_perm_success">%2$s को %1$s सफलतापूर्वक दिया गया ✨</string>
+    <string name="grant_perm_fail">%2$s को %1$s देने में विफल: %3$s</string>
+
 </resources>

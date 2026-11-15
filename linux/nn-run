@@ -14,7 +14,7 @@
 #   nn-run <token> transcript <claude|codex> <file>   last messages of a session (nn_transcript)
 #   nn-run <token> adopt <session> <claude|codex> <agent-session-id>  continue that session as a NN chat
 # Every event sent to the bubble carries "nn_session" so the app can route it.
-HELPER_VERSION=27
+HELPER_VERSION=32
 set -u
 export PATH=$HOME/.local/bin:$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The claude launcher sets BUN_OPTIONS with a path relative to its folder; never inherit a stale one.
@@ -38,32 +38,103 @@ valid_sid() { [[ "$1" =~ ^[A-Za-z0-9_-]{1,64}$ ]]; }
 # OpenCode 2 (npm @opencode/cli) rather than 1.x (opencode-ai)? 2 needs --standalone, or it leaves a background service
 oc2() { [[ "$(readlink -f "$(command -v opencode)" 2>/dev/null)" == */@opencode/cli/* ]]; }
 
-# Kill a process and everything it started (claude/codex run a few levels below nn-run).
+# List direct child PIDs of $1 using /proc/<pid>/stat (BusyBox-safe, works without procps pgrep -P).
+children_of_pid() {
+  cat /proc/[0-9]*/stat 2>/dev/null | awk -v target="$1" '
+    match($0, /\(.*\)/) {
+      pid = $1 + 0;
+      rest = substr($0, RSTART + RLENGTH + 1);
+      split(rest, f, " ");
+      if (f[2] == target && pid != target) print pid;
+    }'
+}
+
+# Kill a process and everything it started (claude/codex/opencode/agy/grok run below shells/wrappers).
 kill_tree() {
   local p=$1 c
-  for c in $(pgrep -P "$p" 2>/dev/null); do kill_tree "$c"; done
+  for c in $(children_of_pid "$p"); do kill_tree "$c"; done
   kill -TERM "$p" 2>/dev/null
 }
 
-descendants() { # print a pid and all its descendants
-  local p=$1 c
-  echo "$p"
-  for c in $(pgrep -P "$p" 2>/dev/null); do descendants "$c"; done
+# Match an executable name or kernel comm string against our 5 supported agents.
+match_agent_name() {
+  case "$1" in
+    claude) echo claude ;;
+    codex|codex-*) echo codex ;;
+    opencode|opencode2|opencode-*|.opencode*) echo opencode ;;
+    agy) echo agy ;;
+    grok|grok-*) echo grok ;;
+    *) return 1 ;;
+  esac
 }
 
+is_probe_cmd() {
+  local agent=$1 rest=$2 t prev=""
+  for t in $rest; do
+    case "$t" in -p|--prompt|--append-system-prompt|--rules|--) return 1 ;; esac
+    case "$t" in
+      --version|-v|-V|--help|-h|version|help|update|upgrade|install|uninstall|auth|login|logout|models|mcp|status|inspect|features|proxy)
+        return 0 ;;
+    esac
+    if [ "$agent" = opencode ] && [ "$prev" = session ] && { [ "$t" = list ] || [ "$t" = delete ]; }; then return 0; fi
+    if [ "$agent" = codex ]; then
+      if [ "$t" = app-server ] && [[ "$rest" != *"--remote-control"* ]]; then return 0; fi
+      if [ "$prev" = remote-control ] && [ "$t" = pair ]; then return 0; fi
+    fi
+    prev=$t
+  done
+  return 1
+}
 
 # Is this pid an agent process (the real claude / codex / opencode / agy / grok program)?
 agent_of() {
-  local cmd
+  local cmd comm arg0 base0 tok tb i=0 is_rt=0 m="" cwd
   cmd=$(tr '\0' ' ' < "/proc/$1/cmdline" 2>/dev/null) || return 1
-  case "${cmd%% *}" in
-    */claude/versions/*) echo claude ;;
-    */codex-linux-*/*|*/bin/codex) echo codex ;;
-    */opencode-ai/*|*/@opencode/cli*/*|*/bin/opencode) echo opencode ;;
-    */antigravity-cli/bin/*|*/bin/agy) echo agy ;;
-    grok|*/bin/grok|*/grok-linux-*) echo grok ;;
-    *) return 1 ;;
+  comm=$(tr -d '\r\n' < "/proc/$1/comm" 2>/dev/null)
+  [ -n "$cmd" ] || [ -n "$comm" ] || return 1
+  case "$cmd" in
+    "/bin/bash /root/bin/nn-run"*|"bash /root/bin/nn-run"*|"/root/bin/nn-run"*|*"/root/bin/codex-remote"*|*"/root/dictation"*) return 1 ;;
   esac
+  cwd=$(readlink "/proc/$1/cwd" 2>/dev/null)
+  case "$cwd" in */dictation|*/dictation/*) return 1 ;; esac
+  arg0=${cmd%% *}
+  base0=${arg0##*/}
+  case "$base0" in
+    pgrep|pkill|grep|egrep|fgrep|awk|sed|cat|ls|find|ps|tr|readlink|stat|timeout|sh|bash|dash|ash|libproot.so|libproot-loader.so|proot)
+      return 1 ;;
+    node|nodejs|bun|env|npx|bunx)
+      is_rt=1 ;;
+  esac
+  if m=$(match_agent_name "$base0"); then
+    is_probe_cmd "$m" "${cmd#"$arg0"}" && return 1
+    echo "$m"; return 0
+  fi
+  if m=$(match_agent_name "$comm"); then
+    is_probe_cmd "$m" "${cmd#"$arg0"}" && return 1
+    echo "$m"; return 0
+  fi
+  for tok in $cmd; do
+    case "$tok" in -*) continue ;; esac
+    i=$((i + 1))
+    [ "$i" -gt 4 ] && break
+    case "$tok" in
+      *"/claude/versions/"*|*"/.local/bin/claude"|*"/bin/claude"|*"@anthropic-ai/claude-code"*) m=claude ;;
+      *"/codex-linux-"*|*"/bin/codex"|*"@openai/codex"*) m=codex ;;
+      *"/opencode-ai/"*|*"@opencode/cli"*|*"/.opencode/bin/"*|*"/bin/opencode"|*"/opencode-linux-"*) m=opencode ;;
+      *"/antigravity-cli/"*|*"/bin/agy") m=agy ;;
+      *"/grok-linux-"*|*"/bin/grok"|*"@xai/grok"*) m=grok ;;
+      *)
+        if [ "$is_rt" = 1 ] && [ "$i" -gt 1 ]; then
+          tb=${tok##*/}
+          m=$(match_agent_name "$tb" 2>/dev/null || true)
+        fi ;;
+    esac
+    if [ -n "$m" ]; then
+      is_probe_cmd "$m" "${cmd#*"$tok"}" && return 1
+      echo "$m"; return 0
+    fi
+  done
+  return 1
 }
 
 case "$CMD" in
@@ -95,35 +166,102 @@ case "$CMD" in
     fi
     gm=$(jq -Rsc 'split("\n") | map(capture("^\\s*[*-]\\s+(?<id>[A-Za-z0-9._-]+)") | [.id, .id])' "$D/grok-models" 2>/dev/null)
     om=$(jq -Rsc 'split("\n") | map(select(test("^[A-Za-z0-9._-]+/\\S+$"))) | map([., (split("/") | .[1:] | join("/"))])' "$D/opencode-models" 2>/dev/null)
+    cd_m=$(jq -r '.model // empty' "$HOME/.claude/settings.json" 2>/dev/null)
+    xd_m=$(sed -n 's/^[[:space:]]*model[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$HOME/.codex/config.toml" 2>/dev/null | head -1)
+    [ -z "$xd_m" ] && xd_m=$(jq -r '.[0][0] // empty' <<<"${cm:-[]}" 2>/dev/null)
+    od_m=$(jq -r '.model // empty' "$HOME/.config/opencode/opencode.json" "$HOME/.config/opencode/config.json" 2>/dev/null | head -1)
+    if [ -z "$od_m" ]; then
+      if grep -qx 'opencode/big-pickle' "$D/opencode-models" 2>/dev/null; then od_m=opencode/big-pickle
+      else od_m=$(jq -r '.[0][0] // empty' <<<"${om:-[]}" 2>/dev/null); fi
+    fi
+    ad_m=$(jq -r '.[0][0] // empty' <<<"${am:-[]}" 2>/dev/null)
+    gd_m=$(sed -n 's/^[[:space:]]*\*[[:space:]]*\([A-Za-z0-9._-]*\).*/\1/p' "$D/grok-models" 2>/dev/null | head -1)
+    [ -z "$gd_m" ] && gd_m=$(jq -r '.[0][0] // empty' <<<"${gm:-[]}" 2>/dev/null)
+    def_json=$(jq -cn --arg cl "$cd_m" --arg cx "$xd_m" --arg oc "$od_m" --arg ag "$ad_m" --arg gk "$gd_m" \
+      '{claude:$cl,codex:$cx,opencode:$oc,agy:$ag,grok:$gk}')
     jq -cn --arg s "${agents:-none}" --arg g "${signed:-none}" --argjson v "$HELPER_VERSION" --argjson cm "${cm:-[]}" \
-      --argjson om "${om:-[]}" --argjson am "${am:-[]}" --argjson gm "${gm:-[]}" \
-      '{type:"nn_pong",text:$s,signed:$g,helper:$v,codex_models:$cm,opencode_models:$om,agy_models:$am,grok_models:$gm}' | post
+      --argjson om "${om:-[]}" --argjson am "${am:-[]}" --argjson gm "${gm:-[]}" --argjson df "${def_json:-{}}" \
+      '{type:"nn_pong",text:$s,signed:$g,helper:$v,codex_models:$cm,opencode_models:$om,agy_models:$am,grok_models:$gm,cli_defaults:$df}' | post
     exit 0 ;;
   procs)
-    # map every process started by a NN chat to that chat
-    declare -A owner=()
+    # Stream readable /proc/<pid>/stat lines via cat so unreadable root PIDs never abort awk
+    declare -A ppid_of=() kids_of=() et_of=() agent_pid=() owner=()
+    up=$(awk '{print int($1)}' /proc/uptime 2>/dev/null || echo 0)
+    while IFS=' ' read -r spid sppid set; do
+      [ -n "$spid" ] || continue
+      ppid_of[$spid]=$sppid
+      kids_of[$sppid]="${kids_of[$sppid]:-} $spid"
+      et_of[$spid]=$set
+    done < <(cat /proc/[0-9]*/stat 2>/dev/null | awk -v up="$up" '
+      match($0, /\(.*\)/) {
+        pid = $1 + 0;
+        rest = substr($0, RSTART + RLENGTH + 1);
+        split(rest, f, " ");
+        pp = f[2] + 0; st = int(f[20] / 100);
+        et = up - st; if (et < 0) et = 0;
+        print pid, pp, et;
+      }')
+    # BFS descendant ownership from every NN chat pid file
+    mark_owner() {
+      local q sid=$2 k
+      local -a stack=("$1")
+      while [ ${#stack[@]} -gt 0 ]; do
+        q=${stack[-1]}; unset 'stack[-1]'
+        [ -n "${owner[$q]:-}" ] && continue
+        owner[$q]=$sid
+        for k in ${kids_of[$q]:-}; do stack+=("$k"); done
+      done
+    }
     for f in "$D"/sessions/*/pid; do
-      [ -f "$f" ] || continue
+      [ -s "$f" ] || continue
       sid=$(basename "$(dirname "$f")")
-      for q in $(descendants "$(cat "$f")"); do owner[$q]=$sid; done
+      mark_owner "$(tr -d '\r\n' < "$f" 2>/dev/null)" "$sid"
     done
+    # collect all matching agent PIDs so ancestor wrappers of the same agent can be deduplicated
+    for pd in /proc/[0-9]*; do
+      p=${pd##*/}
+      [ "$p" = "$$" ] && continue
+      a=$(agent_of "$p") || continue
+      agent_pid[$p]=$a
+    done
+    has_same_agent_child() {
+      local a=$2 k hops=0
+      local -a stack=(${kids_of[$1]:-})
+      while [ ${#stack[@]} -gt 0 ] && [ "$hops" -lt 64 ]; do
+        hops=$((hops + 1))
+        k=${stack[-1]}; unset 'stack[-1]'
+        [ "${agent_pid[$k]:-}" = "$a" ] && return 0
+        for nxt in ${kids_of[$k]:-}; do stack+=("$nxt"); done
+      done
+      return 1
+    }
     {
-      for p in $(pgrep -f 'claude/versions/|codex-linux-|/bin/codex|opencode-ai/|@opencode/cli|/bin/opencode|antigravity-cli/bin/|/bin/agy|^grok( |$)|/bin/grok|grok-linux-' 2>/dev/null); do
-        a=$(agent_of "$p") || continue
-        [ "$p" = "$$" ] && continue
+      for p in "${!agent_pid[@]}"; do
+        a=${agent_pid[$p]}
+        has_same_agent_child "$p" "$a" && continue
         cwd=$(readlink "/proc/$p/cwd" 2>/dev/null)
-        et=$(ps -o etimes= -p "$p" 2>/dev/null | tr -d ' ')
+        et=${et_of[$p]:-0}
         args=$(tr '\0' ' ' < "/proc/$p/cmdline" 2>/dev/null | cut -c1-300)
-        # what kind of process: Claude Code's background service, a session it hosts, or a terminal session
-        pargs=$(tr '\0' ' ' < "/proc/$(ps -o ppid= -p "$p" | tr -d ' ')/cmdline" 2>/dev/null)
+        nn_own=${owner[$p]:-}
         kind=terminal
-        case "$args" in *" daemon run"*) kind=daemon ;; esac
-        [ "$kind" = terminal ] && case "$pargs" in *bg-pty-host*) kind=background ;; esac
-        # its conversation: --session-id wins (a fork gets a new id), else --resume <id>
-        ses=$(printf '%s' "$args" | grep -oE -- '--session-id [0-9a-f-]{36}' | head -1 | cut -d' ' -f2)
-        [ -z "$ses" ] && ses=$(printf '%s' "$args" | grep -oE -- '--resume [0-9a-f-]{36}' | head -1 | cut -d' ' -f2)
+        case "$args" in *" daemon run"*|*"--remote-control"*) kind=daemon ;; esac
+        case "$cwd" in */remote|*/remote-codex) kind=daemon ;; esac
+        ses=$(printf '%s' "$args" | grep -oE -- '(--session-id|--resume|--conversation|-s|-r) [A-Za-z0-9_-]{8,64}' | head -1 | awk '{print $2}')
+        # walk up to 8 ancestors for nn ownership, background host, or session flags
+        anc=${ppid_of[$p]:-0}
+        hop=0
+        while [ "${anc:-0}" -gt 1 ] && [ "$hop" -lt 8 ]; do
+          hop=$((hop + 1))
+          [ -z "$nn_own" ] && [ -n "${owner[$anc]:-}" ] && nn_own=${owner[$anc]}
+          pargs=$(tr '\0' ' ' < "/proc/$anc/cmdline" 2>/dev/null)
+          [ "$kind" = terminal ] && case "$pargs" in *bg-pty-host*) kind=background ;; esac
+          if [ -z "$ses" ] && [ "${agent_pid[$anc]:-}" = "$a" ]; then
+            ses=$(printf '%s' "$pargs" | grep -oE -- '(--session-id|--resume|--conversation|-s|-r) [A-Za-z0-9_-]{8,64}' | head -1 | awk '{print $2}')
+          fi
+          anc=${ppid_of[$anc]:-0}
+        done
         title=""
-        if [ -n "$ses" ] && [ "$a" = claude ]; then
+        if [ -n "$ses" ] && [ "$a" = claude ] && [ -z "$nn_own" ]; then
           f=$(ls "$HOME"/.claude/projects/*/"$ses".jsonl 2>/dev/null | head -1)
           [ -n "$f" ] && title=$(head -n 400 "$f" | jq -r 'select(.type=="user") | .message.content
             | if type=="string" then . else ([.[]? | select(.type=="text") | .text] | join(" ")) end
@@ -131,7 +269,7 @@ case "$CMD" in
                 and (startswith("Caveat:") | not))' 2>/dev/null | head -1 | tr '\n' ' ' | cut -c1-80)
         fi
         jq -cn --argjson pid "$p" --arg agent "$a" --arg cwd "$cwd" --arg et "${et:-0}" \
-          --arg args "$args" --arg nn "${owner[$p]:-}" --arg kind "$kind" --arg ses "$ses" --arg title "$title" \
+          --arg args "$args" --arg nn "$nn_own" --arg kind "$kind" --arg ses "$ses" --arg title "$title" \
           '{pid:$pid, agent:$agent, cwd:$cwd, seconds:($et|tonumber), args:$args, nn:$nn,
             kind:$kind, session:$ses, title:$title}'
       done
@@ -144,29 +282,69 @@ case "$CMD" in
     exit 0 ;;
   recent)
     {
-      # skip the Remote Control session's folder (RemoteSession.DIR): it must not be adopted while it runs
-      for f in $(ls -t "$HOME"/.claude/projects/*/*.jsonl 2>/dev/null | grep -v '/-root-remote/' | head -15); do
+      # skip Remote Control and internal Voice Dictation folders
+      for f in $(ls -t "$HOME"/.claude/projects/*/*.jsonl 2>/dev/null | grep -vE '/-root-(remote|dictation)/' | head -15); do
         head -n 300 "$f" | jq -c --arg f "$f" --arg m "$(stat -c %Y "$f")" -s '
           ([.[] | select(.type=="user") | .message.content
                 | if type=="string" then . else ([.[]? | select(.type=="text") | .text] | join(" ")) end
                 | select(. != "" and (startswith("<")|not) and (startswith("This session is being continued")|not)
                     and (startswith("Caveat:")|not))] | first // "") as $t
+          | select($t != "")
           | {agent:"claude", file:$f, id:($f|split("/")|last|rtrimstr(".jsonl")),
              cwd:([.[]|.cwd//empty]|first//""), title:($t|.[0:120]), mtime:($m|tonumber)}' 2>/dev/null
       done
-      for f in $(find "$HOME/.codex/sessions" -name '*.jsonl' 2>/dev/null | xargs -r ls -t 2>/dev/null | head -15); do
+      while IFS= read -r f; do
+        [ -f "$f" ] || continue
         head -n 80 "$f" | jq -c --arg f "$f" --arg m "$(stat -c %Y "$f")" -s '
           ([.[] | select(.type=="session_meta") | .payload] | first // {}) as $meta
           | ([.[] | select(.type=="response_item" and .payload.type=="message" and .payload.role=="user")
                 | .payload.content[]? | .text // empty
                 | select(startswith("<")|not)
-                | (if contains("Tin nháº¯n cá»§a ngÆ°á»i dÃ¹ng tá»« bong bÃ³ng NN:\n") then split("Tin nháº¯n cá»§a ngÆ°á»i dÃ¹ng tá»« bong bÃ³ng NN:\n")|last elif contains("User message from the NN bubble:\n") then split("User message from the NN bubble:\n")|last else . end)]
+                | (if contains("Tin nhắn của người dùng từ bong bóng NN:\n") then split("Tin nhắn của người dùng từ bong bóng NN:\n")|last elif contains("User message from the NN bubble:\n") then split("User message from the NN bubble:\n")|last else . end)]
              | last // "") as $t
+          | select($t != "")
           | {agent:"codex", file:$f, id:($meta.id//""), cwd:($meta.cwd//""), title:($t|.[0:120]),
              mtime:($m|tonumber)}' 2>/dev/null
+      done < <(find "$HOME/.codex/sessions" -type f -name '*.jsonl' -exec stat -c '%Y %n' {} + 2>/dev/null | sort -rn | head -15 | cut -d' ' -f2-)
+      # OpenCode sessions (v2 CLI list or v1 JSON storage)
+      oc_out=""
+      if have opencode; then
+        oc_out=$(timeout 15 opencode session list $(oc2 && echo --standalone) --format json 2>/dev/null || true)
+      fi
+      if printf '%s' "$oc_out" | jq -e 'type=="array"' >/dev/null 2>&1; then
+        printf '%s' "$oc_out" | jq -c '.[:15][] | ((.time.updated // .updated // .time.created // .created // 0) | tonumber? // 0) as $raw
+          | {agent:"opencode", file:"", id:(.id // ""), cwd:(.directory // .cwd // ""),
+             title:((.title // "") | .[0:120]),
+             mtime:(if $raw > 9999999999 then ($raw / 1000 | floor) else ($raw | floor) end)}' 2>/dev/null
+      else
+        while IFS= read -r f; do
+          [ -f "$f" ] || continue
+          jq -c --arg f "$f" --arg m "$(stat -c %Y "$f")" '{agent:"opencode", file:$f, id:(.id // ""),
+            cwd:(.directory // .cwd // ""), title:((.title // "") | .[0:120]), mtime:($m|tonumber)}' "$f" 2>/dev/null
+        done < <(find "$HOME/.local/share/opencode/storage/session" -type f -name '*.json' -exec stat -c '%Y %n' {} + 2>/dev/null | sort -rn | head -15 | cut -d' ' -f2-)
+      fi
+      # Grok sessions
+      for f in $(ls -t "$HOME"/.grok/sessions/*.json* 2>/dev/null | head -15); do
+        jq -c --arg f "$f" --arg m "$(stat -c %Y "$f")" -s '
+          (.[0] // {}) as $first
+          | {agent:"grok", file:$f, id:($first.session_id // $first.id // ($f|split("/")|last|split(".")|first)),
+             cwd:($first.cwd // ""), title:(($first.title // $first.prompt // "") | .[0:120]), mtime:($m|tonumber)}' "$f" 2>/dev/null
       done
-    } | jq -cs --argjson own "$(for f in "$D"/sessions/*/claude-session "$D"/sessions/*/codex-thread; do
-          [ -f "$f" ] && jq -cn --arg k "$(cat "$f")" --arg v "$(basename "$(dirname "$f")")" '{($k):$v}'
+      # Antigravity conversations (deduplicate .pb and folder entries)
+      declare -A seen_agy=()
+      for d in $(ls -dt "$HOME"/.gemini/antigravity-cli/conversations/* 2>/dev/null | head -20); do
+        cid=$(basename "${d%.pb}")
+        [ -n "$cid" ] && [ -z "${seen_agy[$cid]:-}" ] || continue
+        seen_agy[$cid]=1
+        atitle=""
+        if [ -f "$HOME/.gemini/antigravity-cli/brain/$cid/task.md" ]; then
+          atitle=$(grep -m1 -E '^[^#]|^# ' "$HOME/.gemini/antigravity-cli/brain/$cid/task.md" 2>/dev/null | sed 's/^#* *//' | cut -c1-120)
+        fi
+        jq -cn --arg id "$cid" --arg t "$atitle" --arg m "$(stat -c %Y "$d")" \
+          '{agent:"agy", file:"", id:$id, cwd:"", title:$t, mtime:($m|tonumber)}' 2>/dev/null
+      done
+    } | jq -cs --argjson own "$(for f in "$D"/sessions/*/claude-session "$D"/sessions/*/codex-thread "$D"/sessions/*/opencode-session "$D"/sessions/*/agy-conversation "$D"/sessions/*/grok-session; do
+          [ -s "$f" ] && jq -cn --arg k "$(tr -d '\r\n' < "$f" 2>/dev/null)" --arg v "$(basename "$(dirname "$f")")" '{($k):$v}'
         done | jq -cs 'add // {}')" \
       '{type:"nn_recent", sessions:(sort_by(-.mtime)|.[0:25]|map(. + {nn:($own[.id] // "")}))}' | post
     exit 0 ;;
@@ -283,8 +461,20 @@ if [ -n "${FILES:-}" ]; then
   if [ ${#ATT[@]} -gt 0 ]; then
     MSG="$MSG
 
-[NgÆ°á»i dÃ¹ng Ä‘Ã£ Ä‘Ã­nh kÃ¨m $( [ ${#ATT[@]} -eq 1 ] && echo "1 tá»‡p tin" || echo "${#ATT[@]} tá»‡p tin" ), Ä‘Æ°á»£c lÆ°u trÃªn Ä‘iá»‡n thoáº¡i nÃ y. Má»Ÿ chÃºng báº±ng cÃ´ng cá»¥ Read cá»§a báº¡n (áº£nh sáº½ hiá»ƒn thá»‹ trá»±c quan):
+[User attached $( [ ${#ATT[@]} -eq 1 ] && echo "1 file" || echo "${#ATT[@]} files" ) saved on this phone. Inspect them with your Read tool (images render visually):
 $(printf -- '- %s\n' "${ATT[@]}")]"
+  fi
+fi
+
+RUNTIME_CTX=$(cat "$S/runtime-ctx" 2>/dev/null || true)
+PREV_DEV=$(cat "$S/last-dev" 2>/dev/null || true)
+printf '%s' "$DEV" > "$S/last-dev"
+MODE_DELTA=""
+if [ -n "$PREV_DEV" ] && [ "$PREV_DEV" != "$DEV" ] && [ "$DEV" != rule ]; then
+  if [ "$DEV" = 1 ]; then
+    MODE_DELTA="[System update: Linux tools are now ENABLED for this chat; work inside $W.]"
+  else
+    MODE_DELTA="[System update: Linux tools are now DISABLED for this chat; do not call shell or file tools.]"
   fi
 fi
 
@@ -302,18 +492,47 @@ $(cat "$D/browser-prompt.md" 2>/dev/null)"
 if [ "$DEV" = 1 ]; then
   SYSTEM="$SYSTEM
 
-CÃ´ng cá»¥ Linux Ä‘ang Báº¬T trong phiÃªn chat nÃ y: báº¡n cÃ³ thá»ƒ cháº¡y cÃ¡c lá»‡nh shell vÃ  táº¡o hoáº·c chá»‰nh sá»­a tá»‡p tin. LÃ m viá»‡c bÃªn trong $W (má»—i dá»± Ã¡n má»™t thÆ° má»¥c riÃªng).
-TrÆ°á»›c khi xÃ¢y dá»±ng á»©ng dá»¥ng Android, hÃ£y Ä‘á»c ká»¹ ká»¹ nÄƒng android-app (Ä‘á»‘i vá»›i Claude Code) hoáº·c AGENTS.md (Ä‘á»‘i vá»›i Codex, OpenCode, Antigravity, Grok) trong $W vÃ  tuÃ¢n thá»§ theo."
+Linux tools are ENABLED in this chat: you may run shell commands and create or edit files inside $W (one subfolder per project).
+Before building an Android app, read and follow the android-app skill (Claude Code) or AGENTS.md (Codex, OpenCode, Antigravity, Grok) inside $W."
   # Settings, GitHub: git and gh are signed in to the user account
   [ -s "$HOME/.config/gh/hosts.yml" ] && SYSTEM="$SYSTEM
-git vÃ  GitHub CLI (gh) Ä‘Ã£ Ä‘Äƒng nháº­p vÃ o tÃ i khoáº£n GitHub cá»§a ngÆ°á»i dÃ¹ng: báº¡n cÃ³ thá»ƒ clone, commit, push vÃ  má»Ÿ pull request.
-CÃ¡c thao tÃ¡c push mÃ£ nguá»“n, táº¡o repository, má»Ÿ issue hoáº·c pull request lÃ  hÃ nh Ä‘á»™ng hÆ°á»›ng ra ngoÃ i: Báº®T BUá»˜C pháº£i gá»i confirm trÆ°á»›c vá»›i ná»™i dung báº¡n dá»± Ä‘á»‹nh thá»±c hiá»‡n."
+git and GitHub CLI (gh) are signed in to the user's GitHub account: you may clone, commit, push, and open pull requests.
+Pushing code, creating repositories, or opening issues/PRs are outward actions: call confirm first with the intended details."
 elif [ "$DEV" = 0 ]; then
   SYSTEM="$SYSTEM
 
-CÃ´ng cá»¥ Linux Ä‘ang Táº®T trong phiÃªn chat nÃ y: khÃ´ng Ä‘Æ°á»£c cháº¡y lá»‡nh shell hoáº·c chá»‰nh sá»­a tá»‡p tin. Náº¿u ngÆ°á»i dÃ¹ng yÃªu cáº§u Ä‘iá»u gÃ¬ Ä‘Ã³ cáº§n Ä‘áº¿n cÃ´ng cá»¥ Linux (nhÆ° xÃ¢y dá»±ng á»©ng dá»¥ng, cháº¡y lá»‡nh há»‡ thá»‘ng), hÃ£y hÆ°á»›ng dáº«n há» báº­t CÃ´ng cá»¥ Linux báº±ng nÃºt chip ngay dÆ°á»›i tiÃªu Ä‘á» phiÃªn chat nÃ y, rá»“i yÃªu cáº§u láº¡i."
+Linux tools are DISABLED in this chat: do not run shell commands or modify files. If a request requires Linux tools (building apps, running shell scripts), instruct the user to tap the Linux tools chip below this chat's title bar and resend."
 fi
+[ -n "$RUNTIME_CTX" ] && SYSTEM="$SYSTEM
 
+$RUNTIME_CTX"
+
+fetch_mcp_list() {
+  curl -s -m 10 -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
+    "$URL/mcp?chat=$SID" 2>/dev/null
+}
+
+format_mcp_sigs() {
+  local prefix=${1:-}
+  jq -r --arg pfx "$prefix" '[.result.tools[] | (.inputSchema.required // []) as $req
+    | "\($pfx)\(.name)(" + ((.inputSchema.properties // {}) | keys_unsorted
+      | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
+    | join(", ")' 2>/dev/null
+}
+
+with_runtime_prefix() {
+  local base=$1 prefix=""
+  [ -n "$RUNTIME_CTX" ] && prefix="$RUNTIME_CTX"
+  if [ -n "$MODE_DELTA" ]; then
+    [ -n "$prefix" ] && prefix="$prefix"$'\n'"$MODE_DELTA" || prefix="$MODE_DELTA"
+  fi
+  if [ -n "$prefix" ]; then
+    printf '%s\n\n%s' "$prefix" "$base"
+  else
+    printf '%s' "$base"
+  fi
+}
 # NN's shared skills (Settings, Skills) live in ~/.agents/skills, where Codex and OpenCode look: Claude Code gets a
 # link to each in its own folder (a skill of the same name already there wins), and links to removed ones go.
 link_skills() {
@@ -402,16 +621,16 @@ run_codex() {
   for f in "${IMGS[@]}"; do img+=("--image=$f"); done
   cd "$W" || return 1
   if [ -s "$S/codex-thread" ]; then
+    prompt=$(with_runtime_prefix "$MSG")
     NN_TOKEN=$TOKEN codex exec "${cfg[@]}" "${sandbox[@]}" --json --skip-git-repo-check \
       resume "${img[@]}" -- "$(cat "$S/codex-thread")" "$prompt" </dev/null 2>"$S/last-error.log"
   else
     # codex exec has no system-prompt flag, so NN's instructions lead the first message.
-    prompt="$SYSTEM"$'\n\n---\n\nTin nhắn của người dùng từ bong bóng NN:\n'"$MSG"
+    prompt="$SYSTEM"$'\n\n---\n\nUser message from the NN bubble:\n'"$MSG"
     NN_TOKEN=$TOKEN codex exec "${cfg[@]}" "${sandbox[@]}" "${img[@]}" --json --skip-git-repo-check \
       -- "$prompt" </dev/null 2>"$S/last-error.log"
   fi
 }
-
 # Translate Codex's JSONL events into the Claude Code stream format the bubble understands.
 stream_codex() {
   local pics_since="$S/codex-pictures-since"
@@ -471,13 +690,20 @@ stream_codex() {
 # auto-update or sharing. Normal mode sets shell and edits to "ask", which a non-interactive run
 # auto-rejects ("deny" would drop those tools, and OpenCode's free models refuse a changed tool set).
 run_opencode() {
-  # OpenCode names MCP tools <server>_<tool>; small models otherwise call "read_screen" and give up
-  printf '%s\n\n%s\n' "$SYSTEM" "Trong ứng dụng này, các công cụ điện thoại được đặt tiền tố phone_: phone_read_screen, phone_tap, \
-phone_long_press, phone_type_text, phone_scroll, phone_swipe, phone_press, phone_open_app, phone_list_apps, phone_open_url, \
-phone_screenshot, phone_wait, phone_confirm, phone_ask, phone_notify, phone_reply_notification, phone_schedule_message, phone_list_scheduled, phone_cancel_scheduled, phone_update_nn, phone_install_apk và phone_wait_for_install\
-$([ "$BROWSER" = 1 ] && printf '%s' ", và đối với trình duyệt nền: phone_browser_open, phone_browser_read, phone_browser_click, \
-phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browser_back và phone_browser_tabs"). Hãy luôn gọi đúng các \
-tên chính xác này; chúng khả dụng trong mọi tin nhắn của phiên trò chuyện này." > "$S/system.md"
+  # OpenCode names MCP tools <server>_<tool>; fetch live list with complete fallback so small models see every tool
+  local oc_list oc_sigs oc_fallback
+  oc_fallback="phone_read_screen, phone_tap, phone_long_press, phone_type_text, phone_scroll, phone_swipe, phone_press, \
+phone_open_app, phone_list_apps, phone_open_url, phone_screenshot, phone_wait, phone_wait_for, phone_do_steps, \
+phone_collect, phone_find, phone_point_out, phone_control_bubble, phone_confirm, phone_ask, phone_notify, phone_reply_notification, \
+phone_schedule_message, phone_list_scheduled, phone_cancel_scheduled, phone_update_nn, phone_install_apk, \
+phone_wait_for_install, phone_clipboard_read, phone_clipboard_write, phone_set_alarm, phone_set_timer, phone_share, \
+phone_save_to_downloads, phone_device_status, phone_take_photo, phone_location, phone_notifications, phone_media, \
+phone_calendar_events, phone_add_calendar_event, phone_adb_shell, phone_grant_permission"
+  [ "$BROWSER" = 1 ] && oc_fallback="$oc_fallback, phone_browser_open, phone_browser_read, phone_browser_click, \
+phone_browser_type, phone_browser_scroll, phone_browser_screenshot, phone_browser_back, phone_browser_tabs"
+  oc_list=$(fetch_mcp_list)
+  oc_sigs=$(format_mcp_sigs "phone_" <<<"$oc_list")
+  printf '%s\n\n%s\n' "$SYSTEM" "In this chat, Android phone MCP tools are prefixed phone_: ${oc_sigs:-$oc_fallback}. Call these exact tool names directly; they remain available throughout this session." > "$S/system.md"
   local cfg v2=0
   oc2 && v2=1
   # OpenCode 2 ignores instructions given through OPENCODE_CONFIG_CONTENT (the model never saw this prompt),
@@ -506,16 +732,27 @@ tên chính xác này; chúng khả dụng trong mọi tin nhắn của phiên t
           + (if .value.window > 0 then {limit:{context:.value.window, output:([.value.window / 4, 32000] | min | floor)}}
              else {} end))))})}}' "$D/providers/$SVC.json") || return 1
   fi
-  local args=(run --format json)
+  local args=(run --format json) oc_msg="$MSG"
   [ "$v2" = 1 ] && args+=(--standalone)
-  [ -s "$S/opencode-session" ] && args+=(-s "$(cat "$S/opencode-session")")
+  if [ -s "$S/opencode-session" ]; then
+    args+=(-s "$(cat "$S/opencode-session")")
+    oc_msg=$(with_runtime_prefix "$MSG")
+  fi
   [ -n "$SVC" ] && MODEL="nn-$SVC/$SVCM"
   [ -n "${MODEL:-}" ] && args+=(-m "$MODEL")
+  if [ -n "${EFFORT:-}" ]; then
+    local ohelp
+    ohelp=$(opencode run --help 2>/dev/null || true)
+    if printf '%s' "$ohelp" | grep -q -- '--variant'; then
+      args+=(--variant "$EFFORT")
+    elif printf '%s' "$ohelp" | grep -q -- '--effort'; then
+      args+=(--effort "$EFFORT")
+    fi
+  fi
   local f
   for f in "${ATT[@]}"; do args+=(-f "$f"); done
-  cd "$W" && OPENCODE_CONFIG_CONTENT=$cfg opencode "${args[@]}" -- "$MSG" </dev/null 2>"$S/last-error.log"
+  cd "$W" && OPENCODE_CONFIG_CONTENT=$cfg opencode "${args[@]}" -- "$oc_msg" </dev/null 2>"$S/last-error.log"
 }
-
 # Translate OpenCode's JSON events into the Claude Code stream format the bubble understands.
 # Only the text of the step that ends the turn (its answer) is shown: text written before tool calls is
 # the model thinking out loud (free models even leak their reasoning, ending in </think>), and NN
@@ -574,9 +811,8 @@ stream_opencode() {
 # with everything else (the sign-in, conversations) linked to the real ~/.gemini/antigravity-cli.
 # Only the phone tools (and the chat's attachments) are pre-approved; developer mode skips agy's permission checks,
 # like Codex's full access. timeoutSeconds: an approval card may wait for the user (10 minutes, as for the others).
-AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url",
-"screenshot","wait","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled",
-"update_nn","install_apk","wait_for_install","point_out","adb_shell"]'
+AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url","screenshot","wait","wait_for","do_steps","collect","find","point_out","control_bubble","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled","update_nn","install_apk","wait_for_install","clipboard_read","clipboard_write","set_alarm","set_timer","share","save_to_downloads","device_status","take_photo","location","notifications","media","calendar_events","add_calendar_event","adb_shell","grant_permission"]'
+[ "$BROWSER" = 1 ] && AGY_PHONE_TOOLS='["read_screen","tap","long_press","type_text","scroll","swipe","press","open_app","list_apps","open_url","screenshot","wait","wait_for","do_steps","collect","find","point_out","control_bubble","confirm","ask","notify","reply_notification","schedule_message","list_scheduled","cancel_scheduled","update_nn","install_apk","wait_for_install","clipboard_read","clipboard_write","set_alarm","set_timer","share","save_to_downloads","device_status","take_photo","location","notifications","media","calendar_events","add_calendar_event","adb_shell","grant_permission","browser_open","browser_read","browser_click","browser_type","browser_scroll","browser_screenshot","browser_back","browser_tabs"]'
 run_agy() {
   local h=$S/agy-home g=$HOME/.gemini/antigravity-cli f list tools sigs
   mkdir -p "$h/.gemini/config" "$h/.gemini/antigravity-cli" "$g" "$HOME/.gemini/config"
@@ -585,7 +821,7 @@ run_agy() {
     case "${f##*/}" in settings.json|brain) continue ;; esac
     ln -sfn "$f" "$h/.gemini/antigravity-cli/${f##*/}"
   done
-  # agy saves a long tool result (list_apps, â€¦) under brain/<conversation>/ and has the model read it back, but it
+  # agy saves a long tool result (list_apps, ...) under brain/<conversation>/ and has the model read it back, but it
   # only lets the model read inside its own folder, and a link out of it doesn't count: each chat keeps its own brain/
   [ -L "$h/.gemini/antigravity-cli/brain" ] && rm -f "$h/.gemini/antigravity-cli/brain"
   mkdir -p "$h/.gemini/antigravity-cli/brain"
@@ -595,30 +831,23 @@ run_agy() {
   ( umask 077
     jq -n --arg url "$URL/mcp?chat=$SID" --arg auth "Bearer $TOKEN" \
       '{mcpServers:{phone:{url:$url, headers:{Authorization:$auth}, timeoutSeconds:600}}}' > "$h/.gemini/config/mcp_config.json" )
-  # the phone's tools as the server lists them (a newer NN may have more); the known list if that fails
-  list=$(curl -s -m 10 -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-    -H 'Accept: application/json, text/event-stream' --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
-    "$URL/mcp?chat=$SID")
+  # the phone's tools as the server lists them (a newer NN may have more); complete fallback if that fails
+  list=$(fetch_mcp_list)
   tools=$(jq -c '[.result.tools[].name] | select(length > 0)' <<<"$list" 2>/dev/null)
-  # and their arguments, "tap(element?, x?, y?)": agy itself only lists tool names, and reads a tool's description
-  # file before using it (a model round trip each), or guesses the arguments
-  sigs=$(jq -r '[.result.tools[] | (.inputSchema.required // []) as $req | "\(.name)(" + ((.inputSchema.properties // {})
-    | keys_unsorted | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
-    | join(", ")' <<<"$list" 2>/dev/null)
+  sigs=$(format_mcp_sigs <<<"$list")
   jq -n --argjson t "${tools:-$AGY_PHONE_TOOLS}" --arg files "$S/files" --arg brain "$h/.gemini/antigravity-cli/brain" \
     '{permissions:{allow:([$t[] | "mcp(phone/\(.))"] + ["read_file(\($files))", "read_file(\($brain))"])}}' \
     > "$h/.gemini/antigravity-cli/settings.json"
-  local prompt=$MSG args names note
-  # agy has no system-prompt flag, so NN's instructions lead a new conversation's first message (as for Codex).
-  # It also lists MCP tools only by file: say how to call the phone's, or it goes looking (e.g. with ls, which a
-  # normal chat refuses, and then it stops).
+  local prompt args note
+  # agy has no system-prompt flag, so NN's instructions lead turn 1; resumed turns carry a compact runtime context delta.
   [ -n "$sigs" ] || sigs=$(jq -r 'join(", ")' <<<"$AGY_PHONE_TOOLS" 2>/dev/null)
-  note="Trong ứng dụng này, các công cụ điện thoại nằm trên MCP server mang tên \"phone\". Hãy gọi ngay bằng call_mcp_tool \
-(ServerName \"phone\", ToolName và Arguments như được liệt kê sau đây; dấu ? đánh dấu tham số tùy chọn): $sigs. Bạn không cần \
-phải đọc các tệp mô tả trước; chỉ khi tham số chưa rõ ràng mới cần read_file \
-$h/.gemini/antigravity-cli/mcp/phone/<tool>.json."
-  [ "$DEV" = 1 ] || note="$note Các lệnh Shell hiện không khả dụng trong phiên trò chuyện này; không thử gọi chúng."
-  [ -s "$S/agy-conversation" ] || prompt="$SYSTEM"$'\n\n'"$note"$'\n\n---\n\nTin nhắn của người dùng từ bong bóng NN:\n'"$MSG"
+  note="In this chat, Android phone tools are on the MCP server named \"phone\". Call them directly via call_mcp_tool (ServerName \"phone\", ToolName and Arguments as listed; ? = optional): $sigs. Only read_file $h/.gemini/antigravity-cli/mcp/phone/<tool>.json if a parameter is unclear."
+  [ "$DEV" = 1 ] || note="$note Shell commands are disabled in this chat; do not call them."
+  if [ -s "$S/agy-conversation" ]; then
+    prompt=$(with_runtime_prefix "$MSG")
+  else
+    prompt="$SYSTEM"$'\n\n'"$note"$'\n\n---\n\nUser message from the NN bubble:\n'"$MSG"
+  fi
   args=(-p "$prompt" --output-format stream-json)
   [ -s "$S/agy-conversation" ] && args+=(--conversation "$(cat "$S/agy-conversation")")
   [ -n "${MODEL:-}" ] && args+=(--model "$MODEL")
@@ -666,10 +895,10 @@ stream_agy() {
           *)
             # a tool step (step_type "tool"): its tool_info has the name and parameters; a phone tool comes as
             # call_mcp_tool with {ServerName, ToolName, Arguments}. Before agy first uses an MCP tool it reads the
-            # tool's description file from its own folder (â€¦/antigravity-cli/mcp/<server>/<tool>.json), and it reads a
-            # long result back from â€¦/antigravity-cli/brain/â€¦/output.txt: neither is shown.
+            # tool's description file from its own folder (…/antigravity-cli/mcp/<server>/<tool>.json), and it reads a
+            # long result back from …/antigravity-cli/brain/…/output.txt: neither is shown.
             if [ "$state" = ERROR ]; then
-              # refused by its permissions (a shell command in a normal chat, â€¦): say so under the step
+              # refused by its permissions (a shell command in a normal chat, …): say so under the step
               t=$(printf '%s' "$line" | jq -r '.step_update as $u | ($u.tool_info // {}) as $i
                 | select(($i.error.message // "") | test("denied permission|permission check failed"; "i"))
                 | ($i.parameters.CommandLine // $u.tool_name // $i.name // "?")' 2>/dev/null)
@@ -757,7 +986,7 @@ stream_agy() {
 # linked to the real ~/.grok. A headless run refuses what isn't pre-approved: the phone tools are; normal mode offers
 # only the web and (once the chat has attachments) file reads, a rule's run only the phone; developer mode approves
 # everything, like Codex's full access.
-# grok's bundled skills (docx, pptx, code-review, â€¦), found once per grok version: a phone chat turns them off
+# grok's bundled skills (docx, pptx, code-review, …), found once per grok version: a phone chat turns them off
 grok_bundled_skills() {
   local v f
   v=$(grok --version 2>/dev/null | awk '{print $2}')
@@ -765,7 +994,7 @@ grok_bundled_skills() {
   if [ ! -s "$f" ]; then
     rm -f "$D"/grok-bundled-skills-*
     (cd /tmp && GROK_CLAUDE_SKILLS_ENABLED=0 GROK_CURSOR_SKILLS_ENABLED=0 timeout 60 grok inspect 2>/dev/null) \
-      | sed -n 's/^ *â”” \([A-Za-z0-9._-]*\) .* bundled.*$/\1/p' > "$f.new"
+      | sed -n 's/^ *└ \([A-Za-z0-9._-]*\) .* bundled.*$/\1/p' > "$f.new"
     [ -s "$f.new" ] && mv -f "$f.new" "$f" || rm -f "$f.new"
   fi
   cat "$f" 2>/dev/null
@@ -790,15 +1019,9 @@ run_grok() {
       fi
     } > "$h/config.toml" )
   # the phone's tools with their arguments, "tap(element?, x?, y?)": grok otherwise looks each one up first (search_tool)
-  sigs=$(curl -s -m 10 -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-    -H 'Accept: application/json, text/event-stream' --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
-    "$URL/mcp?chat=$SID" | jq -r '[.result.tools[] | (.inputSchema.required // []) as $req | "\(.name)(" + ((.inputSchema.properties // {})
-    | keys_unsorted | map(. as $k | if ($req | index($k)) != null then $k else $k + "?" end) | join(", ")) + ")"]
-    | join(", ")' 2>/dev/null)
-  note="Trong ứng dụng này, các công cụ điện thoại nằm trên MCP server mang tên \"phone\". Hãy gọi ngay bằng use_tool \
-(tool_name \"phone__<tool>\", ví dụ phone__read_screen, và tool_input kèm các đối số${sigs:+ như được liệt kê tại đây; dấu ? đánh dấu \
-tùy chọn: $sigs}). Bạn không cần dùng search_tool để tìm chúng."
-  [ "$DEV" = 1 ] || note="$note Các lệnh Shell hiện không khả dụng trong phiên trò chuyện này; không thử gọi chúng."
+  sigs=$(format_mcp_sigs <<<"$(fetch_mcp_list)")
+  note="In this chat, Android phone tools are on MCP server \"phone\". Call them directly via use_tool (tool_name \"phone__<tool>\", e.g. phone__read_screen, with tool_input${sigs:+; ? = optional: $sigs}). Do not use search_tool to look them up."
+  [ "$DEV" = 1 ] || note="$note Shell commands are disabled in this chat; do not call them."
   # --rules adds NN's instructions to grok's own, on every run (as --append-system-prompt does for Claude Code)
   local args=(-p "$MSG" --output-format streaming-messages-json --rules "$SYSTEM"$'\n\n'"$note" --allow 'MCPTool(phone__*)')
   case "$DEV" in
@@ -826,7 +1049,7 @@ tùy chọn: $sigs}). Bạn không cần dùng search_tool để tìm chúng."
 
 # grok's streaming-messages-json is Claude Code's stream format; only the tool names differ. A phone tool comes as
 # use_tool {tool_name:"phone__tap", tool_input}; its lookups (search_tool) and its thinking aren't shown. A step the
-# run refused (headless grok can't ask) is only on stderr ("permission required: â€¦ was not run"): said under the steps.
+# run refused (headless grok can't ask) is only on stderr ("permission required: … was not run"): said under the steps.
 stream_grok() {
   local line typ sid t=""
   rm -f "$S/grok-error"
@@ -899,8 +1122,7 @@ fi
     status=${PIPESTATUS[0]}
     # a refusal ended its turn without a word: nudge it on once, in the same conversation
     if [ -s "$S/agy-denied" ] && [ -s "$S/agy-conversation" ]; then
-      MSG="(Từ hệ thống NN, không phải người dùng) Phiên trò chuyện này không cho phép hành động đó: $(cat "$S/agy-denied"). Hãy tiếp tục với các \
-công cụ điện thoại (call_mcp_tool, ServerName \"phone\") và hoàn tất yêu cầu của người dùng."
+      MSG="(From NN system, not the user) This chat disallows that action: $(cat "$S/agy-denied"). Continue with the phone tools (call_mcp_tool, ServerName \"phone\") to fulfill the user's request."
       run_agy | tee -a "$S/agy-last.jsonl" | stream_agy last
       status=${PIPESTATUS[0]}
     fi
@@ -909,7 +1131,7 @@ công cụ điện thoại (call_mcp_tool, ServerName \"phone\") và hoàn tất
       run_agy | stream_agy
       status=${PIPESTATUS[0]}
     fi
-    # a failed turn (quota reached, â€¦) is already in the chat from its result; agy also exits non-zero and prints
+    # a failed turn (quota reached, …) is already in the chat from its result; agy also exits non-zero and prints
     # the same error with raw JSON, which would show it twice
     [ -s "$S/agy-error" ] && status=0
     name=Antigravity
@@ -922,7 +1144,7 @@ công cụ điện thoại (call_mcp_tool, ServerName \"phone\") và hoàn tất
       run_grok | stream_grok
       status=${PIPESTATUS[0]}
     fi
-    # a failed turn (not signed in, â€¦) is already in the chat from its result; grok also exits non-zero and prints
+    # a failed turn (not signed in, …) is already in the chat from its result; grok also exits non-zero and prints
     # the same error, which would show it twice
     [ -s "$S/grok-error" ] && status=0
     name=Grok

@@ -734,5 +734,14 @@ final class Prefs {
     static void setAdbReturnToOnboarding(Context c, boolean on) {
         sp(c).edit().putBoolean("adb_return_onboarding", on).apply();
     }
+
+    /** Visual effects (border glow & touch ripples) when AI operates the screen. */
+    static boolean touchEffects(Context c) {
+        return sp(c).getBoolean("touch_effects", true);
+    }
+
+    static void setTouchEffects(Context c, boolean on) {
+        sp(c).edit().putBoolean("touch_effects", on).apply();
+    }
 }
 

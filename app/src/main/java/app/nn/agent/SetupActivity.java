@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static app.nn.agent.Ui.*;
 
@@ -43,9 +44,34 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
     private boolean isUserScrolling = false;
     private boolean suppressScrollDetect = false;
     private boolean pendingRenderDuringScroll = false;
+    private boolean hasRendered = false;
+    private boolean tailPending = false;
     private LinearLayout adbCard;
     private boolean lastRenderedAdbConnected = false;
     private boolean lastRenderedAdbWarn = false;
+    private final Runnable tailRenderRunnable = () -> {
+        if (!tailPending || isFinishing() || isDestroyed()) return;
+        tailPending = false;
+        renderTailSections();
+        hasRendered = true;
+    };
+    private final Runnable resumeWakeRunnable = () -> {
+        if (isFinishing() || isDestroyed()) return;
+        if (GitHub.login == null && Linux.installed(this)) GitHub.refresh(this);
+        AdbManager.get(this);
+        AdbManager.ensure(this);
+        AdbManager.probeNow(this);
+        if (!AdbManager.isConnected() && !AdbManager.isDiscovering()
+                && AdbManager.isWifiAvailable(this) && Prefs.adbEnabled(this)) {
+            AdbManager.restartDiscovery();
+        }
+        if (AdbManager.isConnected()) dismissAdbDialogs();
+        Account.CLAUDE.refresh(this);
+        Account.CODEX.refresh(this);
+        Account.OPENCODE.refresh(this);
+        Account.AGY.refresh(this);
+        Account.GROK.refresh(this);
+    };
     private final Runnable scrollSettledRunnable = () -> {
         isUserScrolling = false;
         if (pendingRenderDuringScroll) {
@@ -118,31 +144,37 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         super.onResume();
         if (isFinishing()) return;
         Account.addListener(this);
-        if (GitHub.login == null && Linux.installed(this)) GitHub.refresh(this); // for the GitHub row, next time it's drawn
         RemoteSession.addListener(this);
         SshServer.addListener(this);
         CodexRemote.addListener(this);
         Browser.addListener(this);
         Prefs.setAdbReturnToOnboarding(this, false);
-        AdbManager.get(this);
         AdbManager.addListener(this);
-        AdbManager.ensure(this);
-        AdbManager.probeNow(this);
-        if (!AdbManager.isConnected() && !AdbManager.isDiscovering()
-                && AdbManager.isWifiAvailable(this) && Prefs.adbEnabled(this)) {
-            AdbManager.restartDiscovery();
-        }
         if (AdbManager.isConnected()) dismissAdbDialogs();
-        Account.CLAUDE.refresh(this);
-        Account.CODEX.refresh(this);
-        Account.OPENCODE.refresh(this);
-        Account.AGY.refresh(this);
-        Account.GROK.refresh(this);
-        render();
+        if (navSlot != null && getIntent() != null && getIntent().hasExtra("nn_tab_dir")) {
+            navSlot.removeAllViews();
+            navSlot.addView(bottomNav(this, NAV_SETTINGS, ChatHub.get(this).runningCount()), full());
+        }
+        renderHandler.removeCallbacks(tailRenderRunnable);
+        renderHandler.removeCallbacks(resumeWakeRunnable);
+        if (!hasRendered) {
+            tailPending = true;
+            if (list.getHeight() > 0) list.setMinimumHeight(list.getHeight());
+            list.removeAllViews();
+            renderTopSections();
+            renderHandler.post(tailRenderRunnable);
+        } else {
+            renderHandler.removeCallbacks(renderRunnable);
+            renderHandler.postDelayed(renderRunnable, 150);
+        }
+        renderHandler.postDelayed(resumeWakeRunnable, 160);
     }
 
     @Override
     protected void onPause() {
+        renderHandler.removeCallbacks(tailRenderRunnable);
+        renderHandler.removeCallbacks(resumeWakeRunnable);
+        renderHandler.removeCallbacks(renderRunnable);
         Account.removeListener(this);
         RemoteSession.removeListener(this);
         SshServer.removeListener(this);
@@ -269,10 +301,30 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             pendingRenderDuringScroll = true;
             return;
         }
+        tailPending = false;
+        renderHandler.removeCallbacks(tailRenderRunnable);
         final int y = scroll != null ? scroll.getScrollY() : 0;
         if (list.getHeight() > 0) list.setMinimumHeight(list.getHeight());
         list.removeAllViews();
+        renderTopSections();
+        renderTailSections();
+        hasRendered = true;
+        if (scroll != null) {
+            suppressScrollDetect = true;
+            scroll.scrollTo(0, y);
+            suppressScrollDetect = false;
+            list.post(() -> {
+                list.setMinimumHeight(0);
+                if (scroll != null) {
+                    suppressScrollDetect = true;
+                    scroll.scrollTo(0, y);
+                    suppressScrollDetect = false;
+                }
+            });
+        }
+    }
 
+    private void renderTopSections() {
         LinearLayout head = column(this);
         head.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 4));
         head.addView(title(this, getString(R.string.setup_settings_title), 28));
@@ -283,7 +335,6 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
 
         // ---------------------------------------------------------------- setup
         boolean a11y = SetupState.accessibilityEnabled(this);
-        String activeBackend = Prefs.activeBackend(this);
         String targetBackend = Prefs.targetBackend(this);
         Step[] steps = new Step[5];
 
@@ -471,7 +522,10 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             ap.addView(change, topGap(6));
         }
         addCard(ap);
+    }
 
+    private void renderTailSections() {
+        String activeBackend = Prefs.activeBackend(this);
         // ---------------------------------------------------------------- agent
         list.addView(sectionLabel(this, getString(R.string.setup_agent)));
         LinearLayout ag = card();
@@ -511,7 +565,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
                     render();
                 }), topGap(12));
         String token = Prefs.token(this);
-        String url = "http://127.0.0.1:" + McpServer.PORT + "/mcp";
+        String url = "http://127.0.0.1:" + McpServer.activePort + "/mcp";
         // each agent gets a 10-minute tool timeout: an approval card may wait for the user (the default is a minute)
         final String cmd = "codex".equals(mcpAgent)
                 // Codex reads the bearer token from an environment variable, so save it in ~/.bashrc too; `codex mcp
@@ -917,6 +971,12 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
             Prefs.setAgentsTapNn(this, on);
             render();
         })), full());
+        ex.addView(divider(), lineParams());
+        ex.addView(protect(switchRow(this, getString(R.string.setup_touch_effects), getString(R.string.setup_touch_effects_info),
+                Prefs.touchEffects(this), on -> {
+            Prefs.setTouchEffects(this, on);
+            render();
+        })), full());
         if (dev) {
             LinearLayout.LayoutParams wp = full();
             wp.setMargins(dp(this, 12), 0, dp(this, 12), dp(this, 12));
@@ -946,20 +1006,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         priv.setPaddingRelative(0, dp(this, 4), 0, dp(this, 8));
         priv.setOnClickListener(v -> openUrl(Ui.PRIVACY_URL));
         list.addView(priv, full());
-
-        if (scroll != null) {
-            suppressScrollDetect = true;
-            scroll.scrollTo(0, y);
-            suppressScrollDetect = false;
-            list.post(() -> {
-                list.setMinimumHeight(0);
-                if (scroll != null) {
-                    suppressScrollDetect = true;
-                    scroll.scrollTo(0, y);
-                    suppressScrollDetect = false;
-                }
-            });
-        }
+        list.setMinimumHeight(0);
     }
 
     private void populateAdbCard(LinearLayout ac) {
@@ -1390,7 +1437,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         return "{ command -v ssh && command -v curl; } >/dev/null || pkg install -y openssh curl;"
                 + " mkdir -p ~/.ssh && { [ -f ~/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519; }"
                 + " && curl -sS --fail-with-body -H 'Authorization: Bearer " + code + "' --data-binary @$HOME/.ssh/id_ed25519.pub"
-                + " http://127.0.0.1:" + McpServer.PORT + "/ssh-key"
+                + " http://127.0.0.1:" + McpServer.activePort + "/ssh-key"
                 + " && { grep -qx 'Host nn' ~/.ssh/config 2>/dev/null || printf '\\nHost nn\\n  HostName 127.0.0.1\\n  Port "
                 + SshServer.PORT + "\\n  User root\\n' >> ~/.ssh/config; }"
                 + " && ssh -o StrictHostKeyChecking=accept-new nn true";
@@ -1666,7 +1713,7 @@ public class SetupActivity extends Screen implements Account.Listener, RemoteSes
         super.onNewIntent(intent);
         setIntent(intent);
         if (AdbManager.isConnected()) dismissAdbDialogs();
-        render();
+        if (intent != null && !intent.hasExtra("nn_tab_dir") && hasRendered) scheduleRender();
     }
 
     private void adbGuideSheet() {

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Japanese (です/ます). Source of truth: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN アシスタント</string>
@@ -1123,6 +1123,7 @@
     <string name="tools_card_open_url">%1$s を開く</string>
     <string name="tools_card_clipboard">最後にコピーした内容をエージェントに読ませますか?</string>
     <string name="tools_card_location">この端末の位置情報をエージェントと共有しますか?</string>
+    <string name="tools_card_adb_shell">ADB コマンドを実行:\n%1$s</string>
     <string name="tools_photo_why">写真を撮ってください: %1$s</string>
     <string name="rules_service_label">NN 通知ルール</string>
     <string name="rules_title">通知ルール</string>
@@ -1536,12 +1537,18 @@
     <string name="check_adb_connected">127.0.0.1:%1$d に接続済み。</string>
     <string name="check_adb_disconnected">未接続。設定からペアリングして有効にしてください。</string>
     <string name="chat_action_copy">コピー</string>
+    <string name="chat_action_run">実行</string>
+    <string name="chat_action_running">実行中…</string>
+    <string name="chat_table_label">表</string>
+    <string name="chat_table_copied">表をコピーしました</string>
     <string name="chat_action_edit">編集</string>
     <string name="chat_action_retry">再試行</string>
     <string name="chat_action_speak">読み上げ</string>
     <string name="chat_action_stop_speak">読み上げ停止</string>
     <string name="chat_action_copy_code">コードをコピー</string>
     <string name="chat_code_copied">コードをコピーしました</string>
+    <string name="chat_code_expand">展開</string>
+    <string name="chat_code_collapse">折りたたむ</string>
     <string name="chat_editing_bar">編集中: %1$s</string>
     <string name="chat_edit_cancel">編集をキャンセル</string>
     <string name="chat_retry_title">ここから再試行しますか？</string>
@@ -1622,7 +1629,48 @@
     <string name="chat_starter_search">トピックを調べて要点をまとめて</string>
     <string name="chat_starter_apps">アプリを開くかスマホの作業を自動化して</string>
     <string name="chat_starter_linux">Linux ワークスペースで簡単なスクリプトを作成・実行</string>
+    <string name="chat_starter_notifications">最近の通知を確認して要約する</string>
+    <string name="chat_starter_device">バッテリー、ストレージ、システム状態を確認する</string>
+    <string name="chat_starter_alarm">アラームまたはタイマーを設定する</string>
+    <string name="chat_starter_reminder">明日の朝にやるべきことをリマインドして</string>
     <string name="models_search_hint">モデルを検索…</string>
     <string name="models_empty_search">“%1$s” に一致するモデルがありません</string>
     <string name="setup_agent_defaults">デフォルトモデルと思考強度</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">コードを実行中…</string>
+    <string name="status_done">完了</string>
+    <string name="approval_channel_name">操作の承認</string>
+    <string name="approval_channel_desc">機密な操作に対する承認を求める通知</string>
+    <string name="notification_approval_title">承認が必要です</string>
+    <string name="notice_restore_bubble">バブルを復元</string>
+
+    <string name="setup_touch_effects">AI操作時の視覚エフェクト</string>
+    <string name="setup_touch_effects_info">NN Agentが画面を操作する際に外枠グローとタッチ波紋を表示</string>
+    <string name="touch_overlay_controlling">● NNが操作中</string>
+    <string name="touch_overlay_tap">タップ</string>
+    <string name="touch_overlay_hold">長押し</string>
+    <string name="touch_overlay_swipe_down">スワイプ ↓</string>
+    <string name="touch_overlay_swipe_up">スワイプ ↑</string>
+    <string name="touch_overlay_swipe_right">スワイプ →</string>
+    <string name="touch_overlay_swipe_left">スワイプ ←</string>
+    <string name="chip_clean_ram">⚡ メモリ解放</string>
+    <string name="chip_check_battery">🔋 バッテリーと充電</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">毎回確認</string>
+    <string name="chat_exec_auto">自動</string>
+    <string name="chat_exec_sheet_title">実行モード</string>
+    <string name="chat_exec_sheet_desc">エージェントがシステムコマンドや操作を実行する方法を制御します</string>
+    <string name="chat_exec_mode_ask_title">🛡️ 毎回確認 (デフォルト)</string>
+    <string name="chat_exec_mode_ask_desc">ADB、シェル、機密操作の実行前に必ず確認を求めます。</string>
+    <string name="chat_exec_mode_auto_title">⚡ 自動実行 (フルアクセス)</string>
+    <string name="chat_exec_mode_auto_desc">確認なしでシェルやADB、画面操作を自動的に実行します。</string>
+    <string name="chat_exec_warn_title">フルアクセスを有効にしますか？</string>
+    <string name="chat_exec_warn_msg">このモードではAIがコマンドを自動実行します。\n\n破壊的なシステムコマンドは完全に禁止されたままです。</string>
+    <string name="chat_exec_warn_enable">有効にする</string>
+    <string name="chat_exec_warn_cancel">キャンセル</string>
+    <string name="grant_perm_success">%2$s に %1$s を付与しました ✨</string>
+    <string name="grant_perm_fail">%2$s への %1$s の付与に失敗しました: %3$s</string>
+
 </resources>

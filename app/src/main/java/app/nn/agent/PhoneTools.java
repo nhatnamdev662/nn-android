@@ -26,8 +26,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.json.JSONArray;
@@ -41,10 +44,10 @@ import org.json.JSONObject;
 final class PhoneTools {
     static final java.util.Set<String> NAMES = new java.util.HashSet<>(java.util.Arrays.asList(
             "clipboard_read", "clipboard_write", "set_alarm", "set_timer", "share", "save_to_downloads", "device_status",
-            "take_photo", "location", "notifications", "media", "calendar_events", "add_calendar_event", "adb_shell"));
+            "take_photo", "location", "notifications", "media", "calendar_events", "add_calendar_event", "adb_shell", "grant_permission"));
     /** Not in a notification rule's run: they read the user's things or send something out. */
     private static final java.util.Set<String> NOT_IN_RULES = new java.util.HashSet<>(java.util.Arrays.asList(
-            "clipboard_read", "share", "save_to_downloads", "take_photo", "location", "notifications", "calendar_events", "adb_shell"));
+            "clipboard_read", "share", "save_to_downloads", "take_photo", "location", "notifications", "calendar_events", "adb_shell", "grant_permission"));
 
     private final NnService svc;
 
@@ -79,8 +82,8 @@ final class PhoneTools {
                 Tools.props().put("path", Tools.strProp("Full path of the file in NN's Linux"))
                         .put("name", Tools.strProp("Optional: the file's name in Downloads")),
                 "path"));
-        t.put(Tools.tool("device_status", "The phone's battery, charging, network, local date and time with time zone, "
-                + "free storage and ringer mode.", Tools.props()));
+        t.put(Tools.tool("device_status", "The phone's battery, charging, network, RAM memory, screen orientation, "
+                + "keyboard state, foreground app, local date and time with time zone, free storage and ringer mode.", Tools.props()));
         t.put(Tools.tool("take_photo", "Open the camera so the user takes a photo; returns the picture (and where it's "
                 + "saved in this chat's files). The user presses the shutter; it waits up to 3 minutes.",
                 Tools.props().put("why", Tools.strProp("Optional: one line shown to the user, e.g. \"the label on the box\""))));
@@ -112,6 +115,11 @@ final class PhoneTools {
                 Tools.props().put("command", Tools.strProp("Shell command to execute"))
                         .put("timeout_ms", Tools.intProp("Optional timeout in ms (1000-60000, default 15000)")),
                 "command"));
+        t.put(Tools.tool("grant_permission", "Grant or revoke Android runtime permissions or special privileges (camera, mic, location, storage, manage_storage, notifications, overlay, write_secure_settings, battery) to any app via on-device ADB.",
+                Tools.props().put("package", Tools.strProp("The target app package name, e.g. \"com.example.app\""))
+                        .put("permission", Tools.strProp("Permission name or alias: camera, mic, location, storage, manage_storage, notifications, overlay, write_secure_settings, battery, or full android.permission string"))
+                        .put("action", Tools.enumProp("grant", "revoke")),
+                "package", "permission"));
     }
 
     JSONObject call(String name, JSONObject a, boolean ruleRun) throws Exception {
@@ -133,6 +141,7 @@ final class PhoneTools {
             case "calendar_events": return text(calendarEvents(a.optString("from"), a.optInt("days", 1)));
             case "add_calendar_event": return text(addCalendarEvent(a));
             case "adb_shell": return adbShell(a);
+            case "grant_permission": return text(grantPermission(a));
             default: throw new IllegalArgumentException("Unknown tool " + name);
         }
     }
@@ -302,6 +311,47 @@ final class PhoneTools {
                 : nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ? "Ethernet" : "connected";
         if (nc != null && nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) net += " (VPN)";
         b.append("Network: ").append(net).append('\n');
+
+        android.app.ActivityManager amgr = (android.app.ActivityManager) svc.getSystemService(Context.ACTIVITY_SERVICE);
+        if (amgr != null) {
+            android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+            amgr.getMemoryInfo(mi);
+            b.append(String.format(Locale.ROOT, "RAM: %.1f GB available of %.1f GB\n",
+                    mi.availMem / 1e9, mi.totalMem / 1e9));
+        }
+
+        android.util.DisplayMetrics dm = svc.getResources().getDisplayMetrics();
+        String orient = dm.heightPixels >= dm.widthPixels ? "Portrait" : "Landscape";
+        b.append("Screen: ").append(dm.widthPixels).append('x').append(dm.heightPixels)
+                .append(" px, ").append(orient).append('\n');
+
+        boolean keyboard = false;
+        String foregroundApp = null;
+        try {
+            java.util.List<android.view.accessibility.AccessibilityWindowInfo> windows = svc.getWindows();
+            for (android.view.accessibility.AccessibilityWindowInfo w : windows) {
+                if (w.getType() == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD) {
+                    keyboard = true;
+                } else if (w.getType() == android.view.accessibility.AccessibilityWindowInfo.TYPE_APPLICATION && w.isActive()) {
+                    CharSequence title = w.getTitle();
+                    android.view.accessibility.AccessibilityNodeInfo root = w.getRoot();
+                    CharSequence pkg = root != null ? root.getPackageName() : null;
+                    if (title != null && pkg != null) {
+                        foregroundApp = title + " (" + pkg + ")";
+                    } else if (pkg != null) {
+                        foregroundApp = pkg.toString();
+                    } else if (title != null) {
+                        foregroundApp = title.toString();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        b.append("Keyboard: ").append(keyboard ? "Open" : "Closed").append('\n');
+        if (foregroundApp != null && !foregroundApp.isEmpty()) {
+            b.append("Foreground App: ").append(foregroundApp).append('\n');
+        }
+
         b.append("Local time: ").append(new SimpleDateFormat("EEEE yyyy-MM-dd HH:mm", Locale.ENGLISH).format(new Date()))
                 .append(" (").append(java.util.TimeZone.getDefault().getID()).append(")\n");
         StatFs fs = new StatFs(android.os.Environment.getDataDirectory().getPath());
@@ -589,6 +639,33 @@ final class PhoneTools {
         }
         cmd = cmd.trim();
 
+        if (AdbConnection.isDangerousCommand(cmd)) {
+            JSONObject blocked = new JSONObject();
+            blocked.put("exitCode", -2);
+            blocked.put("exit_code", -2);
+            blocked.put("stdout", "");
+            blocked.put("stderr", "Blocked by security guardrails: dangerous command detected");
+            blocked.put("executionTime", 0);
+            blocked.put("execution_time_ms", 0);
+            blocked.put("executionTimeMs", 0);
+            return text(blocked.toString(2));
+        }
+
+        if (AdbConnection.requiresConfirmation(cmd)) {
+            if (svc.bubble() != null && svc.bubble().confirming()) {
+                return text("BLOCKED: a card is waiting for the user's answer. Wait for it before running mutating or UI ADB commands.");
+            }
+            if (AdbConnection.isUiInjectionCommand(cmd) && Tools.foregroundIsOffLimits(svc)) {
+                return text("BLOCKED: NN's own screen is protected. Only the user taps those.");
+            }
+            if (!Guard.takeApproval(false, cmd)) {
+                String answer = svc.askConfirm(svc.getString(R.string.tools_card_adb_shell, cmd), false);
+                if (!answer.startsWith("APPROVED")) {
+                    return text("BLOCKED: " + answer);
+                }
+            }
+        }
+
         // Auto-reconnect cleanly via AdbManager if enabled and Wi-Fi is up
         if (!AdbConnection.isConnected() && Prefs.adbEnabled(svc)) {
             AdbManager.ensureConnectedBlocking(svc, 4000);
@@ -613,6 +690,75 @@ final class PhoneTools {
         out.put("executionTimeMs", res.executionTimeMs);
 
         return text(out.toString(2));
+    }
+
+    private String grantPermission(JSONObject a) throws Exception {
+        String pkg = a.getString("package").trim();
+        String perm = a.getString("permission").trim();
+        String action = a.optString("action", "grant").toLowerCase(Locale.ROOT);
+        boolean isRevoke = "revoke".equals(action);
+
+        if (!AdbConnection.isConnected() && Prefs.adbEnabled(svc)) {
+            AdbManager.ensureConnectedBlocking(svc, 4000);
+        }
+        if (!AdbConnection.isConnected()) {
+            return "ERROR: Wireless Debugging is not connected. Enable Wireless Debugging in Settings to grant permissions.";
+        }
+
+        if (!svc.isCallerAutoExec()) {
+            String summary = (isRevoke ? "Revoke " : "Grant ") + perm + " for " + pkg;
+            String answer = svc.askConfirm(summary, false);
+            if (!answer.startsWith("APPROVED")) {
+                return "BLOCKED: " + answer;
+            }
+        }
+
+        List<String> adbCommands = new ArrayList<>();
+        String lowerPerm = perm.toLowerCase(Locale.ROOT);
+
+        if ("camera".equals(lowerPerm)) {
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.CAMERA");
+        } else if ("mic".equals(lowerPerm) || "microphone".equals(lowerPerm) || "audio".equals(lowerPerm)) {
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.RECORD_AUDIO");
+        } else if ("location".equals(lowerPerm)) {
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.ACCESS_FINE_LOCATION");
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.ACCESS_COARSE_LOCATION");
+        } else if ("storage".equals(lowerPerm)) {
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.READ_EXTERNAL_STORAGE");
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.WRITE_EXTERNAL_STORAGE");
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.READ_MEDIA_IMAGES");
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.READ_MEDIA_VIDEO");
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.READ_MEDIA_AUDIO");
+        } else if ("manage_storage".equals(lowerPerm) || "all_files".equals(lowerPerm)) {
+            adbCommands.add("appops set " + pkg + " MANAGE_EXTERNAL_STORAGE " + (isRevoke ? "default" : "allow"));
+        } else if ("notification".equals(lowerPerm) || "notifications".equals(lowerPerm)) {
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.POST_NOTIFICATIONS");
+        } else if ("overlay".equals(lowerPerm) || "draw_over_apps".equals(lowerPerm)) {
+            adbCommands.add("appops set " + pkg + " SYSTEM_ALERT_WINDOW " + (isRevoke ? "default" : "allow"));
+        } else if ("write_secure_settings".equals(lowerPerm)) {
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " android.permission.WRITE_SECURE_SETTINGS");
+        } else if ("battery".equals(lowerPerm) || "battery_optimization".equals(lowerPerm)) {
+            adbCommands.add(isRevoke ? "dumpsys deviceidle whitelist -" + pkg : "dumpsys deviceidle whitelist +" + pkg);
+        } else {
+            String p = perm.startsWith("android.permission.") ? perm : ("android.permission." + perm);
+            adbCommands.add((isRevoke ? "pm revoke " : "pm grant ") + pkg + " " + p);
+        }
+
+        StringBuilder out = new StringBuilder();
+        boolean allOk = true;
+        for (String cmd : adbCommands) {
+            AdbConnection.ExecutionResult res = AdbConnection.execute(cmd, 5000);
+            if (res.exitCode != 0 && (res.stderr != null && !res.stderr.isEmpty())) {
+                allOk = false;
+                out.append("[").append(cmd).append(" failed: ").append(res.stderr.trim()).append("] ");
+            }
+        }
+
+        if (allOk) {
+            return svc.getString(R.string.grant_perm_success, perm, pkg);
+        } else {
+            return svc.getString(R.string.grant_perm_fail, perm, pkg, out.toString());
+        }
     }
 }
 

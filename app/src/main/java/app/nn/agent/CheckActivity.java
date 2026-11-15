@@ -181,7 +181,7 @@ public class CheckActivity extends Screen {
         }
 
         boolean server = svc != null && health();
-        r.add(new Result(getString(R.string.check_server), server, server ? null : getString(R.string.check_server_bad, McpServer.PORT),
+        r.add(new Result(getString(R.string.check_server), server, server ? null : getString(R.string.check_server_bad, McpServer.activePort),
                 getString(R.string.check_open_settings), () -> Ui.openAccessibilitySettings(this)));
 
         String target = Prefs.targetBackend(this);
@@ -221,7 +221,7 @@ public class CheckActivity extends Screen {
     /** The phone tools server answers with this install's token. */
     private boolean health() {
         try {
-            HttpURLConnection con = (HttpURLConnection) new URL("http://127.0.0.1:" + McpServer.PORT + "/health").openConnection();
+            HttpURLConnection con = (HttpURLConnection) new URL("http://127.0.0.1:" + McpServer.activePort + "/health").openConnection();
             con.setConnectTimeout(3000);
             con.setReadTimeout(3000);
             con.setRequestProperty("Authorization", "Bearer " + Prefs.token(this));

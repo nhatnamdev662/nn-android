@@ -1,129 +1,126 @@
 package app.nn.agent;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static app.nn.agent.Ui.*;
 
-/** Every Claude Code, Codex, OpenCode, Antigravity and Grok session on the phone: running processes and recent history. */
-public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
-    private static final long REFRESH_MS = 3000;
+/** Terminal hub tab: launch a new shell or jump back into / close any open Terminal tab. */
+public class MonitorActivity extends Screen {
+    private static final long TICK_MS = 1000;
 
-    private ChatHub hub;
-    private LinearLayout running, recent;
-    private TextView runningEmpty, recentEmpty, runCount;
+    private LinearLayout running, emptyCard, statusPill;
+    private TextView runCount, statusPillText, termSub;
+    private View statusDot;
     private FrameLayout navSlot;
-    private ObjectAnimator pulse;
+    private int lastBadge = -1;
+    private String lastSig;
     private boolean visible;
-    private final Runnable poll = new Runnable() {
+    private final Map<Integer, TextView> elapsedByTab = new HashMap<>();
+
+    private final Runnable ticker = new Runnable() {
         @Override
         public void run() {
             if (!visible) return;
-            request("procs");
-            running.postDelayed(this, REFRESH_MS);
+            render(false);
+            running.postDelayed(this, TICK_MS);
         }
     };
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        hub = ChatHub.get(this);
 
         LinearLayout root = column(this);
         root.setBackgroundColor(BG);
         root.setFitsSystemWindows(true);
         ScrollView scroll = new ScrollView(this);
+        scroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        scroll.setVerticalScrollBarEnabled(false);
         LinearLayout list = column(this);
         list.setPaddingRelative(0, dp(this, 12), 0, dp(this, 24));
         scroll.addView(list);
         root.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         navSlot = new FrameLayout(this);
-        navSlot.addView(bottomNav(this, NAV_SESSIONS, hub.runningCount()));
+        lastBadge = TermSession.openCount();
+        navSlot.addView(bottomNav(this, NAV_SESSIONS, lastBadge));
         root.addView(navSlot, full());
         setContentView(root);
 
+        // Header
         LinearLayout head = column(this);
-        head.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 4));
-        head.addView(title(this, getString(R.string.monitor_title), 28));
-        TextView sub = text(this, getString(R.string.monitor_subtitle), 14, MUTED);
+        head.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 16), dp(this, 4));
+        LinearLayout titleRow = row(this);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+        titleRow.addView(title(this, getString(R.string.terminal_title), 28), weight1());
+        statusPill = pillBadge(this, CARD, LINE);
+        statusDot = dot(this, OK, 6);
+        statusPill.addView(statusDot);
+        statusPillText = monoText(this, "", 11, MUTED);
+        statusPillText.setPaddingRelative(dp(this, 6), 0, 0, 0);
+        statusPill.addView(statusPillText);
+        statusPill.setVisibility(View.GONE);
+        titleRow.addView(statusPill);
+        head.addView(titleRow, full());
+        TextView sub = text(this, getString(R.string.monitor_terminal_idle), 14, MUTED);
         sub.setPaddingRelative(0, dp(this, 4), 0, 0);
         head.addView(sub);
         list.addView(head, full());
 
-        // a shell in NN's Linux
-        LinearLayout tc = row(this);
-        tc.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 12), dp(this, 14));
-        tc.setBackground(rounded(this, CARD, 16));
-        tc.setForeground(getDrawable(ripple(this, false)));
-        android.widget.FrameLayout ti = new android.widget.FrameLayout(this);
+        // Primary CTA: start a new Terminal tab
+        LinearLayout tc = surfaceCard(this, LinearLayout.HORIZONTAL, Theme.withAlpha(ACCENT, 0x55), true);
+        tc.setGravity(Gravity.CENTER_VERTICAL);
+        tc.setPaddingRelative(dp(this, 14), dp(this, 14), dp(this, 12), dp(this, 14));
+        FrameLayout ti = new FrameLayout(this);
         ti.setBackground(rounded(this, CODE, 12));
-        ti.addView(monoText(this, ">_", 14, ACCENT), new android.widget.FrameLayout.LayoutParams(
-                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT, android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                android.view.Gravity.CENTER));
+        ti.addView(monoText(this, ">_", 14, ACCENT), new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
         tc.addView(ti, new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40)));
         LinearLayout tt = column(this);
-        tt.setPaddingRelative(dp(this, 14), 0, dp(this, 8), 0);
-        tt.addView(title(this, getString(R.string.terminal_title), 15));
-        tt.addView(text(this, getString(TermSession.current != null && !TermSession.current.exited
-                ? R.string.monitor_terminal_running : R.string.monitor_terminal_idle), 13, MUTED));
+        tt.setPaddingRelative(dp(this, 12), 0, dp(this, 8), 0);
+        tt.addView(title(this, getString(R.string.terminal_new_session), 15));
+        termSub = text(this, Linux.installed(this)
+                ? getString(R.string.monitor_terminal_idle)
+                : getString(R.string.terminal_needs_linux), 13, MUTED);
+        tt.addView(termSub);
         tc.addView(tt, weight1());
-        tc.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
-        tc.setOnClickListener(v -> startActivity(new Intent(this, TerminalActivity.class)));
-        LinearLayout.LayoutParams tp = full();
-        tp.setMargins(dp(this, 16), dp(this, 12), dp(this, 16), 0);
-        list.addView(tc, tp);
+        tc.addView(icon(this, R.drawable.ms_add, ACCENT_TEXT, 22));
+        tc.setOnClickListener(v -> startActivity(new Intent(this, TerminalActivity.class).putExtra("new_tab", true)));
+        list.addView(tc, cardParams(14));
 
+        // Open Terminal tabs section
         LinearLayout rh = row(this);
+        rh.setGravity(Gravity.CENTER_VERTICAL);
         TextView rl = sectionLabel(this, getString(R.string.monitor_running_now));
-        rl.setPaddingRelative(dp(this, 20), dp(this, 16), dp(this, 8), dp(this, 4));
+        rl.setPaddingRelative(dp(this, 20), dp(this, 18), dp(this, 8), dp(this, 4));
         rh.addView(rl);
         runCount = monoText(this, "", 12, OK);
         runCount.setTypeface(mono(this, 600));
-        runCount.setPaddingRelative(0, dp(this, 12), 0, 0);
+        runCount.setPaddingRelative(0, dp(this, 14), 0, 0);
         rh.addView(runCount, weight1());
-        View pd = dot(this, OK, 6);
-        ((LinearLayout.LayoutParams) pd.getLayoutParams()).topMargin = dp(this, 12);
-        rh.addView(pd);
-        pulse = ObjectAnimator.ofFloat(pd, "alpha", 1f, 0.2f);
-        pulse.setDuration(900);
-        pulse.setRepeatMode(ValueAnimator.REVERSE);
-        pulse.setRepeatCount(ValueAnimator.INFINITE);
-        TextView rs = monoText(this, getString(R.string.monitor_refresh), 12, MUTED);
-        rs.setPaddingRelative(dp(this, 6), dp(this, 12), dp(this, 20), 0);
-        rh.addView(rs);
         list.addView(rh, full());
 
         running = column(this);
-        running.setPaddingRelative(dp(this, 16), 0, dp(this, 16), 0);
         list.addView(running, full());
-        runningEmpty = empty(getString(R.string.monitor_checking));
-        running.addView(runningEmpty);
-
-        list.addView(sectionLabel(this, getString(R.string.monitor_recent)));
-        recent = column(this);
-        list.addView(recent, full());
-        recentEmpty = empty(getString(R.string.monitor_loading));
-        recent.addView(recentEmpty);
+        emptyCard = emptyCard(this, R.drawable.ms_terminal, getString(R.string.monitor_nothing_running));
     }
 
-    private TextView empty(String s) {
-        TextView t = text(this, s, 14, MUTED);
-        t.setPaddingRelative(dp(this, 20), dp(this, 8), dp(this, 20), dp(this, 8));
-        return t;
+    private LinearLayout.LayoutParams cardParams(int topDp) {
+        LinearLayout.LayoutParams cp = full();
+        cp.setMargins(dp(this, 16), dp(this, topDp), dp(this, 16), 0);
+        return cp;
     }
 
     @Override
@@ -131,224 +128,125 @@ public class MonitorActivity extends Screen implements ChatHub.MonitorListener {
         super.onResume();
         if (isFinishing()) return;
         visible = true;
-        hub.monitor = this;
-        pulse.start();
-        if (NnService.get() == null) {
-            runningEmpty.setText(R.string.monitor_service_off);
-            return;
+        if (termSub != null) {
+            termSub.setText(Linux.installed(this)
+                    ? getString(R.string.monitor_terminal_idle)
+                    : getString(R.string.terminal_needs_linux));
         }
-        request("recent");
-        running.post(poll);
+        int open = TermSession.openCount();
+        if (navSlot != null && (getIntent() != null && getIntent().hasExtra("nn_tab_dir") || open != lastBadge)) {
+            lastBadge = open;
+            navSlot.removeAllViews();
+            navSlot.addView(bottomNav(this, NAV_SESSIONS, open), full());
+        }
+        render(true);
+        running.postDelayed(ticker, TICK_MS);
     }
 
     @Override
     protected void onPause() {
         visible = false;
-        pulse.cancel();
-        if (hub.monitor == this) hub.monitor = null;
-        running.removeCallbacks(poll);
+        running.removeCallbacks(ticker);
         super.onPause();
     }
 
-    private void request(String... args) {
-        try {
-            Helper.run(this, args);
-        } catch (Exception e) {
-            runningEmpty.setText(e.getMessage());
-        }
-    }
+    private void render(boolean forceRebuild) {
+        List<TermSession> openTerms = TermSession.openSessions();
+        int n = openTerms.size();
 
-    @Override
-    public void onMonitor(JSONObject ev) {
-        switch (ev.optString("type")) {
-            case "buddy_procs":
-            case "nn_procs":
-                showProcs(ev.optJSONArray("procs"));
-                break;
-            case "buddy_recent":
-            case "nn_recent":
-                showRecent(ev.optJSONArray("sessions"));
-                break;
-            default:
-                break;
+        if (n != lastBadge) {
+            lastBadge = n;
+            navSlot.removeAllViews();
+            navSlot.addView(bottomNav(this, NAV_SESSIONS, n), full());
         }
-    }
-
-    private void showProcs(JSONArray procs) {
-        if (running.getHeight() > 0) running.setMinimumHeight(running.getHeight());
-        running.removeAllViews();
-        running.post(() -> running.setMinimumHeight(0));
-        // Claude Code's background service isn't a conversation: list it apart, without a Stop button.
-        java.util.List<JSONObject> sessions = new java.util.ArrayList<>(), services = new java.util.ArrayList<>();
-        for (int i = 0; procs != null && i < procs.length(); i++) {
-            JSONObject p = procs.optJSONObject(i);
-            if (p == null) continue;
-            ("daemon".equals(p.optString("kind")) ? services : sessions).add(p);
-        }
-        int n = sessions.size();
         runCount.setText(n > 0 ? String.valueOf(n) : "");
-        navSlot.removeAllViews();
-        navSlot.addView(bottomNav(this, NAV_SESSIONS, n));
-        if (n == 0) {
-            runningEmpty.setText(R.string.monitor_nothing_running);
-            running.addView(runningEmpty);
+        if (n > 0) {
+            statusPill.setVisibility(View.VISIBLE);
+            statusPillText.setText(getResources().getQuantityString(R.plurals.terminal_sessions_count, n, n));
+        } else {
+            statusPill.setVisibility(View.GONE);
         }
-        for (final JSONObject p : sessions) {
-            final String backend = p.optString("agent");
-            final String agent = Account.nameOf(backend);
-            final String owner = p.optString("nn", p.optString("buddy"));
-            final Sessions.Session chat = hub.sessions.find(owner);
-            final String kind = p.optString("kind", "terminal");
-            final boolean background = "background".equals(kind);
-            String title = p.optString("title").trim();
-            final String where = chat != null ? chat.label()
-                    : !owner.isEmpty() ? getString(R.string.monitor_deleted_chat)
-                    : !title.isEmpty() ? title
-                    : getString(background ? R.string.monitor_background_session : R.string.monitor_terminal_session);
 
-            LinearLayout card = column(this);
-            card.setPaddingRelative(dp(this, 16), dp(this, 14), dp(this, 16), dp(this, 14));
-            card.setBackground(rounded(this, CARD, 16));
+        StringBuilder sigSb = new StringBuilder();
+        sigSb.append(n);
+        for (TermSession ts : openTerms) {
+            sigSb.append('|').append(ts.number).append(':').append(ts.label());
+        }
+        String sig = sigSb.toString();
+
+        if (!forceRebuild && sig.equals(lastSig) && running.getChildCount() > 0) {
+            long now = System.currentTimeMillis();
+            for (TermSession ts : openTerms) {
+                TextView el = elapsedByTab.get(ts.number);
+                if (el != null) el.setText(DateUtils.formatElapsedTime(Math.max(0, (now - ts.startedAt) / 1000L)));
+            }
+            return;
+        }
+        lastSig = sig;
+        elapsedByTab.clear();
+        running.removeAllViews();
+
+        if (openTerms.isEmpty()) {
+            running.addView(emptyCard, cardParams(4));
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < openTerms.size(); i++) {
+            final TermSession ts = openTerms.get(i);
+            LinearLayout card = surfaceCard(this, LinearLayout.VERTICAL, LINE, true);
+            card.setPaddingRelative(dp(this, 14), dp(this, 14), dp(this, 14), dp(this, 14));
+
+            LinearLayout top = row(this);
+            top.setGravity(Gravity.TOP);
+            FrameLayout ti = new FrameLayout(this);
+            ti.setBackground(rounded(this, CODE, 12));
+            ti.addView(monoText(this, ">_", 14, ACCENT), new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+            top.addView(ti, new LinearLayout.LayoutParams(dp(this, 40), dp(this, 40)));
+
+            LinearLayout info = column(this);
+            info.setPaddingRelative(dp(this, 12), 0, 0, 0);
             LinearLayout first = row(this);
-            first.addView(single(title(this, where, 15)), weight1());
-            TextView el = monoText(this, DateUtils.formatElapsedTime(p.optLong("seconds")), 12, MUTED);
+            first.setGravity(Gravity.CENTER_VERTICAL);
+            first.addView(single(title(this, ts.label(), 15)), weight1());
+            TextView el = monoText(this, DateUtils.formatElapsedTime(Math.max(0, (now - ts.startedAt) / 1000L)), 11, MUTED);
             el.setPaddingRelative(dp(this, 8), 0, 0, 0);
             first.addView(el);
-            card.addView(first, full());
+            elapsedByTab.put(ts.number, el);
+            info.addView(first, full());
 
             LinearLayout tags = row(this);
+            tags.setGravity(Gravity.CENTER_VERTICAL);
             tags.setPaddingRelative(0, dp(this, 6), 0, 0);
-            tags.addView(tag(chat != null ? "nn" : getString(background ? R.string.monitor_tag_background
-                    : R.string.monitor_tag_terminal), chat != null || background));
-            String ses = p.optString("session");
-            if (ses.length() >= 8) {
-                TextView id = monoText(this, "#" + ses.substring(0, 8), 12, MUTED);
-                id.setPaddingRelative(dp(this, 8), 0, 0, 0);
-                tags.addView(id);
-            }
-            card.addView(tags, full());
-            TextView meta = single(monoText(this, getString(R.string.monitor_proc_meta, Account.cliOf(backend),
-                    p.optLong("pid"), shortPath(p.optString("cwd"))), 12, MUTED));
-            meta.setPaddingRelative(0, dp(this, 4), 0, 0);
-            card.addView(meta);
-            if (background && chat == null) {
-                TextView hint = text(this, getString(R.string.monitor_background_hint), 13, MUTED);
-                hint.setPaddingRelative(0, dp(this, 4), 0, 0);
-                card.addView(hint);
-            }
-            if (chat != null && !chat.status.isEmpty()) {
-                TextView st = single(monoText(this, chat.status, 12, ACCENT_TEXT));
-                st.setPaddingRelative(0, dp(this, 3), 0, 0);
-                card.addView(st);
-            }
+            TextView tag = monoText(this, getString(R.string.monitor_tag_terminal) + " #" + ts.number, 11, ACCENT_TEXT);
+            tag.setPaddingRelative(dp(this, 6), dp(this, 1), dp(this, 6), dp(this, 1));
+            tag.setBackground(rounded(this, ACCENT_SOFT, 6));
+            tags.addView(tag);
+            info.addView(tags, full());
+            top.addView(info, weight1());
+            card.addView(top, full());
+
             LinearLayout btns = row(this);
-            if (chat != null) {
-                Button open = button(this, getString(R.string.monitor_open_chat), false);
-                open.setOnClickListener(v -> openChat(chat));
-                LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 40));
-                op.setMarginEnd(dp(this, 8));
-                btns.addView(open, op);
-            }
-            Button stop = outlinedButton(this, getString(R.string.monitor_stop), ERR);
-            stop.setOnClickListener(v -> confirmSheet(this, getString(R.string.monitor_stop_title, agent),
-                    chat != null ? where : getString(background ? R.string.monitor_stop_background_body
-                            : R.string.monitor_stop_terminal_body),
-                    getString(R.string.monitor_stop), true, () -> {
-                        if (chat != null) hub.stop(chat);
-                        else request("kill", String.valueOf(p.optLong("pid")));
-                        Toast.makeText(this, R.string.monitor_stopping, Toast.LENGTH_SHORT).show();
+            Button open = button(this, getString(R.string.tools_card_open_url, getString(R.string.terminal_title)), false);
+            open.setOnClickListener(v -> startActivity(new Intent(this, TerminalActivity.class).putExtra("tab", ts.number)));
+            LinearLayout.LayoutParams op = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 40));
+            op.setMarginEnd(dp(this, 8));
+            btns.addView(open, op);
+
+            Button close = outlinedButton(this, getString(R.string.terminal_close), ERR);
+            close.setOnClickListener(v -> confirmSheet(this, getString(R.string.terminal_close_title, ts.label()),
+                    getString(R.string.terminal_close_running), getString(R.string.terminal_close), true, () -> {
+                        ts.finish();
+                        render(true);
                     }));
-            btns.addView(stop, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 40)));
+            btns.addView(close, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(this, 40)));
+
             LinearLayout.LayoutParams bp = full();
             bp.topMargin = dp(this, 12);
             card.addView(btns, bp);
-            if (chat != null) card.setOnClickListener(v -> openChat(chat));
-            LinearLayout.LayoutParams cp = full();
-            cp.topMargin = dp(this, 8);
-            running.addView(card, cp);
+            card.setOnClickListener(v -> startActivity(new Intent(this, TerminalActivity.class).putExtra("tab", ts.number)));
+            running.addView(card, cardParams(i == 0 ? 4 : 8));
         }
-        for (JSONObject d : services) {
-            LinearLayout r = row(this);
-            r.setGravity(android.view.Gravity.TOP);
-            r.setPaddingRelative(dp(this, 4), dp(this, 12), dp(this, 4), 0);
-            r.addView(icon(this, R.drawable.ms_terminal, MUTED, 18));
-            LinearLayout col = column(this);
-            col.setPaddingRelative(dp(this, 10), 0, 0, 0);
-            col.addView(text(this, getString(R.string.monitor_service_title), 14, TEXT));
-            col.addView(single(monoText(this, getString(R.string.monitor_service_meta, d.optLong("pid"),
-                    DateUtils.formatElapsedTime(d.optLong("seconds"))), 12, MUTED)));
-            r.addView(col, weight1());
-            running.addView(r, full());
-        }
-    }
-
-    private TextView tag(String s, boolean accent) {
-        TextView t = monoText(this, s, 11, accent ? ACCENT_TEXT : MUTED);
-        t.setPaddingRelative(dp(this, 6), dp(this, 1), dp(this, 6), dp(this, 1));
-        t.setBackground(accent ? rounded(this, ACCENT_SOFT, 6) : outlined(this, 0x00000000, 6, OUTLINE, 1));
-        return t;
-    }
-
-    private void showRecent(JSONArray list) {
-        if (recent.getHeight() > 0) recent.setMinimumHeight(recent.getHeight());
-        recent.removeAllViews();
-        recent.post(() -> recent.setMinimumHeight(0));
-        if (list == null || list.length() == 0) {
-            recentEmpty.setText(R.string.monitor_no_history);
-            recent.addView(recentEmpty);
-            return;
-        }
-        for (int i = 0; i < list.length(); i++) {
-            final JSONObject s = list.optJSONObject(i);
-            if (s == null) continue;
-            final String backend = s.optString("agent");
-            final Sessions.Session chat = hub.sessions.find(s.optString("nn", s.optString("buddy")));
-            String title = s.optString("title");
-            final String t = title.isEmpty() ? getString(R.string.monitor_no_messages) : title;
-
-            LinearLayout r = listRow(this);
-            r.setGravity(android.view.Gravity.CENTER_VERTICAL);
-            LinearLayout col = column(this);
-            LinearLayout first = row(this);
-            TextView tt = title(this, t, 15);
-            tt.setMaxLines(1);
-            tt.setEllipsize(TextUtils.TruncateAt.END);
-            first.addView(tt, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-            if (chat != null) {
-                TextView tag = monoText(this, "nn", 11, ACCENT_TEXT);
-                tag.setPaddingRelative(dp(this, 6), dp(this, 1), dp(this, 6), dp(this, 1));
-                tag.setBackground(rounded(this, ACCENT_SOFT, 6));
-                LinearLayout.LayoutParams tp = wrap();
-                tp.setMarginStart(dp(this, 8));
-                first.addView(tag, tp);
-            }
-            col.addView(first, full());
-            TextView meta = single(monoText(this, Account.cliOf(backend) + " · "
-                    + MainActivity.ago(s.optLong("mtime") * 1000) + " · " + shortPath(s.optString("cwd")), 12, MUTED));
-            meta.setPaddingRelative(0, dp(this, 3), 0, 0);
-            col.addView(meta);
-            r.addView(col, weight1());
-            r.addView(icon(this, R.drawable.ms_chevron_right, MUTED, 22));
-            r.setOnClickListener(v -> {
-                if (chat != null) {
-                    openChat(chat);
-                } else {
-                    startActivity(new Intent(this, TranscriptActivity.class)
-                            .putExtra("file", s.optString("file")).putExtra("agent", backend)
-                            .putExtra("id", s.optString("id")).putExtra("title", t)
-                            .putExtra("cwd", shortPath(s.optString("cwd"))));
-                }
-            });
-            recent.addView(r, full());
-        }
-    }
-
-    private void openChat(Sessions.Session chat) {
-        hub.select(chat);
-        startActivity(new Intent(this, ChatActivity.class).putExtra("id", chat.id));
-    }
-
-    static String shortPath(String p) {
-        return p.replaceFirst("^/root(?=/|$)", "~");
     }
 }

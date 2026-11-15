@@ -27,7 +27,7 @@
         },
         {
           "name": "NN_URL",
-          "description": "NN Agent's address, if not http://127.0.0.1:8765/mcp",
+          "description": "NN Agent's address, if not http://127.0.0.1:8767/mcp",
           "isRequired": false
         }
       ]

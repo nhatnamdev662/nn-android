@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Simplified Chinese (zh-CN). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">NN 助手</string>
@@ -1572,6 +1572,7 @@
     <string name="tools_card_open_url">打开 %1$s</string>
     <string name="tools_card_clipboard">允许智能体读取你最后复制的内容?</string>
     <string name="tools_card_location">与智能体分享这部手机的位置?</string>
+    <string name="tools_card_adb_shell">运行 ADB 命令:\n%1$s</string>
     <string name="tools_photo_why">请拍一张照片:%1$s</string>
     <string name="rules_service_label">NN 通知规则</string>
     <string name="rules_title">通知规则</string>
@@ -1984,12 +1985,18 @@
     <string name="check_adb_connected">已连接于 127.0.0.1:%1$d。</string>
     <string name="check_adb_disconnected">未连接。请在设置中配对并启用。</string>
     <string name="chat_action_copy">复制</string>
+    <string name="chat_action_run">运行</string>
+    <string name="chat_action_running">正在运行…</string>
+    <string name="chat_table_label">表格</string>
+    <string name="chat_table_copied">表格已复制</string>
     <string name="chat_action_edit">编辑</string>
     <string name="chat_action_retry">重试</string>
     <string name="chat_action_speak">朗读</string>
     <string name="chat_action_stop_speak">停止朗读</string>
     <string name="chat_action_copy_code">复制代码</string>
     <string name="chat_code_copied">代码已复制</string>
+    <string name="chat_code_expand">展开</string>
+    <string name="chat_code_collapse">收起</string>
     <string name="chat_editing_bar">正在编辑：%1$s</string>
     <string name="chat_edit_cancel">取消编辑</string>
     <string name="chat_retry_title">从此处重试？</string>
@@ -2070,7 +2077,48 @@
     <string name="chat_starter_search">检索主题并总结核心要点</string>
     <string name="chat_starter_apps">打开应用或快速执行手机任务</string>
     <string name="chat_starter_linux">在 Linux 工作区编写或运行快捷脚本</string>
+    <string name="chat_starter_notifications">查看最新通知并生成摘要</string>
+    <string name="chat_starter_device">检查电量、存储空间与系统状态</string>
+    <string name="chat_starter_alarm">设置闹钟或倒计时器</string>
+    <string name="chat_starter_reminder">提醒我明天早上需要做的事</string>
     <string name="models_search_hint">搜索模型…</string>
     <string name="models_empty_search">没有匹配“%1$s”的模型</string>
     <string name="setup_agent_defaults">默认模型与思考强度</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">正在运行代码…</string>
+    <string name="status_done">已完成</string>
+    <string name="approval_channel_name">操作批准</string>
+    <string name="approval_channel_desc">针对敏感操作需要您批准的通知</string>
+    <string name="notification_approval_title">需要您的批准</string>
+    <string name="notice_restore_bubble">恢复气泡</string>
+
+    <string name="setup_touch_effects">AI操控屏幕时的视觉效果</string>
+    <string name="setup_touch_effects_info">当NN Agent操控屏幕时显示呼吸边框与触摸波纹</string>
+    <string name="touch_overlay_controlling">● NN 正在控制</string>
+    <string name="touch_overlay_tap">点击</string>
+    <string name="touch_overlay_hold">长按</string>
+    <string name="touch_overlay_swipe_down">下滑 ↓</string>
+    <string name="touch_overlay_swipe_up">上滑 ↑</string>
+    <string name="touch_overlay_swipe_right">右滑 →</string>
+    <string name="touch_overlay_swipe_left">左滑 ←</string>
+    <string name="chip_clean_ram">⚡ 清理运存</string>
+    <string name="chip_check_battery">🔋 电池与充电</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">先询问</string>
+    <string name="chat_exec_auto">自动</string>
+    <string name="chat_exec_sheet_title">执行模式</string>
+    <string name="chat_exec_sheet_desc">控制 Agent 执行系统命令和手机操作的方式</string>
+    <string name="chat_exec_mode_ask_title">🛡️ 先询问 (默认)</string>
+    <string name="chat_exec_mode_ask_desc">在运行 ADB、Shell 或敏感操作之前始终请求确认。</string>
+    <string name="chat_exec_mode_auto_title">⚡ 自动执行 (完全访问)</string>
+    <string name="chat_exec_mode_auto_desc">无需提示即可自动运行 Shell、ADB 和手机操作。破坏性命令仍被阻止。</string>
+    <string name="chat_exec_warn_title">启用完全访问权限？</string>
+    <string name="chat_exec_warn_msg">在此模式下，AI 将自动执行命令。\n\n严禁执行破坏性系统命令。</string>
+    <string name="chat_exec_warn_enable">启用</string>
+    <string name="chat_exec_warn_cancel">取消</string>
+    <string name="grant_perm_success">已成功授予 %2$s %1$s 权限 ✨</string>
+    <string name="grant_perm_fail">无法为 %2$s 授予 %1$s 权限: %3$s</string>
+
 </resources>

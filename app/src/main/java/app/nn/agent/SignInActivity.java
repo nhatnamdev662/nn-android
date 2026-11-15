@@ -194,7 +194,7 @@ public class SignInActivity extends Screen implements Account.Listener {
                 header(R.drawable.ms_error, getString(R.string.signin_error_title), acc.detail, false);
                 primary(getString(R.string.signin_try_again), v -> {
                     acc.step = Account.Step.CHECKING;
-                    acc.refresh(this);
+                    acc.refresh(this, true);
                     render();
                 });
                 if (!acc.errorDetail.isEmpty()) { // what the installer itself said, for a bug report

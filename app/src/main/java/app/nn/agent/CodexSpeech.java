@@ -105,7 +105,7 @@ final class CodexSpeech {
                     if (web == mine) fail();
                 });
             }
-        }, "NN Agent");
+        }, "NnAgent");
         web.loadDataWithBaseURL("https://nn.local/", PAGE, "text/html", "utf-8", null);
         main.postDelayed(watchdog, 1000);
     }
@@ -254,18 +254,18 @@ final class CodexSpeech {
             + "      const an = ctx.createAnalyser(); an.fftSize = 1024; ctx.createMediaStreamSource(s).connect(an);\n"
             + "      const buf = new Float32Array(an.fftSize); let was = false;\n"
             + "      setInterval(() => { an.getFloatTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v));\n"
-            + "        const on = m > 0.01; if (on || was) NN Agent.sound(on); was = on; }, 100);\n"
+            + "        const on = m > 0.01; if (on || was) NnAgent.sound(on); was = on; }, 100);\n"
             + "    };\n"
             + "    pc.onconnectionstatechange = () => {\n"
-            + "      if (pc.connectionState === 'connected') NN Agent.connected();\n"
-            + "      else if (pc.connectionState === 'failed') NN Agent.failed('the connection failed');\n"
+            + "      if (pc.connectionState === 'connected') NnAgent.connected();\n"
+            + "      else if (pc.connectionState === 'failed') NnAgent.failed('the connection failed');\n"
             + "    };\n"
             + "    await pc.setLocalDescription(await pc.createOffer());\n"
             + "    await new Promise(r => { if (pc.iceGatheringState === 'complete') r(); else { pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; setTimeout(r, 1500); } });\n"
-            + "    NN Agent.offer(pc.localDescription.sdp);\n"
-            + "  } catch (e) { NN Agent.failed(String(e && e.message || e)); }\n"
+            + "    NnAgent.offer(pc.localDescription.sdp);\n"
+            + "  } catch (e) { NnAgent.failed(String(e && e.message || e)); }\n"
             + "}\n"
-            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NN Agent.failed(String(e.message || e))); }\n"
+            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NnAgent.failed(String(e.message || e))); }\n"
             + "start();\n"
             + "</script></body></html>";
 }

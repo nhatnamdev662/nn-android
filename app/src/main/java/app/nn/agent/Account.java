@@ -177,7 +177,7 @@ final class Account {
 
     void refresh(Context c, boolean force) {
         long currentTime = System.currentTimeMillis();
-        if (!force && lastRefreshAt > 0 && (currentTime - lastRefreshAt < REFRESH_TTL_MS)) {
+        if (!force && step != Step.CHECKING && lastRefreshAt > 0 && (currentTime - lastRefreshAt < REFRESH_TTL_MS)) {
             return;
         }
         app = c.getApplicationContext();
@@ -424,7 +424,7 @@ final class Account {
                     if (!o.contains("AGENT_OK")) throw new IOException(tail(o));
                 }
                 set(Step.SIGNED_OUT, "");
-                refresh(app);
+                refresh(app, true);
             } catch (Exception e) {
                 String raw = String.valueOf(e.getMessage()), plain = plainError(app, raw);
                 errorDetail = plain == null ? "" : raw;
@@ -513,7 +513,7 @@ final class Account {
             }
             updating = false;
             set(Step.CHECKING, "");
-            refresh(app);
+            refresh(app, true);
         }).start();
     }
 
@@ -620,7 +620,7 @@ final class Account {
             }
             url = null;
             step = Step.CHECKING;
-            refresh(app);
+            refresh(app, true);
             final String why = tail(stripAnsi(out.toString()));
             main.postDelayed(() -> {
                 if (step == Step.SIGNED_OUT) set(Step.ERROR, app.getString(R.string.signin_not_finished, why));
@@ -657,7 +657,7 @@ final class Account {
                 else if (!opencode()) Linux.exec(app, claude() ? "claude auth logout" : "codex logout", 60);
             } catch (Exception ignored) {
             }
-            refresh(app);
+            refresh(app, true);
         }).start();
     }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in English. Translations: res/values-<language>/strings.xml (see CONTRIBUTING.md). -->
 <resources>
     <string name="app_name" translatable="false">NN AGENT</string>
@@ -1374,6 +1374,15 @@
     <string name="setup_agents_tap">Let agents tap NN\'s screens</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">For testing NN with an agent (for example Claude Code in Termux with the phone tools). The bubble, approval cards, App permissions and these switches stay off-limits.</string>
+    <string name="setup_touch_effects">Visual effects while AI operates screen</string>
+    <string name="setup_touch_effects_info">Show border glow and touch ripples when NN Agent operates the screen</string>
+    <string name="touch_overlay_controlling">● NN IN CONTROL</string>
+    <string name="touch_overlay_tap">TAP</string>
+    <string name="touch_overlay_hold">HOLD</string>
+    <string name="touch_overlay_swipe_down">SWIPE ↓</string>
+    <string name="touch_overlay_swipe_up">SWIPE ↑</string>
+    <string name="touch_overlay_swipe_right">SWIPE →</string>
+    <string name="touch_overlay_swipe_left">SWIPE ←</string>
     <!-- Warning shown while Linux tools in new chats (setup_dev_mode) is on. -->
     <string name="setup_dev_mode_warning">Best left off: turn Linux tools on just in the chats that need them. When they\'re on, a malicious message or web page on screen could try to trick the agent into running commands. Approval cards still guard sending, posting, buying and deleting.</string>
 
@@ -1581,6 +1590,7 @@
     <string name="tools_card_open_url">Open %1$s</string>
     <string name="tools_card_clipboard">Let the agent read what you last copied?</string>
     <string name="tools_card_location">Share this phone\'s location with the agent?</string>
+    <string name="tools_card_adb_shell">Run ADB command:\n%1$s</string>
     <string name="tools_photo_why">Take a photo: %1$s</string>
     <!-- %1$s = the action (e.g. Tap “Send” in WhatsApp); on the next line, %2$s = what it would send, or why NN asks. -->
     <string name="tools_card_detail">%1$s:\n%2$s</string>
@@ -2158,12 +2168,18 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
 
     <!-- Chat Message Actions -->
     <string name="chat_action_copy">Copy</string>
+    <string name="chat_action_run">Run</string>
+    <string name="chat_action_running">Running…</string>
+    <string name="chat_table_label">Table</string>
+    <string name="chat_table_copied">Table copied</string>
     <string name="chat_action_edit">Edit</string>
     <string name="chat_action_retry">Retry</string>
     <string name="chat_action_speak">Read aloud</string>
     <string name="chat_action_stop_speak">Stop reading</string>
     <string name="chat_action_copy_code">Copy code</string>
     <string name="chat_code_copied">Code copied</string>
+    <string name="chat_code_expand">Expand</string>
+    <string name="chat_code_collapse">Collapse</string>
     <string name="chat_editing_bar">Editing: %1$s</string>
     <string name="chat_edit_cancel">Cancel edit</string>
     <string name="chat_retry_title">Retry from here?</string>
@@ -2182,11 +2198,11 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="browser_pill_paused">Paused · tap Continue</string>
     <string name="browser_pill_active">Background browser</string>
 
-    <!-- ADB Quick Controls & Terminal -->
+    <!-- ADB Quick Controls &amp; Terminal -->
     <string name="setup_adb_disconnected_toast">ADB disconnected</string>
     <string name="terminal_toggle_keyboard">Toggle keyboard</string>
 
-    <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
+    <!-- Keep-Alive &amp; Xiaomi/HyperOS Optimization -->
     <string name="keepalive_channel_name">Background Service (Keep-Alive)</string>
     <string name="keepalive_channel_desc">Keeps NN Agent and floating bubble active in the background</string>
     <string name="keepalive_title">NN Agent is running</string>
@@ -2198,7 +2214,7 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="xiaomi_btn_battery">3. Battery: No restrictions</string>
     <string name="xiaomi_recents_note">Tip: In Recent Apps (multitasking), long-press NN Agent and tap the Lock icon so it won\'t be cleared from RAM.</string>
 
-    <!-- Image Viewer & ADB Status Errors -->
+    <!-- Image Viewer &amp; ADB Status Errors -->
     <string name="viewer_close">Close</string>
     <string name="viewer_save">Save</string>
     <string name="viewer_share">Share</string>
@@ -2214,7 +2230,7 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="setup_adb_paired">Pairing successful</string>
     <string name="setup_adb_pair_failed_generic">Pairing failed</string>
 
-    <!-- Onboarding ADB & Optional Skip State -->
+    <!-- Onboarding ADB &amp; Optional Skip State -->
     <string name="onboarding_adb_title">Wireless Debugging (ADB)</string>
     <string name="onboarding_adb_text">Optional — lets NN run fast shell diagnostics and reliably tap or type on stubborn apps (games, custom web views).</string>
     <string name="onboarding_adb_done">Wireless Debugging is active. ADB hybrid automation is ready.</string>
@@ -2256,7 +2272,54 @@ Tap “Pair device with pairing code”, you will see a 6-digit pairing code.</s
     <string name="chat_starter_search">Look up a topic and summarize key points</string>
     <string name="chat_starter_apps">Open an app or automate a quick phone task</string>
     <string name="chat_starter_linux">Write or run a quick script in Linux workspace</string>
+    <string name="chat_starter_notifications">Check recent notifications and summarize them</string>
+    <string name="chat_starter_device">Check battery, storage and system status</string>
+    <string name="chat_starter_alarm">Set an alarm or countdown timer</string>
+    <string name="chat_starter_reminder">Remind me to do something tomorrow morning</string>
     <string name="models_search_hint">Search models…</string>
     <string name="models_empty_search">No models match “%1$s”</string>
     <string name="setup_agent_defaults">Default model &amp; effort</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">Running code…</string>
+    <string name="status_done">Done</string>
+    <string name="approval_channel_name">Action Approval</string>
+    <string name="approval_channel_desc">Notifications requiring your approval for sensitive actions</string>
+    <string name="notification_approval_title">Approval required</string>
+    <string name="notice_restore_bubble">Restore bubble</string>
+    <!-- Mini Dashboard &amp; Smart Composer (Milestone 12) -->
+    <string name="dashboard_battery_title">Battery: %1$d%% (%2$s)</string>
+    <string name="dashboard_battery_charging">Charging</string>
+    <string name="dashboard_battery_discharging">Discharging</string>
+    <string name="dashboard_ram_title">RAM: %1$.1f GB free</string>
+    <string name="dashboard_temp_title">Temp: %1$.1f°C</string>
+    <string name="dashboard_quick_clean">Clean now</string>
+    <string name="dashboard_open_chat">Open chat</string>
+    <string name="dashboard_cleaned_toast">RAM optimized successfully! ✨</string>
+    <string name="chip_clean_ram">⚡ Clean RAM &amp; Optimize</string>
+    <string name="chip_check_battery">🔋 Check battery</string>
+    <string name="chip_screenshot">📸 Analyze screen</string>
+    <string name="chip_linux_shell">🐧 Linux tools</string>
+    <string name="attach_title">Attachments &amp; Tools</string>
+    <string name="attach_screenshot">Screenshot</string>
+    <string name="attach_gallery">Gallery</string>
+    <string name="attach_mic">Voice input</string>
+    <string name="attach_terminal">Linux shell</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">Ask first</string>
+    <string name="chat_exec_auto">Auto</string>
+    <string name="chat_exec_sheet_title">Execution mode</string>
+    <string name="chat_exec_sheet_desc">Control how the Agent executes system commands and phone actions</string>
+    <string name="chat_exec_mode_ask_title">🛡️ Ask first (Default)</string>
+    <string name="chat_exec_mode_ask_desc">Always ask for confirmation before running ADB, Shell, or sensitive actions.</string>
+    <string name="chat_exec_mode_auto_title">⚡ Auto execution (Full Access)</string>
+    <string name="chat_exec_mode_auto_desc">Automatically run Shell, ADB, and phone actions without prompts. Destructive commands remain blocked.</string>
+    <string name="chat_exec_warn_title">Enable Full Access?</string>
+    <string name="chat_exec_warn_msg">In this mode, AI will automatically run Shell, ADB, and phone actions without asking for confirmation.\n\nThe following commands remain STRICTLY FORBIDDEN:\n• Uninstalling or clearing app data (pm uninstall, pm clear)\n• Deleting system files or partitions (rm -rf /, rm -rf /data)\n• Formatting or raw partition overwrite (format, mkfs, dd of=/dev/block)\n• Rebooting or recovery (reboot, recovery, fastboot)\n• Disabling security enforcement (setenforce 0)</string>
+    <string name="chat_exec_warn_enable">Enable</string>
+    <string name="chat_exec_warn_cancel">Cancel</string>
+    <string name="grant_perm_success">Granted %1$s to %2$s successfully ✨</string>
+    <string name="grant_perm_fail">Failed to grant %1$s to %2$s: %3$s</string>
+
 </resources>

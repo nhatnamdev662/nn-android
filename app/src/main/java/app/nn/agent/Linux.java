@@ -120,8 +120,38 @@ final class Linux {
         return pb;
     }
 
+    /**
+     * Prepares a shell command or script execution:
+     * 1. If executing a script/binary, ensures executable permissions (chmod +x).
+     * 2. If the target file is on /sdcard or /storage/emulated/0 (mounted noexec by Android kernel):
+     *    - If it's a shell script, transparently prefixes with /bin/sh.
+     *    - If it's a Python script, transparently prefixes with python3.
+     */
+    static String prepareCommand(Context c, String shell) {
+        if (shell == null || shell.trim().isEmpty()) return shell;
+        String trimmed = shell.trim();
+        if (trimmed.startsWith("./") || trimmed.startsWith("/")) {
+            String firstToken = trimmed.split("\\s+")[0];
+            if (firstToken.startsWith("/sdcard/") || firstToken.startsWith("/storage/emulated/0/")) {
+                if (firstToken.endsWith(".sh") || !firstToken.contains(".")) {
+                    return "/bin/sh " + shell;
+                } else if (firstToken.endsWith(".py")) {
+                    return "python3 " + shell;
+                }
+            }
+            try {
+                // Ensure executable permission for local scripts/binaries
+                Process p = builder(c, "/bin/sh", "-c", "chmod +x " + firstToken + " 2>/dev/null").start();
+                p.waitFor(3, TimeUnit.SECONDS);
+            } catch (Throwable ignored) {
+            }
+        }
+        return shell;
+    }
+
     /** Runs a shell command inside Alpine and returns its output (stdout and stderr), with the exit code. */
     static String exec(Context c, String shell, int timeoutSec) throws Exception {
+        shell = prepareCommand(c, shell);
         Process p = builder(c, "/bin/sh", "-c", shell).start();
         p.getOutputStream().close();
         ByteArrayOutputStream out = new ByteArrayOutputStream();

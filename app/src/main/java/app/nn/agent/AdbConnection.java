@@ -114,7 +114,23 @@ public final class AdbConnection {
         Pattern.CASE_INSENSITIVE
     );
     private static final Pattern PM_PATTERN = Pattern.compile(
-        "^pm\\s+(clear|uninstall)(\\s+.*)?$",
+        "^(?:pm|cmd\\s+package)\\s+(clear|uninstall)(\\s+.*)?$",
+        Pattern.CASE_INSENSITIVE
+    );
+    private static final Pattern CONFIRM_SETTINGS_PATTERN = Pattern.compile(
+        "^(?:settings|cmd\\s+settings)\\s+(put|delete|reset)(\\s+.*)?$",
+        Pattern.CASE_INSENSITIVE
+    );
+    private static final Pattern CONFIRM_PM_PATTERN = Pattern.compile(
+        "^(?:pm|cmd\\s+package)\\s+(disable|disable-user|disable-until-used|enable|hide|unhide|suspend|unsuspend|grant|revoke|install|install-create|install-commit|set-[a-z0-9_-]+)(\\s+.*)?$",
+        Pattern.CASE_INSENSITIVE
+    );
+    private static final Pattern CONFIRM_SYS_PATTERN = Pattern.compile(
+        "^(?:svc\\s+(?:wifi|data|bluetooth|nfc|usb|power)|(?:cmd\\s+)?appops\\s+set|device_config\\s+(?:put|delete|reset)|locksettings\\s+(?:set-[a-z0-9_-]+|clear)|wm\\s+(?:size|density|overscan)\\s+\\S+)(\\s+.*)?$",
+        Pattern.CASE_INSENSITIVE
+    );
+    private static final Pattern UI_INJECTION_PATTERN = Pattern.compile(
+        "^(?:input|monkey|cmd\\s+statusbar|am\\s+(?:start|start-activity|startservice|start-service|startforegroundservice|start-foreground-service|broadcast|force-stop|kill|kill-all))(?:\\s+.*)?$",
         Pattern.CASE_INSENSITIVE
     );
     private static final Pattern SETENFORCE_PATTERN = Pattern.compile(
@@ -666,6 +682,25 @@ public final class AdbConnection {
      * @return true if dangerous command detected, false if safe.
      */
     public static boolean isDangerousCommand(String command) {
+        return matchesAnySegment(command, AdbConnection::checkSegmentDangerous);
+    }
+
+    /**
+     * Checks if a command mutates system/package/service state or injects UI/activity actions
+     * and therefore requires explicit user confirmation when invoked directly via {@code adb_shell}.
+     */
+    public static boolean requiresConfirmation(String command) {
+        return matchesAnySegment(command, AdbConnection::checkSegmentRequiresConfirmation);
+    }
+
+    /**
+     * Checks if a command injects UI input or launches/controls UI components directly via ADB.
+     */
+    public static boolean isUiInjectionCommand(String command) {
+        return matchesAnySegment(command, AdbConnection::checkSegmentUiInjection);
+    }
+
+    private static boolean matchesAnySegment(String command, java.util.function.Predicate<String> predicate) {
         if (command == null || command.trim().isEmpty()) {
             return false;
         }
@@ -673,7 +708,7 @@ public final class AdbConnection {
         // 1. Recursive unwrap subshells: $(...)
         List<String> subshells = extractBalancedSubshells(command);
         for (String sub : subshells) {
-            if (isDangerousCommand(sub)) {
+            if (matchesAnySegment(sub, predicate)) {
                 return true;
             }
         }
@@ -681,7 +716,7 @@ public final class AdbConnection {
         // 2. Recursive unwrap backticks: `...`
         Matcher bMatcher = BACKTICKS.matcher(command);
         while (bMatcher.find()) {
-            if (isDangerousCommand(bMatcher.group(1))) {
+            if (matchesAnySegment(bMatcher.group(1), predicate)) {
                 return true;
             }
         }
@@ -689,21 +724,21 @@ public final class AdbConnection {
         // 3. Shell / Eval wrappers: sh -c '...', eval "..."
         Matcher wMatcher = SHELL_WRAPPERS.matcher(command);
         while (wMatcher.find()) {
-            if (isDangerousCommand(wMatcher.group(1))) {
+            if (matchesAnySegment(wMatcher.group(1), predicate)) {
                 return true;
             }
         }
 
         Matcher uShellMatcher = UNQUOTED_SHELL.matcher(command.trim());
         if (uShellMatcher.matches()) {
-            if (isDangerousCommand(uShellMatcher.group(1))) {
+            if (matchesAnySegment(uShellMatcher.group(1), predicate)) {
                 return true;
             }
         }
 
         Matcher uEvalMatcher = UNQUOTED_EVAL.matcher(command.trim());
         if (uEvalMatcher.matches()) {
-            if (isDangerousCommand(uEvalMatcher.group(1))) {
+            if (matchesAnySegment(uEvalMatcher.group(1), predicate)) {
                 return true;
             }
         }
@@ -711,13 +746,29 @@ public final class AdbConnection {
         // 4. Tokenize on command separators (; && || | & \n \r)
         String[] segments = CMD_DELIMITERS.split(command);
         for (String seg : segments) {
-            String trimmed = seg.trim();
-            if (!trimmed.isEmpty() && checkSegmentDangerous(trimmed)) {
+            String norm = normalizeSegment(seg);
+            if (!norm.isEmpty() && predicate.test(norm)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static String normalizeSegment(String segment) {
+        String seg = segment.replaceAll("\\s+", " ").trim();
+        return TRANSPARENT_PREFIXES.matcher(seg).replaceFirst("").trim();
+    }
+
+    private static boolean checkSegmentUiInjection(String norm) {
+        return UI_INJECTION_PATTERN.matcher(norm).matches();
+    }
+
+    private static boolean checkSegmentRequiresConfirmation(String norm) {
+        return checkSegmentUiInjection(norm)
+                || CONFIRM_SETTINGS_PATTERN.matcher(norm).matches()
+                || CONFIRM_PM_PATTERN.matcher(norm).matches()
+                || CONFIRM_SYS_PATTERN.matcher(norm).matches();
     }
 
     private static List<String> extractBalancedSubshells(String s) {
@@ -752,9 +803,7 @@ public final class AdbConnection {
         return results;
     }
 
-    private static boolean checkSegmentDangerous(String segment) {
-        String seg = segment.replaceAll("\\s+", " ").trim();
-        String norm = TRANSPARENT_PREFIXES.matcher(seg).replaceFirst("").trim();
+    private static boolean checkSegmentDangerous(String norm) {
         String lowerNorm = norm.toLowerCase();
 
         // 1. Reboot / Recovery / Fastboot / Power

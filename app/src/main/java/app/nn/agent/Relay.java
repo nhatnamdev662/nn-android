@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * An agent's requests to another service's API with an API key saved in NN Agent (Settings → API keys): the agent is
- * pointed at http://127.0.0.1:8765/llm/&lt;service&gt;/a/… (its Anthropic-style address) or …/o/… (its OpenAI-style one),
+ * pointed at http://127.0.0.1:8767/llm/&lt;service&gt;/a/… (its Anthropic-style address) or …/o/… (its OpenAI-style one),
  * with NN's per-install token, and this sends each request on with the real key, streaming the reply back. The key
  * stays in NN's encrypted storage (Secrets) and never enters NN's Linux, so no agent, command or page it reads
  * can see it or send it anywhere.
@@ -26,7 +26,7 @@ final class Relay {
 
     /** Where an agent in NN's Linux sends its requests for this service: its Anthropic-style or OpenAI-style API. */
     static String url(String service, boolean anthropic) {
-        return "http://127.0.0.1:" + McpServer.PORT + PATH + service + (anthropic ? "/a" : "/o");
+        return "http://127.0.0.1:" + McpServer.activePort + PATH + service + (anthropic ? "/a" : "/o");
     }
 
     private static String trim(String b) {

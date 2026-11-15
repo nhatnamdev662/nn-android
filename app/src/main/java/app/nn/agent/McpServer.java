@@ -30,7 +30,6 @@ import java.util.concurrent.Executors;
 final class McpServer {
     static final int DEFAULT_PORT = 8767;
     public static volatile int activePort = DEFAULT_PORT;
-    static final int PORT = DEFAULT_PORT;
     private static final String TAG = "NnMcp";
     private static final String DEFAULT_PROTOCOL = "2025-06-18";
     /** What a client shows its model ahead of the tools: protocol essentials and safety invariants. */

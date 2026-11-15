@@ -34,6 +34,7 @@ final class TermSession implements TermEmulator.Host {
     private static int counter;
     /** Tab number: the tab is "shell 1", "shell 2"… until the program sets a title. */
     final int number;
+    final long startedAt = System.currentTimeMillis();
 
     final TermEmulator emulator;
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -55,6 +56,10 @@ final class TermSession implements TermEmulator.Host {
     String label() {
         String t = emulator.title;
         return t == null || t.trim().isEmpty() ? NnApp.str(R.string.terminal_shell_name, number) : t.trim();
+    }
+
+    int osPid() {
+        return pid;
     }
 
     /** Starts a login shell in NN's Linux, as a new tab. Linux must be installed. */
@@ -205,5 +210,34 @@ final class TermSession implements TermEmulator.Host {
         if (!exited) Pty.hangup(pid);
         all.remove(this);
         if (current == this) current = all.isEmpty() ? null : all.get(all.size() - 1);
+    }
+
+    static TermSession findByNumber(int number) {
+        synchronized (all) {
+            for (TermSession s : all) {
+                if (s.number == number && !s.exited) return s;
+            }
+        }
+        return null;
+    }
+
+    static int openCount() {
+        synchronized (all) {
+            int n = 0;
+            for (TermSession s : all) {
+                if (!s.exited) n++;
+            }
+            return n;
+        }
+    }
+
+    static List<TermSession> openSessions() {
+        synchronized (all) {
+            List<TermSession> out = new java.util.ArrayList<>();
+            for (TermSession s : all) {
+                if (!s.exited) out.add(s);
+            }
+            return out;
+        }
     }
 }

@@ -1,70 +1,78 @@
 package app.nn.agent;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-/** The "NN Agent is hidden" notification shown after the bubble is dragged away, and its actions. */
+/** The unified notification action receiver for approvals, bubble hidden, and control actions. */
 public final class HiddenNotice extends BroadcastReceiver {
-    private static final String CHANNEL = "bubble_hidden";
-    private static final int ID = 1;
-    static final String ACTION_SHOW = "app.nn.agent.SHOW_BUBBLE";
+    public static final String ACTION_APPROVE = "app.nn.agent.ACTION_APPROVE";
+    public static final String ACTION_DENY = "app.nn.agent.ACTION_DENY";
+    public static final String ACTION_SHOW = "app.nn.agent.SHOW_BUBBLE";
+    public static final int ID = 1;
 
     static void show(Context c) {
-        NotificationManager nm = c.getSystemService(NotificationManager.class);
-        nm.createNotificationChannel(new NotificationChannel(CHANNEL, c.getString(R.string.notice_channel_name),
-                NotificationManager.IMPORTANCE_LOW));
-        PendingIntent showBubble = PendingIntent.getBroadcast(c, 0,
-                new Intent(c, HiddenNotice.class).setAction(ACTION_SHOW),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent openApp = PendingIntent.getActivity(c, 1,
-                new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification n = new Notification.Builder(c, CHANNEL)
-                .setSmallIcon(R.drawable.ic_launcher_monochrome)
-                .setContentTitle(c.getString(R.string.notice_hidden_title))
-                .setContentText(c.getString(R.string.notice_hidden_text))
-                .setContentIntent(showBubble)
-                .addAction(new Notification.Action.Builder(null, c.getString(R.string.notice_open_chats), openApp).build())
-                .setOngoing(false)
-                .setAutoCancel(true)
-                .build();
-        try {
-            nm.notify(ID, n);
-        } catch (SecurityException ignored) {
-            // notifications not allowed; the bubble can still be shown again from Settings
-        }
+        KeepAliveService.updateState(c, KeepAliveService.State.BUBBLE_HIDDEN, null);
+        cancel(c);
     }
 
     static void cancel(Context c) {
-        c.getSystemService(NotificationManager.class).cancel(ID);
+        try {
+            c.getSystemService(NotificationManager.class).cancel(ID);
+        } catch (Throwable ignored) {
+        }
     }
 
     @Override
     public void onReceive(Context c, Intent intent) {
-        if (ControlIndicator.ACTION_STOP.equals(intent.getAction())) {
+        if (intent == null || intent.getAction() == null) return;
+        String action = intent.getAction();
+
+        if (ACTION_APPROVE.equals(action)) {
+            NnService s = NnService.get();
+            if (s != null && s.bubble() != null) {
+                s.bubble().answerFromApp(true);
+            }
+            return;
+        }
+
+        if (ACTION_DENY.equals(action)) {
+            NnService s = NnService.get();
+            if (s != null && s.bubble() != null) {
+                s.bubble().answerFromApp(false);
+            }
+            return;
+        }
+
+        if (ACTION_SHOW.equals(action)) {
+            Prefs.setBubbleEnabled(c, true);
+            cancel(c);
+            NnService s = NnService.get();
+            if (s != null) {
+                if (s.bubble() != null) s.bubble().restoreBubble();
+                s.applyBubbleSetting();
+                KeepAliveService.updateState(s, KeepAliveService.State.IDLE, null);
+            }
+            return;
+        }
+
+        if (ControlIndicator.ACTION_STOP.equals(action)) {
             NnService s = NnService.get();
             if (s != null) s.takeBackControl();
             return;
         }
-        if (CodexLive.ACTION_END.equals(intent.getAction())) { // the live voice notification's End
+
+        if (CodexLive.ACTION_END.equals(action)) { // the live voice notification's End
             CodexLive.end(null);
             return;
         }
-        if (AutoPause.ACTION_RESUME.equals(intent.getAction())) { // "Call ended": resume the paused task
+
+        if (AutoPause.ACTION_RESUME.equals(action)) { // "Call ended": resume the paused task
             NnService s = NnService.get();
             if (s != null) s.resume();
             AutoPause.cancelCallEnded(c); // also when it had ended already
             return;
         }
-        if (!ACTION_SHOW.equals(intent.getAction())) return;
-        Prefs.setBubbleEnabled(c, true);
-        cancel(c);
-        NnService svc = NnService.get();
-        if (svc != null) svc.applyBubbleSetting();
     }
 }

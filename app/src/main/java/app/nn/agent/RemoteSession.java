@@ -153,7 +153,7 @@ final class RemoteSession {
     /** First-run answers, folder trust and the phone tools, so the hidden terminal never waits on a question. */
     private static void prepare(Context app) throws Exception {
         String token = Prefs.token(app);
-        String url = "http://127.0.0.1:" + McpServer.PORT + "/mcp";
+        String url = "http://127.0.0.1:" + McpServer.activePort + "/mcp";
         String out = Linux.exec(app, "set -e; command -v script >/dev/null || apk add -q util-linux-misc; mkdir -p " + DIR + ";"
                 + " f=/root/.claude.json; [ -s $f ] || echo '{}' > $f;"
                 + " jq --arg d " + DIR + " --arg u " + url + " --arg a 'Bearer " + token + "'"

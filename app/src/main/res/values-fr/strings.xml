@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in French (vous). Source: res/values/strings.xml (English, with translator comments). -->
 <resources>
     <string name="service_label">Assistant NN</string>
@@ -1570,6 +1570,7 @@
     <string name="tools_card_open_url">Ouvrir %1$s</string>
     <string name="tools_card_clipboard">Laisser l\'agent lire ce que tu as copié en dernier ?</string>
     <string name="tools_card_location">Partager la position de ce téléphone avec l\'agent ?</string>
+    <string name="tools_card_adb_shell">Exécuter la commande ADB :\n%1$s</string>
     <string name="tools_photo_why">Prends une photo : %1$s</string>
     <string name="rules_service_label">Règles de notification de NN</string>
     <string name="rules_title">Règles de notification</string>
@@ -1984,12 +1985,18 @@
     <string name="check_adb_connected">Connecté sur 127.0.0.1:%1$d.</string>
     <string name="check_adb_disconnected">Non connecté. Associez et activez dans les Paramètres.</string>
     <string name="chat_action_copy">Copier</string>
+    <string name="chat_action_run">Exécuter</string>
+    <string name="chat_action_running">Exécution…</string>
+    <string name="chat_table_label">Tableau</string>
+    <string name="chat_table_copied">Tableau copié</string>
     <string name="chat_action_edit">Modifier</string>
     <string name="chat_action_retry">Réessayer</string>
     <string name="chat_action_speak">Lire à haute voix</string>
     <string name="chat_action_stop_speak">Arrêter la lecture</string>
     <string name="chat_action_copy_code">Copier le code</string>
     <string name="chat_code_copied">Code copié</string>
+    <string name="chat_code_expand">Développer</string>
+    <string name="chat_code_collapse">Réduire</string>
     <string name="chat_editing_bar">Modification : %1$s</string>
     <string name="chat_edit_cancel">Annuler la modification</string>
     <string name="chat_retry_title">Réessayer à partir d\'ici ?</string>
@@ -2070,7 +2077,48 @@
     <string name="chat_starter_search">Recherche un sujet et résume l\'essentiel</string>
     <string name="chat_starter_apps">Ouvre une appli ou automatise une tâche sur le téléphone</string>
     <string name="chat_starter_linux">Écris ou exécute un script rapide dans Linux</string>
+    <string name="chat_starter_notifications">Vérifier les notifications récentes et les résumer</string>
+    <string name="chat_starter_device">Vérifier la batterie, le stockage et l\'état du système</string>
+    <string name="chat_starter_alarm">Définir une alarme ou un minuteur</string>
+    <string name="chat_starter_reminder">Rappelle-moi de faire quelque chose demain matin</string>
     <string name="models_search_hint">Rechercher un modèle…</string>
     <string name="models_empty_search">Aucun modèle ne correspond à « %1$s »</string>
     <string name="setup_agent_defaults">Modèle et effort par défaut</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">Exécution du code…</string>
+    <string name="status_done">Terminé</string>
+    <string name="approval_channel_name">Approbation d\'actions</string>
+    <string name="approval_channel_desc">Notifications nécessitant votre approbation pour les actions sensibles</string>
+    <string name="notification_approval_title">Approbation requise</string>
+    <string name="notice_restore_bubble">Restaurer la bulle</string>
+
+    <string name="setup_touch_effects">Effets visuels pendant le contrôle par l\'IA</string>
+    <string name="setup_touch_effects_info">Afficher une lueur de bordure et des ondulations tactiles lorsque NN Agent contrôle l\'écran</string>
+    <string name="touch_overlay_controlling">● NN CONTRÔLE</string>
+    <string name="touch_overlay_tap">APPUYER</string>
+    <string name="touch_overlay_hold">MAINTENIR</string>
+    <string name="touch_overlay_swipe_down">GLISSER ↓</string>
+    <string name="touch_overlay_swipe_up">GLISSER ↑</string>
+    <string name="touch_overlay_swipe_right">GLISSER →</string>
+    <string name="touch_overlay_swipe_left">GLISSER ←</string>
+    <string name="chip_clean_ram">⚡ Nettoyer la RAM</string>
+    <string name="chip_check_battery">🔋 Batterie et charge</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">Demander d\'abord</string>
+    <string name="chat_exec_auto">Auto</string>
+    <string name="chat_exec_sheet_title">Mode d\'exécution</string>
+    <string name="chat_exec_sheet_desc">Contrôlez la façon dont l\'agent exécute les commandes système et les actions du téléphone</string>
+    <string name="chat_exec_mode_ask_title">🛡️ Demander d\'abord (Par défaut)</string>
+    <string name="chat_exec_mode_ask_desc">Toujours demander confirmation avant d\'exécuter des commandes ADB, Shell ou des actions sensibles.</string>
+    <string name="chat_exec_mode_auto_title">⚡ Exécution automatique (Accès total)</string>
+    <string name="chat_exec_mode_auto_desc">Exécute automatiquement les commandes Shell, ADB et les actions sans invite.</string>
+    <string name="chat_exec_warn_title">Activer l\'accès total ?</string>
+    <string name="chat_exec_warn_msg">Dans ce mode, l\'IA exécutera les commandes automatiquement.\n\nLes commandes destructrices restent strictement interdites.</string>
+    <string name="chat_exec_warn_enable">Activer</string>
+    <string name="chat_exec_warn_cancel">Annuler</string>
+    <string name="grant_perm_success">%1$s accordé à %2$s avec succès ✨</string>
+    <string name="grant_perm_fail">Échec de l\'octroi de %1$s à %2$s : %3$s</string>
+
 </resources>

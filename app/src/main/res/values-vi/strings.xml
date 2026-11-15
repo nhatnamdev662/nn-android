@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Every text NN shows, in Vietnamese (bạn). English source: res/values/strings.xml. -->
 <resources>
     <string name="service_label">Trợ lý NN</string>
@@ -1362,6 +1362,15 @@
     <string name="setup_agents_tap">Cho agent nhấn vào màn hình của NN</string>
     <!-- "App permissions" is the name of a screen in NN. -->
     <string name="setup_agents_tap_info">Để thử NN bằng một agent (ví dụ Claude Code trong Termux có công cụ điện thoại). Bong bóng, thẻ duyệt, Quyền ứng dụng và các công tắc này vẫn bị cấm chạm.</string>
+    <string name="setup_touch_effects">Hiệu ứng khi AI điều khiển</string>
+    <string name="setup_touch_effects_info">Hiển thị viền sáng và điểm chạm trực quan khi NN Agent thao tác trên màn hình</string>
+    <string name="touch_overlay_controlling">● NN ĐANG ĐIỀU KHIỂN</string>
+    <string name="touch_overlay_tap">CHẠM</string>
+    <string name="touch_overlay_hold">GIỮ</string>
+    <string name="touch_overlay_swipe_down">VUỐT ↓</string>
+    <string name="touch_overlay_swipe_up">VUỐT ↑</string>
+    <string name="touch_overlay_swipe_right">VUỐT →</string>
+    <string name="touch_overlay_swipe_left">VUỐT ←</string>
     <!-- Warning shown while Linux tools in new chats (setup_dev_mode) is on. -->
     <string name="setup_dev_mode_warning">Tốt nhất nên tắt: chỉ bật công cụ Linux trong những cuộc trò chuyện cần đến. Khi bật, một tin nhắn hoặc trang web độc hại trên màn hình có thể tìm cách lừa agent chạy lệnh. Thẻ duyệt vẫn bảo vệ việc gửi, đăng, mua và xóa.</string>
 
@@ -1568,6 +1577,7 @@
     <string name="tools_card_open_url">Mở %1$s</string>
     <string name="tools_card_clipboard">Cho agent đọc nội dung bạn vừa sao chép?</string>
     <string name="tools_card_location">Chia sẻ vị trí của điện thoại này với agent?</string>
+    <string name="tools_card_adb_shell">Chạy lệnh ADB:\n%1$s</string>
     <string name="tools_photo_why">Chụp ảnh: %1$s</string>
     <!-- %1$s = the action (e.g. Tap “Send” in WhatsApp); on the next line, %2$s = what it would send, or why NN asks. -->
     <string name="tools_card_detail">%1$s:\n%2$s</string>
@@ -2140,12 +2150,18 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
 
     <!-- Chat Message Actions -->
     <string name="chat_action_copy">Sao chép</string>
+    <string name="chat_action_run">Chạy</string>
+    <string name="chat_action_running">Đang chạy…</string>
+    <string name="chat_table_label">Bảng</string>
+    <string name="chat_table_copied">Đã sao chép bảng</string>
     <string name="chat_action_edit">Chỉnh sửa</string>
     <string name="chat_action_retry">Thử lại</string>
     <string name="chat_action_speak">Đọc to</string>
     <string name="chat_action_stop_speak">Dừng đọc</string>
     <string name="chat_action_copy_code">Sao chép mã</string>
     <string name="chat_code_copied">Đã sao chép mã</string>
+    <string name="chat_code_expand">Bung ra</string>
+    <string name="chat_code_collapse">Thu gọn</string>
     <string name="chat_editing_bar">Đang sửa: %1$s</string>
     <string name="chat_edit_cancel">Hủy sửa</string>
     <string name="chat_retry_title">Thử lại từ bước này?</string>
@@ -2164,11 +2180,11 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="browser_pill_paused">Tạm dừng · bấm Tiếp tục</string>
     <string name="browser_pill_active">Trình duyệt nền</string>
 
-    <!-- ADB Quick Controls & Terminal -->
+    <!-- ADB Quick Controls &amp; Terminal -->
     <string name="setup_adb_disconnected_toast">Đã ngắt kết nối ADB</string>
     <string name="terminal_toggle_keyboard">Bật/tắt bàn phím</string>
 
-    <!-- Keep-Alive & Xiaomi/HyperOS Optimization -->
+    <!-- Keep-Alive &amp; Xiaomi/HyperOS Optimization -->
     <string name="keepalive_channel_name">Dịch vụ chạy ngầm (Duy trì hoạt động)</string>
     <string name="keepalive_channel_desc">Duy trì bong bóng và dịch vụ NN Agent ổn định dưới nền</string>
     <string name="keepalive_title">NN Agent đang hoạt động</string>
@@ -2180,7 +2196,7 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="xiaomi_btn_battery">3. Tiết kiệm pin: Không hạn chế</string>
     <string name="xiaomi_recents_note">Mẹo: Vào Đa nhiệm (Recent apps), nhấn giữ NN Agent và bấm biểu tượng Ổ khóa để không bị dọn RAM.</string>
 
-    <!-- Image Viewer & ADB Status Errors -->
+    <!-- Image Viewer &amp; ADB Status Errors -->
     <string name="viewer_close">Đóng</string>
     <string name="viewer_save">Lưu</string>
     <string name="viewer_share">Chia sẻ</string>
@@ -2196,7 +2212,7 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="setup_adb_paired">Ghép nối thành công</string>
     <string name="setup_adb_pair_failed_generic">Ghép nối thất bại</string>
 
-    <!-- Onboarding ADB & Optional Skip State -->
+    <!-- Onboarding ADB &amp; Optional Skip State -->
     <string name="onboarding_adb_title">Gỡ lỗi không dây (ADB)</string>
     <string name="onboarding_adb_text">Tùy chọn — giúp NN kiểm tra hệ thống tức thì và bấm/gõ ổn định trên các ứng dụng khó tương tác (game, WebView).</string>
     <string name="onboarding_adb_done">Gỡ lỗi không dây đã hoạt động. Chế độ tự động hóa kép ADB đã sẵn sàng.</string>
@@ -2238,7 +2254,54 @@ Nhấn vào “Ghép nối thiết bị bằng mã ghép nối”, bạn sẽ th
     <string name="chat_starter_search">Tra cứu nhanh một chủ đề và tóm tắt ý chính</string>
     <string name="chat_starter_apps">Mở ứng dụng hoặc thao tác nhanh trên điện thoại</string>
     <string name="chat_starter_linux">Viết hoặc chạy nhanh một script trong Linux</string>
+    <string name="chat_starter_notifications">Xem thông báo mới đến và tóm tắt nhanh</string>
+    <string name="chat_starter_device">Kiểm tra pin, bộ nhớ và tình trạng máy</string>
+    <string name="chat_starter_alarm">Đặt báo thức hoặc hẹn giờ đếm ngược</string>
+    <string name="chat_starter_reminder">Nhắc tôi việc cần làm vào sáng mai</string>
     <string name="models_search_hint">Tìm kiếm mô hình…</string>
     <string name="models_empty_search">Không tìm thấy mô hình khớp “%1$s”</string>
     <string name="setup_agent_defaults">Mô hình &amp; Effort mặc định</string>
+    <!-- Ongoing notification &amp; state machine (M3/M4) -->
+    <string name="status_coding">Đang chạy code…</string>
+    <string name="status_done">Đã xong</string>
+    <string name="approval_channel_name">Phê duyệt hành động</string>
+    <string name="approval_channel_desc">Thông báo yêu cầu bạn phê duyệt các hành động nhạy cảm</string>
+    <string name="notification_approval_title">Cần bạn phê duyệt</string>
+    <string name="notice_restore_bubble">Hiện bong bóng</string>
+    <!-- Mini Dashboard &amp; Smart Composer (Milestone 12) -->
+    <string name="dashboard_battery_title">Pin: %1$d%% (%2$s)</string>
+    <string name="dashboard_battery_charging">Đang sạc</string>
+    <string name="dashboard_battery_discharging">Không sạc</string>
+    <string name="dashboard_ram_title">RAM: %1$.1f GB trống</string>
+    <string name="dashboard_temp_title">Nhiệt độ: %1$.1f°C</string>
+    <string name="dashboard_quick_clean">Dọn nhanh</string>
+    <string name="dashboard_open_chat">Mở chat</string>
+    <string name="dashboard_cleaned_toast">Đã tối ưu RAM thành công! ✨</string>
+    <string name="chip_clean_ram">⚡ Dọn RAM &amp; Tối ưu</string>
+    <string name="chip_check_battery">🔋 Kiểm tra pin</string>
+    <string name="chip_screenshot">📸 Phân tích màn hình</string>
+    <string name="chip_linux_shell">🐧 Công cụ Linux</string>
+    <string name="attach_title">Đính kèm &amp; Công cụ</string>
+    <string name="attach_screenshot">Chụp màn hình</string>
+    <string name="attach_gallery">Thư viện ảnh</string>
+    <string name="attach_mic">Ghi âm giọng nói</string>
+    <string name="attach_terminal">Lệnh Linux</string>
+
+
+    <!-- Execution Mode & Runtime Permissions (Milestone 17) -->
+    <string name="chat_exec_ask">Hỏi trước</string>
+    <string name="chat_exec_auto">Tự động</string>
+    <string name="chat_exec_sheet_title">Chế độ thực thi</string>
+    <string name="chat_exec_sheet_desc">Kiểm soát cách Agent thực thi các lệnh hệ thống và thao tác trên điện thoại</string>
+    <string name="chat_exec_mode_ask_title">🛡️ Hỏi trước (Mặc định)</string>
+    <string name="chat_exec_mode_ask_desc">Luôn yêu cầu phê duyệt khi chạy lệnh ADB, Shell hoặc thao tác nhạy cảm.</string>
+    <string name="chat_exec_mode_auto_title">⚡ Tự động thực thi (Toàn quyền)</string>
+    <string name="chat_exec_mode_auto_desc">Tự động chạy các lệnh Shell, ADB và thao tác không cần hỏi. Vẫn chặn các lệnh phá hoại hệ thống.</string>
+    <string name="chat_exec_warn_title">Bật chế độ Toàn quyền?</string>
+    <string name="chat_exec_warn_msg">Ở chế độ này, AI sẽ tự động chạy các lệnh Shell, ADB và thao tác trên điện thoại mà không cần hỏi xác nhận từng bước.\n\nCác lệnh sau vẫn BỊ CẤM TUYỆT ĐỐI và không thể tự động chạy:\n• Gỡ cài đặt hoặc xóa dữ liệu ứng dụng (pm uninstall, pm clear)\n• Xóa phân vùng hoặc tập tin hệ thống (rm -rf /, rm -rf /data)\n• Format hoặc ghi đè phân vùng (format, mkfs, dd of=/dev/block)\n• Khởi động lại hoặc vào recovery (reboot, recovery, fastboot)\n• Tắt cơ chế bảo mật hệ thống (setenforce 0)</string>
+    <string name="chat_exec_warn_enable">Bật toàn quyền</string>
+    <string name="chat_exec_warn_cancel">Hủy</string>
+    <string name="grant_perm_success">Đã cấp quyền %1$s cho %2$s thành công ✨</string>
+    <string name="grant_perm_fail">Không thể cấp quyền %1$s cho %2$s: %3$s</string>
+
 </resources>

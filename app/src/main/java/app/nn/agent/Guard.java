@@ -487,9 +487,90 @@ final class Guard {
         if (!Prefs.agentsTapNn(c)) return true;
         AccessibilityNodeInfo cur = n;
         for (int i = 0; cur != null && i < 60; i++) {
-            if (cur.getExtras().getBoolean(Ui.PROTECTED, false)) return true;
+            if (cur.getExtras() != null && cur.getExtras().getBoolean(Ui.PROTECTED, false)) return true;
             if (cur.getWindow() != null && cur.getWindow().getType() == AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY) return true;
             cur = cur.getParent();
+        }
+        if (hasProtectedDescendant(n)) return true;
+        return false;
+    }
+
+    /**
+     * Checks if root or any descendant node in the accessibility tree has Ui.PROTECTED set in its extras.
+     * Bounded queue traversal (max depth 15, max visited nodes 150) with node recycling to prevent binder leaks.
+     */
+    static boolean hasProtectedDescendant(AccessibilityNodeInfo root) {
+        if (root == null) return false;
+        try {
+            if (root.getExtras() != null && root.getExtras().getBoolean(Ui.PROTECTED, false)) return true;
+        } catch (Exception ignored) {
+        }
+        final int MAX_DEPTH = 15;
+        final int MAX_VISITED = 150;
+        int visited = 0;
+
+        java.util.ArrayDeque<AccessibilityNodeInfo> queue = new java.util.ArrayDeque<>();
+        java.util.ArrayDeque<Integer> depths = new java.util.ArrayDeque<>();
+
+        try {
+            int rootCount = root.getChildCount();
+            for (int i = 0; i < rootCount; i++) {
+                AccessibilityNodeInfo ch = root.getChild(i);
+                if (ch == null) continue;
+                try {
+                    if (ch.getExtras() != null && ch.getExtras().getBoolean(Ui.PROTECTED, false)) {
+                        ch.recycle();
+                        return true;
+                    }
+                } catch (Exception ignored) {
+                }
+                queue.add(ch);
+                depths.add(1);
+                visited++;
+                if (visited >= MAX_VISITED) break;
+            }
+
+            while (!queue.isEmpty() && visited < MAX_VISITED) {
+                AccessibilityNodeInfo cur = queue.poll();
+                Integer d = depths.poll();
+                int depth = d != null ? d : 1;
+                if (cur == null) continue;
+
+                if (depth < MAX_DEPTH) {
+                    int count = cur.getChildCount();
+                    for (int i = 0; i < count; i++) {
+                        AccessibilityNodeInfo ch = cur.getChild(i);
+                        if (ch == null) continue;
+                        try {
+                            if (ch.getExtras() != null && ch.getExtras().getBoolean(Ui.PROTECTED, false)) {
+                                ch.recycle();
+                                cur.recycle();
+                                return true;
+                            }
+                        } catch (Exception ignored) {
+                        }
+                        if (visited < MAX_VISITED && depth + 1 < MAX_DEPTH) {
+                            queue.add(ch);
+                            depths.add(depth + 1);
+                            visited++;
+                        } else {
+                            ch.recycle();
+                        }
+                    }
+                }
+                cur.recycle();
+            }
+        } catch (Exception ignored) {
+        } finally {
+            while (!queue.isEmpty()) {
+                AccessibilityNodeInfo rem = queue.poll();
+                if (rem != null) {
+                    try {
+                        rem.recycle();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
         }
         return false;
     }

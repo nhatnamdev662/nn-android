@@ -131,9 +131,11 @@ public class TerminalActivity extends Screen implements TermView.Callbacks {
         }
         // opened to run something (e.g. "opencode auth login"): always in a new tab
         String run = getIntent().getStringExtra("run");
-        TermSession s = TermSession.current;
+        int tabNum = getIntent().getIntExtra("tab", -1);
+        TermSession target = tabNum > 0 ? TermSession.findByNumber(tabNum) : null;
+        TermSession s = target != null ? target : TermSession.current;
         if (run != null) term.post(() -> newSession(run));
-        else if (s == null) term.post(this::newSession);
+        else if (getIntent().getBooleanExtra("new_tab", false) || s == null) term.post(this::newSession);
         else show(s);
     }
 

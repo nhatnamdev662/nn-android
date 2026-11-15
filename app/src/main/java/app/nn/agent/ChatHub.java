@@ -23,6 +23,7 @@ final class ChatHub {
     /** After this long with nothing from the agent, the run is given up on. */
     private static final long GIVE_UP_MS = 180000;
     private static final String TOOL_PREFIX = "mcp__phone__";
+    private static final java.util.concurrent.ExecutorService PICTURE_POOL = java.util.concurrent.Executors.newFixedThreadPool(4);
     private static ChatHub instance;
 
     final Sessions sessions;
@@ -519,10 +520,12 @@ final class ChatHub {
                             CodexLive.agentSaid(ses, t); // a live voice call in this chat tells the user
                         }
                     } else if ("tool_use".equals(c.optString("type"))) {
-                        String step = describeTool(c.optString("name"), c.optJSONObject("input"));
+                        String name = c.optString("name");
+                        String rawName = name.startsWith(TOOL_PREFIX) ? name.substring(TOOL_PREFIX.length()) : name;
+                        String step = describeTool(name, c.optJSONObject("input"));
                         if (step != null) {
                             add(ses, Bubble.Kind.STEP, step);
-                            ses.status = step;
+                            ses.status = Tools.isCodingTool(rawName) ? NnService.getCodingStatusText() : step;
                             String n = c.optString("name");
                             if (n.equals(TOOL_PREFIX + "confirm") || n.equals(TOOL_PREFIX + "ask")) CodexLive.agentWaiting(ses, step, c.optJSONObject("input"));
                         }
@@ -563,6 +566,10 @@ final class ChatHub {
                     ses.lastReply = r;
                     CodexLive.agentSaid(ses, r);
                 }
+                if (ses.running && ses.outcome == null && !error) {
+                    ses.status = app.getString(R.string.hub_thinking);
+                    changed();
+                }
                 break;
             }
             case "buddy_pictures":
@@ -576,12 +583,24 @@ final class ChatHub {
                 }
                 if (shown) break;
                 JSONArray paths = ev.optJSONArray("paths");
-                List<String> files = new ArrayList<>();
-                for (int i = 0; paths != null && i < paths.length() && files.size() < 4; i++) {
-                    String file = picture(paths.optString(i));
-                    if (file != null) files.add(file);
+                if (paths == null || paths.length() == 0) break;
+                List<String> localFiles = new ArrayList<>();
+                List<String> remoteUrls = new ArrayList<>();
+                for (int i = 0; i < paths.length(); i++) {
+                    String p = paths.optString(i);
+                    if (p == null || p.trim().isEmpty()) continue;
+                    p = p.trim();
+                    if (p.startsWith("http://") || p.startsWith("https://")) {
+                        if (remoteUrls.size() < 4) remoteUrls.add(p);
+                    } else {
+                        if (localFiles.size() < 4) {
+                            String file = picture(p);
+                            if (file != null) localFiles.add(file);
+                        }
+                    }
                 }
-                if (!files.isEmpty()) add(ses, Bubble.Kind.NN, "", files);
+                if (!localFiles.isEmpty()) add(ses, Bubble.Kind.NN, "", localFiles);
+                if (!remoteUrls.isEmpty()) loadRemotePicturesAsync(ses, remoteUrls);
                 break;
             }
             case "buddy_error":
@@ -839,6 +858,15 @@ final class ChatHub {
         if ((kind == Bubble.Kind.NN || kind == Bubble.Kind.BUDDY) && !text.isEmpty() && Prefs.speakReplies(app) && !CodexLive.on()) Voice.speak(app, text);
         Sessions.Msg m = ses.messages.get(ses.messages.size() - 1);
         for (Listener l : new ArrayList<>(listeners)) l.onMessage(ses, m);
+        if ((kind == Bubble.Kind.NN || kind == Bubble.Kind.BUDDY) && !text.isEmpty()) {
+            int remaining = 4 - (files == null ? 0 : files.size());
+            if (remaining > 0) {
+                List<String> remoteUrls = extractRemoteImageUrls(text, remaining);
+                if (!remoteUrls.isEmpty()) {
+                    loadRemotePicturesAsync(ses, remoteUrls);
+                }
+            }
+        }
     }
 
     /** A picture's path in NN's Linux, as agents write it: /root/.nn/work/chart.png, ~/out/photo.jpg. */
@@ -918,42 +946,124 @@ final class ChatHub {
         return out;
     }
 
+    private List<String> extractRemoteImageUrls(String text, int max) {
+        List<String> urls = new ArrayList<>();
+        if (text == null || text.isEmpty() || max <= 0) return urls;
+        java.util.Set<String> seen = new java.util.HashSet<>();
+
+        // 1. Markdown images: ![alt](target)
+        java.util.regex.Matcher md = MD_IMAGE.matcher(text);
+        while (urls.size() < max && md.find()) {
+            String target = md.group(2).trim();
+            if ((target.startsWith("http://") || target.startsWith("https://")) && seen.add(target)) {
+                urls.add(target);
+            }
+        }
+
+        // 2. Direct URLs to images
+        if (urls.size() < max) {
+            java.util.regex.Matcher u = URL_IMAGE.matcher(text);
+            while (urls.size() < max && u.find()) {
+                String url = u.group(0).trim();
+                if (seen.add(url)) {
+                    urls.add(url);
+                }
+            }
+        }
+        return urls;
+    }
+
+    private void loadRemotePicturesAsync(Sessions.Session ses, List<String> urls) {
+        if (urls == null || urls.isEmpty() || ses == null) return;
+        PICTURE_POOL.execute(() -> {
+            List<String> downloaded = new ArrayList<>();
+            for (String url : urls) {
+                if (downloaded.size() >= 4) break;
+                String file = downloadPicture(url);
+                if (file != null) downloaded.add(file);
+            }
+            if (!downloaded.isEmpty()) {
+                main.post(() -> {
+                    if (sessions.find(ses.id) != null) {
+                        add(ses, Bubble.Kind.NN, "", downloaded);
+                    }
+                });
+            }
+        });
+    }
+
     /** A picture inside NN's Linux, or a downloaded web image; null if it can't be imported. */
     private String picture(String path) {
         try {
             if (path == null || path.trim().isEmpty()) return null;
             path = path.trim();
             if (path.startsWith("http://") || path.startsWith("https://")) {
-                java.io.File tmp = new java.io.File(app.getCacheDir(), "img_" + System.currentTimeMillis() + ".tmp");
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(path).openConnection();
-                conn.setConnectTimeout(8000);
-                conn.setReadTimeout(15000);
-                conn.setInstanceFollowRedirects(true);
-                try (java.io.InputStream in = conn.getInputStream(); java.io.OutputStream o = new java.io.FileOutputStream(tmp)) {
-                    byte[] buf = new byte[64 * 1024];
-                    int n;
-                    long total = 0;
-                    while ((n = in.read(buf)) > 0) {
-                        total += n;
-                        if (total > Attachments.MAX_BYTES) break;
-                        o.write(buf, 0, n);
-                    }
-                } finally {
-                    conn.disconnect();
+                if (Looper.myLooper() == Looper.getMainLooper()) {
+                    // Remote URLs: do not perform synchronous network requests on the main Looper thread.
+                    return null;
                 }
-                if (!tmp.isFile() || tmp.length() == 0) { tmp.delete(); return null; }
-                android.graphics.BitmapFactory.Options b = new android.graphics.BitmapFactory.Options();
-                b.inJustDecodeBounds = true;
-                android.graphics.BitmapFactory.decodeFile(tmp.getPath(), b);
-                if (b.outWidth > 0) {
-                    String id = Attachments.importFile(app, tmp);
-                    tmp.delete();
-                    return id;
+                return downloadPicture(path);
+            }
+            return localPicture(path);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private String downloadPicture(String url) {
+        try {
+            if (url == null || url.trim().isEmpty()) return null;
+            url = url.trim();
+            java.io.File tmp = new java.io.File(app.getCacheDir(), "img_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString().substring(0, 6) + ".tmp");
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(15000);
+            conn.setInstanceFollowRedirects(true);
+            try (java.io.InputStream in = conn.getInputStream(); java.io.OutputStream o = new java.io.FileOutputStream(tmp)) {
+                byte[] buf = new byte[64 * 1024];
+                int n;
+                long total = 0;
+                while ((n = in.read(buf)) > 0) {
+                    total += n;
+                    if (total > Attachments.MAX_BYTES) break;
+                    o.write(buf, 0, n);
                 }
+            } finally {
+                conn.disconnect();
+            }
+            if (!tmp.isFile() || tmp.length() == 0) {
+                //noinspection ResultOfMethodCallIgnored
                 tmp.delete();
                 return null;
             }
+            android.graphics.BitmapFactory.Options b = new android.graphics.BitmapFactory.Options();
+            b.inJustDecodeBounds = true;
+            android.graphics.BitmapFactory.decodeFile(tmp.getPath(), b);
+            if (b.outWidth > 0) {
+                String id = Attachments.importFile(app, tmp);
+                //noinspection ResultOfMethodCallIgnored
+                tmp.delete();
+                return id;
+            }
+            //noinspection ResultOfMethodCallIgnored
+            tmp.delete();
+            return null;
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
+    private String localPicture(String path) {
+        try {
+            if (path == null || path.trim().isEmpty()) return null;
+            path = path.trim();
+            java.io.File direct = new java.io.File(path);
+            if (direct.isFile() && direct.length() <= Attachments.MAX_BYTES) {
+                android.graphics.BitmapFactory.Options b = new android.graphics.BitmapFactory.Options();
+                b.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeFile(direct.getPath(), b);
+                if (b.outWidth > 0) return Attachments.importFile(app, direct);
+            }
             if (!Linux.installed(app)) return null;
             if (path.startsWith("~/")) path = "/root/" + path.substring(2);
             java.io.File root = Linux.root(app).getCanonicalFile();
@@ -963,7 +1073,7 @@ final class ChatHub {
             b.inJustDecodeBounds = true;
             android.graphics.BitmapFactory.decodeFile(f.getPath(), b);
             return b.outWidth > 0 ? Attachments.importFile(app, f) : null;
-        } catch (Exception ignored) { // not there (yet), or unreadable: the path stays in the text
+        } catch (Exception ignored) {
             return null;
         }
     }
@@ -1100,12 +1210,16 @@ final class ChatHub {
             case "find": return NnApp.str(R.string.hub_tool_find, clip(in.optString("text"), 40));
             case "WebSearch": return NnApp.str(R.string.hub_tool_web_search, clip(in.optString("query"), 40));
             case "WebFetch": return NnApp.str(R.string.hub_tool_web_fetch, clip(in.optString("url"), 40));
+            case "adb_shell":
+            case "execute":
+            case "terminal":
             case "Bash": return in.has("command") ? NnApp.str(R.string.hub_tool_command, clip(in.optString("command"), 40))
-                    : NnApp.str(R.string.hub_tool_command_any);
+                    : NnService.getCodingStatusText();
             case "Edit":
             case "Write": return in.has("file_path") ? NnApp.str(R.string.hub_tool_edit, clip(in.optString("file_path").replaceAll(".*/", ""), 40))
-                    : NnApp.str(R.string.hub_tool_edit_any);
-            case "Read": return NnApp.str(R.string.hub_tool_read_file, clip(in.optString("file_path").replaceAll(".*/", ""), 40));
+                    : NnService.getCodingStatusText();
+            case "Read": return in.has("file_path") ? NnApp.str(R.string.hub_tool_read_file, clip(in.optString("file_path").replaceAll(".*/", ""), 40))
+                    : NnService.getCodingStatusText();
             default: return NnApp.str(R.string.hub_tool_other, n);
         }
     }

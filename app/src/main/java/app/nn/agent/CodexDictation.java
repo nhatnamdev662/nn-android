@@ -212,7 +212,7 @@ final class CodexDictation {
                             "the connection failed".equals(why) ? NnApp.str(R.string.dictation_connection_failed) : why));
                 });
             }
-        }, "NN Agent");
+        }, "NnAgent");
         web.loadDataWithBaseURL("https://nn.local/", PAGE, "text/html", "utf-8", null);
     }
 
@@ -511,16 +511,16 @@ final class CodexDictation {
             + "    proc.onaudioprocess = e => {\n"
             + "      const out = e.outputBuffer.getChannelData(0); out.fill(0);\n"
             + "      if (!connected) return;\n" // NN Agent keeps recording meanwhile: nothing is lost
-            + "      const bin = atob(NN Agent.pull(6400));\n" // up to 200 ms per call: catches up on the backlog
+            + "      const bin = atob(NnAgent.pull(6400));\n" // up to 200 ms per call: catches up on the backlog
             + "      if (bin.length > 1) {\n"
             + "        const add = new Float32Array(bin.length >> 1);\n"
             + "        for (let i = 0; i < add.length; i++) { let v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v > 32767) v -= 65536; add[i] = v / 32768; }\n"
             + "        const f = new Float32Array(fifo.length + add.length); f.set(fifo); f.set(add, fifo.length); fifo = f;\n"
             + "      }\n"
             + "      const need = Math.ceil(out.length * ratio + pos) + 2;\n"
-            + "      if (!playing && fifo.length < need + 2400) { if (!bin.length) NN Agent.idle(); return; }\n" // keep a 150 ms cushion: no gaps
+            + "      if (!playing && fifo.length < need + 2400) { if (!bin.length) NnAgent.idle(); return; }\n" // keep a 150 ms cushion: no gaps
             + "      playing = true;\n"
-            + "      if (fifo.length < need) { if (!bin.length) NN Agent.idle(); return; }\n"
+            + "      if (fifo.length < need) { if (!bin.length) NnAgent.idle(); return; }\n"
             + "      for (let i = 0; i < out.length; i++) { const x = i * ratio + pos, k = x | 0, t = x - k; out[i] = fifo[k] * (1 - t) + fifo[k + 1] * t; }\n"
             + "      const end = out.length * ratio + pos, used = Math.floor(end); pos = end - used; fifo = fifo.subarray(used);\n"
             + "    };\n"
@@ -530,15 +530,15 @@ final class CodexDictation {
             + "    pc.createDataChannel('oai-events');\n"
             + "    pc.ontrack = e => { e.track.enabled = false; };\n" // never play the voice's replies
             + "    pc.onconnectionstatechange = () => {\n"
-            + "      if (pc.connectionState === 'connected') { connected = true; NN Agent.connected(); }\n"
-            + "      else if (pc.connectionState === 'failed') NN Agent.failed('the connection failed');\n"
+            + "      if (pc.connectionState === 'connected') { connected = true; NnAgent.connected(); }\n"
+            + "      else if (pc.connectionState === 'failed') NnAgent.failed('the connection failed');\n"
             + "    };\n"
             + "    await pc.setLocalDescription(await pc.createOffer());\n"
             + "    await new Promise(r => { if (pc.iceGatheringState === 'complete') r(); else { pc.onicegatheringstatechange = () => { if (pc.iceGatheringState === 'complete') r(); }; setTimeout(r, 1500); } });\n"
-            + "    NN Agent.offer(pc.localDescription.sdp);\n"
-            + "  } catch (e) { NN Agent.failed(String(e && e.message || e)); }\n"
+            + "    NnAgent.offer(pc.localDescription.sdp);\n"
+            + "  } catch (e) { NnAgent.failed(String(e && e.message || e)); }\n"
             + "}\n"
-            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NN Agent.failed(String(e.message || e))); }\n"
+            + "function answer(sdp) { pc.setRemoteDescription({type: 'answer', sdp}).catch(e => NnAgent.failed(String(e.message || e))); }\n"
             + "start();\n"
             + "</script></body></html>";
 }
